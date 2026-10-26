@@ -49,41 +49,42 @@ flowchart LR
   subgraph Device["User's phone"]
     PWA["NUCCESS PWA<br/>(Next.js static, service worker,<br/>IndexedDB, @figcit/engine)"]
   end
-  subgraph Edge["Vercel CDN"]
+  subgraph Edge["Static host / CDN (Vercel)"]
     STATIC["Static PWA files"]
   end
   subgraph Server["Backend (Render EU or UK VPS)"]
     API["API process<br/>NestJS · REST /v1"]
     WRK["Worker process<br/>pg-boss jobs"]
   end
-  DB[("Neon Postgres<br/>London")]
-  S3[("S3 eu-west-2<br/>audio, exports")]
-  subgraph AWS["AWS eu-west-2 (London)"]
-    BR["Bedrock<br/>(Claude)"]
-    TR["Transcribe"]
-    SES["SES email"]
+  DB[("PostgreSQL 16<br/>(Neon or self-hosted)")]
+  OBJ[("Object storage, S3 API<br/>(SeaweedFS)")]
+  subgraph AIS["AI server (self-hosted, private network)"]
+    LLM["llama.cpp server<br/>Qwen3.5-4B"]
+    STT["whisper.cpp server<br/>Whisper small.en"]
   end
-  PUSH["Web Push services<br/>(Apple, Google, Mozilla)"]
-  SENTRY["Sentry (EU)"]
+  SMTP["SMTP provider"]
+  PUSH["Web Push services<br/>(each browser's own)"]
+  GT["GlitchTip<br/>(self-hosted errors)"]
 
   PWA -->|loads| STATIC
   PWA -->|HTTPS JSON| API
   API --> DB
   WRK --> DB
-  API --> S3
-  API --> BR
-  WRK --> TR
-  WRK --> SES
+  API --> OBJ
+  API --> LLM
+  WRK --> LLM
+  WRK --> STT
+  WRK --> SMTP
   WRK --> PUSH
-  API -.errors.-> SENTRY
-  WRK -.errors.-> SENTRY
+  API -.errors.-> GT
+  WRK -.errors.-> GT
 ```
 
 **Principles**
 1. **The engine is pure.** `@figcit/engine` is a TypeScript package with no I/O, no clock and no AI. The same inputs and snapshot always give the same card. Both the API and the PWA use it.
 2. **Safety never depends on AI, the network or payment.** The safety check is deterministic phrase rules; Help/SOS is static.
 3. **AI only helps with words.** It never decides the light, the pathway or a safety route, and every AI feature has a manual fallback (NFR-03).
-4. **Health data stays in the UK.** Database, files, AI and speech all run in London regions (AWS eu-west-2 / Neon London). Render EU (Frankfurt) is the only EU hop if Render is chosen.
+4. **No cloud lock-in; health data stays on our servers.** AI and speech run on our own server with open-source models, so no third-party AI company sees user text or audio. Everything else uses an open standard (PostgreSQL, the S3 storage API, SMTP, Web Push, OpenID Connect, Docker), so any UK/EU provider, or our own server, can replace any piece.
 5. **Nothing personal in logs or analytics.** Events carry IDs and codes, never free text (NFR-14).
 
 ---
@@ -136,10 +137,10 @@ Each module is a NestJS module with its own controller(s), service(s) and Prisma
 | **AuditModule** (NFR-10) | Append-only audit log of sensitive reads, shares, config changes and staff actions | Prisma; inserts only, no update/delete permission for the app's database role |
 | **RulesModule** (M17, M04) | Rule-set versions: upload workbook → compile → validate → run fixtures → diff → review → safety sign-off → publish. Serves the published snapshot (with ETag) to the PWA | `@figcit/rules-compiler`, `@figcit/engine`, Prisma |
 | **ContentModule** (M17) | Versioned content: tool catalogue and tiers, tool scripts (Breathe steps, Ground prompts, Move routines), Reflect prompts, practice library, card wording, crisis routes and Help copy. Same draft → review → publish flow | Prisma; published content is bundled into the snapshot |
-| **AiModule** (M19-05) | One gateway for every AI task, with an allow-list of prompts, input minimisation, output validation, a timeout and a fallback | Claude via `@anthropic-ai/bedrock-sdk` (Claude in Amazon Bedrock, EU inference profile) and zod schemas with `@anthropic-ai/sdk` structured-output helpers. A provider interface keeps other providers possible (NFR-13). Details in 4.3 |
-| **SpeechModule** | Voice to text for Dump, Express and check-in "own words". Audio upload → transcription → text → audio deleted | `@aws-sdk/client-s3` (presigned upload), `@aws-sdk/client-transcribe` (London) |
-| **FilesModule** | Private file storage: voice notes the user chooses to keep, uploaded practice audio, data exports. Presigned URLs only | `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`; S3 eu-west-2 with server-side encryption |
-| **NotificationsModule** (M16) | Web Push subscriptions, reminder scheduling, quiet hours, "In worship" pause, notification style, in-app inbox, email | `web-push` (VAPID; works for Chrome, Firefox, Edge and Safari/iOS 16.4+ installed PWAs), `nodemailer` over Amazon SES SMTP, pg-boss jobs |
+| **AiModule** (M19-05) | One gateway for every AI task, with an allow-list of prompts, input minimisation, output validation, a timeout and a fallback | Self-hosted open model (Qwen3.5-4B on llama.cpp) behind an OpenAI-compatible HTTP API, called with Node's built-in `fetch`; zod 4 schemas turned into JSON Schema (`z.toJSONSchema`). Any compatible server (vLLM, llama.cpp) can be swapped in (NFR-13). Details in 4.3 |
+| **SpeechModule** | Voice to text for Dump, Express and check-in "own words". Audio upload → transcription → editable text → audio deleted | Self-hosted whisper.cpp server (Whisper small.en); ffmpeg for audio conversion; worker job. Details in 4.3.5 |
+| **FilesModule** | Private file storage: voice notes the user chooses to keep, uploaded practice audio, data exports. Presigned URLs only; sensitive files encrypted by us before upload | `minio` JS client (Apache-2.0) speaking the standard S3 API, so storage can be self-hosted SeaweedFS or any S3-compatible provider |
+| **NotificationsModule** (M16) | Web Push subscriptions, reminder scheduling, quiet hours, "In worship" pause, notification style, in-app inbox, email | `web-push` (VAPID; works for Chrome, Firefox, Edge and Safari/iOS 16.4+ installed PWAs), `nodemailer` over any SMTP provider, pg-boss jobs |
 | **JobsModule** | Background jobs and schedules: reminders, re-check nudges, transcription, export/delete, sustained-state safety check, analytics roll-ups | `pg-boss` (job queue inside Postgres, so no Redis) |
 | **EntitlementsModule** (M16, M19-07) | Plans, entitlements and tool tiers. Answers "can this user open this tool?" and feeds the engine's entitlement step | Prisma. Payment provider added when D-13/D-14 are decided (Stripe recommended) |
 | **AnalyticsModule** (M19-04) | Receives product events (no free text), only with analytics consent; daily roll-ups for the admin dashboard | Prisma (events table) + SQL roll-ups by worker |
@@ -168,138 +169,150 @@ Each module is a NestJS module with its own controller(s), service(s) and Prisma
 
 ### 4.3 AI: what kind, which model, and how each task works
 
-NUCCESS uses two kinds of AI, and only for language:
+NUCCESS uses two kinds of AI, both **open-source models that we run on our own server**, and only for language:
 
-1. **A large language model (Claude)** for reading and rewording text: understanding "in your own words", tagging tasks, breaking tasks into steps, sorting dumps, and simplifying or drafting messages.
-2. **Speech recognition (Amazon Transcribe)** for turning voice into text.
+1. **A small open language model** for reading and rewording text: understanding "in your own words", tagging tasks, breaking tasks into steps, sorting dumps, and simplifying or drafting messages.
+2. **An open speech-recognition model** for turning voice into text.
 
-Everything that decides what the user is offered is **not AI**: the safety check, the state and light, the pathway, the gates, personalisation and pattern cards are all fixed rules (section 4.3.6).
+No user text or audio goes to a third-party AI company, and nothing is tied to a cloud provider. Everything that decides what the user is offered is **not AI**: the safety check, the state and light, the pathway, the gates, personalisation and pattern cards are all fixed rules (section 4.3.7).
 
-#### 4.3.1 Provider and where it runs
+#### 4.3.1 The language model
 
 | Item | Choice |
 | --- | --- |
-| Model family | Claude (Anthropic) |
-| Access | **Claude in Amazon Bedrock**, Messages API, through `AnthropicBedrockMantle` from `@anthropic-ai/bedrock-sdk` (same request shape as Anthropic's own API) |
-| Region | Client region `eu-west-2` (London), routed through Bedrock's **EU inference profile**. London has no single-region option for Claude, so the EU profile is the closest: processing stays in EU regions (the UK recognises the EU as adequate under UK GDPR). Regional and geographic routing costs 10% more than Bedrock's global routing. |
-| Why Bedrock and not Anthropic's API directly | Anthropic's API and Claude Platform on AWS only offer "global" or "US" inference locations, so neither keeps data in Europe. Bedrock also runs in the same AWS account as our files, speech, email and keys, authenticates with IAM roles (no API keys in config), and Anthropic staff have no access to its inference infrastructure. |
-| Data use | Governed by Amazon Bedrock's data-protection terms. Before real users, confirm in writing that prompts and outputs are not stored or used for training (D-23). |
-| Model access | Claude Opus 5.5, Sonnet 5.5 and Haiku 5.5 must be enabled in the Bedrock console for the account; check this during setup. |
-| Refusals | Bedrock has no server-side refusal fallback. A response with `stop_reason: "refusal"` is treated like any other failure: the task's manual fallback is used. |
+| Model | **Qwen3.5-4B** (Alibaba Qwen team, February 2026). **Licence: Apache-2.0.** About 4.7 billion parameters. Strong reasoning and instruction-following for its size, 262K context (we use a few thousand). Run in **non-thinking (instruct) mode** for speed. |
+| File | Quantised GGUF build, `Q4_K_M` (a few GB of RAM). Pinned by file hash in config. |
+| Server | **llama.cpp `llama-server`** (licence: MIT). Runs on ordinary CPUs, no GPU needed. Exposes an OpenAI-compatible HTTP API, supports JSON-schema-constrained output, and keeps the fixed system prompt cached between calls. |
+| Lighter fallback model | **Qwen3.5-2B** (Apache-2.0, about 2.3B parameters), if the 4B model is too slow on the chosen server for the classification tasks |
+| Other candidates to test | **Ministral 3 3B Instruct** (Mistral AI, Apache-2.0; European), **Gemma 4 E4B** (Google, Apache-2.0), **Granite 4.1 8B** (IBM, Apache-2.0; better quality, needs more compute). The eval sets (4.3.8) pick the winner per task. |
+| Later, with more users | The same model (or Qwen3.5-9B, Apache-2.0) on a GPU server with **vLLM** (licence: Apache-2.0), which speaks the same API. Only the server URL in config changes. |
+| Where it runs | Our AI server (section 11), in the same UK/EU location as the rest of the system |
 
-#### 4.3.2 Model per task
+**Why this model:** Apache-2.0 allows commercial use with no usage restrictions. At around 4B parameters it fits on a CPU server and is the strongest size class that still answers short tasks in seconds. Qwen3.5 is also what the 2026 small-model comparisons most often rank first at this size. It's a text-and-image model; we only use text.
 
-**Proposed default: Claude Opus 5.5 (`anthropic.claude-opus-5-5`) at effort `low` for every task.** Short, structured outputs at low effort keep cost and latency down while using the most capable current model. Whether to move the high-volume classification tasks to a smaller model is a cost decision for the founder (D-38, costs in 4.3.5).
+**To confirm in week 1:** Qwen3.5 uses a newer hybrid architecture. Ready-made llama.cpp (GGUF) builds are published, but we'll confirm it runs correctly on the pinned llama.cpp version, measure speed on the real server, and switch to Ministral 3 3B if either fails.
 
-| Task | Kind of AI task | Output form | Model | Effort | `max_tokens` | Timeout | Fallback |
+#### 4.3.2 Per task
+
+| Task | Kind of AI task | Output form | Model | Sampling | Max output tokens | Timeout | Fallback |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `parseNeed` | Classification + extraction | JSON (schema) | Opus 5.5 | low | 2,048 | 5 s | Show the need list (S11) |
-| `suggestDrivers` | Multi-label classification | JSON | Opus 5.5 | low | 2,048 | 5 s | Keyword rules from Tab 6 |
-| `breakDownTask` | Constrained generation | JSON (list of steps) | Opus 5.5 | low | 4,096 | 8 s | Step templates per task type |
-| `sortDump` (Advanced) | Per-item classification | JSON | Opus 5.5 | low | 4,096 | 8 s | Manual sorting |
-| `simplify`, `rewrite` | Text transformation | JSON (text + "what we changed") | Opus 5.5 | low | 4,096 | 10 s | Keep the original text |
-| `draft`, `structure`, `script` (Advanced) | Short generation | JSON (sections or lines) | Opus 5.5 | low | 4,096 | 12 s | Fill-in templates |
-| `rewordReason` | Paraphrase | JSON | — | — | — | — | **Off at launch.** Card rationales use approved templates only. |
+| `parseNeed` | Classification + extraction | JSON (schema-constrained) | Qwen3.5-4B (or 2B) | temperature 0.2 | 200 | 8 s | Show the need list (S11) |
+| `suggestDrivers` | Multi-label classification | JSON | Qwen3.5-4B (or 2B) | 0.2 | 100 | 8 s | Keyword rules from Tab 6 |
+| `breakDownTask` | Constrained generation | JSON (list of steps) | Qwen3.5-4B | 0.4 | 300 | 20 s | Step templates (shown at once, replaced when the AI steps arrive) |
+| `sortDump` (Advanced) | Per-item classification | JSON | Qwen3.5-4B (or 2B) | 0.2 | 400 | 20 s, runs in the background | Manual sorting |
+| `simplify`, `rewrite` | Text transformation | Plain text, **streamed** to the screen | Qwen3.5-4B | Model card's instruct settings (0.7 / top-p 0.8 / top-k 20) | 600 | 45 s | Keep the original text |
+| `draft`, `structure`, `script` (Advanced) | Short generation | `draft`: streamed text. `structure`, `script`: JSON | Qwen3.5-4B | 0.7 | 800 | 45 s | Fill-in templates |
+| `rewordReason` | Paraphrase | — | — | — | — | — | **Off.** Card rationales use approved templates only. |
 
-`max_tokens` includes thinking: Opus 5.5 always runs adaptive thinking (it can't be switched off), which at `low` effort is brief. `temperature` isn't sent (current models reject it).
+The timeouts are generous because the model runs on a CPU. They'll be tightened after the week-1 speed test. Long outputs are streamed so the user sees words appear instead of waiting.
 
 #### 4.3.3 Each task in detail
 
 **`parseNeed`**, "in your own words" (Figma S91)
-- **Input:** the user's sentence (typed or transcribed, up to 500 characters) and the list of need codes with their user-facing labels from the snapshot.
-- **Output:** `{ needs: NeedCode[] (1–2), heard: { label, kind: "feeling" | "setting" | "task" | "need" }[] (max 5), task: { title, type: "study" | "work" | "health" | "social" | "home_other" } | null, supportOnly: boolean }`.
-- **Checks:** every code exists in the snapshot; labels are short (≤ 24 characters); no banned phrases.
-- **The user stays in control:** results show as "We heard" chips the user can remove. Nothing reaches the engine until they tap Continue.
+- **Input:** the user's sentence (typed or transcribed, up to 500 characters) and the need codes with their labels from the snapshot.
+- **Output (JSON schema):** `{ needs: NeedCode[] (1–2), heard: { label, kind: "feeling" | "setting" | "task" | "need" }[] (max 5), task: { title, type: "study" | "work" | "health" | "social" | "home_other" } | null, supportOnly: boolean }`. Need codes are an enum in the schema, so the model can only pick real codes.
+- **Checks:** labels short (≤ 24 characters); no banned phrases.
+- **The user stays in control:** results appear as "We heard" chips the user can remove. Nothing reaches the engine until they tap Continue.
 
 **`suggestDrivers`**, task card (Figma S92)
-- **Input:** task title and task type. The timeline is not sent, because **Urgency always comes from the timeline code, never from AI** (Tab 5).
+- **Input:** task title and task type. Not the timeline: **Urgency always comes from the timeline code, never from AI** (Tab 5).
 - **Output:** `{ drivers: ("novelty" | "challenge" | "routine" | "interest" | "passion" | "collaboration" | "exploration")[] (0–3), demandCharacteristics: Tab6Code[] }`.
-- **Checks:** codes exist; at most 3 drivers.
 - **Shown as** small indicators on the task card, never a form (PRD 1.5).
 
 **`breakDownTask`**, Break it down (S19, S21)
-- **Input:** task title, type, the **step cap** from the timeline code (Tab 4: T0 up to 3 steps, T1 3–5, and so on), and whether the light is Amber (smallest routine steps only).
-- **Output:** `{ steps: { text (≤ 80 chars), minutes (1–30) }[] (length ≤ step cap), estimatedDemand: "low" | "moderate" | "heavy" }`.
-- **Checks:** step count within the cap; each step a single action; no blame words ("finally", "should have").
-- **Editable:** the user can edit, reorder or delete any step (S127).
+- **Input:** task title, type, the **step cap** from the timeline code (Tab 4: T0 up to 3 steps, T1 3–5, …), and whether the light is Amber (smallest routine steps only).
+- **Output:** `{ steps: { text (≤ 80 chars), minutes (1–30) }[] (maxItems = step cap), estimatedDemand: "low" | "moderate" | "heavy" }`. The step cap is written into the schema, so the model can't exceed it.
+- **Checks:** each step a single action; no blame words ("finally", "should have").
+- **Experience:** template steps for the task type appear immediately. The AI steps replace them when ready, unless the user has already started editing. The user can edit, reorder or delete any step (S127).
 
 **`sortDump`** (Advanced), Dump review (S17)
 - **Input:** the dump's items as `{ id, text }`.
-- **Output:** `{ items: { id, bucket: "ideas" | "notes" | "worries" | "todo" }[] }` (every input id exactly once).
-- **Rules:** suggestions only; the user confirms. Worries are never turned into tasks (Figma S103).
+- **Output:** `{ items: { id, bucket: "ideas" | "notes" | "worries" | "todo" }[] }`; we check every id appears exactly once.
+- Runs as a background job after the dump is saved; suggestions show next time the review opens. Worries are never turned into tasks (Figma S103).
 
 **`simplify` and `rewrite`**, Express (S19, Figma S115)
-- **Input:** the user's text (up to 2,000 characters), level (`gentle` / `clear` / `shortest`), and optional purpose ("reply to my tutor").
-- **Output:** `{ text, changes (≤ 140 chars, shown as "What we changed") }`. Word counts before and after are computed by us, not by the model.
-- **Checks:** output not longer than input for `simplify`; no new facts (no names, dates or numbers that weren't in the input); banned-phrase check.
+- **Input:** the user's text (up to 2,000 characters), level (`gentle` / `clear` / `shortest`), optional purpose ("reply to my tutor").
+- **Output:** plain text, streamed.
+- **"What we changed"** (Figma S22, S115) is worked out **by rules, not AI**: word count before and after, and which hedging or apology phrases from a fixed list were removed ("Removed 3 apologetic phrases · 84 → 22 words").
+- **Checks after streaming:** output not longer than the input for `simplify`; no new names, dates or numbers that weren't in the input; banned-phrase check. If a check fails, the result is replaced with the original and a gentle note.
 - **Free** with a daily allowance (configurable, default 10 a day). Never sends anything (FR-M07-02).
 
 **`draft`, `structure`, `script`** (Advanced), Express (Figma S22, S114, S116)
-- **`draft` input:** the user's notes and purpose. **Output:** `{ text, changes }`.
-- **`structure` output:** `{ sections: { role: "ask" | "why" | "offer" | "close" | "other", text }[] }` (Figma S114: ask → reason → offer → close).
-- **`script` output:** `{ lines: { cue: "you" | "if_asked_why" | "if_none_free" | "to_end" | "other", text }[] }` (Figma S116).
+- **`draft`:** the user's notes and purpose in; streamed text out.
+- **`structure`:** JSON `{ sections: { role: "ask" | "why" | "offer" | "close" | "other", text }[] }` (Figma S114).
+- **`script`:** JSON `{ lines: { cue: "you" | "if_asked_why" | "if_none_free" | "to_end" | "other", text }[] }` (Figma S116).
 - Same checks as `simplify`.
 
 #### 4.3.4 How every call is made
 
+The backend talks to the model server over its OpenAI-compatible HTTP API with Node's built-in `fetch`. There is no vendor SDK, so llama.cpp, vLLM or any other compatible server can sit behind it.
+
 ```ts
-import { AnthropicBedrockMantle } from "@anthropic-ai/bedrock-sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-
-const client = new AnthropicBedrockMantle({ awsRegion: "eu-west-2" });
-
-const res = await client.messages.parse(
-  {
-    model: config.ai.modelId, // the EU inference profile for anthropic.claude-opus-5-5
+const res = await fetch(`${config.ai.baseUrl}/v1/chat/completions`, {
+  method: "POST",
+  headers: { "content-type": "application/json", authorization: `Bearer ${config.ai.token}` },
+  signal: AbortSignal.timeout(task.timeoutMs),
+  body: JSON.stringify({
+    model: task.model, // e.g. "qwen3.5-4b-q4_k_m"
+    messages: [
+      { role: "system", content: prompt.system }, // fixed per task, so the server caches it
+      { role: "user", content: `<user_words>\n${cleanText}\n</user_words>` },
+    ],
+    response_format: { type: "json_schema", json_schema: { name: task.name, schema: z.toJSONSchema(task.schema) } },
+    temperature: task.temperature,
     max_tokens: task.maxTokens,
-    output_config: { effort: "low", format: zodOutputFormat(task.schema) },
-    system: prompt.system, // versioned prompt from ContentModule
-    messages: [{ role: "user", content: `<user_words>\n${cleanText}\n</user_words>` }],
-  },
-  { timeout: task.timeoutMs, maxRetries: 0 },
-);
-
-if (res.stop_reason !== "end_turn" || !res.parsed_output) return task.fallback(input);
-return task.check(res.parsed_output, input) ?? task.fallback(input);
+    chat_template_kwargs: { enable_thinking: false }, // instruct mode
+  }),
+});
+const parsed = task.schema.safeParse(JSON.parse((await res.json()).choices[0].message.content));
+return parsed.success ? (task.check(parsed.data, input) ?? task.fallback(input)) : task.fallback(input);
 ```
 
-- **Structured outputs** (`output_config.format` with a zod schema) guarantee the reply is valid JSON in the expected shape. Our own `check()` then applies the business rules above. The Bedrock client exposes the same Messages surface; if `messages.parse` isn't available on it at integration time, use `messages.create` with the same format and validate with zod.
-- **Before sending:** the server safety check runs first (risk text never goes to AI; it opens Help). Emails, phone numbers and URLs are stripped. Text is capped at the task's limit. No user ID, name or account detail is ever included.
+- **Constrained output:** the JSON schema is turned into a grammar by the server, so the model can only produce valid JSON in that shape. zod then re-validates, and `check()` applies the business rules above.
+- **Streaming tasks** use the same endpoint with `stream: true` and are passed to the PWA as server-sent events.
+- **Before sending:** the server safety check runs first (risk text never reaches the model; it opens Help). Emails, phone numbers and URLs are stripped; text is capped at the task's limit. No user ID, name or account detail is included.
 - **Prompt injection:** the user's words are wrapped in `<user_words>` tags, and every system prompt says the text inside is data to work on, never instructions.
-- **Prompts are content:** each task's system prompt is a versioned content item (ContentModule), reviewed like other copy, with the banned-phrase list (no diagnosis, no reassurance, no blame) included. Changing a prompt goes through the same review as copy.
-- **No retries on interactive calls:** if a call fails or times out, the fallback appears at once rather than making the user wait twice.
-- **Logging:** each call writes an `ai_calls` row (task, prompt version, model, latency, input/output tokens, outcome or fallback reason). **Never the text.**
-- **Limits:** per-user daily limits per task (configurable). Browse users get a smaller limit per device token, and nothing is stored.
+- **Prompts are content:** each task's system prompt is a versioned content item (ContentModule), reviewed like other copy, with the banned-phrase list (no diagnosis, no reassurance, no blame).
+- **No retries on interactive calls:** on failure or timeout the fallback shows at once.
+- **Capacity:** `llama-server` runs a few requests in parallel (`--parallel`) and queues the rest. A per-user daily limit per task protects it. Browse users get a smaller limit per device token, and nothing is stored.
+- **Security:** the model server listens only on the private network (or behind TLS with a token if it's on a separate host) and is never exposed to the internet.
+- **Logging:** each call writes an `ai_calls` row (task, prompt version, model file hash, latency, tokens, outcome or fallback reason). **Never the text.**
 
-#### 4.3.5 Cost estimate
+#### 4.3.5 Speech to text
 
-Assumptions: about 1,000 input tokens (prompt, schema and text) and 400 output tokens (including brief thinking) per call; 3 AI calls per active user per day; 1,000 daily active users ≈ 90,000 calls a month. Prices are Anthropic's list prices per million tokens; Bedrock bills separately (see Bedrock pricing) and the EU profile adds 10%.
+| Item | Choice |
+| --- | --- |
+| Model | **Whisper `small.en`** (OpenAI, open weights; licence Apache-2.0 on Hugging Face). English-only, good accuracy, fast enough on a CPU. |
+| Server | **whisper.cpp `whisper-server`** (licence: MIT) on the AI server, with its voice-activity detection on, so silence isn't turned into invented text (a known Whisper weakness) |
+| Audio conversion | **ffmpeg** converts what the browser records (WebM/Opus on Chrome, MP4/AAC on Safari) to 16 kHz WAV for Whisper |
+| Flow | PWA records → uploads by presigned URL to our object storage → a worker job sends it to whisper-server → the text returns to the app, where the user can **edit it before it's used** → the audio is deleted |
+| Limits | Up to 10 minutes per recording (Figma S102) |
+| Later | **Whisper large-v3-turbo** (MIT, multilingual) on the GPU server for more accuracy and other languages. A live transcript while speaking (Figma S102), via whisper.cpp streaming. Possibly in-browser Whisper so voice never leaves the phone (D-12). |
 
-| Model | Price (input / output per 1M tokens) | Approx. per call | Approx. per month (90,000 calls) |
-| --- | --- | --- | --- |
-| Claude Opus 5.5 (proposed default) | $4 / $20 | $0.012 | ~$1,080 |
-| Claude Sonnet 5.5 | $2 / $10 | $0.006 | ~$540 |
-| Claude Haiku 5.5 | $0.10 / $0.50 | $0.0003 | ~$27 |
+#### 4.3.6 Voice for guided practices (later, content only)
 
-These are estimates; real token counts get measured during the first week of testing (`ai_calls` table).
+**Kokoro-82M** (licence: Apache-2.0), a small text-to-speech model, run by the content team on their own machine to produce guided-practice audio once. A person reviews every file before it's published. It's never run per user.
 
-#### 4.3.6 Speech, and what is deliberately not AI
+#### 4.3.7 What is deliberately not AI
 
-| Feature | What it uses | Details |
+| Feature | What it uses | Why |
 | --- | --- | --- |
-| **Voice to text** (Dump, Express, own words) | **Amazon Transcribe**, speech-recognition model, batch jobs, language `en-GB`, region `eu-west-2` (London, so audio stays in the UK) | The PWA records → uploads by presigned URL → a worker job transcribes → the text returns to the app → the audio is deleted. Up to 10 minutes per recording (Figma S102). The live transcript shown while recording in Figma needs Transcribe's streaming mode; it comes after launch, and until then the app shows "Turning your voice into text…". |
-| **Guided practice audio** (later, Advanced) | **Amazon Polly** neural voices (`en-GB`), used once by the content team to produce library audio, reviewed before publishing | Not generated per user |
-| **Safety check** | **Fixed phrase rules**, not AI | It has to be predictable, clinically signed off, testable line by line, and work offline on the phone. A model could miss a phrase or flag differently from one day to the next. |
+| **Safety check** | Fixed phrase rules | It has to be predictable, clinically signed off, testable line by line, and work offline on the phone. A model could miss or flag differently from one day to the next. |
 | **State, light, pathway, gates** | The engine's fixed rules | Same input, same result, always explainable (NFR-07) |
 | **Personalisation** (re-ranking options) | Counting, not machine learning | Per user, state group and tool, count outcomes that were completed, rated helpful and followed by a no-worse re-check; use the counts to order options the rules already allowed. Never changes the light, gates or safety. |
-| **My Patterns, "What we learned", progress sentences** | Counts and fixed sentence templates | No model reads reflections or check-ins to interpret them. PRD: no clinical interpretation; reflections are private. |
+| **My Patterns, "What we learned", progress sentences** | Counts and fixed sentence templates | No model reads reflections or check-ins to interpret them (PRD: no clinical interpretation; reflections are private) |
+| **"What we changed"** in Express | Word counts and a phrase list | Cheap, exact, and can't misdescribe the change |
 
-#### 4.3.7 Testing the AI tasks
+#### 4.3.8 Testing and choosing models
 
 - Each task has an **eval set** of 50–100 synthetic examples written with the founder (for example 80 "own words" sentences with the right need codes; tasks with acceptable step lists).
-- It runs before any prompt or model change, and nightly in CI (not on every pull request, because each run costs money).
-- Pass bars before a task is switched on, for example: `parseNeed` correct top need ≥ 85%; `breakDownTask` 100% within the step cap; zero banned phrases across all tasks.
-- The same eval set is used to compare models if D-38 is taken up.
+- The same sets measure **speed on the real server**, which decides between Qwen3.5-4B, Qwen3.5-2B and Ministral 3 3B per task, and sets the final timeouts.
+- They run before any prompt or model change and nightly in CI.
+- Pass bars before a task is switched on, for example: `parseNeed` correct top need ≥ 85%; `breakDownTask` 100% within the step cap; zero banned phrases; 95% of calls inside the timeout.
+
+#### 4.3.9 Cost
+
+No per-call fees. The cost is the AI server itself: a CPU server with about 8 cores and 16–32 GB RAM for the model and Whisper, at a fixed monthly price. When usage grows, add a GPU server running vLLM; no code changes.
 
 ---
 
@@ -388,7 +401,7 @@ The PWA needs the engine and the snapshot for Browse mode and offline use. A det
 
 ## 6. Data model
 
-PostgreSQL 16 on Neon, accessed through Prisma. All IDs are UUIDv7, generated on the device for anything created offline (so syncing is idempotent). Every user-owned row has `user_id`, `created_at`, `updated_at` and `deleted_at` (soft delete until the hard-delete job runs). `tenant_id` is nullable from day one for institutions.
+PostgreSQL 16 (Neon or self-hosted), accessed through Prisma. All IDs are UUIDv7, generated on the device for anything created offline (so syncing is idempotent). Every user-owned row has `user_id`, `created_at`, `updated_at` and `deleted_at` (soft delete until the hard-delete job runs). `tenant_id` is nullable from day one for institutions.
 
 🔒 = encrypted at application level (section 9.3).
 
@@ -546,19 +559,19 @@ The PWA keeps an outbox in IndexedDB (see the PWA design). The backend's side:
 - File uploads only by presigned URL, with size and type limits.
 
 ### 9.3 Encryption
-- TLS everywhere; Neon and S3 encrypt at rest.
-- **Application-level encryption** (AES-256-GCM, envelope keys) for free text and contact details (🔒 in section 6). The data key is encrypted with a key held in AWS KMS (London). Anyone with database access alone sees ciphertext. This matters because the build team works from outside the UK.
+- TLS everywhere. The database and object storage encrypt their disks; on our own servers the disks are encrypted (LUKS).
+- **Application-level encryption** (AES-256-GCM, envelope keys) for free text, contact details and stored files (🔒 in section 6). Each record's data key is encrypted with a **master key that never sits in the database**: on a VPS it is a root-only file deployed with **SOPS + age** (open source); on Render it is a secret environment variable. Keys carry a version ID so they can be rotated. **OpenBao** (open-source fork of Vault, MPL-2.0) can take over key handling later without changing the callers. Anyone with database access alone sees ciphertext, which matters because the build team works from outside the UK.
 - Consequence: no database search over encrypted text. "Search across dumps" (Advanced) would decrypt per user in memory.
 
 ### 9.4 Data rights and retention
-- Export: a worker job builds a JSON + readable PDF/HTML bundle, uploads it to S3, emails a 24-hour link.
+- Export: a worker job builds a JSON + readable PDF/HTML bundle, uploads it to object storage, emails a 24-hour link.
 - Delete: soft delete at once (signed out everywhere), hard delete within 30 days, backups expire within 90 days (Privacy §7).
 - Safety records: kept for the period set on legal advice (Privacy §7, still to decide).
 - Audio: deleted as soon as transcription finishes unless the user chose to keep a voice note.
 
 ### 9.5 Logging
 - Structured JSON logs with `pino` (`nestjs-pino`). Request bodies are never logged. Free text, emails and tokens are redacted.
-- Sentry (EU region) for errors, with request bodies stripped and user IDs hashed.
+- **GlitchTip** (open source, MIT, self-hosted) for errors. It accepts the standard Sentry SDKs, so the app uses `@sentry/nestjs` pointed at our own GlitchTip. Request bodies are stripped and user IDs hashed.
 
 ---
 
@@ -570,7 +583,7 @@ The PWA keeps an outbox in IndexedDB (see the PWA design). The backend's side:
 - Payloads carry no personal text: "A gentle reminder is waiting" with a deep link; the app fetches the detail after opening.
 - iPhone: push only works when the PWA is installed to the Home Screen (iOS 16.4+). The PWA's onboarding explains this.
 - Help/SOS never depends on notifications.
-- Email (magic links, exports, lockout notices) goes through Amazon SES (London) via SMTP. Local development uses Mailpit.
+- Email (magic links, exports, lockout notices) goes out over **SMTP through `nodemailer`**, to any provider with UK/EU data processing; the provider is a config value. Running our own outbound mail server isn't recommended (mail from new servers often lands in spam). Local development uses **Mailpit** (MIT).
 
 ---
 
@@ -578,19 +591,36 @@ The PWA keeps an outbox in IndexedDB (see the PWA design). The backend's side:
 
 ### 11.1 Services
 
-| Service | Choice | Region | Notes |
+Every service is either open source and self-hosted, or a provider reached through an open standard, so it can be moved.
+
+| Service | Choice | Open standard / licence | Swap for |
 | --- | --- | --- | --- |
-| PWA hosting | Vercel (static export) | Global CDN | Holds no user data |
-| API + worker | **Option A:** Render (two services from one Docker image). **Option B:** Contabo VPS with Docker Compose (api, worker, Caddy for TLS) | A: Frankfurt (EU) · B: UK | Same image either way. B is cheaper with more memory but needs patching, firewall and backups of config. |
-| Database | Neon Postgres 16 | AWS London (eu-west-2) | Pooled URL for the API, direct URL for migrations and pg-boss. pg-boss polling keeps compute awake, so plan for a paid compute size in production. |
-| Files | Amazon S3 | eu-west-2 | Private bucket, SSE-KMS, lifecycle rules (audio 1 day, exports 2 days) |
-| Keys | AWS KMS | eu-west-2 | Envelope key for app-level encryption |
-| AI | Claude in Amazon Bedrock, Claude Opus 5.5 at low effort (D-38) | Client in eu-west-2, EU inference profile | Enable model access in the Bedrock console; see 4.3 |
-| Speech | Amazon Transcribe | eu-west-2 | Batch jobs |
-| Email | Amazon SES | eu-west-2 | SMTP credentials |
-| Errors | Sentry | EU (de.sentry.io) | Free tier |
-| Uptime | Better Stack or UptimeRobot | — | Free tier, pings `/health` |
-| Code and CI | GitHub, GitHub Actions, GitHub Packages | — | |
+| PWA hosting | Vercel (static export) | Static files | Any static host or CDN, or Caddy on our VPS |
+| API + worker | One Docker image: Render (EU), or our VPS with Docker Compose | Docker | Any container host |
+| Reverse proxy and TLS (VPS) | **Caddy** | Apache-2.0 | nginx |
+| Database | PostgreSQL 16: Neon (managed, London), or self-hosted on the VPS with **pgBackRest** backups (MIT) | PostgreSQL | Any Postgres host |
+| Object storage | **SeaweedFS** on our VPS (Apache-2.0), or any S3-compatible provider in the UK/EU | S3 API | Garage, Ceph, any S3-compatible service |
+| Keys | Master key file via **SOPS + age**, or a secret env var; **OpenBao** later | MPL-2.0 / BSD | — |
+| AI (language) | **llama.cpp server** + **Qwen3.5-4B** on our AI server (CPU) | MIT / Apache-2.0 · OpenAI-compatible API | vLLM on a GPU server; other open models |
+| AI (speech) | **whisper.cpp server** + **Whisper small.en**, same AI server | MIT / Apache-2.0 | faster-whisper; Whisper large-v3-turbo (MIT) on GPU |
+| Email | Any SMTP provider (UK/EU processing); Mailpit locally | SMTP | Any SMTP provider |
+| Push | Browser Web Push via `web-push` (MPL-2.0) | Web Push / VAPID | — (each browser's own push service delivers it) |
+| Errors | **GlitchTip**, self-hosted | MIT · Sentry SDK protocol | Sentry (self-hosted or SaaS) |
+| Uptime | **Uptime Kuma** (MIT), on a separate small machine so it notices when the main server is down | — | Any uptime checker |
+| Code and CI | GitHub, GitHub Actions, GitHub Packages, GitHub Container Registry | Git, npm, OCI images | Any Git host, npm registry, container registry |
+
+**Recommended layout (VPS option)**
+- **App server:** Caddy, API, worker, SeaweedFS, GlitchTip.
+- **AI server:** llama-server and whisper-server, about 8 CPU cores and 16–32 GB RAM, so heavy model work never slows the API.
+- **Connection:** the two servers talk over a private network (WireGuard), and the AI server takes no traffic from the internet.
+- **Database:** Neon, or Postgres on the app server.
+
+**If the API runs on Render:** the AI server is still a VPS. Render reaches it over TLS with a token, limited to Render's outbound addresses.
+
+**On Neon:** the API uses the pooled connection URL; migrations and pg-boss use the direct URL. pg-boss checks for jobs every few seconds, which keeps Neon's compute awake, so production needs a paid compute size (or Postgres on our own server).
+
+**Location:** all servers in one UK or EU data centre (Contabo, Hetzner, OVHcloud and Scaleway all offer UK/EU locations).
+
 
 ### 11.2 Environments
 
@@ -628,13 +658,13 @@ On a release tag: same, to production, after manual approval. A tagged release o
 | Database | PostgreSQL 16, Prisma 6 |
 | Jobs | pg-boss |
 | Auth | `jose`, `argon2`, `openid-client`, `otplib` (later `@simplewebauthn/server`) |
-| AI | `@anthropic-ai/bedrock-sdk` (`AnthropicBedrockMantle`), `@anthropic-ai/sdk` (zod structured-output helper) |
-| AWS | `@aws-sdk/client-transcribe`, `-s3`, `-kms`, `s3-request-presigner` (later `-polly`) |
+| AI | Node `fetch` against the OpenAI-compatible API (no SDK); zod 4 (`z.toJSONSchema`) |
+| Storage and media | `minio` (S3-compatible client, Apache-2.0); ffmpeg (audio conversion) |
 | Email | `nodemailer` |
 | Push | `web-push` |
 | Workbook parsing | `exceljs` (in `rules-compiler`) |
 | Security | `helmet`, `@nestjs/throttler` |
-| Logging and errors | `pino`, `nestjs-pino`, `@sentry/nestjs` |
+| Logging and errors | `pino`, `nestjs-pino`, `@sentry/nestjs` (sending to our GlitchTip) |
 | Health | `@nestjs/terminus` |
 | Testing | Vitest, Supertest, Testcontainers |
 | Tooling | pnpm workspaces, ESLint, Prettier, Docker |
@@ -647,7 +677,7 @@ Mapped to the PRD modules. The engine and safety come before the pathways becaus
 
 | Step | Backend work | Depends on |
 | --- | --- | --- |
-| 1 | Workspace, Docker, CI, Prisma base schema, Health, logging, Sentry | — |
+| 1 | Workspace, Docker, CI, Prisma base schema, Health, logging, GlitchTip | — |
 | 2 | Auth (magic link, password, refresh), Users, Preferences, Consent, Audit | 1 |
 | 3 | `rules-compiler` + `@figcit/engine` stages 0–4 + fixtures for Tab 10 and Tab 1 | 1 |
 | 4 | Engine stages 5–12 + fixtures for Tabs 0, 0b, 9, 6d; Rules module (snapshot endpoint) | 3 |
@@ -670,10 +700,10 @@ Mapped to the PRD modules. The engine and safety come before the pathways becaus
 | D-03, D-05 Consent | Consent screen before first check-in; all optional consents default off | ConsentModule purposes |
 | D-04 Profile fields | No DOB, neurotype or religion | `users` columns |
 | D-11 Sign-in | Magic link + password + Google; Apple, passkey and SSO later | AuthModule providers |
-| D-12 Voice | Server-side transcription in London, audio deleted | SpeechModule |
+| D-12 Voice | Transcribed on our own whisper.cpp server; audio deleted | SpeechModule |
 | D-13, D-14 Plans | Everyone on Free until pricing is set; Stripe when it is | EntitlementsModule |
 | D-16 Anonymity floor | Configurable, default 20 | InstitutionModule |
 | D-18, D-19 Escalation | No automatic messages; SF-2 changes only what the user sees | SafetyModule |
 | D-20 Connect | Hand-off to SMS/WhatsApp/email; no in-app messaging | ConnectModule |
 | Engine IP (5.5) | Full engine and snapshot shipped to the PWA | Snapshot endpoint content |
-| D-38 AI model | Claude Opus 5.5 at low effort for every task | `config.ai.modelId` per task |
+| D-38 AI model | Qwen3.5-4B on llama.cpp for every task; Qwen3.5-2B or Ministral 3 3B if speed tests require | AiModule config per task |

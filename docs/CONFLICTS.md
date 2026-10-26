@@ -65,7 +65,7 @@ Places where the source documents, the Figma designs and the live website disagr
 | [D-35](#d-35-missing-and-mismatched-document-versions) | Missing and mismatched document versions | P2 | Founder |
 | [D-36](#d-36-workbook-open-items) | Workbook items still marked "confirm" | P1 | Founder, Clinical Safety |
 | [D-37](#d-37-build-plan-vs-other-plans-in-drive) | Build plan vs other plans in Drive | P1 | Founder |
-| [D-38](#d-38-ai-model-per-task) | AI model per task (cost) | P2 | Founder |
+| [D-38](#d-38-ai-model-per-task) | Which open model per task | P2 | Tech lead, after speed tests |
 
 ---
 
@@ -218,7 +218,7 @@ Places where the source documents, the Figma designs and the live website disagr
 - **Figma S117, S45:** Express keeps voice notes as audio; Meditate plays the user's own uploaded audio.
 - **Privacy §2:** no mention of audio recordings.
 - **Why it matters:** in a browser, the built-in speech recognition (Chrome) sends audio to Google's servers, so "on your device" isn't true for a PWA without an on-device model.
-- **Recommendation:** use a server-side transcription provider in the UK/EU with no retention, change the copy to "processed privately and deleted after transcription", and add audio to the notice.
+- **Recommendation:** transcribe on our own server with the open Whisper model (backend design 4.3.5), so audio never goes to a third party. Change the copy to "Processed privately on Figcit's own servers and deleted after transcription" and add audio to the notice. In-browser Whisper could make "on your device" true later.
 - **Decision:**
 
 ### D-22 Research data export
@@ -230,8 +230,8 @@ Places where the source documents, the Figma designs and the live website disagr
 ### D-23 AI training on user data
 - **Privacy §4:** "[we do not allow our AI providers to use your data to train their models — confirm in supplier contract]".
 - **Figma S88:** "Never used to train models without consent", which implies training with consent is possible.
-- **Recommendation:** "never used to train AI models", full stop, and choose providers whose terms guarantee it.
-- **Decision:**
+- **Recommendation:** "never used to train AI models", full stop. The privacy notice's AI section should also say the models are open source and run on Figcit's own servers, with no AI provider involved.
+- **Decision:** No third-party AI provider: open-source models self-hosted by Figcit (founder, 26 Oct 2026). User data is never used to train models.
 
 ---
 
@@ -364,9 +364,7 @@ Each of these is a paid (Advanced) feature in PRD 1.9 / Workbook Tab 6d but show
 ## AI
 
 ### D-38 AI model per task
-- **Design (backend `docs/SYSTEM_DESIGN.md` 4.3):** every AI task uses Claude Opus 5.5 at low effort, through Claude in Amazon Bedrock with the EU inference profile.
-- **Cost at 1,000 daily users** (about 90,000 calls a month, Anthropic list prices; Bedrock bills separately and EU routing adds 10%): Opus 5.5 ~$1,080 a month, Sonnet 5.5 ~$540, Haiku 5.5 ~$27.
-- **Why it matters:** the classification tasks (`parseNeed`, `suggestDrivers`, `sortDump`) are short and frequent, so the model choice drives most of the AI bill.
-- **Options:** keep Opus 5.5 everywhere; or move the classification tasks (or all tasks) to Sonnet 5.5 or Haiku 5.5. Each task's model is one config value, and the eval sets in 4.3.7 show whether quality holds before switching.
+- **Decision already made:** open-source models, self-hosted, no cloud-provider lock-in (founder, 26 Oct 2026). The design uses Qwen3.5-4B (Apache-2.0) on llama.cpp for language and Whisper small.en on whisper.cpp for speech (backend `docs/SYSTEM_DESIGN.md` 4.3).
+- **Still open:** which open model per task. It depends on speed on the real AI server and on the eval sets (4.3.8).
+- **Options:** Qwen3.5-4B for everything (default); Qwen3.5-2B for the classification tasks if 4B is too slow; Ministral 3 3B (Mistral AI, European) if Qwen3.5 doesn't run reliably on llama.cpp; a GPU server with vLLM later if CPU speed holds back the Express tasks.
 - **Decision:**
-
