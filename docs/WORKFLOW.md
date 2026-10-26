@@ -25,7 +25,7 @@ Work is split by **vertical slice**: each person owns whole features end to end,
 
 | | **Lane A: app, core loop and AI** | **Lane B: platform, infrastructure and pathways** |
 | --- | --- | --- |
-| Owner | **Twilight-Techy** | **Abdurrahman** _(GitHub username to add)_ |
+| Owner | **Twilight-Techy** | **Abdurrahman Adenowo** (`OadeO6`) |
 | Backend | `packages/engine`, `packages/rules-compiler`; modules Rules, Content, CheckIn, Recommendation, Safety, Feedback, AI, Speech, Dump, Express, Tasks, Reflect, Admin (rules, content, decision log, safety events) | Workspace and tooling, Docker, CI/CD, environments and hosting, database setup, backups, observability (logs, metrics, GlitchTip, uptime), AI server deployment (llama.cpp, whisper.cpp); modules Auth, Users, Consent, Audit, Sync, Notifications, Jobs, Files, Entitlements, Analytics, Health, Regulate, Adapt, Connect, Practices, Progress |
 | PWA | `design-system/`, `lib/`, `engine/`, the root layout and Help pill; features `home`, `check-in`, `recommendation`, `safety`, `feedback`, `dump`, `express`, `tasks`, `reflect`, `admin` | `offline/` (Dexie, outbox, sync), `sw/`, `api/` (generated client), PWA CI and hosting config (`vercel.json`, security headers); features `auth`, `onboarding`, `settings`, `notifications`, `plans`, `progress`, `regulate`, `adapt`, `connect`, `meditate` |
 | Why this split | The rules engine, safety, the main journey, the AI features and the UI foundations are one connected piece of product logic | Accounts, data, sync, scheduling, deployment and security are one connected piece of platform, plus the pathways that are mostly data and timers |
@@ -204,7 +204,7 @@ One Project for both repos (owned by the `Twilight-Techy` account), managed by b
 ## 10. One-time setup
 
 1. Create `main` from the current work and make it the default branch in both repos.
-2. Add the second developer as a collaborator to both repos, and put their GitHub login in `.github/CODEOWNERS`.
+2. Add the second developer (`OadeO6`) as a collaborator to both repos (done once the invite is accepted); `.github/CODEOWNERS` already lists both of us.
 3. Branch protection on `main` in both repos:
    - require a pull request;
    - require status checks (CI);
