@@ -184,7 +184,8 @@ No user text or audio goes to a third-party AI company, and nothing is tied to a
 | File | Quantised GGUF build, `Q4_K_M` (a few GB of RAM). Pinned by file hash in config. |
 | Server | **llama.cpp `llama-server`** (licence: MIT). Runs on ordinary CPUs, no GPU needed. Exposes an OpenAI-compatible HTTP API, supports JSON-schema-constrained output, and keeps the fixed system prompt cached between calls. |
 | Lighter fallback model | **Qwen3.5-2B** (Apache-2.0, about 2.3B parameters), if the 4B model is too slow on the chosen server for the classification tasks |
-| Other candidates to test | **Ministral 3 3B Instruct** (Mistral AI, Apache-2.0; European), **Gemma 4 E4B** (Google, Apache-2.0), **Granite 4.1 8B** (IBM, Apache-2.0; better quality, needs more compute). The eval sets (4.3.8) pick the winner per task. |
+| **Equal candidate** | **Gemma 4 E4B** (Google DeepMind, Apache-2.0). About 4.5B "effective" parameters (8B in the file, including per-layer embeddings), 128K context, non-thinking mode, built for on-device use. It also takes **audio input** with built-in speech recognition, so one model might cover language **and** voice (4.3.5). Likely needs more RAM than Qwen3.5-4B. Tested head-to-head with Qwen3.5-4B on every task (4.3.8). |
+| Other candidates to test | **Ministral 3 3B Instruct** (Mistral AI, Apache-2.0; European), **Granite 4.1 8B** (IBM, Apache-2.0; better quality, needs more compute). |
 | Later, with more users | The same model (or Qwen3.5-9B, Apache-2.0) on a GPU server with **vLLM** (licence: Apache-2.0), which speaks the same API. Only the server URL in config changes. |
 | Where it runs | Our AI server (section 11), in the same UK/EU location as the rest of the system |
 
@@ -287,6 +288,7 @@ return parsed.success ? (task.check(parsed.data, input) ?? task.fallback(input))
 | Audio conversion | **ffmpeg** converts what the browser records (WebM/Opus on Chrome, MP4/AAC on Safari) to 16 kHz WAV for Whisper |
 | Flow | PWA records → uploads by presigned URL to our object storage → a worker job sends it to whisper-server → the text returns to the app, where the user can **edit it before it's used** → the audio is deleted |
 | Limits | Up to 10 minutes per recording (Figma S102) |
+| Candidate to replace Whisper | **Gemma 4 E4B** audio input (4.3.1). If it transcribes as accurately as Whisper small.en and invents no text on silence, the AI server runs one model instead of two. It's tested on the same recordings, and only adopted if llama.cpp's server (or vLLM) supports its audio input. |
 | Later | **Whisper large-v3-turbo** (MIT, multilingual) on the GPU server for more accuracy and other languages. A live transcript while speaking (Figma S102), via whisper.cpp streaming. Possibly in-browser Whisper so voice never leaves the phone (D-12). |
 
 #### 4.3.6 Voice for guided practices (later, content only)
@@ -306,7 +308,8 @@ return parsed.success ? (task.check(parsed.data, input) ?? task.fallback(input))
 #### 4.3.8 Testing and choosing models
 
 - Each task has an **eval set** of 50–100 synthetic examples written with the founder (for example 80 "own words" sentences with the right need codes; tasks with acceptable step lists).
-- The same sets measure **speed on the real server**, which decides between Qwen3.5-4B, Qwen3.5-2B and Ministral 3 3B per task, and sets the final timeouts.
+- The same sets measure **speed and memory on the real server**. Qwen3.5-4B and Gemma 4 E4B are compared head-to-head on every task, with Qwen3.5-2B and Ministral 3 3B as lighter options. The results pick the model per task and set the final timeouts.
+- **Speech test:** about 50 short recordings (different accents, quiet and noisy rooms, a few with long silences), scored by word error rate and by any invented text. Whisper small.en and Gemma 4 E4B both run on them.
 - They run before any prompt or model change and nightly in CI.
 - Pass bars before a task is switched on, for example: `parseNeed` correct top need ≥ 85%; `breakDownTask` 100% within the step cap; zero banned phrases; 95% of calls inside the timeout.
 

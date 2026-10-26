@@ -366,5 +366,6 @@ Each of these is a paid (Advanced) feature in PRD 1.9 / Workbook Tab 6d but show
 ### D-38 AI model per task
 - **Decision already made:** open-source models, self-hosted, no cloud-provider lock-in (founder, 26 Oct 2026). The design uses Qwen3.5-4B (Apache-2.0) on llama.cpp for language and Whisper small.en on whisper.cpp for speech (backend `docs/SYSTEM_DESIGN.md` 4.3).
 - **Still open:** which open model per task. It depends on speed on the real AI server and on the eval sets (4.3.8).
-- **Options:** Qwen3.5-4B for everything (default); Qwen3.5-2B for the classification tasks if 4B is too slow; Ministral 3 3B (Mistral AI, European) if Qwen3.5 doesn't run reliably on llama.cpp; a GPU server with vLLM later if CPU speed holds back the Express tasks.
+- **Options:** Qwen3.5-4B or Gemma 4 E4B for everything (tested head-to-head); Qwen3.5-2B for the classification tasks if those are too slow; Ministral 3 3B (Mistral AI, European) if neither runs reliably on llama.cpp; a GPU server with vLLM later if CPU speed holds back the Express tasks.
+- **Speech:** Whisper small.en (default), or Gemma 4 E4B's built-in speech recognition if it matches Whisper on the speech test, which would mean one model instead of two.
 - **Decision:**
