@@ -1,0 +1,65 @@
+name: Task
+description: One unit of work for one agent session (at most a day)
+labels: []
+body:
+  - type: input
+    id: prd
+    attributes:
+      label: PRD ref
+      description: Story and child issue, e.g. US-M02-01.3. Workbook rule IDs if relevant.
+    validations:
+      required: true
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Lane
+      options: ["A: core loop", "B: platform and pathways"]
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Tier
+      description: A = touches a CODEOWNERS path and needs the other person's review.
+      options: ["B", "A"]
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What the user or system can do when this is done, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: A checklist the agent can test against.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: touches
+    attributes:
+      label: Touches
+      description: Folders or files this will change. Agents must stay inside this list.
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: API contract
+      description: Endpoints and schemas used or added (link the contract PR), or "none".
+  - type: textarea
+    id: out
+    attributes:
+      label: Out of scope
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      options: ["XS (< 1 hour)", "S (half a day)", "M (one day)"]
+    validations:
+      required: true

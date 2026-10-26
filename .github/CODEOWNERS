@@ -1,0 +1,22 @@
+# Tier-A paths: changes here need the other developer's approval
+# (branch protection: "Require review from Code Owners", 0 required approvals otherwise).
+# Add the second developer's GitHub login next to @Twilight-Techy on every line
+# once they're a collaborator; until then this file only documents the paths.
+
+/packages/engine/                       @Twilight-Techy
+/packages/rules-compiler/               @Twilight-Techy
+/apps/api/prisma/                       @Twilight-Techy
+/apps/api/src/modules/auth/             @Twilight-Techy
+/apps/api/src/modules/consent/          @Twilight-Techy
+/apps/api/src/modules/safety/           @Twilight-Techy
+/apps/api/src/modules/rules/            @Twilight-Techy
+/apps/api/src/modules/sync/             @Twilight-Techy
+/apps/api/src/modules/progress/         @Twilight-Techy
+/apps/api/src/common/crypto/            @Twilight-Techy
+/apps/api/src/common/guards/            @Twilight-Techy
+/docs/SYSTEM_DESIGN.md                  @Twilight-Techy
+/docs/ENGINEERING_RULES.md              @Twilight-Techy
+/docs/CONFLICTS.md                      @Twilight-Techy
+/docs/WORKFLOW.md                       @Twilight-Techy
+/.github/                               @Twilight-Techy
+/docker/                                @Twilight-Techy
