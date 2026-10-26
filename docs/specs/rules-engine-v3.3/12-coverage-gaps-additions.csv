@@ -1,0 +1,61 @@
+"Tab 12 — What Was Missing, and What v3 Adds",,,,,,,
+"Gap analysis of the v2 engine against the product's users (students and professionals, many neurodivergent) and the Figcit/CESNE survey (n = 244). Each gap has an ID used in Tab 0b column Z. The last column counts how many extended scenarios exercise the gap (live formula). Status tells you whether it is built into the rules here, or still needs a decision or clinical sign-off.",,,,,,,
+Gap ID,Dimension,What was missing,Why it matters (evidence),What v3 adds,Where,Status,Scenarios in 0b
+G-ST1,State,"No route when a user cannot name how they feel (alexithymia, mixed states).",Many users cannot label emotions reliably; a forced choice produces bad data and bad recommendations.,"“Not sure” path: body-first check, user confirms a suggested state, Conditional default (Tab 10 NS-1).","Tabs 7 p.27, 10, 11",Added - confirm,3
+G-ST2,State,Fast-changing or mixed states within the hour.,Energy and mood fluctuate; one check-in can go stale quickly.,Re-check prompts after each tool; “mixed” allowed in the Not-sure path.,"Tabs 8, 11",Added,1
+G-ST3,State,No trend compared with the previous check-in.,Worsening across check-ins is a safety signal; improving is useful feedback.,Log outcome improved / same / worse at layer 12; worse makes the Support pathway visible.,Tab 11,Added,0
+G-ST4,State,Personal time-of-day patterns are not used.,"Survey: 52.9% peak in the early morning, 46.3% in the evening; only 29.9% within 9-5.",Proposal: personalise suggested timing from the user's own history (never changes the band).,Tab 11 layer 12,Proposed,1
+G-EM1,Emotion,Shame / guilt.,Drives avoidance; 51.2% quit tools over guilt-inducing notifications.,"New family, pattern 18, TX timeline.","Tabs 2, 4, 7",Added,4
+G-EM2,Emotion,Shutdown / freeze / numb.,Text-entry flows fail users who cannot speak or type in this state.,"New family, pattern 16 (tap-only, non-verbal).","Tabs 2, 7",Added,3
+G-EM3,Emotion,"Task paralysis (wants to start, cannot).",48.4% struggle to start tasks; different from overwhelm.,"New family, pattern 17 (2-minute start + body double).","Tabs 2, 7",Added,9
+G-EM4,Emotion,Sensory overload building / meltdown risk.,66.0% report sensory overwhelm disrupting functioning.,"New family, pattern 19; lowers the band.","Tabs 2, 7, 10",Added,5
+G-EM5,Emotion,Hyperfocus lock / time blindness.,"Positive state that depletes capacity later (missed meals, sleep).","New family, pattern 20 (stop point + body basics).","Tabs 2, 7",Added,6
+G-EM6,Emotion,Boredom / under-stimulation.,Common for ADHD; forcing focus fails.,"New family, pattern 21 (add stimulation).","Tabs 2, 7",Added,8
+G-EM7,Emotion,Social hangover / masking fatigue.,66.8% spend significant energy masking; 65.6% find social interaction exhausting.,"New family, pattern 23 (Connect not offered).","Tabs 2, 7",Added,3
+G-EM8,Emotion,Confusion / decision paralysis.,Survey free text asked for a single “what matters now” view.,"New family, pattern 22 (pick ONE of 3).","Tabs 2, 6, 7",Added,8
+G-EM9,Emotion,Grief / loss.,Life events change capacity for weeks; needs Connect and a lighter load.,"New family, pattern 25.","Tabs 2, 7",Added,4
+G-EM10,Sensation,Pain was treated as an emotion; it is a Body sensation (with intensity).,Energy can be low for physical reasons; advice must not read as “try harder”.,Reclassified as sensation-led; pattern 24; High+ pain triggers EX-1.,"Tabs 2, 7",Added,3
+G-EM11,Emotion,Rejection sensitivity / hurt.,Criticism triggers replay loops and reactive replies.,"New family, pattern 26 (Dump or draft without sending).","Tabs 2, 7",Added,5
+G-EM12,Sensation,"No Interoception category (hunger, thirst, toilet, sleepiness, temperature).",Interoception differences mean these needs are often missed.,Interoception added as the sixth sensation category; pattern 29.,"Tabs 2, 7, 11",Added,5
+G-EM13,Emotion,Immediate risk language.,v2 SOS only covered SUSTAINED low states over 1-2 weeks.,New family; safety override pattern 28; SF-1.,"Tabs 2, 7, 10, 11",Added - needs clinical sign-off,1
+G-SN1,Sensitivity,Smell flag.,"Common sensory trigger in cafes, kitchens, wards, transport.",Added to Tab 3a.,Tab 3a,Added,1
+G-SN2,Sensitivity,Temperature flag.,Too hot/cold is distracting and often unnoticed.,Added to Tab 3a; links to body basics.,Tab 3a,Added,2
+G-SN3,Sensitivity,Touch / texture flag.,"Clothing, seating and contact can be intrusive.",Added to Tab 3a.,Tab 3a,Added,1
+G-SN4,Sensitivity,Visual clutter flag.,Busy screens and rooms overload attention.,Added to Tab 3a.,Tab 3a,Added,1
+G-CX1,Context,Exam hall.,Core setting for students; the engine read it across from other rows.,Explicit Tab 3b row.,Tab 3b,Added,1
+G-CX2,Context,Placement ward / clinical setting.,Safety-critical duties must never be deferred by the engine.,Explicit Tab 3b row; scenario E4M1.8.,"Tab 3b, 0b",Added,2
+G-CX3,Context,Lab / workshop.,Equipment safety limits movement suggestions.,Explicit Tab 3b row.,Tab 3b,Added,3
+G-CX4,Context,Seminar room / tutorial.,Written contribution is a valid alternative to speaking.,Explicit Tab 3b row.,Tab 3b,Added,1
+G-CX5,Context,In bed / can't get up.,Frequent morning state; tools must work lying down.,New Tab 3b row.,Tab 3b,Added,1
+G-CX6,Context,"Online meeting, camera on.",Hybrid work is common; visible on camera but can type in chat.,New Tab 3b row.,Tab 3b,Added,4
+G-CX7,Context,Caring for a child or dependant.,Recommendations must work with someone else present and no way to leave.,New Tab 3b row.,Tab 3b,Added,3
+G-CX8,Context,Unfamiliar place / travelling.,"Unpredictable, time-bound, high load.",New Tab 3b row.,Tab 3b,Added,2
+G-CX9,Context,Waiting room (GP / hospital / office).,Uncertain waits; good moment to prepare what to say.,New Tab 3b row.,Tab 3b,Added,2
+G-CX10,Context,Social event / party.,Very high sensory + social load; leaving early must be valid.,New Tab 3b row.,Tab 3b,Added,2
+G-CX11,Context,Gym / outdoors.,Setting where movement-based regulation is fully available.,New Tab 3b row.,Tab 3b,Added,2
+G-TL1,Timeline,No code for “already overdue”.,Overdue work is where shame and avoidance peak.,TX - overdue (repair first).,Tab 4,Added,3
+G-DM1,Demand,Several competing demands.,v2 assumed a single demand.,Tab 6 row; pattern 22.,"Tabs 6, 7",Added,5
+G-DM2,Demand,Demand imposed by someone else.,Demand-avoidance risk; choice of order helps.,Tab 6 row.,Tab 6,Added,2
+G-DM3,Demand,Long-avoided task.,Repeated avoidance needs a different start strategy.,Tab 6 row; pattern 17.,"Tabs 6, 7",Added,2
+G-DM4,Demand,Switching / transition between tasks.,Transitions are a common failure point.,Tab 6 row.,Tab 6,Added,1
+G-DM5,Demand,Stopping / winding down.,"Hyperfocus exit and sleep need a “stop” pathway, not a “start” one.",Tab 6 row; pattern 20.,"Tabs 6, 7",Added,2
+G-DM6,Demand,Asking for help or a reasonable adjustment.,Self-advocacy is central to Figcit's purpose (Equality Act adjustments).,Tab 6 row; Express drafts.,Tab 6,Added,2
+G-ND1,Need,Needs list covered only calm and task breakdown.,"Users asked for “what matters now”, starting, stopping, guilt-free rest and asking for help.",Needs list extended at layer 7.,Tab 11,Added,0
+G-JR1,Journey,Band adjustment was described but had no explicit rules.,Untestable and inconsistent (e.g. Tab 9 “Conditional-to-Constrained”).,"Tab 10 rules EX-1, CX-1, CAP-1, UP-0, DEM-0.",Tab 10,Added - tune,0
+G-JR2,Journey,Inputs and outputs per layer were not specified in one place.,Developers need field-level contracts.,Tab 11.,Tab 11,Added,0
+G-JR3,Journey,Repeated “Not now” had no behaviour.,Repeated nudges feel pressuring and drive abandonment.,Pattern 30 (quiet period).,Tab 7,Added,3
+G-JR4,Journey,Where AI may and may not act was not stated.,"Bounded AI must be explicit for safety, trust and regulation.",AI role column with confidence thresholds.,Tab 11,Added,0
+G-TL2,Timeline,No code for recurring activities.,Routines repeat; urgency comes from the next occurrence and strengthens the Routine driver.,TR - recurring.,Tab 4,Added,0
+G-RC1,Journey,No recovery state after support.,Positive Behaviour Support recognises a recovery phase; users need to see progress without demand jumping straight back.,Blue Recovery light; rules RC-1 to RC-5; scenarios REC.1-REC.3.,"Tabs 7, 10, 0b",Added - tune,4
+G-IN1,Intervention,No route for making sense of an experience afterwards.,"Reflection supports learning and self-advocacy, but in high distress it can become rumination.","Reflect CONFIRMED as the 7th support pathway (v3.2): Green, Blue, and Yellow at Mild/Moderate; rumination guard (pattern 40).","Tabs 0, 2, 6b, 6c, 7, 0b",Added - confirmed v3.2 (prompt copy needs clinical sign-off),7
+G-ND2,Need,Needs did not map explicitly to intervention routes.,Some needs have no task at all and need support only.,Need -> Intervention map.,Tab 6b,Added,0
+G-SF1,Safety,No immediate-risk route.,See G-EM13.,Pattern 28; Tab 8 step 0.,"Tabs 7, 8, 10, 11",Added - needs clinical sign-off,1
+G-SF2,Safety,Crisis copy and thresholds not yet clinically reviewed.,Clinical safety sign-off is required before launch.,"Owner: Clinical Safety, Partnership & Policy Director.",All safety rows,Needs clinical sign-off,0
+G-SF3,Safety,Age scope not stated in the engine.,Under-18 use needs separate safeguarding.,Adults 18+ by default; 16-17 only via institutions with separate approval.,README,Proposed - confirm,0
+G-IN2,Intervention,"No pathway for intentional practice: meditation, personal rituals or prayer.","Many users rely on stillness, ritual or faith practice to cope and to anchor their day; Regulate micro-tools do not cover meaning, identity or faith.",Meditate (Rituals / Prayer) added as the 8th support pathway; patterns 36-39; needs in Tab 6b; MD rules in Tab 6c.,"Tabs 2, 3, 6, 6b, 6c, 7",Added - needs clinical and community review,13
+G-IN3,Safety,No guard to stop reflection becoming rumination.,Reflection and rumination are different processes; repeated self-focused replay in distress is linked to worse mood.,Rumination family (Tab 2) and pattern 40; RF-2 repeat-topic rule.,"Tabs 2, 6c, 7",Added - tune thresholds,3
+G-IN4,Safety,No guard for people who find meditation distressing.,Systematic-review evidence reports unwanted effects of meditation in a minority of practitioners; eyes-closed and body-focused practice can be hard in shutdown or high sensory load.,MD-2 contraindication guard and pattern 41; body scan is opt-in only.,"Tabs 6c, 7",Added - needs clinical sign-off,2
+G-IN5,Inclusion,No rule on faith neutrality or cultural safety.,Suggesting a religious practice a user has not chosen is intrusive and can alienate users; profile data must not drive spiritual content.,MD-3: practices come only from My Practices or the neutral library; profile fields never select content.,"Tabs 6c, 7 footer",Added - confirm with user groups,3
+G-CX12,Context,No prayer / quiet room or place-of-worship context.,These are where many users keep their practice; notifications there must pause.,Two new Tab 3b rows plus a public-context filter row.,Tab 3b,Added,1
+G-DM7,Demand,"Recurring practice, reflective coursework and event preparation were not demand types.","Prayer times and rituals recur; nursing, social work and teaching students must write reflective logs; interviews and appointments need preparation.",Three new Tab 6 rows; TR covers prayer times.,"Tabs 4, 6",Added,3
+G-ND3,Need,"No needs for stillness, practice, self-advocacy prep or meaning.",Users asked to be able to 'just be still' and to prepare to explain their needs.,Six new needs in Tab 6b.,Tab 6b,Added,3

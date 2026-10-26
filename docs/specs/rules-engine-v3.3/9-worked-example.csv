@@ -1,0 +1,15 @@
+"Tab 9 — Worked Example (founder's scenario, v2 model)",,
+"Scenario: user opens NUCCESS with a presentation to prepare, feels overwhelmed and unable to start, deadline in ~5 hours. Use as a unit test — 'Engine output' is the expected correct behaviour under the v2 model.",,
+Check-in step,User input,"Engine output (expected, v2 model)"
+2. State,"Energy = 3 (Moderate), Mood = 2 (Bad) → Cell E3M2","Name: “Flow Entering.” Plain language: “Getting going, though mood’s still catching up — ease in.” Baseline capacity band: Conditional. (Tab 1)"
+3. Experience — Emotions,"Anxious, Restless (2 of max 3); Intensity: Anxious=7, Restless=8 → peak = 8 (High band)",Anxious+High → Regulate triggered as forced-first (Tab 2); Restless → add movement-based Regulate option to alternatives.
+   Sensation,"Heaviness, Pain/ache; body map = Head","Body/energy family → reduce physical demand, seated Regulate first."
+5. Context,Work,Regulate tools filtered to discreet/seated variants (Tab 3b); Move/visible tools excluded.
+   Sensitivity,"Sound, Noise, Lights, Crowd (all flagged)",Reinforces discreet/low-stimulation choice; headphone-routed only; avoid screen/video Regulate tools (Tab 3a).
+7. Demand analysis,Demand: “Prepare a presentation at a meeting.” Timeline: within 5 hours → T1 (Hours).,"Demand type → Collaboration (presenting to others) + Challenge (multi-stage) (Tab 6). Timeline T1 → Urgency = high weight, cap breakdown to 3-5 steps (Tab 4)."
+   Need (multi-select),Feel calm / reduce overwhelm; get ideas / break into tiny steps,"Two needs → sequence: Regulate first (forced by step 3), Execute (task breakdown) queued to auto-surface after."
+8. Capacity-demand fit,—,"Final band: Constrained (State baseline Conditional, lowered one step by the Experience modifier for High-intensity anxiety, Tab 10 rule EX-1). Context modifier CX-1 does not apply because Work is not a public or unfamiliar setting. Traffic light: Constrained indicator."
+9. NUCRIPCE,—,"Tags: Urgency (high weight, T1) + Collaboration + Challenge. (Tabs 5-6)"
+10. RECOMMENDATION (ENGINE DECISION),—,"PRIMARY: “Let's reduce the load first” → [Try a short reset] opens Regulate pre-filtered to discreet, seated, headphone-based tools. Rationale shown: “Because your anxious/restless intensity is high right now, Nuccess suggests a quick reset before your presentation.” Alternatives: “I'll try the task anyway” / “Get support now.” Matches Recommendation Matrix Pattern #5 (Tab 7)."
+11. Feedback / re-check,User completes a 2-minute Breathe session; re-check shows improved state,"Auto-surface queued Execute: “Ready to break your presentation into steps?” → Task Detail/Break Down capped at 3-5 micro-steps (Timeline T1, Tab 4). AI Body Double offered by default (no lead time to invite a person under T1)."
+Outcome logging,User completes steps; gives feedback “did this help?”,Logged against: Cell E3M2 + Anxious/Restless High + Work/Sound-Noise-Lights-Crowd context + T1 Timeline + Regulate-then-Execute sequence + rule_version/model_version (per v2 FR-15). Feeds personalisation (FR-12) without overriding future check-ins.

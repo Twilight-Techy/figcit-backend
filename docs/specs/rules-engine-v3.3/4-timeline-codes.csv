@@ -1,0 +1,13 @@
+Tab 4 — Timeline Codes and Definitions (v3.1),,,
+"Timeline is captured separately from State and is NEVER used to determine Energy or Mood. It feeds the Urgency driver and sets how small the first step must be. Codes are assigned by the backend from the due date/time the user gives (or “no deadline”), so users never have to pick a code. v3.1: user-facing labels and exact windows defined; TX and TR added.",,,
+Code,User-facing label,Definition (time window),Effect on recommendation
+T0,Now,"Due within the next 60 minutes, or happening now.","Urgency driver = maximum weight. Cap any Execute breakdown to 1-3 micro-steps. Never skip a needed Regulate step, but keep it to a 1-2 minute variant."
+T1,Later today,Due in more than 1 hour but before the end of today.,Urgency driver = high weight. Cap Execute breakdown to 3-5 steps. Default Body Double to AI (no lead time for inviting a person).
+T2,This week,Due tomorrow or within the next 7 days.,Urgency driver = moderate weight. Fuller Execute breakdown allowed. Body Double can offer 'invite colleague/friend' option.
+T3,This month,Due in more than 7 days and up to 4 weeks.,Urgency driver = low weight. NUCRIPCE may favour Challenge/Exploration over Urgency-driven minimum-viable-action.
+T4,Months,Due in more than 4 weeks and up to 12 months.,Same as T3. Routine/Interest-led planning is favoured over urgency-led action.
+T5,Long-term,Due in more than 12 months.,Urgency driver effectively inactive. Treat as Exploration/Interest-led if the user wants to engage now.
+T6,No deadline,No due date and no consequence for delay; user-chosen timing.,Urgency driver not applicable. Recommendation is driven entirely by State + Intervention + other NUCRIPCE drivers.
+TX,Overdue,The deadline has already passed (any amount of time).,"Urgency high, but the first step is repair, not catch-up: Express a short, factual message (explain, ask for an extension) -> Execute the smallest remaining step. Pairs with the Shame / guilt family. No blame language."
+TR,Recurring,"Repeats on a schedule (e.g. daily meds routine, weekly report). The engine uses the NEXT occurrence to set T0-T5 for urgency.","Adds the Routine driver; supports habit-friendly reminders tuned to capacity (never streaks). If a recurring task is repeatedly skipped, treat it as a Long-avoided task (Tab 6). v3.2: prayer times and daily rituals saved in My Practices use TR. Reminders respect quiet hours and 'In worship'; a missed practice is never counted as a failure."
+Important: Timeline never overrides safety or current accessibility. A T0 'Immediate' deadline does not cancel a needed Regulate step — it only shortens it (per the v2 architecture spec's state-driven UI behaviour rules).,,,

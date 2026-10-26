@@ -1,0 +1,11 @@
+Tab 5 — NUCRIPCE Driver Definitions (reference),,
+"NUCRIPCE only applies when the user has a demand/activity. Eight drivers: Novelty, Urgency, Challenge, Routine, Interest, Passion, Collaboration, Exploration (two Cs by design: Challenge and Collaboration). Regulate is NOT in this list — see Tab 2 for Intervention domains. The user never sees this acronym in the UI.",,
+Letter / Driver,Backend definition,Typical activity examples
+N — Novelty,"The activity is new, unfamiliar, different, or offers a new experience.","Trying a new method, new topic, new environment, new creative activity."
+U — Urgency,"The activity has meaningful time pressure or a consequence for delay. Derived from Timeline (Tab 4), not user-labelled directly.","Immediate task, same-day requirement, deadline-sensitive action."
+C — Challenge,"The activity requires problem-solving, sustained effort, complexity or stretch.","Solving, designing, analysing, difficult learning."
+R — Routine,"The activity is familiar, predictable, structured or low in decision cost.","Known workflow, checklist, repeated routine."
+I — Interest,"The activity naturally captures attention, curiosity or engagement.","Preferred topic, hobby, personally engaging task."
+P — Passion,"The activity is strongly connected to personal meaning, values or enthusiasm.","Purpose-led project, creative pursuit, cause-related activity."
+C — Collaboration ,"The activity inherently involves working with others, social participation, interaction or shared activity.","Group work, volunteering, event, body doubling, meeting others."
+E — Exploration,"The activity involves inquiry, learning, information-seeking, experimentation, research or discovery.","Learning a topic, comparing options, investigating a question."

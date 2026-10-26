@@ -1,0 +1,35 @@
+"Tab 10 — Capacity Bands, Traffic Lights and Safety Modifiers",,,,,
+"The 16-cell State Grid (Energy x Mood only) sets the BASELINE band. Experience and Context can only LOWER it, for safety - never raise it within a check-in. Emotions, intensity and sensations also shape WHAT is recommended (Tab 2), but they are never part of the matrix itself. Every threshold is an MVP starting point and must be tunable configuration. Traffic lights: Green, Yellow, Amber and a MUTED red (no bright or saturated red, to avoid sensory discomfort), plus a Blue Recovery light, following the Positive Behaviour Support idea of a recovery phase. Colour is never the only signal: every light also shows its label and an icon.",,,,,
+Band,Traffic light (muted hex),Baseline cells (Tab 1),Engine behaviour,What the user sees,Order
+Available,Green  #5E8C61,"E2M4, E3M3, E3M4, E4M4",No intervention required; go straight to the demand if one exists.,"State name, icon and meaning; one CTA to start.",3
+Conditional,Yellow  #D8B64C,"E2M2, E2M3, E3M1, E3M2, E4M2, E4M3, E4M1 (baseline Conditional / Constrained)",Light or optional intervention first; never blocking - “Skip to task” always visible.,A gentle offer plus “Skip to task”.,2
+Constrained,Amber  #D98A3D,"E1M3, E1M4, E2M1 (and E4M1 whenever a modifier applies)",Intervention is the forced primary; demand capped to Routine until a re-check improves the state.,"“Let’s reduce the load first”, with “I’ll try the task anyway” never hidden.",1
+Very Constrained,Red (muted)  #B5574B,"E1M1, E1M2",Intervention forced immediately; demand deferred; Support pathway visible throughout.,“Let’s take care of you first” plus “Get support now”.,0
+"Recovery (overlay, not a band)",Blue  #5B7FA6,"Replaces Yellow, Amber or Red after support, when the re-check shows improvement","Recovery window (default 45 min, configurable): demand kept gentle (Routine or minimum-viable steps), queued tasks resurface in small steps, Reflect or Meditate may be offered (Tab 6c). The underlying band still exists and rises at most one step per re-check.",“You’re steadier” message with a gentle next step; the Blue light and label.,-
+Modifier rules,,,,,
+Rule ID,Layer,Trigger,Effect on band,Why,Status
+EX-1,Experience,"Any of: distress/overwhelm, anxious, anger, shame, sadness, grief, rejection, sensory overload or social hangover at High or Very High intensity; a Body PAIN sensation at High or Very High; OR shutdown/freeze at any intensity.",-1 step,"A High-intensity negative experience reduces what is safely possible, even when energy and mood look good.",v3 - tunable
+CX-1,Context,"2+ sensitivity flags in a public, formal, observed or unfamiliar setting, AND a negative experience family (or sensory overload).",-1 step,Load from the setting compounds distress. Positive states with sensory load keep their band but get Adapt first (Tab 7 pattern 13).,v3 - tunable
+CAP-1,Both,EX-1 and CX-1 together.,At most -2 steps in total; floor = Very Constrained.,Prevents a single check-in from swinging to the bottom band on minor signals.,v3 - tunable
+UP-0,All,"Any positive signal (calm, excitement, supportive context).",Never raises the band within a check-in.,"Safety-first: improvement is confirmed only by a re-check (Tab 8 step 11), and then by one step at a time (RC-3).",v3 - fixed rule
+DEM-0,Demand / Timeline,"Any demand or timeline, including T0 and TX.",No effect on the band.,Demand changes sequencing only: T0 shortens a needed Regulate step; it never skips it.,"v2 rule, restated"
+E4M1,State,Cell E4M1 (High x Very Bad).,Baseline treated as Conditional; any EX-1 or CX-1 moves it to Constrained.,Resolves the “Conditional / Constrained” baseline into a testable rule.,v3 - confirm
+NS-1,State,User chose “Not sure”.,Default Conditional until a state is confirmed; EX-1 still applies if a High+ negative emotion is logged.,Never silently assume a better or worse state.,v3 - confirm
+SF-1,Safety,Immediate risk language (selected option or free-text flag).,Bypasses bands entirely: support screen (Tab 7 pattern 28).,Immediate risk must not wait for a trend or a band.,v3 - needs clinical sign-off
+RC-1,Recovery,"Light was Yellow, Amber or Red AND an intervention was completed AND the re-check improved (better cell or intensity down by 2+ points).",Light turns Blue for the recovery window.,Recognises progress without jumping straight back to full demand.,v3.1 - tunable
+RC-2,Recovery,During the recovery window.,Demand kept gentle: Routine / minimum-viable steps; no Challenge- or Novelty-heavy tasks unless the user chooses them.,Prevents a relapse caused by piling demand back on too fast.,v3.1 - tunable
+RC-3,Recovery,Re-check after support recalculates a higher band.,"Band rises at most ONE step per re-check (e.g. Very Constrained -> Constrained, even if the new cell is Conditional).",Step-up gradually; mirrors the downward cap in CAP-1.,v3.1 - tunable
+RC-4,Recovery,"Re-check shows no improvement, or gets worse.","No Blue light. Light stays the same (or drops). Offer a different route rather than repeating the one that did not help; if Red, Support pathway visible.",Honest feedback; avoids false reassurance.,v3.1
+RC-5,Recovery,After a Safety override (SF-1).,Blue is NOT shown automatically; follow the clinical pathway set by the Clinical Safety Director.,Recovery after a crisis needs human-led follow-up.,v3.1 - needs clinical sign-off
+SF-2,Safety,Very Constrained sustained 7+ days; 14+ days with no improvement.,No band change; escalates the Support pathway (existing SOS row).,"Sustained-state rule from v2, kept.",v2 rule
+Live check: final-band distribution of the extended scenarios (formulas),,,,,
+Band,Tab 0 baseline rows,Tab 0b final rows,,,
+Available,24,24,,,
+Conditional,42,31,,,
+Constrained,18,17,,,
+Very Constrained,13,17,,,
+Recovery (Blue),0.0,3,,,
+Safety override,0.0,1,,,
+Total,97,93,,,
+"Note: Tab 0 counts show BASELINE bands (the v2 layout has no separate final-band column); Tab 0b shows bands after the modifiers above. ""Conditional"" in Tab 0b includes the three “Not sure” rows defaulting to Conditional.",,,,,
+"v3.2 note: Reflect and Meditate gates (RF-1 to RF-5, MD-1 to MD-6) live in Tab 6c. They decide WHETHER and HOW those pathways are offered; they never raise or lower the band.",,,,,

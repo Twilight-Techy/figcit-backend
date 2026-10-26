@@ -1,0 +1,56 @@
+NUCCESS Recommendation Rules Engine v3.3 — Developer Handover (updated October 2026)
+Built against
+"NUCCESS PRD/FRD v3.1 and NUCCESS Architecture & Screen Specification v3.1 (October 2026), which were rebuilt from this workbook and supersede all earlier versions. Key model rules: Regulate is NOT a NUCRIPCE driver — it is one of EIGHT support (intervention) pathways: Regulate, Express, Execute, Dump, Adapt, Reflect, Connect and Meditate (Rituals / Prayer). NUCRIPCE (Novelty, Urgency, Challenge, Routine, Interest, Passion, Collaboration, Exploration) applies only when the user has a demand/activity, or wants something to do but does not know what fits their capacity. A support pathway can stand alone with no demand at all."
+"Two outputs, not one"
+"Every check-in can produce an INTERVENTION recommendation (support-only, e.g. Regulate/Dump), a NUCRIPCE-tagged DEMAND recommendation (only if the user has a task/activity), or both together in sequence (e.g. Regulate, then Execute). The user never sees the words 'Intervention' or 'NUCRIPCE' — they see one plain-language recommendation card with a specific button."
+Tab order and purpose
+1. State Grid (16 cells) — Energy x Mood baseline. Every check-in starts here.
+2. Experience & Intervention Triggers — emotion/intensity/sensation inputs and which of the 8 support pathways they point to.
+3. Sensitivity & Context Modifiers — environment flags (sound/noise/light/crowd) and location (work/school/bus/etc.) that filter which specific tools are realistic.
+"4. Timeline Model (T0-T6) — the official time-horizon codes; feeds the Urgency driver only, never State."
+"5. NUCRIPCE Driver Definitions — the 8 demand-matching drivers, backend definitions, reference only."
+6. Demand Type -> NUCRIPCE Mapping — how a stated activity's demand characteristics map to driver tags.
+"7. Recommendation Matrix — the core deliverable: combines Intervention + NUCRIPCE + Timeline into specific CTAs, expanding the 5 worked examples already in the v2 architecture spec (Section 7) into a fuller, buildable rule set."
+"8. Decision Sequence — the exact backend order to run the above tabs in (11-layer architecture from the v2 spec, Section 4)."
+"9. Worked Example — the founder's own scenario (overwhelmed, presentation due in 5 hours) traced through every tab, correctly reclassified under the v2 model, for use as a unit test."
+"0b. Extended Scenarios (v3 + v3.2) — 71 v3 scenarios plus 22 v3.2 scenarios (RF.1-RF.8 Reflect, MD.1-MD.11 Meditate / Rituals / Prayer, GD.1-GD.3 guard rows that prove when they must NOT be offered)."
+"10. Band Safety Modifiers (v3) — the four capacity bands, proposed traffic lights, and the explicit rules by which Experience and Context lower the band for safety."
+"11. Journey Inputs-Outputs (v3) — for every layer: user inputs, system inputs, rule applied, internal outputs, user-visible outputs, branching, logging and the bounded-AI boundary."
+"12. Coverage Gaps & Additions (v3) — what was missing in v2, why it matters, what v3 adds, and what still needs a decision or clinical sign-off."
+"6b. Need to Intervention (v3.1, updated v3.2) — maps each plain-language need to its support pathway(s), whether NUCRIPCE applies, and which traffic lights it is offered in. Reflect confirmed; six new needs added."
+"6c. Reflect & Meditate (v3.2) — where the two new pathways fit, gating and safety rules (RF-1..RF-5, MD-1..MD-6), toolkits, context filter and the list of scenarios that test them."
+"Why this is a layered rules engine, not one flat table"
+"A literal table of every State x Emotion x Sensitivity x Context x Demand x Timeline x Need combination would run into tens of thousands of rows and could not be built or maintained. The tabs below run in sequence, each narrowing the previous step's output, exactly matching the 11-layer architecture already defined in the v2 spec."
+"Status of names, icons and thresholds"
+"The 16 state names, icons, and descriptions in Tab 1 are FINAL, taken directly from the live Capacity Matrix prototype (not proposals). The Mood axis is Very Bad / Bad / Neutral / Good and the Energy axis is Very Low / Low / Moderate / High, as confirmed by the founder in September 2026. All numeric thresholds elsewhere are MVP starting points and should be tunable configuration, not hard-coded."
+v3 change log (September 2026)
+"• Terminology confirmed by the founder: Energy = Very Low / Low / Moderate / High; Mood = Very Bad / Bad / Neutral / Good; driver acronym = NUCRIPCE (Novelty, Urgency, Challenge, Routine, Interest, Passion, Collaboration, Exploration). All tabs updated; NUCRRIPS, NUCRIPSE and Socialisation retired."
+"• Principle made explicit: the 16-cell matrix is Energy x Mood only. Emotions, intensity and sensations shape WHAT is recommended; Experience and Context can only LOWER the band, for safety (Tab 10)."
+"• 14 new experience families (Tab 2), 4 new sensitivity flags and 11 new contexts (Tab 3), an Overdue timeline code TX (Tab 4), 6 new demand characteristics (Tab 6), 15 new recommendation patterns 16-30 (Tab 7), Safety screen and Not-sure steps (Tab 8). New rows are highlighted pale yellow."
+"• Immediate-risk route added (pattern 28). The v2 sustained-state SOS rule is kept. Crisis copy, thresholds and resources require sign-off by the Clinical Safety, Partnership & Policy Director before launch."
+• Tab 9 worked example now states the final band explicitly using Tab 10 (Constrained).
+• The original 96 scenarios in Tab 0 are unchanged except for axis labels and driver naming.
+• Open items: confirm traffic-light colours per band; confirm E4M1 and Not-sure default rules; clinical sign-off of all safety rows; resolve Tab 7 pattern 6 vs 8 precedence.
+v3.1 change log (September 2026)
+"• Naming: the 16-cell grid is called the Capacity Matrix throughout (the earlier working name is retired). Drivers remain nouns: Challenge, Interest."
+"• Sensations: pain is a Body sensation (with intensity), not an emotion. Interoception (hunger, thirst, toilet, sleepiness, temperature) added as the sixth sensation category. Tab 2 rows marked SENSATION-LED."
+"• Traffic lights: Green, Yellow, Amber, muted Red (no bright red), plus Blue Recovery after support (Positive Behaviour Support recovery phase). Rules RC-1 to RC-5 in Tab 10; scenarios REC.1-REC.3 in Tab 0b; pattern 31."
+• Timeline: codes T0-T6 given exact windows and user-facing labels; TX (overdue) and TR (recurring) added (Tab 4).
+• Needs: new Tab 6b maps every need to an intervention route. Reflect proposed as a 7th intervention domain (Green and Blue only; pattern 32).
+v3.2 change log (October 2026)
+"• Support pathways are now EIGHT: Regulate, Express, Execute, Dump, Adapt, Reflect, Connect and Meditate (Rituals / Prayer). Reflect moves from 'proposed' to CONFIRMED (7th). Meditate / Rituals / Prayer is added as the 8th. User-facing label: 'Meditate'; the module holds three practice types — Meditate, Rituals and Prayer."
+"• New Tab 6c 'Reflect & Meditate': where they fit (and why they are not folded into existing pathways), definitions, gating rules RF-1 to RF-5 and MD-1 to MD-6, toolkits, and a context filter. Read this tab before building either module."
+"• Tab 2: 8 new experience families (rows 31-38) incl. Anticipatory unease, Spiritual / faith need, Wanting to make sense, Recurring struggle and a Rumination guard row. Grief, Social hangover and Calm rows extended with Reflect/Meditate options."
+"• Tab 3b: 3 new context rows (prayer / quiet room, place of worship, and a public-context filter row for Reflect and Meditate). Tab 4: TR (recurring) now covers prayer times and daily rituals. Tab 6: 3 new demand characteristics."
+"• Tab 6b: Reflect confirmed; 6 new Needs (Learn what works for me, Prepare to speak up, Find stillness, Pray or do my practice, Start or end my day well, Feel connected to something bigger)."
+"• Tab 7: pattern 32 confirmed; 9 new patterns 33-41 (Reflect 33-35, Meditate 36-39, guards 40-41) and two new non-negotiable rules."
+"• Tab 1 default lean, Tab 8 step 4, Tab 10 Recovery row, Tab 11 layers 4/11/12 and Tab 12 gap list updated. Tab 11 screen IDs re-baselined to the v3.0 screen map (S01-S40) used by the PRD and Architecture documents."
+• Highlighting: every row ADDED or materially CHANGED in v3.2 is shaded pale lilac (#EDE7F6). v3 additions stay pale yellow.
+"• Open items for v3.2: Clinical Safety, Partnership & Policy Director to sign off Reflect prompts, the meditation contraindication guard (MD-2) and all faith-related copy; Product Owner to approve the practice library launch list; consult faith and neurodivergent user groups on Rituals / Prayer wording before beta."
+v3.3 change log (October 2026) — Free and Advanced tools
+• Business model: every support pathway now has FREE tools and ADVANCED (paid) tools. This replaces the earlier statement that all support pathways are free. Free tools in every pathway remain enough for the engine to support anyone in any light.
+"• New Tab 6d ""Free & Advanced Tools"": tool tier per pathway, the always-free safety floor, cross-cutting features, entitlement rules ENT-1..ENT-9 and plan structure (prices TBC in the financial plan)."
+• Tab 7: two new non-negotiable rules (free primary; no upselling under strain). Tab 8: new step 10b Entitlement filter after gates and before the card.
+• New screen S41 Plans & Advanced Tools (module M16). S04 now includes Sign in for returning users.
+• Highlighting: every row ADDED or CHANGED in v3.3 is shaded pale green (#E6F4EA). v3.2 rows stay lilac.
+"• Open items for v3.3: PO to set prices, trial and concession eligibility; Clinical Safety Director to confirm the safety floor list; legal review of subscription terms and consumer-protection wording."

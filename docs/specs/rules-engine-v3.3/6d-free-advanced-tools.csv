@@ -1,0 +1,53 @@
+Tab 6d — Free and Advanced tools (v3.3),,,
+"Read this tab before building any pathway screen, the Recommendation Card or billing. Every support pathway has FREE tools and ADVANCED (paid) tools. Free tools in every pathway are enough for the engine to support anyone, in any light, in any setting. Advanced tools add depth, personalisation, content and human/AI companionship. Money never decides whether someone gets support; it decides how much extra depth they get.",,,
+A.  Tool tier per support pathway,,,
+Pathway,Free tools,Advanced tools (paid — NUCCESS Plus or institution licence),Safety floor (always free; what the engine uses in Amber/Red)
+Regulate,"Breathe (core paced patterns, 1–5 min); Ground (5-4-3-2-1, feet on floor, cold-water cue); Move (shake-out, stretch, short walk prompt); Sounds (core set: brown/white noise, rain, quiet timer); Step out; Recovery/rest timer; discreet public variants; tap-only non-verbal mode.","Advanced Sounds (full soundscape library, personal mixer, offline downloads); Advanced Movement (sensory-diet and proprioceptive routines, guided movement videos, desk and commute routines); Create (drawing, colouring, rhythm and music-making, fidget canvas); Attention reset games; Sleep wind-down programmes; personal regulation toolkit ordered by what helped.","Breathe, Ground, Move, core Sounds, Step out, Rest — always free and always the tools the engine uses in Amber and Red."
+Express,"Simplify and Rewrite (fair-use daily allowance); communication cards ('I need a minute', non-speaking cards); ready templates for asking for help or a pause.","Draft from scratch; Structure long documents and emails; Scripts for meetings, calls and presentations; tone check ('how might this land?'); Simplify a resource (upload a letter or PDF); voice-to-structured message; send-later scheduling; unlimited use.",Communication cards and help templates are always free; no one is ever charged to say they need help.
+Execute,Task list with 'why now'; smallest next step; basic breakdown (up to the timeline cap); pick-one-of-three; simple focus timer.,Full breakdown with editing and re-planning; AI body double; human body-double rooms; recurring routine builder; calendar sync; overdue repair assistant (message + re-plan).,Smallest next step and the timeline cap always free.
+Dump,"Unlimited text capture; voice capture (time allowance); manual sorting into Ideas, Notes, Worries, To-do; move an item to a task by hand.","AI sorting suggestions; photo and document capture with text recognition; search across all dumps; longer voice notes with transcription; one-tap convert to task, draft or reflection.",Text and voice capture always free.
+Adapt,"Adaptation library (environment, format, sequence, scope, pace, instructions, communication method); stop points; one-tap re-run of the recommendation.","Personal Adjustment Passport (what helps me at work or study, shareable); reasonable-adjustment request templates (drafted in Express); transition planner using saved rituals; context plans (workplace, exams, travel, events).",Adaptation library and stop points always free.
+Reflect,3-prompt check-out; gratitude note; end-of-day close; save takeaways to My Patterns (list view).,What helped insights; Pattern review with plain-language trend cards; Self-advocacy prep with hand-off to Express; monthly reflection summary; export reflections into a report.,Rumination guard and safety screening apply equally in both tiers; Reflect is never needed in Amber or Red.
+Connect,Trusted contacts; one-tap pre-written messages; async messaging via the device; groups the user has listed (including faith or community groups).,Moderated peer community spaces; scheduled check-in buddy; human body-doubling rooms (shared with Execute); hosted group sessions.,Trusted contacts and one-tap messages always free.
+Meditate · Rituals · Prayer,"Stillness timer; guided settle (3 and 5 min); gratitude practice; eyes-open versions; the user's OWN rituals, prayers, recitations, schedules and reminders (unlimited); 'In worship' mode.","Full guided library (10 and 20 min, walking practice, body-scan series); multi-step ritual builder with audio and timers; recitation player (loops, offline, own audio upload); themed programmes (exam season, transitions, sleep); practice insights.",Short eyes-open settle and the user's own practices are always free. Nobody pays to keep their own faith practice.
+B.  Cross-cutting features,,,
+Feature area,Free,Advanced,
+"Onboarding, check-in, experience, context, need, demand",All free,—,
+Engine and Recommendation Card,All free (same rules for every user),"Advanced tools may appear as ONE labelled alternative in Green, Yellow or Blue",
+"Help/SOS, safety override, Support Plan",Always free; no account needed for Help/SOS,—,
+"Feedback, re-check, Blue Recovery, basic personalisation",Free,—,
+Progress (S33),"Last 30 days, text summaries","Full history, cross-pathway insights, downloadable charts",
+Report & Sharing (S34),One simple summary shared with a named person,"Detailed reports, scheduled reports, multiple recipients",
+"Accessibility settings, consent, export, delete",Always free,—,
+"C.  Entitlement rules (apply after gates RF/MD, before the card is built)",,,
+Rule,Rule in plain words,,
+ENT-1,Free floor: every pathway has free tools that work in every light and setting. The engine's primary action is always something the user can open with their current plan.,,
+ENT-2,"Safety and access are never paid: check-in, the engine, the card, Help/SOS, the safety override, the Support Plan, communication cards, accessibility settings, export and delete.",,
+ENT-3,"No upselling under strain: no Advanced tiles, upgrade prompts or paywalls in Amber or Red, when any negative intensity is High or Very High, after a safety event, or during a session. In Green, Yellow or Blue at most ONE Advanced alternative is shown, labelled 'Advanced', never as the primary, and dismissing it is remembered.",,
+ENT-4,"Faith practice is never paid: the user's own prayers, rituals, schedules and reminders are free. Only Nuccess-produced guided content is Advanced. Belief data is never used to sell anything (MD-3).",,
+ENT-5,"Same safety rules in every plan: RF and MD gates, bands and guards apply equally; paying never unlocks a blocked pathway.",,
+ENT-6,"Lapse keeps data: if a subscription ends, the user's content stays readable and exportable; Advanced tools become locked, nothing is deleted.",,
+ENT-7,Institution licences unlock Advanced for covered users; paying institutions get no extra access to individual data.,,
+ENT-8,"Honest pricing: clear price before purchase, cancel in two taps, no countdown pressure or guilt copy; purchases only by adults; under-18s only through an approved institution licence.",,
+ENT-9,"Tier changes are configuration: moving a tool between Free and Advanced needs PO approval, plus Safety Reviewer approval for anything in Regulate, Connect, communication cards or the safety floor.",,
+"D.  What the Recommendation Card may show, by light",,,
+Light,Primary action,Advanced alternative?,Upgrade prompt?
+Green (Available),Best-fit tool the user's plan includes,"Yes — at most one, labelled ""Advanced""",Only if the user taps the Advanced tile
+Yellow (Conditional),Best-fit tool the user's plan includes,"Yes — at most one, labelled, only at Mild/Moderate intensity",Only if the user taps the Advanced tile
+Blue (Recovery),Gentle step the user's plan includes,"Yes — at most one, labelled",Only if the user taps the Advanced tile
+Amber (Constrained),Safety-floor support tool (free),No,Never
+Red (Very Constrained),Safety-floor support tool (free) + Get support now,No,Never
+E.  Plans (prices to be set in the financial plan — do not hard-code),,,
+Plan,Who it is for,What it includes,Price
+Free,"Everyone, with or without an account (Browse mode has no saved history)","All free tools in all eight pathways, the full engine, Help/SOS, Support Plan, 30-day progress",£0
+NUCCESS Plus (individual),Adults who want Advanced tools,"Everything in Free + Advanced tools in all eight pathways, full progress and reports",Monthly and annual price — to be set in the financial plan (TBC)
+Plus concession,Students and people on a low income (eligibility TBC),Same as Plus,Reduced price (TBC)
+Institution licence,"Universities, colleges, employers, public sector","Plus for covered users + CAAM dashboard (aggregate, consented)",Per-seat or per-site licence (TBC)
+F.  Scenarios,,,
+Scenario,Input,Free user sees,Plus user sees
+ENT.1,"Ground First (Amber), overwhelm 7, at work",Breathe or Ground (free); no Advanced tile,Same — Advanced is not shown in Amber (ENT-3)
+ENT.2,"Full Flow (Green), restless, wants to unwind at home",Move (free) primary; alternative: Create [Advanced],Create or Advanced Movement may be primary if it fits best
+ENT.3,"Creative Peak (Green), midday prayer due (TR)",User's own prayer (free) — never an upgrade prompt,Same; recitation player available if set up
+ENT.4,"Flow Entering (Yellow, Moderate), adjustment meeting T2",Reflect check-out (free) → Express Simplify (free),Self-advocacy prep → Express Script
+ENT.5,Plus subscription lapsed; user opens My Patterns,All saved reflections readable and exportable; insights locked,—
+ENT.6,"Red, distress 9",Regulate safety floor + Get support now,Identical to free user
