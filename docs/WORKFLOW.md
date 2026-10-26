@@ -21,23 +21,23 @@ Agents: your operating instructions are in `AGENTS.md` at the repo root. This do
 
 ## 2. Lanes
 
-Work is split by **vertical slice**: each person owns whole features end to end, backend module and PWA feature together, so most issues touch only one person's files. The module boundaries in `docs/SYSTEM_DESIGN.md` and the engineering rules keep slices apart.
+Work is split by **vertical slice**: each person owns whole features end to end, backend module and PWA feature together, so most issues touch only one person's files. The module boundaries in `docs/SYSTEM_DESIGN.md` and the engineering rules keep slices apart. The split follows our strengths, though we're both generalists: **Lane A** leans full-stack and AI, **Lane B** leans backend and infrastructure.
 
-| | **Lane A: core loop** | **Lane B: platform and pathways** |
+| | **Lane A: app, core loop and AI** | **Lane B: platform, infrastructure and pathways** |
 | --- | --- | --- |
-| Owner | _(Twilight-Techy or Abdurrahman, to confirm)_ | _(Twilight-Techy or Abdurrahman, to confirm)_ |
-| Backend | `packages/engine`, `packages/rules-compiler`, Rules, Content, CheckIn, Recommendation, Safety, Feedback, Admin (rules, content, decision log, safety events) | Auth, Users, Consent, Audit, Sync, Notifications, Jobs, Files, Speech, AI, Entitlements, Analytics, Regulate, Dump, Express, Tasks, Adapt, Connect, Reflect, Practices, Progress |
-| PWA | `engine/`, `features/check-in`, `recommendation`, `safety`, `feedback`, `home`, `admin` | `design-system/`, `offline/`, `api/`, `lib/`, `sw/`, `features/auth`, `onboarding`, `settings`, `notifications`, `plans`, `progress`, and all pathway features (`regulate`, `dump`, `express`, `tasks`, `adapt`, `connect`, `reflect`, `meditate`) |
-| Why this split | Owns correctness: the workbook rules, safety and the main journey | Owns the foundations everyone builds on, then the pathways that plug into the card |
+| Owner | **Twilight-Techy** | **Abdurrahman** _(GitHub username to add)_ |
+| Backend | `packages/engine`, `packages/rules-compiler`; modules Rules, Content, CheckIn, Recommendation, Safety, Feedback, AI, Speech, Dump, Express, Tasks, Reflect, Admin (rules, content, decision log, safety events) | Workspace and tooling, Docker, CI/CD, environments and hosting, database setup, backups, observability (logs, metrics, GlitchTip, uptime), AI server deployment (llama.cpp, whisper.cpp); modules Auth, Users, Consent, Audit, Sync, Notifications, Jobs, Files, Entitlements, Analytics, Health, Regulate, Adapt, Connect, Practices, Progress |
+| PWA | `design-system/`, `lib/`, `engine/`, the root layout and Help pill; features `home`, `check-in`, `recommendation`, `safety`, `feedback`, `dump`, `express`, `tasks`, `reflect`, `admin` | `offline/` (Dexie, outbox, sync), `sw/`, `api/` (generated client), PWA CI and hosting config (`vercel.json`, security headers); features `auth`, `onboarding`, `settings`, `notifications`, `plans`, `progress`, `regulate`, `adapt`, `connect`, `meditate` |
+| Why this split | The rules engine, safety, the main journey, the AI features and the UI foundations are one connected piece of product logic | Accounts, data, sync, scheduling, deployment and security are one connected piece of platform, plus the pathways that are mostly data and timers |
 
-**Shared, owned by one lane, changed by both through small PRs:** the design system (Lane B), the Prisma base schema files `_shared.prisma` and `users.prisma` (Lane B), and the engine's public types (Lane A).
+**Shared, owned by one lane, changed by both through small PRs:** the design system and root layout (Lane A), the engine's public types (Lane A), the Prisma base schema files `_shared.prisma` and `users.prisma` (Lane B), and `offline/db.ts` (Lane B).
 
 **First sprint (S0), both working from day one:**
 
-| | Lane A | Lane B |
+| | Lane A: Twilight-Techy | Lane B: Abdurrahman |
 | --- | --- | --- |
-| Backend | Workspace, Docker, CI, Prisma setup, `packages/engine` skeleton, `rules-compiler` reading the workbook, first engine fixtures | Auth, Users, Consent, Audit modules; refresh-token flow; OpenAPI generation |
-| PWA | Engine wrapper and snapshot cache; check-in screens on mocked API | Next.js scaffold, CI, design tokens and themes, root layout with Help pill, service worker, Dexie and outbox, generated API client |
+| Backend | `packages/engine` skeleton, `rules-compiler` reading the workbook, first engine fixtures (Tabs 1 and 10), once Lane B's workspace has landed | First, on day one: pnpm workspace, TypeScript/ESLint/Prettier config, Docker and the local stack (Postgres, Mailpit, SeaweedFS), CI. Then Prisma multi-file setup, Auth, Users, Consent and Audit modules, refresh-token flow, OpenAPI generation |
+| PWA | Next.js scaffold, design tokens and the six themes, comfort settings, root layout with the Help pill, Help/SOS page, check-in screens on mocked API | PWA CI, service worker, Dexie and outbox, generated API client, staging environment for both repos |
 
 If the lanes feel uneven after a sprint, move a whole module, never half of one.
 

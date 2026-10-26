@@ -1,7 +1,8 @@
 # Tier-A paths: changes here need the other developer's approval
 # (branch protection: "Require review from Code Owners", 0 required approvals otherwise).
-# Add the second developer's GitHub login next to @Twilight-Techy on every line
-# once they're a collaborator; until then this file only documents the paths.
+# Owners: Twilight-Techy (Lane A) and Abdurrahman (Lane B). Add Abdurrahman's GitHub
+# username next to @Twilight-Techy on every line once he has accepted the invite;
+# until then this file only documents the paths.
 
 /packages/engine/                       @Twilight-Techy
 /packages/rules-compiler/               @Twilight-Techy
