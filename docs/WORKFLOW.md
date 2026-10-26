@@ -25,7 +25,7 @@ Work is split by **vertical slice**: each person owns whole features end to end,
 
 | | **Lane A: core loop** | **Lane B: platform and pathways** |
 | --- | --- | --- |
-| Owner | _(fill in)_ | _(fill in)_ |
+| Owner | _(Twilight-Techy or Abdurrahman, to confirm)_ | _(Twilight-Techy or Abdurrahman, to confirm)_ |
 | Backend | `packages/engine`, `packages/rules-compiler`, Rules, Content, CheckIn, Recommendation, Safety, Feedback, Admin (rules, content, decision log, safety events) | Auth, Users, Consent, Audit, Sync, Notifications, Jobs, Files, Speech, AI, Entitlements, Analytics, Regulate, Dump, Express, Tasks, Adapt, Connect, Reflect, Practices, Progress |
 | PWA | `engine/`, `features/check-in`, `recommendation`, `safety`, `feedback`, `home`, `admin` | `design-system/`, `offline/`, `api/`, `lib/`, `sw/`, `features/auth`, `onboarding`, `settings`, `notifications`, `plans`, `progress`, and all pathway features (`regulate`, `dump`, `express`, `tasks`, `adapt`, `connect`, `reflect`, `meditate`) |
 | Why this split | Owns correctness: the workbook rules, safety and the main journey | Owns the foundations everyone builds on, then the pathways that plug into the card |
@@ -215,3 +215,23 @@ One Project for both repos (owned by the `Twilight-Techy` account), managed by b
 5. Create the GitHub Project with the fields and views in section 7, and turn on its built-in workflows.
 6. Create labels: `lane-a`, `lane-b`, `tier-a`, `needs-decision`, `blocked`, `design-system`, `contract`.
 7. Each of us: enable the GitHub MCP **projects** toolset in our agent setup (Claude Code and OpenCode), and generate an age key for SOPS.
+8. Each of us: set git identity to our own GitHub email, and give our agents our own GitHub access (section 11).
+
+---
+
+## 11. Accounts and identity
+
+We share one Claude account but each have our own GitHub account. GitHub attributes every action to the account that performed it, so the rules below keep authorship and review honest.
+
+| Action | Recorded as | Rule |
+| --- | --- | --- |
+| Commits | The author in the local git config | Set `git config --global user.name` and `user.email` to the email on **your own** GitHub account. Agents never change git identity. |
+| Pushes | Whoever's git credentials push | Push with your own SSH key or token. |
+| PRs, comments, reviews, labels, Project updates | The GitHub account the agent's GitHub tool is signed in to | Each person's agents use **their own** GitHub access: Twilight-Techy through the claude.ai GitHub connector; Abdurrahman through a GitHub MCP server or `gh` CLI with his own token in Claude Code and OpenCode. Abdurrahman's sessions don't use the claude.ai connector for anything that writes to GitHub. |
+
+**Rules for every agent session:**
+1. **Check identity before writing to GitHub.** Call the GitHub tool's "who am I" (`get_me`, or `gh api user`). If the login isn't the person running the session, stop and ask; don't open PRs, comment or update the board.
+2. **Agents never approve or merge PRs.** Approval is a human decision: the reviewer approves in the GitHub UI, or explicitly tells their own agent to approve after reading the diff. An agent never approves a PR in the same session that wrote it.
+3. **The PR author is the person whose agent did the work.** This matters for tier-A reviews: GitHub doesn't let anyone approve their own PR, so a PR opened under the wrong account blocks the review.
+
+**Shared Claude usage:** one account means one set of usage limits. When both of us run many agents at once, stagger the heavy sessions (large refactors, long test runs) and keep sessions to one issue each.
