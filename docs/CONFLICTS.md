@@ -65,6 +65,7 @@ Places where the source documents, the Figma designs and the live website disagr
 | [D-35](#d-35-missing-and-mismatched-document-versions) | Missing and mismatched document versions | P2 | Founder |
 | [D-36](#d-36-workbook-open-items) | Workbook items still marked "confirm" | P1 | Founder, Clinical Safety |
 | [D-37](#d-37-build-plan-vs-other-plans-in-drive) | Build plan vs other plans in Drive | P1 | Founder |
+| [D-38](#d-38-ai-model-per-task) | AI model per task (cost) | P2 | Founder |
 
 ---
 
@@ -357,3 +358,15 @@ Each of these is a paid (Advanced) feature in PRD 1.9 / Workbook Tab 6d but show
 - **Figma S03, S89:** separate controls (text size, high contrast, reduce motion) and six themes, including "Quiet Pear, near-monochrome"; no single low-stimulation switch.
 - **Recommendation:** add one "Low-stimulation" preset in Quick Setup that sets the quiet theme, larger text and reduced motion together.
 - **Decision:**
+
+---
+
+## AI
+
+### D-38 AI model per task
+- **Design (backend `docs/SYSTEM_DESIGN.md` 4.3):** every AI task uses Claude Opus 5.5 at low effort, through Claude in Amazon Bedrock with the EU inference profile.
+- **Cost at 1,000 daily users** (about 90,000 calls a month, Anthropic list prices; Bedrock bills separately and EU routing adds 10%): Opus 5.5 ~$1,080 a month, Sonnet 5.5 ~$540, Haiku 5.5 ~$27.
+- **Why it matters:** the classification tasks (`parseNeed`, `suggestDrivers`, `sortDump`) are short and frequent, so the model choice drives most of the AI bill.
+- **Options:** keep Opus 5.5 everywhere; or move the classification tasks (or all tasks) to Sonnet 5.5 or Haiku 5.5. Each task's model is one config value, and the eval sets in 4.3.7 show whether quality holds before switching.
+- **Decision:**
+

@@ -136,7 +136,7 @@ Each module is a NestJS module with its own controller(s), service(s) and Prisma
 | **AuditModule** (NFR-10) | Append-only audit log of sensitive reads, shares, config changes and staff actions | Prisma; inserts only, no update/delete permission for the app's database role |
 | **RulesModule** (M17, M04) | Rule-set versions: upload workbook → compile → validate → run fixtures → diff → review → safety sign-off → publish. Serves the published snapshot (with ETag) to the PWA | `@figcit/rules-compiler`, `@figcit/engine`, Prisma |
 | **ContentModule** (M17) | Versioned content: tool catalogue and tiers, tool scripts (Breathe steps, Ground prompts, Move routines), Reflect prompts, practice library, card wording, crisis routes and Help copy. Same draft → review → publish flow | Prisma; published content is bundled into the snapshot |
-| **AiModule** (M19-05) | One gateway for every AI task, with an allow-list of prompts, input minimisation, output validation, a timeout and a fallback | `@aws-sdk/client-bedrock-runtime` (Claude on AWS Bedrock, London). A provider interface keeps other providers possible (NFR-13) |
+| **AiModule** (M19-05) | One gateway for every AI task, with an allow-list of prompts, input minimisation, output validation, a timeout and a fallback | Claude via `@anthropic-ai/bedrock-sdk` (Claude in Amazon Bedrock, EU inference profile) and zod schemas with `@anthropic-ai/sdk` structured-output helpers. A provider interface keeps other providers possible (NFR-13). Details in 4.3 |
 | **SpeechModule** | Voice to text for Dump, Express and check-in "own words". Audio upload → transcription → text → audio deleted | `@aws-sdk/client-s3` (presigned upload), `@aws-sdk/client-transcribe` (London) |
 | **FilesModule** | Private file storage: voice notes the user chooses to keep, uploaded practice audio, data exports. Presigned URLs only | `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`; S3 eu-west-2 with server-side encryption |
 | **NotificationsModule** (M16) | Web Push subscriptions, reminder scheduling, quiet hours, "In worship" pause, notification style, in-app inbox, email | `web-push` (VAPID; works for Chrome, Firefox, Edge and Safari/iOS 16.4+ installed PWAs), `nodemailer` over Amazon SES SMTP, pg-boss jobs |
@@ -166,24 +166,140 @@ Each module is a NestJS module with its own controller(s), service(s) and Prisma
 | **AdminModule** | M17 | S37 | Staff-only API: rule and content review, decision log, safety events, aggregate analytics, roles and access | RBAC guard + MFA required; every call audited |
 | **InstitutionModule** | M18 | S38–S39 | **Later.** Tenants, cohorts with an anonymity floor (D-16), opt-in user summaries (D-17), outreach | `tenant_id` columns and roles exist from day one |
 
-### 4.3 AI tasks (allow-list)
+### 4.3 AI: what kind, which model, and how each task works
 
-| Task | Used by | Input sent | Output checks | Fallback |
-| --- | --- | --- | --- | --- |
-| `parseNeed` | "In your own words" (S91) | The typed sentence only | Must map to known need codes and tags; user confirms chips | Show the need list |
-| `suggestDrivers` | Task card (S92) | Task title + type | Known NUCRIPCE codes only; never Urgency (that comes from the timeline) | Rules from Tab 6 keywords |
-| `breakDownTask` | Break it down (S19, S21) | Task title + step cap | Step count ≤ timeline cap; short plain steps | Generic step templates |
-| `sortDump` (Advanced) | Dump review (S17) | Dump items | Known buckets only | Manual sorting |
-| `simplify`, `rewrite` | Express | The user's text | Length, meaning kept, banned-phrase check | Show the original |
-| `draft`, `structure`, `script` (Advanced) | Express | The user's notes | Banned-phrase check | Templates |
-| `rewordReason` (optional) | Card rationale | The filled template sentence | Must name the same tool, under 40 words, banned-phrase check | Template sentence |
+NUCCESS uses two kinds of AI, and only for language:
 
-Rules for every call:
-- The server runs the **safety check before** any text goes to AI. Risk text never goes to AI; it opens Help.
-- No names, emails or IDs are sent. Text is the minimum needed.
-- Timeout 4 seconds; on timeout, error or failed check, the fallback is used and an `ai_fallback` event is logged.
-- Provider terms must guarantee no training and no retention (D-23). AWS Bedrock does not use inputs for training.
-- AI is never called during the safety path, the band calculation or pathway selection.
+1. **A large language model (Claude)** for reading and rewording text: understanding "in your own words", tagging tasks, breaking tasks into steps, sorting dumps, and simplifying or drafting messages.
+2. **Speech recognition (Amazon Transcribe)** for turning voice into text.
+
+Everything that decides what the user is offered is **not AI**: the safety check, the state and light, the pathway, the gates, personalisation and pattern cards are all fixed rules (section 4.3.6).
+
+#### 4.3.1 Provider and where it runs
+
+| Item | Choice |
+| --- | --- |
+| Model family | Claude (Anthropic) |
+| Access | **Claude in Amazon Bedrock**, Messages API, through `AnthropicBedrockMantle` from `@anthropic-ai/bedrock-sdk` (same request shape as Anthropic's own API) |
+| Region | Client region `eu-west-2` (London), routed through Bedrock's **EU inference profile**. London has no single-region option for Claude, so the EU profile is the closest: processing stays in EU regions (the UK recognises the EU as adequate under UK GDPR). Regional and geographic routing costs 10% more than Bedrock's global routing. |
+| Why Bedrock and not Anthropic's API directly | Anthropic's API and Claude Platform on AWS only offer "global" or "US" inference locations, so neither keeps data in Europe. Bedrock also runs in the same AWS account as our files, speech, email and keys, authenticates with IAM roles (no API keys in config), and Anthropic staff have no access to its inference infrastructure. |
+| Data use | Governed by Amazon Bedrock's data-protection terms. Before real users, confirm in writing that prompts and outputs are not stored or used for training (D-23). |
+| Model access | Claude Opus 5.5, Sonnet 5.5 and Haiku 5.5 must be enabled in the Bedrock console for the account; check this during setup. |
+| Refusals | Bedrock has no server-side refusal fallback. A response with `stop_reason: "refusal"` is treated like any other failure: the task's manual fallback is used. |
+
+#### 4.3.2 Model per task
+
+**Proposed default: Claude Opus 5.5 (`anthropic.claude-opus-5-5`) at effort `low` for every task.** Short, structured outputs at low effort keep cost and latency down while using the most capable current model. Whether to move the high-volume classification tasks to a smaller model is a cost decision for the founder (D-38, costs in 4.3.5).
+
+| Task | Kind of AI task | Output form | Model | Effort | `max_tokens` | Timeout | Fallback |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `parseNeed` | Classification + extraction | JSON (schema) | Opus 5.5 | low | 2,048 | 5 s | Show the need list (S11) |
+| `suggestDrivers` | Multi-label classification | JSON | Opus 5.5 | low | 2,048 | 5 s | Keyword rules from Tab 6 |
+| `breakDownTask` | Constrained generation | JSON (list of steps) | Opus 5.5 | low | 4,096 | 8 s | Step templates per task type |
+| `sortDump` (Advanced) | Per-item classification | JSON | Opus 5.5 | low | 4,096 | 8 s | Manual sorting |
+| `simplify`, `rewrite` | Text transformation | JSON (text + "what we changed") | Opus 5.5 | low | 4,096 | 10 s | Keep the original text |
+| `draft`, `structure`, `script` (Advanced) | Short generation | JSON (sections or lines) | Opus 5.5 | low | 4,096 | 12 s | Fill-in templates |
+| `rewordReason` | Paraphrase | JSON | — | — | — | — | **Off at launch.** Card rationales use approved templates only. |
+
+`max_tokens` includes thinking: Opus 5.5 always runs adaptive thinking (it can't be switched off), which at `low` effort is brief. `temperature` isn't sent (current models reject it).
+
+#### 4.3.3 Each task in detail
+
+**`parseNeed`**, "in your own words" (Figma S91)
+- **Input:** the user's sentence (typed or transcribed, up to 500 characters) and the list of need codes with their user-facing labels from the snapshot.
+- **Output:** `{ needs: NeedCode[] (1–2), heard: { label, kind: "feeling" | "setting" | "task" | "need" }[] (max 5), task: { title, type: "study" | "work" | "health" | "social" | "home_other" } | null, supportOnly: boolean }`.
+- **Checks:** every code exists in the snapshot; labels are short (≤ 24 characters); no banned phrases.
+- **The user stays in control:** results show as "We heard" chips the user can remove. Nothing reaches the engine until they tap Continue.
+
+**`suggestDrivers`**, task card (Figma S92)
+- **Input:** task title and task type. The timeline is not sent, because **Urgency always comes from the timeline code, never from AI** (Tab 5).
+- **Output:** `{ drivers: ("novelty" | "challenge" | "routine" | "interest" | "passion" | "collaboration" | "exploration")[] (0–3), demandCharacteristics: Tab6Code[] }`.
+- **Checks:** codes exist; at most 3 drivers.
+- **Shown as** small indicators on the task card, never a form (PRD 1.5).
+
+**`breakDownTask`**, Break it down (S19, S21)
+- **Input:** task title, type, the **step cap** from the timeline code (Tab 4: T0 up to 3 steps, T1 3–5, and so on), and whether the light is Amber (smallest routine steps only).
+- **Output:** `{ steps: { text (≤ 80 chars), minutes (1–30) }[] (length ≤ step cap), estimatedDemand: "low" | "moderate" | "heavy" }`.
+- **Checks:** step count within the cap; each step a single action; no blame words ("finally", "should have").
+- **Editable:** the user can edit, reorder or delete any step (S127).
+
+**`sortDump`** (Advanced), Dump review (S17)
+- **Input:** the dump's items as `{ id, text }`.
+- **Output:** `{ items: { id, bucket: "ideas" | "notes" | "worries" | "todo" }[] }` (every input id exactly once).
+- **Rules:** suggestions only; the user confirms. Worries are never turned into tasks (Figma S103).
+
+**`simplify` and `rewrite`**, Express (S19, Figma S115)
+- **Input:** the user's text (up to 2,000 characters), level (`gentle` / `clear` / `shortest`), and optional purpose ("reply to my tutor").
+- **Output:** `{ text, changes (≤ 140 chars, shown as "What we changed") }`. Word counts before and after are computed by us, not by the model.
+- **Checks:** output not longer than input for `simplify`; no new facts (no names, dates or numbers that weren't in the input); banned-phrase check.
+- **Free** with a daily allowance (configurable, default 10 a day). Never sends anything (FR-M07-02).
+
+**`draft`, `structure`, `script`** (Advanced), Express (Figma S22, S114, S116)
+- **`draft` input:** the user's notes and purpose. **Output:** `{ text, changes }`.
+- **`structure` output:** `{ sections: { role: "ask" | "why" | "offer" | "close" | "other", text }[] }` (Figma S114: ask → reason → offer → close).
+- **`script` output:** `{ lines: { cue: "you" | "if_asked_why" | "if_none_free" | "to_end" | "other", text }[] }` (Figma S116).
+- Same checks as `simplify`.
+
+#### 4.3.4 How every call is made
+
+```ts
+import { AnthropicBedrockMantle } from "@anthropic-ai/bedrock-sdk";
+import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+
+const client = new AnthropicBedrockMantle({ awsRegion: "eu-west-2" });
+
+const res = await client.messages.parse(
+  {
+    model: config.ai.modelId, // the EU inference profile for anthropic.claude-opus-5-5
+    max_tokens: task.maxTokens,
+    output_config: { effort: "low", format: zodOutputFormat(task.schema) },
+    system: prompt.system, // versioned prompt from ContentModule
+    messages: [{ role: "user", content: `<user_words>\n${cleanText}\n</user_words>` }],
+  },
+  { timeout: task.timeoutMs, maxRetries: 0 },
+);
+
+if (res.stop_reason !== "end_turn" || !res.parsed_output) return task.fallback(input);
+return task.check(res.parsed_output, input) ?? task.fallback(input);
+```
+
+- **Structured outputs** (`output_config.format` with a zod schema) guarantee the reply is valid JSON in the expected shape. Our own `check()` then applies the business rules above. The Bedrock client exposes the same Messages surface; if `messages.parse` isn't available on it at integration time, use `messages.create` with the same format and validate with zod.
+- **Before sending:** the server safety check runs first (risk text never goes to AI; it opens Help). Emails, phone numbers and URLs are stripped. Text is capped at the task's limit. No user ID, name or account detail is ever included.
+- **Prompt injection:** the user's words are wrapped in `<user_words>` tags, and every system prompt says the text inside is data to work on, never instructions.
+- **Prompts are content:** each task's system prompt is a versioned content item (ContentModule), reviewed like other copy, with the banned-phrase list (no diagnosis, no reassurance, no blame) included. Changing a prompt goes through the same review as copy.
+- **No retries on interactive calls:** if a call fails or times out, the fallback appears at once rather than making the user wait twice.
+- **Logging:** each call writes an `ai_calls` row (task, prompt version, model, latency, input/output tokens, outcome or fallback reason). **Never the text.**
+- **Limits:** per-user daily limits per task (configurable). Browse users get a smaller limit per device token, and nothing is stored.
+
+#### 4.3.5 Cost estimate
+
+Assumptions: about 1,000 input tokens (prompt, schema and text) and 400 output tokens (including brief thinking) per call; 3 AI calls per active user per day; 1,000 daily active users ≈ 90,000 calls a month. Prices are Anthropic's list prices per million tokens; Bedrock bills separately (see Bedrock pricing) and the EU profile adds 10%.
+
+| Model | Price (input / output per 1M tokens) | Approx. per call | Approx. per month (90,000 calls) |
+| --- | --- | --- | --- |
+| Claude Opus 5.5 (proposed default) | $4 / $20 | $0.012 | ~$1,080 |
+| Claude Sonnet 5.5 | $2 / $10 | $0.006 | ~$540 |
+| Claude Haiku 5.5 | $0.10 / $0.50 | $0.0003 | ~$27 |
+
+These are estimates; real token counts get measured during the first week of testing (`ai_calls` table).
+
+#### 4.3.6 Speech, and what is deliberately not AI
+
+| Feature | What it uses | Details |
+| --- | --- | --- |
+| **Voice to text** (Dump, Express, own words) | **Amazon Transcribe**, speech-recognition model, batch jobs, language `en-GB`, region `eu-west-2` (London, so audio stays in the UK) | The PWA records → uploads by presigned URL → a worker job transcribes → the text returns to the app → the audio is deleted. Up to 10 minutes per recording (Figma S102). The live transcript shown while recording in Figma needs Transcribe's streaming mode; it comes after launch, and until then the app shows "Turning your voice into text…". |
+| **Guided practice audio** (later, Advanced) | **Amazon Polly** neural voices (`en-GB`), used once by the content team to produce library audio, reviewed before publishing | Not generated per user |
+| **Safety check** | **Fixed phrase rules**, not AI | It has to be predictable, clinically signed off, testable line by line, and work offline on the phone. A model could miss a phrase or flag differently from one day to the next. |
+| **State, light, pathway, gates** | The engine's fixed rules | Same input, same result, always explainable (NFR-07) |
+| **Personalisation** (re-ranking options) | Counting, not machine learning | Per user, state group and tool, count outcomes that were completed, rated helpful and followed by a no-worse re-check; use the counts to order options the rules already allowed. Never changes the light, gates or safety. |
+| **My Patterns, "What we learned", progress sentences** | Counts and fixed sentence templates | No model reads reflections or check-ins to interpret them. PRD: no clinical interpretation; reflections are private. |
+
+#### 4.3.7 Testing the AI tasks
+
+- Each task has an **eval set** of 50–100 synthetic examples written with the founder (for example 80 "own words" sentences with the right need codes; tasks with acceptable step lists).
+- It runs before any prompt or model change, and nightly in CI (not on every pull request, because each run costs money).
+- Pass bars before a task is switched on, for example: `parseNeed` correct top need ≥ 85%; `breakDownTask` 100% within the step cap; zero banned phrases across all tasks.
+- The same eval set is used to compare models if D-38 is taken up.
 
 ---
 
@@ -469,7 +585,7 @@ The PWA keeps an outbox in IndexedDB (see the PWA design). The backend's side:
 | Database | Neon Postgres 16 | AWS London (eu-west-2) | Pooled URL for the API, direct URL for migrations and pg-boss. pg-boss polling keeps compute awake, so plan for a paid compute size in production. |
 | Files | Amazon S3 | eu-west-2 | Private bucket, SSE-KMS, lifecycle rules (audio 1 day, exports 2 days) |
 | Keys | AWS KMS | eu-west-2 | Envelope key for app-level encryption |
-| AI | AWS Bedrock, Claude (small, fast model) | eu-west-2 where the model is available; otherwise an EU inference profile | Confirm model availability in region at setup |
+| AI | Claude in Amazon Bedrock, Claude Opus 5.5 at low effort (D-38) | Client in eu-west-2, EU inference profile | Enable model access in the Bedrock console; see 4.3 |
 | Speech | Amazon Transcribe | eu-west-2 | Batch jobs |
 | Email | Amazon SES | eu-west-2 | SMTP credentials |
 | Errors | Sentry | EU (de.sentry.io) | Free tier |
@@ -512,7 +628,8 @@ On a release tag: same, to production, after manual approval. A tagged release o
 | Database | PostgreSQL 16, Prisma 6 |
 | Jobs | pg-boss |
 | Auth | `jose`, `argon2`, `openid-client`, `otplib` (later `@simplewebauthn/server`) |
-| AWS | `@aws-sdk/client-bedrock-runtime`, `-transcribe`, `-s3`, `-kms`, `s3-request-presigner` |
+| AI | `@anthropic-ai/bedrock-sdk` (`AnthropicBedrockMantle`), `@anthropic-ai/sdk` (zod structured-output helper) |
+| AWS | `@aws-sdk/client-transcribe`, `-s3`, `-kms`, `s3-request-presigner` (later `-polly`) |
 | Email | `nodemailer` |
 | Push | `web-push` |
 | Workbook parsing | `exceljs` (in `rules-compiler`) |
@@ -559,3 +676,4 @@ Mapped to the PRD modules. The engine and safety come before the pathways becaus
 | D-18, D-19 Escalation | No automatic messages; SF-2 changes only what the user sees | SafetyModule |
 | D-20 Connect | Hand-off to SMS/WhatsApp/email; no in-app messaging | ConnectModule |
 | Engine IP (5.5) | Full engine and snapshot shipped to the PWA | Snapshot endpoint content |
+| D-38 AI model | Claude Opus 5.5 at low effort for every task | `config.ai.modelId` per task |
