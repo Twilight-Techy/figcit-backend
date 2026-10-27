@@ -13,6 +13,9 @@ function apply(values: NodeJS.Dict<string>): void {
     if (SHELL_WINS.has(key) && process.env[key] !== undefined) continue;
     process.env[key] = value;
   }
+  // The e2e suite runs against its own database (figcit_test), never the developer's.
+  const testUrl = process.env['FIGCIT_TEST_DATABASE_URL'];
+  if (process.env['NODE_ENV'] === 'test' && testUrl) process.env['DATABASE_URL'] = testUrl;
 }
 
 /**

@@ -5,5 +5,5 @@ export { compileSnapshot } from './snapshot.js';
 export { suggestCell } from './stages/state.js';
 export { intensityBand } from './stages/experience.js';
 export { normalise } from './safety/normalize.js';
-export { buildSafetyScreen } from './safety/screen.js';
+export { buildSafetyScreen, type SafetyScreen } from './safety/screen.js';
 export * from './types.js';
