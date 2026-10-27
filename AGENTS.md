@@ -13,12 +13,12 @@ The backend for NUCCESS, a neuro-affirming support app by Figcit Ltd. NestJS + P
 5. `docs/CONFLICTS.md`: open product decisions. Don't decide them; use the item's recommendation and say so in the PR.
 
 ## Session protocol
-1. **One issue per session.** Confirm the issue is assigned to your human and set to *In progress* on the GitHub Project. If it isn't, stop and ask.
+1. **One issue per session.** Confirm the issue is assigned to your human, is *Ready* (everything under **Depends on** closed) and is claimed with `status:in-progress` (or *In progress* on the Project, once that works). If it isn't, stop and ask. Picking and claiming rules: `docs/WORKFLOW.md` section 12.
 2. Work in **your own git worktree** on branch `<initials>/<issue-number>-<slug>`, created from the latest `origin/main`. Never work on `main` or on another person's branch.
 3. `git pull --rebase origin main` at the start and before opening the PR.
 4. **Stay inside the Touches list** and your lane (`docs/WORKFLOW.md` section 2). If the change needs more files or the other lane's files, comment on the issue and stop or narrow the change.
 5. Run `pnpm check` (lint, types, tests, budgets) until it passes.
-6. Open a pull request with `.github/pull_request_template.md` filled in, linked to the issue (`Closes #N`), auto-merge on, and move the card to *In review*.
+6. Open a pull request with `.github/pull_request_template.md` filled in, linked to the issue (`Closes #N`), a conventional-commit title and the issue's labels. Mark it ready, swap the issue's label to `status:in-review`, and turn auto-merge on. If the issue is `tier-a` but no CODEOWNERS path changed, request the other person's review and leave auto-merge off until they approve (`docs/WORKFLOW.md` section 12.4).
 7. Stop.
 
 ## Hard rules
@@ -28,6 +28,7 @@ The backend for NUCCESS, a neuro-affirming support app by Figcit Ltd. NestJS + P
 - Never hand-merge generated files: `pnpm-lock.yaml`, `openapi/openapi.json`, engine fixtures. Take one side and regenerate (`docs/WORKFLOW.md` section 3).
 - Prisma: edit only your module's file in `apps/api/prisma/schema/`; one migration per PR, regenerated after rebasing.
 - `packages/engine` stays pure and dependency-free (engineering rules 2.2).
+- Follow-up issues (bugs outside **Touches**, cut scope, `TODO` links) use the `task` template, the full labels and the owning lane's assignee; write cross-repo references in full (`Twilight-Techy/figcit-backend#N`).
 - No product decisions. Put questions in the issue with the `needs-decision` label and move on.
 - No new dependency without the justification the engineering rules require.
 - No secrets, real user data or production tokens in code, prompts, issues or PR text.
