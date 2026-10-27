@@ -1,0 +1,7922 @@
+[
+  {
+    "ref": "E1M1.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": [
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        8
+      ],
+      "title": "“Let's take care of you first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E1M1.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "strangers",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Coursework due tomorrow morning"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        7
+      ],
+      "title": "“Let's take care of you first” [Regulate now] + [Get support]"
+    }
+  },
+  {
+    "ref": "E1M1.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "sad",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's take care of you first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E1M1.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's get it out of your head first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E1M1.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want a quiet 2-minute reset?”"
+    }
+  },
+  {
+    "ref": "E1M1.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "not_working",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12
+      ],
+      "title": "“Would a different [environment/format/pace] make this easier?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E1M2.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "lonely",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        11
+      ],
+      "title": "“Want to reach out to someone?” [Connect]"
+    }
+  },
+  {
+    "ref": "E1M2.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "sad",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's take care of you first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E1M2.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want a quiet 2-minute reset?”"
+    }
+  },
+  {
+    "ref": "E1M2.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "colleagues",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to my tutor's email"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9
+      ],
+      "title": "“Let's put this into words together” [Draft this]"
+    }
+  },
+  {
+    "ref": "E1M2.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "strangers",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Essay draft"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5
+      ],
+      "title": "“Let's reduce the load first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E1M2.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "cafe",
+        "social": "strangers",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Light admin - expenses"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        3
+      ],
+      "title": "“Start with the smallest, most familiar bit”"
+    }
+  },
+  {
+    "ref": "E1M3.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Weekly report - done it many times"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        3
+      ],
+      "title": "“Start with what you already know”"
+    }
+  },
+  {
+    "ref": "E1M3.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want to move gently for 2 minutes?”"
+    }
+  },
+  {
+    "ref": "E1M3.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "lonely",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        11
+      ],
+      "title": "“Want to reach out to someone?” [Connect]"
+    }
+  },
+  {
+    "ref": "E1M3.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lecture",
+        "social": "classmates",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Follow the lecture and take usable notes"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want a 2-minute reset before we start?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E1M3.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T4",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reading for my dissertation"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        3
+      ],
+      "title": "“Read one section, then see how you feel”"
+    }
+  },
+  {
+    "ref": "E1M3.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "not_working",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "A focus task that isn't going anywhere"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12
+      ],
+      "title": "“Would a different [environment/format/pace] make this easier?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E1M4.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "title": "“What would you like to do?” (open Home / browse)"
+    }
+  },
+  {
+    "ref": "E1M4.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        },
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "social": "strangers",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "title": "“Enjoy the quiet - want something gentle for the journey?”"
+    }
+  },
+  {
+    "ref": "E1M4.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Routine admin - filing and inbox"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        3
+      ],
+      "title": "“Start with what you already know”"
+    }
+  },
+  {
+    "ref": "E1M4.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "lonely",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        11
+      ],
+      "title": "“Want to message someone?” [Connect]"
+    }
+  },
+  {
+    "ref": "E1M4.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want to stretch for a minute?”"
+    }
+  },
+  {
+    "ref": "E1M4.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "colleagues",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Draft a message to the group"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9
+      ],
+      "title": "“Let's put this into words together” [Draft this]"
+    }
+  },
+  {
+    "ref": "E2M1.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Prepare the weekly update"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5
+      ],
+      "title": "“Let's reduce the load first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E2M1.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "exam_hall",
+        "social": "classmates",
+        "sensitivity": [
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Get started on the first question"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E2M1.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's get it out of your head first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E2M1.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "clinical",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Give handover to the incoming shift"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E2M1.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "frustrated",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "colleagues",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to a colleague's email"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        10
+      ],
+      "title": "“Let's draft this - you choose when to send it”"
+    }
+  },
+  {
+    "ref": "E2M1.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "sad",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's take care of you first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E2M2.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Clear the inbox"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want a 2-minute reset before we start?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E2M2.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lecture",
+        "social": "classmates",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Follow the lecture and take usable notes"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want a 2-minute reset before we start?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E2M2.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's steady this first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E2M2.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Group coursework session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want to move for 2 minutes first?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E2M2.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "lonely",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        11
+      ],
+      "title": "“Want to reach out to someone?” [Connect]"
+    }
+  },
+  {
+    "ref": "E2M2.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "not_working",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "A focus task that keeps stalling"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12
+      ],
+      "title": "“Would a different [environment/format/pace] make this easier?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E2M3.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "strangers",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Run the invoice workflow"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        3
+      ],
+      "title": "“Start with what you already know”"
+    }
+  },
+  {
+    "ref": "E2M3.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "uneasy_ahead",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "social": "friends",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Meet friends this evening"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12,
+        13
+      ],
+      "title": "“Would a quieter place or a shorter visit make this more accessible?”"
+    }
+  },
+  {
+    "ref": "E2M3.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "seminar",
+        "social": "classmates",
+        "sensitivity": [
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Make my point in the seminar"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9
+      ],
+      "title": "“Let's put this into words together” [Draft this]"
+    }
+  },
+  {
+    "ref": "E2M3.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T4",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Read around a topic for my dissertation"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        14
+      ],
+      "title": "“Explore this for 10 minutes?”"
+    }
+  },
+  {
+    "ref": "E2M3.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "cafe",
+        "social": "strangers",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Work through a batch of admin"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want to move for 2 minutes first?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E2M3.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Studio work on the current brief"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E2M4.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T4",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Read around a topic for my dissertation"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        14
+      ],
+      "title": "“Explore this for 10 minutes?”"
+    }
+  },
+  {
+    "ref": "E2M4.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Work through the routine list"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E2M4.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Group coursework session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E2M4.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Contribute my point in the meeting"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9
+      ],
+      "title": "“Let's put this into words together” [Draft this]"
+    }
+  },
+  {
+    "ref": "E2M4.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "title": "“What would you like to do?” (open Home / browse)"
+    }
+  },
+  {
+    "ref": "E2M4.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "public",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Capture notes from the session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        13
+      ],
+      "title": "“Want to adjust your environment first?” [Adapt] then [Start task]"
+    }
+  },
+  {
+    "ref": "E3M1.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "first_time",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Start a brand-new experiment protocol"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5
+      ],
+      "title": "“Let's reduce the load first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E3M1.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "frustrated",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to a difficult message"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        10
+      ],
+      "title": "“Let's draft this - you choose when to send it”"
+    }
+  },
+  {
+    "ref": "E3M1.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Plan out the next project phase"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5
+      ],
+      "title": "“Let's reduce the load first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E3M1.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want to move for 2 minutes?”"
+    }
+  },
+  {
+    "ref": "E3M1.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "travelling",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Hand off to the client now"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E3M1.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "not_working",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12
+      ],
+      "title": "“Would a different [environment/format/pace] make this easier?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E3M2.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 7
+        },
+        {
+          "code": "restless",
+          "intensity": 8
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "work",
+        "sensitivity": [
+          "sound",
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Prepare a presentation at a meeting"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5,
+        9
+      ],
+      "title": "“Let's reduce the load first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E3M2.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "not_working",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12
+      ],
+      "title": "“Would a different [environment/format/pace] make this easier?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E3M2.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Work through the routine list"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want a 2-minute reset before we start?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E3M2.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Speak up in the meeting"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9
+      ],
+      "title": "“Let's put this into words together” [Draft this]"
+    }
+  },
+  {
+    "ref": "E3M2.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "strangers",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Essay draft"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5
+      ],
+      "title": "“Let's reduce the load first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E3M2.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "sad",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "social": "strangers",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want a quiet reset, or to message someone?”"
+    }
+  },
+  {
+    "ref": "E3M3.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Debug a tricky module"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E3M3.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "seminar",
+        "social": "classmates",
+        "sensitivity": [
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Make my point in the seminar"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9
+      ],
+      "title": "“Let's put this into words together” [Draft this]"
+    }
+  },
+  {
+    "ref": "E3M3.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "lost_for_words",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Present at a team session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        9,
+        2,
+        7,
+        4
+      ],
+      "title": "“Let's create the three key points and a simple speaking script”"
+    }
+  },
+  {
+    "ref": "E3M3.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Research a question that came up"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        14
+      ],
+      "title": "“Explore this for 10 minutes?”"
+    }
+  },
+  {
+    "ref": "E3M3.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "classmates",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Focused work on the brief"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        13
+      ],
+      "title": "“Want to adjust your environment first?” [Adapt] then [Start task]"
+    }
+  },
+  {
+    "ref": "E3M3.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "strangers",
+        "sensitivity": [
+          "noise"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "title": "“What would you like to do?” (open Home / browse)"
+    }
+  },
+  {
+    "ref": "E3M4.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "public",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Sketch out campaign ideas while they're fresh"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        13
+      ],
+      "title": "“Want to adjust your environment first?” [Adapt] then [Start task]"
+    }
+  },
+  {
+    "ref": "E3M4.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Push on with the creative project"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E3M4.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "first_time",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Design work on the new feature"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E3M4.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T4",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Explore a topic that isn't on the reading list"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        14
+      ],
+      "title": "“Explore this for 10 minutes?”"
+    }
+  },
+  {
+    "ref": "E3M4.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Group ideation session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E3M4.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want to walk for a few minutes?”"
+    }
+  },
+  {
+    "ref": "E4M1.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "travelling",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Send the client the figures - now"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15,
+        5
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E4M1.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "frustrated",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to the message that just landed"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        10
+      ],
+      "title": "“Let's draft this - you choose when to send it”"
+    }
+  },
+  {
+    "ref": "E4M1.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "clinical",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Give handover to the incoming shift"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E4M1.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "exam_hall",
+        "social": "classmates",
+        "sensitivity": [
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Get started on the first question"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E4M1.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want a quiet 2-minute reset?”"
+    }
+  },
+  {
+    "ref": "E4M1.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "not_working",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Focus work that keeps stalling"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        12
+      ],
+      "title": "“Would a different [environment/format/pace] make this easier?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E4M2.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "frustrated",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "colleagues",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to a colleague's email"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        10
+      ],
+      "title": "“Let's draft this - you choose when to send it”"
+    }
+  },
+  {
+    "ref": "E4M2.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "frustrated",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Respond to what was just said"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        10
+      ],
+      "title": "“Let's get one line down before you say it”"
+    }
+  },
+  {
+    "ref": "E4M2.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want to move for 2 minutes?”"
+    }
+  },
+  {
+    "ref": "E4M2.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Get the deadline piece moving"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        5
+      ],
+      "title": "“Let's reduce the load first” [Try a short reset]"
+    }
+  },
+  {
+    "ref": "E4M2.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "racing_head",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Let's get it out of your head first” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E4M2.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "travelling",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Deliver the pitch"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        15
+      ],
+      "title": "“Let's do the smallest version first”"
+    }
+  },
+  {
+    "ref": "E4M3.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Settle into a two-hour study block"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want to move for 2 minutes first?” ([Skip to task] always visible)"
+    }
+  },
+  {
+    "ref": "E4M3.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Deep work before the day starts"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E4M3.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lecture",
+        "social": "classmates",
+        "sensitivity": [
+          "noise",
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Sit through the rest of the lecture"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        4
+      ],
+      "title": "“Want something discreet to settle the restlessness?”"
+    }
+  },
+  {
+    "ref": "E4M3.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Group coursework session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E4M3.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        6
+      ],
+      "title": "“Want a quiet 2-minute reset?”"
+    }
+  },
+  {
+    "ref": "E4M3.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "public",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Work the networking floor"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        13
+      ],
+      "title": "“Want to adjust your environment first?” [Adapt] then [Start task]"
+    }
+  },
+  {
+    "ref": "E4M4.1",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        },
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Deep work on the big feature"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E4M4.2",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "classmates",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Creative sprint on the brief"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E4M4.3",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "focus"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Untangle the hardest problem on the list"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        2
+      ],
+      "title": "“Start [task] now”"
+    }
+  },
+  {
+    "ref": "E4M4.4",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T5",
+        "traits": [
+          "first_time",
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Read into a field that's new to me"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        14
+      ],
+      "title": "“Explore this for 10 minutes?”"
+    }
+  },
+  {
+    "ref": "E4M4.5",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "excited",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "public",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Present on the main stage"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        13
+      ],
+      "title": "“Want to adjust your environment first?” [Adapt] then [Start task]"
+    }
+  },
+  {
+    "ref": "E4M4.6",
+    "source": "tab0",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "title": "“What would you like to do?” (open Home / browse)"
+    }
+  },
+  {
+    "ref": "E1M1.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "numb",
+          "intensity": 7
+        }
+      ],
+      "sensations": [
+        {
+          "code": "cant_speak_aloud"
+        }
+      ],
+      "context": {
+        "environment": "in_bed",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        16
+      ],
+      "light": "red",
+      "title": "“Let's just breathe - no words needed” [Start]"
+    }
+  },
+  {
+    "ref": "E1M1.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "shame",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "TX",
+        "traits": [
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Submit the assignment that was due yesterday"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        18
+      ],
+      "light": "red",
+      "title": "“Let's take one small step to put this right” [Draft the message]"
+    }
+  },
+  {
+    "ref": "E1M1.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "sharp_pain",
+          "intensity": 7
+        }
+      ],
+      "context": {
+        "environment": "in_bed",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Work shift starts in 3 hours"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        24
+      ],
+      "light": "red",
+      "title": "“Let's look after your body first” [Rest for 20 minutes]"
+    }
+  },
+  {
+    "ref": "E1M1.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "hungry"
+        },
+        {
+          "code": "thirsty"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Finish a timesheet"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        29
+      ],
+      "light": "red",
+      "title": "“Body basics first - then we'll pick this back up” [I've sorted it]"
+    }
+  },
+  {
+    "ref": "E1M2.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "grief",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        25
+      ],
+      "light": "red",
+      "title": "“Be gentle with yourself tonight” [Reach out to someone]"
+    }
+  },
+  {
+    "ref": "E1M2.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "peopled_out",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        23
+      ],
+      "light": "red",
+      "title": "“Time to recharge - quiet counts as doing something” [Quiet reset]"
+    }
+  },
+  {
+    "ref": "E1M2.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "communication",
+          "event_prep"
+        ],
+        "puttingOff": true,
+        "count": 1,
+        "title": "Book a GP appointment I've put off for weeks"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "red",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E1M2.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "caring",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Make dinner"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        19
+      ],
+      "light": "red",
+      "title": "“Let's turn the volume down first” [Find a quieter spot]"
+    }
+  },
+  {
+    "ref": "E1M3.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "sharp_pain",
+          "intensity": 5
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to three work emails"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        24
+      ],
+      "light": "amber",
+      "title": "“Let's do the essential part, gently”"
+    }
+  },
+  {
+    "ref": "E1M3.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Start the literature review"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "amber",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E1M3.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "hurt_comment",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to feedback from my manager"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        26
+      ],
+      "light": "amber",
+      "title": "“Let's draft it - you choose if and when to send” [Draft]"
+    }
+  },
+  {
+    "ref": "E1M3.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Weekly report"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "declinesThisSession": 3
+    },
+    "expect": {
+      "patterns": [
+        30
+      ],
+      "light": "amber",
+      "title": "“No problem - I'll stay out of your way” [Open Home]"
+    }
+  },
+  {
+    "ref": "E1M4.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Laundry, two emails and a form to post"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "amber",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E1M4.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "thirsty"
+        },
+        {
+          "code": "too_cold"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Keep reading a report"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        29
+      ],
+      "light": "amber",
+      "title": "“Body basics first - then we'll pick this back up” [I've sorted it]"
+    }
+  },
+  {
+    "ref": "E1M4.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "peopled_out",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication",
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to the group chat about next week"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        23
+      ],
+      "light": "amber",
+      "title": "“Time to recharge - quiet counts as doing something” [Quiet reset]"
+    }
+  },
+  {
+    "ref": "E1M4.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "numb",
+          "intensity": 5
+        }
+      ],
+      "sensations": [
+        {
+          "code": "cant_speak_aloud"
+        }
+      ],
+      "context": {
+        "environment": "seminar",
+        "social": "classmates",
+        "sensitivity": [
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Answer when the tutor calls on me"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        16
+      ],
+      "light": "red",
+      "title": "“Let's just breathe - no words needed” [Start]"
+    }
+  },
+  {
+    "ref": "E2M1.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "travelling",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd",
+          "touch"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Find and board the connecting train"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        19
+      ],
+      "light": "red",
+      "title": "“Let's turn the volume down, then take one step” [Headphones + 60 seconds]"
+    }
+  },
+  {
+    "ref": "E2M1.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "hurt_comment",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "online_meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Stay in the rest of the meeting"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        26
+      ],
+      "light": "red",
+      "title": "“Take a breath - camera off for a minute is fine” [60-second reset]"
+    }
+  },
+  {
+    "ref": "E2M1.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "shame",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "TX",
+        "traits": [
+          "communication",
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Tell my manager the report will be late"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        18
+      ],
+      "light": "red",
+      "title": "“Let's take one small step to put this right” [Draft the message]"
+    }
+  },
+  {
+    "ref": "E2M1.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "grief",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Finish the weekly update"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        25
+      ],
+      "light": "amber",
+      "title": "“Would it help to lighten today's load?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E2M2.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "exam_hall",
+        "social": "classmates",
+        "sensitivity": [
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "research",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Start the first essay question"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "yellow",
+      "title": "“Let's just write one line”"
+    }
+  },
+  {
+    "ref": "E2M2.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Three deadlines this week - not sure which first"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "yellow",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E2M2.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "sharp_pain",
+          "intensity": 5
+        }
+      ],
+      "context": {
+        "environment": "clinical",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication",
+          "focus",
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Finish patient notes before handover"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        24
+      ],
+      "light": "yellow",
+      "title": "“Let's do the essential part, gently”"
+    }
+  },
+  {
+    "ref": "E2M2.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "caring",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Cook dinner"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        19
+      ],
+      "light": "yellow",
+      "title": "“Let's turn the volume down first” [Find a quieter spot]"
+    }
+  },
+  {
+    "ref": "E2M3.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Two hours of data entry"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        21
+      ],
+      "light": "yellow",
+      "title": "“Let's make this less boring” [Add a boost]"
+    }
+  },
+  {
+    "ref": "E2M3.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "locked_in",
+          "intensity": 5
+        }
+      ],
+      "sensations": [
+        {
+          "code": "hungry"
+        }
+      ],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Keep coding the prototype"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        20
+      ],
+      "light": "yellow",
+      "title": "“Let's set a stopping point and top up” [Take a 5-minute break]"
+    }
+  },
+  {
+    "ref": "E2M3.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "hurt_comment",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "online_meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Share my screen next"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        26
+      ],
+      "light": "yellow",
+      "title": "“Take a breath - camera off for a minute is fine” [60-second reset]"
+    }
+  },
+  {
+    "ref": "E2M3.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Tidy my inbox"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "declinesThisSession": 3
+    },
+    "expect": {
+      "patterns": [
+        30
+      ],
+      "light": "yellow",
+      "title": "“No problem - I'll stay out of your way” [Open Home]"
+    }
+  },
+  {
+    "ref": "E2M4.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "event_prep"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Revise for the exam"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        21
+      ],
+      "light": "green",
+      "title": "“Let's make this less boring” [Add a boost]"
+    }
+  },
+  {
+    "ref": "E2M4.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T4",
+        "traits": [
+          "first_time",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Start my business plan"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "green",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E2M4.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "tired_wired"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Plan next week"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        29
+      ],
+      "light": "green",
+      "title": "“Body basics first - then we'll pick this back up” [I've sorted it]"
+    }
+  },
+  {
+    "ref": "E2M4.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "waiting_room",
+        "social": "strangers",
+        "sensitivity": [
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Decide what to raise with the GP first"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "green",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E3M1.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "hurt_comment",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to a harsh review"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        26
+      ],
+      "light": "amber",
+      "title": "“Let's draft it - you choose if and when to send” [Draft]"
+    }
+  },
+  {
+    "ref": "E3M1.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "social_event",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Stay for the cake at 9pm"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        19
+      ],
+      "light": "red",
+      "title": "“Let's turn the volume down first” [Find a quieter spot]"
+    }
+  },
+  {
+    "ref": "E3M1.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Four requests from different people today"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "yellow",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E3M1.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "shame",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "TX",
+        "traits": [
+          "consequence"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Assignment overdue by two days"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        18
+      ],
+      "light": "yellow",
+      "title": "“Let's take one small step to put this right” [Draft the message]"
+    }
+  },
+  {
+    "ref": "E3M2.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "grief",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Present the monthly figures"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        25
+      ],
+      "light": "amber",
+      "title": "“Would it help to lighten today's load?” [Adapt this]"
+    }
+  },
+  {
+    "ref": "E3M2.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "online_meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Sit through a long training webinar"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        21
+      ],
+      "light": "yellow",
+      "title": "“Let's make this less boring” [Add a boost]"
+    }
+  },
+  {
+    "ref": "E3M2.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "smell"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Write up the experiment"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "yellow",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E3M2.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "peopled_out",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Prepare tomorrow's agenda"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        23
+      ],
+      "light": "yellow",
+      "title": "“Time to recharge - quiet counts as doing something” [Quiet reset]"
+    }
+  },
+  {
+    "ref": "E3M3.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "locked_in",
+          "intensity": 5
+        }
+      ],
+      "sensations": [
+        {
+          "code": "hungry"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Keep designing the dashboard"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        20
+      ],
+      "light": "green",
+      "title": "“Let's set a stopping point and top up” [Take a 5-minute break]"
+    }
+  },
+  {
+    "ref": "E3M3.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Five small admin tasks"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "green",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E3M3.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "smell"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Start designing the next experiment"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "green",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E3M3.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "light": "green",
+      "title": "“What would you like to do?” (open Home / browse)"
+    }
+  },
+  {
+    "ref": "E3M4.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "locked_in",
+          "intensity": 7
+        }
+      ],
+      "sensations": [
+        {
+          "code": "hungry"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "with_others"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Finish the pitch deck tonight"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        20
+      ],
+      "light": "green",
+      "title": "“Let's set a stopping point and top up” [Take a 5-minute break]"
+    }
+  },
+  {
+    "ref": "E3M4.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "research"
+        ],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Choose a dissertation topic from four ideas"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "green",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E3M4.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "first_time",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Start a new training plan"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "green",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E3M4.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Quarterly filing"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        21
+      ],
+      "light": "green",
+      "title": "“Let's make this less boring” [Add a boost]"
+    }
+  },
+  {
+    "ref": "E4M1.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 9
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "travelling",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd",
+          "touch"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        19
+      ],
+      "light": "red",
+      "title": "“Let's turn the volume down first” [Find a quieter spot]"
+    }
+  },
+  {
+    "ref": "E4M1.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "shame",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "clinical",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Report a medication-timing error to the nurse in charge"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        18
+      ],
+      "light": "amber",
+      "title": "“Let's say it clearly and get it done” [Use the script]"
+    }
+  },
+  {
+    "ref": "E4M1.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "hurt_comment",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        26
+      ],
+      "light": "amber",
+      "title": "“Let's get the replay out of your head” [Brain dump]"
+    }
+  },
+  {
+    "ref": "E4M1.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "caring",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Dinner, homework help and an email to send"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "yellow",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E4M2.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "online_meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Long compliance training"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        21
+      ],
+      "light": "yellow",
+      "title": "“Let's make this less boring” [Add a boost]"
+    }
+  },
+  {
+    "ref": "E4M2.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "lab",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "smell"
+        ]
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Finish the lab practical"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        19
+      ],
+      "light": "amber",
+      "title": "“Let's turn the volume down first” [Find a quieter spot]"
+    }
+  },
+  {
+    "ref": "E4M2.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Prepare for my 1:1"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "declinesThisSession": 3
+    },
+    "expect": {
+      "patterns": [
+        30
+      ],
+      "light": "yellow",
+      "title": "“No problem - I'll stay out of your way” [Open Home]"
+    }
+  },
+  {
+    "ref": "E4M2.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "locked_in",
+          "intensity": 7
+        }
+      ],
+      "sensations": [
+        {
+          "code": "thirsty"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T6",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reorganise the whole shared drive"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        20
+      ],
+      "light": "yellow",
+      "title": "“Let's set a stopping point and top up” [Take a 5-minute break]"
+    }
+  },
+  {
+    "ref": "E4M3.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "locked_in",
+          "intensity": 5
+        }
+      ],
+      "sensations": [
+        {
+          "code": "thirsty"
+        }
+      ],
+      "context": {
+        "environment": "lab",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "smell"
+        ]
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Keep running the analysis"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        20
+      ],
+      "light": "yellow",
+      "title": "“Let's set a stopping point and top up” [Take a 5-minute break]"
+    }
+  },
+  {
+    "ref": "E4M3.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Quarterly filing"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        21
+      ],
+      "light": "yellow",
+      "title": "“Let's make this less boring” [Add a boost]"
+    }
+  },
+  {
+    "ref": "E4M3.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [],
+      "sensations": [
+        {
+          "code": "tired_wired"
+        },
+        {
+          "code": "too_cold"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Big planning session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        29
+      ],
+      "light": "yellow",
+      "title": "“Body basics first - then we'll pick this back up” [I've sorted it]"
+    }
+  },
+  {
+    "ref": "E4M3.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Switch from emails to my tax return"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "yellow",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "E4M4.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "locked_in",
+          "intensity": 7
+        }
+      ],
+      "sensations": [
+        {
+          "code": "hungry"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Ship the MVP feature"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        20
+      ],
+      "light": "green",
+      "title": "“Let's set a stopping point and top up” [Take a 5-minute break]"
+    }
+  },
+  {
+    "ref": "E4M4.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "foggy",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [],
+        "puttingOff": false,
+        "count": 3,
+        "title": "Six goals for the day"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        22
+      ],
+      "light": "green",
+      "title": "“Let's find the one thing that matters now” [Sort my list]"
+    }
+  },
+  {
+    "ref": "E4M4.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "bored",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        1
+      ],
+      "light": "green",
+      "title": "“What would you like to do?” (open Home / browse)"
+    }
+  },
+  {
+    "ref": "E4M4.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "stuck_start",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T4",
+        "traits": [
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Write the grant application"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        17
+      ],
+      "light": "green",
+      "title": "“Let's just do the first two minutes” [Start with me]"
+    }
+  },
+  {
+    "ref": "NS.1",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "not_sure"
+      },
+      "emotions": [],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        27
+      ],
+      "light": "yellow",
+      "title": "“Not sure is okay - let's start with your body” [Quick body check]"
+    }
+  },
+  {
+    "ref": "NS.2",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "not_sure"
+      },
+      "emotions": [],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to two messages"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        27
+      ],
+      "light": "yellow",
+      "title": "“Not sure is okay - let's start with your body” [Quick body check]"
+    }
+  },
+  {
+    "ref": "NS.3",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "not_sure"
+      },
+      "emotions": [],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T3",
+        "traits": [],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Study session"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        27
+      ],
+      "light": "yellow",
+      "title": "“Not sure is okay - let's start with your body” [Quick body check]"
+    }
+  },
+  {
+    "ref": "RISK.1",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "freeText": [
+        "what's the point, I feel like a burden to everyone"
+      ]
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        28
+      ],
+      "light": "red",
+      "title": "“You don't have to go through this alone” [Get support now]"
+    }
+  },
+  {
+    "ref": "REC.1",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise",
+          "crowd"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "done_before"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Prepare the weekly update"
+      },
+      "recheckOf": {
+        "cellId": "E2M1",
+        "finalBand": "constrained",
+        "light": "amber",
+        "peakIntensity": 7,
+        "supportCompleted": true,
+        "safetyTriggered": false
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        31
+      ],
+      "light": "blue",
+      "title": "“You’re steadier - want to pick up where you left off, gently?” [Start small]"
+    }
+  },
+  {
+    "ref": "REC.2",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "recheckOf": {
+        "cellId": "E1M2",
+        "finalBand": "very_constrained",
+        "light": "red",
+        "peakIntensity": 9,
+        "supportCompleted": true,
+        "safetyTriggered": false
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        31
+      ],
+      "light": "blue",
+      "title": "“You’ve come through the hardest part - rest is still the task” [Wind down]"
+    }
+  },
+  {
+    "ref": "REC.3",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "frustrated",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "communication"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Reply to a difficult email"
+      },
+      "recheckOf": {
+        "cellId": "E3M1",
+        "finalBand": "conditional",
+        "light": "yellow",
+        "peakIntensity": 7,
+        "supportCompleted": true,
+        "safetyTriggered": false,
+        "pathway": "regulate",
+        "toolId": "breathe",
+        "helped": "not_really"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        31
+      ],
+      "light": "yellow",
+      "title": "“Let’s try a different way in - draft it, send it later” [Draft]"
+    }
+  },
+  {
+    "ref": "RF.1",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "relieved",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "library",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        33
+      ],
+      "light": "green",
+      "title": "“Want to note what helped today?” [Reflect]"
+    }
+  },
+  {
+    "ref": "RF.2",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "making_sense",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        32
+      ],
+      "light": "yellow",
+      "title": "“Want to make sense of today, briefly?” [Reflect]"
+    }
+  },
+  {
+    "ref": "RF.3",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "recurringStruggleConfirmed": true
+    },
+    "expect": {
+      "patterns": [
+        34
+      ],
+      "light": "green",
+      "title": "“This has come up a few times - want to look at what helps?” [Look at my pattern]"
+    }
+  },
+  {
+    "ref": "RF.4",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "reflective_work"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Write my placement reflective log"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        35
+      ],
+      "light": "green",
+      "title": "“Let's gather your points first” [Reflect, then draft]"
+    }
+  },
+  {
+    "ref": "RF.5",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T2",
+        "traits": [
+          "with_others",
+          "ask_adjustment"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Prepare for my reasonable-adjustment meeting"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        35
+      ],
+      "light": "yellow",
+      "title": "“Let's gather your points first” [Reflect, then draft]"
+    }
+  },
+  {
+    "ref": "RF.6",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "peopled_out",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "recheckOf": {
+        "cellId": "E2M2",
+        "finalBand": "conditional",
+        "light": "yellow",
+        "peakIntensity": 6,
+        "supportCompleted": true,
+        "safetyTriggered": false
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        31,
+        33
+      ],
+      "light": "blue",
+      "title": "“You're steadier - rest is still a good choice” [Wind down]"
+    }
+  },
+  {
+    "ref": "RF.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overwhelmed",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "needs": [
+        "make_sense"
+      ]
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        40
+      ],
+      "light": "red",
+      "title": "“Let's get it out of your head instead of going over it” [Brain dump]"
+    }
+  },
+  {
+    "ref": "RF.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "going_over",
+          "intensity": 7
+        },
+        {
+          "code": "frustrated",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "cafe",
+        "social": "strangers",
+        "sensitivity": [
+          "noise"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        40
+      ],
+      "light": "amber",
+      "title": "“Let's get it out of your head instead of going over it” [Brain dump]"
+    }
+  },
+  {
+    "ref": "MD.1",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "uneasy_ahead",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "event_prep"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Job interview this afternoon"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        36
+      ],
+      "light": "green",
+      "title": "“Want to settle in before you prepare?” [5-minute settle]"
+    }
+  },
+  {
+    "ref": "MD.2",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "uneasy_ahead",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "waiting_room",
+        "social": "strangers",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "communication",
+          "event_prep"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Explain my symptoms clearly at the appointment"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        36
+      ],
+      "light": "yellow",
+      "title": "“Want a quiet 3-minute settle, then your notes?” [Settle]"
+    }
+  },
+  {
+    "ref": "MD.3",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "want_practice",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "open_plan",
+        "social": "colleagues",
+        "sensitivity": [
+          "noise"
+        ]
+      },
+      "demand": {
+        "timeline": "TR",
+        "traits": [
+          "recurring_practice"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Midday prayer (the user's own saved practice)"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "savedPractices": [
+        {
+          "id": "p-midday",
+          "name": "midday prayer",
+          "type": "prayer",
+          "helpsWhenStruggling": false,
+          "isTransition": false,
+          "dueNow": true
+        }
+      ]
+    },
+    "expect": {
+      "patterns": [
+        37
+      ],
+      "light": "green",
+      "title": "“It's time for your midday prayer” [Begin]"
+    }
+  },
+  {
+    "ref": "MD.4",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "anxious",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "family",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "TR",
+        "traits": [
+          "recurring_practice"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Evening devotion (the user's own saved practice)"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "savedPractices": [
+        {
+          "id": "p-evening",
+          "name": "evening devotion",
+          "type": "prayer",
+          "helpsWhenStruggling": true,
+          "isTransition": false,
+          "dueNow": true
+        }
+      ]
+    },
+    "expect": {
+      "patterns": [
+        37
+      ],
+      "light": "amber",
+      "title": "“Let's settle your body first” [Breathe] + [My evening devotion]"
+    }
+  },
+  {
+    "ref": "MD.5",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 1
+      },
+      "emotions": [
+        {
+          "code": "grief",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "in_bed",
+        "social": "alone",
+        "sensitivity": [
+          "lights"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "savedPractices": [
+        {
+          "id": "p-remember",
+          "name": "remembrance prayer",
+          "type": "prayer",
+          "helpsWhenStruggling": true,
+          "isTransition": false,
+          "dueNow": false
+        }
+      ]
+    },
+    "expect": {
+      "patterns": [
+        25,
+        37
+      ],
+      "light": "red",
+      "title": "“Be gentle with yourself today” [Message my sibling]"
+    }
+  },
+  {
+    "ref": "MD.6",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "restless",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "gym_outdoors",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "needs": [
+        "find_stillness"
+      ]
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        38
+      ],
+      "light": "yellow",
+      "title": "“Let some energy out, then settle as you walk?” [Walk, then settle]"
+    }
+  },
+  {
+    "ref": "MD.7",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 1,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "grateful",
+          "intensity": 2
+        },
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "transit",
+        "social": "strangers",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        38
+      ],
+      "light": "amber",
+      "title": "“Want to notice what was good today?” [Gratitude practice]"
+    }
+  },
+  {
+    "ref": "MD.8",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [
+        {
+          "code": "tired_wired"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": [
+          "lights"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "stopping"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Stop working and get to sleep"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        39
+      ],
+      "light": "green",
+      "title": "“Ready to close the day?” [Closing ritual]"
+    }
+  },
+  {
+    "ref": "MD.9",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 4
+      },
+      "emotions": [
+        {
+          "code": "calm",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "demand": {
+        "timeline": "T1",
+        "traits": [
+          "research",
+          "start_day"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Get ready for a day of lectures"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "savedPractices": [
+        {
+          "id": "p-morning",
+          "name": "morning ritual",
+          "type": "ritual",
+          "helpsWhenStruggling": false,
+          "isTransition": false,
+          "dueNow": false,
+          "opening": true
+        }
+      ]
+    },
+    "expect": {
+      "patterns": [
+        39
+      ],
+      "light": "green",
+      "title": "“Want to start the day your way?” [Opening ritual]"
+    }
+  },
+  {
+    "ref": "MD.10",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "want_practice",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        37
+      ],
+      "light": "yellow",
+      "title": "“Want some time with what matters to you?” [My practice]"
+    }
+  },
+  {
+    "ref": "MD.11",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "uneasy_ahead",
+          "intensity": 5
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "online_meeting",
+        "social": "colleagues",
+        "sensitivity": [
+          "visual_clutter"
+        ]
+      },
+      "demand": {
+        "timeline": "T0",
+        "traits": [
+          "with_others",
+          "multi_step"
+        ],
+        "puttingOff": false,
+        "count": 1,
+        "title": "Present my update to the team"
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        36
+      ],
+      "light": "yellow",
+      "title": "“Two quiet minutes, camera off, then your first point” [Settle]"
+    }
+  },
+  {
+    "ref": "GD.1",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 2,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "numb",
+          "intensity": 5
+        }
+      ],
+      "sensations": [
+        {
+          "code": "cant_speak_aloud"
+        }
+      ],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      },
+      "intent": "meditate"
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        41
+      ],
+      "light": "amber",
+      "title": "“Let's just breathe - no words needed” [Start]"
+    }
+  },
+  {
+    "ref": "GD.2",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 4,
+        "mood": 2
+      },
+      "emotions": [
+        {
+          "code": "overloaded",
+          "intensity": 7
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "social_event",
+        "social": "strangers",
+        "sensitivity": [
+          "noise",
+          "lights",
+          "crowd"
+        ]
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true,
+      "savedPractices": [
+        {
+          "id": "p-still",
+          "name": "stillness",
+          "type": "meditation",
+          "helpsWhenStruggling": true,
+          "isTransition": false,
+          "dueNow": false
+        }
+      ]
+    },
+    "expect": {
+      "patterns": [
+        19,
+        41
+      ],
+      "light": "red",
+      "title": "“Let's turn the volume down first” [Find a quieter spot]"
+    }
+  },
+  {
+    "ref": "GD.3",
+    "source": "tab0b",
+    "input": {
+      "state": {
+        "kind": "grid",
+        "energy": 3,
+        "mood": 3
+      },
+      "emotions": [
+        {
+          "code": "need_quiet",
+          "intensity": 2
+        }
+      ],
+      "sensations": [],
+      "context": {
+        "environment": "home",
+        "social": "alone",
+        "sensitivity": []
+      }
+    },
+    "signals": {
+      "plan": "free",
+      "hasTrustedContact": true
+    },
+    "expect": {
+      "patterns": [
+        38
+      ],
+      "light": "green",
+      "title": "“Want some quiet time?” [Start stillness]"
+    }
+  }
+]

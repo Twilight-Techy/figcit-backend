@@ -7,15 +7,16 @@ Local environment: Postgres 16 runs in the container (`service postgresql start`
 **After a container reset:** clone both repos into `/home/user`, check out `claude/intelligent-ride-vnjnew`, run `scripts/dev-bootstrap.sh` in the backend, then `pnpm install` in the PWA. The inherited `DATABASE_URL` points at an unrelated Neon database; `.env` overrides it (DECISIONS B-05), never use it.
 
 ## Phase 1: Database
-- [ ] Prisma schema for every module, with relations, indexes and constraints (`apps/api/prisma/schema/*.prisma`)
-- [ ] Initial migration (plus raw SQL for partial indexes and append-only guards)
-- [ ] Field-level encryption design (per-user data key wrapped by a master key) in `common/crypto`
+- [x] Prisma schema for every module, with relations, indexes and constraints (`apps/api/prisma/schema/*.prisma`)
+- [x] Initial migration (plus raw SQL for partial indexes and append-only guards)
+- [x] Field-level encryption design (per-user data key wrapped by a master key) in `common/crypto`
 - [ ] Seed data (`pnpm db:seed`): personas covering every light, pathway, plan, role and edge case
 
 ## Phase 2: Engine
-- [ ] rules-compiler: workbook CSV/xlsx → snapshot JSON (validated) + fixtures
-- [ ] Engine stages 0–12, `evaluate`, `evaluateRecheck`, safety matcher
-- [ ] Fixture tests (Tabs 0, 0b, 9, 10), property tests, benchmarks
+- [x] rules-compiler: workbook CSV → snapshot JSON (validated) + 189 scenario fixtures (`pnpm fixtures:generate`)
+- [x] Engine stages 0–12, `evaluate`, `evaluateRecheck`, Aho–Corasick safety matcher
+- [x] Fixture tests (Tabs 0, 0b, 9, 10), property tests, budget tests (263 tests; p95 0.18 ms)
+- [ ] xlsx upload path (exceljs) for the admin snapshot flow — do with Admin
 
 ## Phase 3: API platform
 - [ ] Config, logging, problem-details errors, zod validation, OpenAPI generation

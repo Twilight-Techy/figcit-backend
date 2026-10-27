@@ -1,4 +1,10 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+  timingSafeEqual,
+} from 'node:crypto';
 
 // Field-level envelope encryption (SYSTEM_DESIGN §9.3, DECISIONS B-04).
 //
@@ -22,7 +28,10 @@ export interface MasterKeyRing {
 /** Parses `MASTER_KEYS="1:<base64>,2:<base64>"`; the highest version encrypts new keys. */
 export function parseMasterKeys(value: string): MasterKeyRing {
   const keys = new Map<number, Buffer>();
-  for (const part of value.split(',').map((p) => p.trim()).filter(Boolean)) {
+  for (const part of value
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean)) {
     const [versionText, encoded] = part.split(':');
     const version = Number(versionText);
     const key = Buffer.from(encoded ?? '', 'base64');
@@ -35,7 +44,11 @@ export function parseMasterKeys(value: string): MasterKeyRing {
   return { current: Math.max(...keys.keys()), keys };
 }
 
-function seal(key: Buffer, plaintext: Buffer, aad: Buffer): { iv: Buffer; tag: Buffer; ct: Buffer } {
+function seal(
+  key: Buffer,
+  plaintext: Buffer,
+  aad: Buffer,
+): { iv: Buffer; tag: Buffer; ct: Buffer } {
   const iv = randomBytes(IV_BYTES);
   const cipher = createCipheriv('aes-256-gcm', key, iv);
   cipher.setAAD(aad);
@@ -81,7 +94,11 @@ export function unwrapDataKey(ring: MasterKeyRing, wrapped: Uint8Array): Buffer 
   return open(master, { iv, tag, ct }, WRAP_AAD);
 }
 
-export function encryptField(dataKey: Buffer, ownerId: string, plaintext: string): Uint8Array<ArrayBuffer> {
+export function encryptField(
+  dataKey: Buffer,
+  ownerId: string,
+  plaintext: string,
+): Uint8Array<ArrayBuffer> {
   const { iv, tag, ct } = seal(dataKey, Buffer.from(plaintext, 'utf8'), Buffer.from(ownerId));
   const out = new Uint8Array(1 + IV_BYTES + TAG_BYTES + ct.length);
   out[0] = FORMAT;

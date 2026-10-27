@@ -82,6 +82,12 @@ export default tseslint.config(
     },
   },
   {
+    // Catalogue files are data tables (rules 15 exception, DECISIONS B-14): long, and built with
+    // small positional row helpers.
+    files: ['packages/rules-compiler/src/catalogue/**/*.ts'],
+    rules: { 'max-lines': 'off', 'max-params': ['error', 6] },
+  },
+  {
     files: ['**/*.spec.ts', '**/*.test.ts', '**/test/**/*.ts'],
     rules: { 'max-lines-per-function': 'off' },
   },
