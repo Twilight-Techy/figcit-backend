@@ -1,0 +1,24 @@
+model BillingCustomer {
+  userId             String   @id @map("user_id") @db.Uuid
+  provider           String   @db.VarChar(16)
+  providerCustomerId String   @unique @map("provider_customer_id") @db.VarChar(120)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("billing_customers")
+}
+
+// Webhook events, idempotent by provider event id. No card data ever reaches us.
+model BillingEvent {
+  id              String    @id @default(uuid(7)) @db.Uuid
+  provider        String    @db.VarChar(16)
+  providerEventId String    @map("provider_event_id") @db.VarChar(120)
+  type            String    @db.VarChar(64)
+  userId          String?   @map("user_id") @db.Uuid
+  processedAt     DateTime? @map("processed_at") @db.Timestamptz(3)
+  receivedAt      DateTime  @default(now()) @map("received_at") @db.Timestamptz(3)
+
+  @@unique([provider, providerEventId])
+  @@map("billing_events")
+}

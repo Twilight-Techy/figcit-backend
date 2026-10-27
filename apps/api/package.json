@@ -18,10 +18,10 @@
     "test:e2e": "vitest run --config vitest.e2e.config.ts --passWithNoTests",
     "db:generate": "prisma generate",
     "db:migration": "prisma migrate dev --create-only --name",
-    "openapi:generate": "echo 'OpenAPI generation arrives with backend issue #6' && exit 1"
-  },
-  "prisma": {
-    "schema": "prisma/schema"
+    "openapi:generate": "echo 'OpenAPI generation arrives with backend issue #6' && exit 1",
+    "db:seed": "prisma db seed",
+    "db:migrate": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
     "@figcit/engine": "workspace:*",

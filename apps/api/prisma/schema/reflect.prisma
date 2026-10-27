@@ -1,0 +1,37 @@
+// Exactly three prompts per session. Never reaches analytics, shares (unless the user adds it) or
+// institutions (RF-4).
+model Reflection {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  sessionId     String?   @map("session_id") @db.Uuid
+  variant       String    @db.VarChar(32) // prompt set code
+  answersEnc    Bytes     @map("answers_enc")
+  takeawayEnc   Bytes?    @map("takeaway_enc")
+  topicTag      String?   @map("topic_tag") @db.VarChar(48)
+  saved         Boolean   @default(false)
+  savedForLater Boolean   @default(false) @map("saved_for_later")
+  safetyFlag    Boolean   @default(false) @map("safety_flag")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session PathwaySession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, topicTag])
+  @@map("reflections")
+}
+
+// Roll-up of reflections per topic for the rumination gate (RF-2). Rebuilt by the worker.
+model UserTopicCount {
+  userId    String   @map("user_id") @db.Uuid
+  topicTag  String   @map("topic_tag") @db.VarChar(48)
+  count7d   Int      @default(0) @map("count_7d") @db.SmallInt
+  countAll  Int      @default(0) @map("count_all")
+  lastAt    DateTime @map("last_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, topicTag])
+  @@map("user_topic_counts")
+}

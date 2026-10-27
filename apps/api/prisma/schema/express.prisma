@@ -1,0 +1,60 @@
+enum DraftMode {
+  draft
+  simplify
+  rewrite
+  structure
+  script
+  record
+
+  @@map("draft_mode")
+}
+
+model Draft {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  titleEnc         Bytes?    @map("title_enc")
+  purposeEnc       Bytes?    @map("purpose_enc")
+  audience         String?   @db.VarChar(32) // code: manager, teacher, friend, family, other
+  mode             DraftMode @default(draft)
+  sourceType       String?   @map("source_type") @db.VarChar(16) // dump_item | reflection | recommendation
+  sourceId         String?   @map("source_id") @db.Uuid
+  archivedAt       DateTime? @map("archived_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  clientUpdatedAt  DateTime  @default(now()) @map("client_updated_at") @db.Timestamptz(3)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions DraftVersion[]
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("drafts")
+}
+
+model DraftVersion {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  draftId   String    @map("draft_id") @db.Uuid
+  mode      DraftMode
+  bodyEnc   Bytes     @map("body_enc")
+  aiUsed    Boolean   @default(false) @map("ai_used")
+  aiTask    String?   @map("ai_task") @db.VarChar(24)
+  changes   Json?     // rule-based "What we changed": counts and codes only
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  draft Draft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@index([draftId, createdAt(sort: Desc)])
+  @@map("draft_versions")
+}
+
+// Daily allowance for free Simplify/Rewrite.
+model AssistUsage {
+  userId String   @map("user_id") @db.Uuid
+  day    DateTime @db.Date
+  count  Int      @default(0) @db.SmallInt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, day])
+  @@map("assist_usage")
+}

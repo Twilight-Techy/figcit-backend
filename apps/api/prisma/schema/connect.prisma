@@ -1,0 +1,31 @@
+// Starters the user saved or wrote. Sending is always handed to the phone's own apps (D-20).
+model SavedStarter {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  contactId String?   @map("contact_id") @db.Uuid
+  textEnc   Bytes     @map("text_enc")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact TrustedContact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("saved_starters")
+}
+
+// Groups the user adds themselves (community, faith); never suggested from profile data (MD-3).
+model ConnectGroup {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  kind      String    @default("community") @db.VarChar(16) // community | faith | support | other
+  nameEnc   Bytes     @map("name_enc")
+  linkEnc   Bytes?    @map("link_enc")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("connect_groups")
+}

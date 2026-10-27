@@ -1,0 +1,160 @@
+enum UserRole {
+  customer
+  admin
+  safety_reviewer
+  content_editor
+  institution_supporter
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  active
+  suspended
+  deleted
+
+  @@map("user_status")
+}
+
+enum AgeBand {
+  adult             @map("18_plus")
+  minor_institution @map("16_17_institution")
+
+  @@map("age_band")
+}
+
+// Themes from Figma S89. High contrast is a separate switch on top of any theme.
+enum Theme {
+  fig_citrus
+  quiet_pear
+  midnight_bergamot
+  blood_orange_hush
+  cool_melon
+  blue_citron
+
+  @@map("theme")
+}
+
+enum NotificationStyle {
+  gentle
+  standard
+  silent
+
+  @@map("notification_style")
+}
+
+model User {
+  id              String     @id @default(uuid(7)) @db.Uuid
+  email           String?    @unique // stored lower-cased
+  emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz(3)
+  passwordHash    String?    @map("password_hash")
+  nickname        String?    @db.VarChar(40)
+  ageConfirmedAt  DateTime?  @map("age_confirmed_at") @db.Timestamptz(3)
+  ageBand         AgeBand?   @map("age_band")
+  locale          String     @default("en-GB") @db.VarChar(16)
+  region          String     @default("GB") @db.VarChar(8) // crisis routes
+  timezone        String     @default("Europe/London") @db.VarChar(64)
+  status          UserStatus @default(active)
+  roles           UserRole[] @default([customer])
+  tenantId        String?    @map("tenant_id") @db.Uuid
+  // Per-user data key, wrapped by the master key. Destroying it crypto-shreds the user's data.
+  dataKeyEnc      Bytes      @map("data_key_enc")
+  // Onboarding answers: what the user wants help with (codes), and optional profile (religion,
+  // culture: special-category data, encrypted, never used to pick content: MD-3).
+  helpWith        String[]   @default([]) @map("help_with")
+  profileEnc      Bytes?     @map("profile_enc")
+  journeySeenAt   DateTime?  @map("journey_seen_at") @db.Timestamptz(3)
+  setupDoneAt     DateTime?  @map("setup_done_at") @db.Timestamptz(3)
+  failedSignIns   Int        @default(0) @map("failed_sign_ins") @db.SmallInt
+  lockedUntil     DateTime?  @map("locked_until") @db.Timestamptz(3)
+  lastActiveAt    DateTime?  @map("last_active_at") @db.Timestamptz(3)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt       DateTime?  @map("deleted_at") @db.Timestamptz(3)
+
+  tenant               Tenant?               @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  preferences          Preferences?
+  authIdentities       AuthIdentity[]
+  sessions             Session[]
+  magicLinks           MagicLink[]
+  passwordResets       PasswordReset[]
+  mfaFactors           MfaFactor[]
+  signInEvents         SignInEvent[]
+  consents             Consent[]
+  checkIns             CheckIn[]
+  customTags           CustomTag[]
+  tasks                Task[]
+  recommendations      Recommendation[]
+  recommendationActs   RecommendationAction[]
+  pathwaySessions      PathwaySession[]
+  feedback             Feedback[]
+  safetyEvents         SafetyEvent[]
+  supportPlan          SupportPlan?
+  trustedContacts      TrustedContact[]
+  dumps                Dump[]
+  dumpItems            DumpItem[]
+  drafts               Draft[]
+  assistUsage          AssistUsage[]
+  adaptations          Adaptation[]
+  savedAdaptations     SavedAdaptation[]
+  savedStarters        SavedStarter[]
+  connectGroups        ConnectGroup[]
+  reflections          Reflection[]
+  topicCounts          UserTopicCount[]
+  practices            Practice[]
+  reminders            Reminder[]
+  pushSubscriptions    PushSubscription[]
+  inboxItems           InboxItem[]
+  notificationLogs     NotificationLog[]
+  shares               Share[]
+  entitlements         Entitlement[]
+  billingCustomer      BillingCustomer?
+  transcriptions       Transcription[]
+  files                StoredFile[]
+  exportJobs           ExportJob[]
+  deletionRequest      DeletionRequest?
+  syncOperations       SyncOperation[]
+  idempotencyKeys      IdempotencyKey[]
+  tenantMemberships    TenantMembership[]
+  outreachRequests     OutreachRequest[]
+  handledOutreach      OutreachRequest[]     @relation("OutreachHandler")
+  snapshotsCreated     RuleSnapshot[]        @relation("SnapshotCreator")
+  snapshotsReviewed    RuleSnapshot[]        @relation("SnapshotReviewer")
+  snapshotsSigned      RuleSnapshot[]        @relation("SnapshotSafetySigner")
+  contentAuthored      ContentItem[]         @relation("ContentAuthor")
+  contentReviewed      ContentItem[]         @relation("ContentReviewer")
+
+  @@index([tenantId])
+  @@index([status, deletedAt])
+  @@map("users")
+}
+
+// Comfort and notification settings. Sync is last-write-wins per field (SYSTEM_DESIGN §8):
+// `fieldUpdatedAt` maps field name → client time of its last change.
+model Preferences {
+  userId              String            @id @map("user_id") @db.Uuid
+  textSize            Int               @default(0) @map("text_size") @db.SmallInt // steps 0–3: A, A+, A++, A+++
+  theme               Theme             @default(fig_citrus)
+  followSystemTheme   Boolean           @default(true) @map("follow_system_theme")
+  highContrast        Boolean           @default(false) @map("high_contrast")
+  reduceMotion        Boolean           @default(false) @map("reduce_motion")
+  sound               Boolean           @default(true)
+  haptics             Boolean           @default(true)
+  dyslexicFont        Boolean           @default(false) @map("dyslexic_font")
+  lowStimulation      Boolean           @default(false) @map("low_stimulation")
+  notificationStyle   NotificationStyle @default(gentle) @map("notification_style")
+  quietHoursStart     Int?              @map("quiet_hours_start") @db.SmallInt // minutes after midnight, local
+  quietHoursEnd       Int?              @map("quiet_hours_end") @db.SmallInt
+  inWorship           Boolean           @default(false) @map("in_worship")
+  inWorshipUntil      DateTime?         @map("in_worship_until") @db.Timestamptz(3)
+  taskNudgesPerDay    Int               @default(2) @map("task_nudges_per_day") @db.SmallInt
+  notifyCategories    String[]          @default(["checkin", "tasks", "practices", "recheck"]) @map("notify_categories")
+  patternPrompts      Boolean           @default(true) @map("pattern_prompts")
+  personalisation     Boolean           @default(true)
+  fieldUpdatedAt      Json              @default("{}") @map("field_updated_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("preferences")
+}

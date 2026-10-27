@@ -1,0 +1,31 @@
+enum TranscriptionStatus {
+  pending
+  processing
+  done
+  failed
+
+  @@map("transcription_status")
+}
+
+model Transcription {
+  id          String              @id @default(uuid(7)) @db.Uuid
+  userId      String              @map("user_id") @db.Uuid
+  fileId      String?             @unique @map("file_id") @db.Uuid
+  purpose     String              @db.VarChar(16) // dump | express | checkin | practice
+  status      TranscriptionStatus @default(pending)
+  textEnc     Bytes?              @map("text_enc")
+  durationMs  Int?                @map("duration_ms")
+  keepAudio   Boolean             @default(false) @map("keep_audio")
+  safetyFlag  Boolean             @default(false) @map("safety_flag")
+  errorCode   String?             @map("error_code") @db.VarChar(32)
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt DateTime?           @map("completed_at") @db.Timestamptz(3)
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file StoredFile? @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  dump Dump?
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt])
+  @@map("transcriptions")
+}

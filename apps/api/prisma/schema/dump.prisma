@@ -1,0 +1,58 @@
+enum DumpBucket {
+  ideas
+  notes
+  worries
+  todo
+
+  @@map("dump_bucket")
+}
+
+enum DumpMovedTo {
+  task
+  draft
+  reflection
+
+  @@map("dump_moved_to")
+}
+
+model Dump {
+  id              String    @id @default(uuid(7)) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  source          String    @default("text") @db.VarChar(8) // text | voice
+  transcriptionId String?   @unique @map("transcription_id") @db.Uuid
+  sortedAt        DateTime? @map("sorted_at") @db.Timestamptz(3)
+  origin          Origin    @default(online)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transcription Transcription? @relation(fields: [transcriptionId], references: [id], onDelete: SetNull)
+  items         DumpItem[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("dumps")
+}
+
+// Max 200 items per dump, 2,000 chars each (validated in the API).
+model DumpItem {
+  id              String       @id @default(uuid(7)) @db.Uuid
+  dumpId          String       @map("dump_id") @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  position        Int          @db.SmallInt
+  textEnc         Bytes        @map("text_enc")
+  bucket          DumpBucket?
+  suggestedBucket DumpBucket?  @map("suggested_bucket") // sortDump (Advanced), kept apart from the user's choice
+  movedTo         DumpMovedTo? @map("moved_to")
+  movedToId       String?      @map("moved_to_id") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz(3)
+
+  dump  Dump  @relation(fields: [dumpId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([dumpId, position])
+  @@index([userId, bucket])
+  @@map("dump_items")
+}

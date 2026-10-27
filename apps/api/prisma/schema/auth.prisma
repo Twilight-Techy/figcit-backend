@@ -1,0 +1,162 @@
+enum AuthProvider {
+  google
+
+  @@map("auth_provider")
+}
+
+enum SignInMethod {
+  magic_link
+  password
+  google
+  refresh
+  mfa
+
+  @@map("sign_in_method")
+}
+
+enum SignInResult {
+  success
+  failure
+  locked
+  mfa_required
+
+  @@map("sign_in_result")
+}
+
+enum MagicLinkPurpose {
+  sign_in
+  upgrade_from_browse
+
+  @@map("magic_link_purpose")
+}
+
+model AuthIdentity {
+  id              String       @id @default(uuid(7)) @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  provider        AuthProvider
+  providerSubject String       @map("provider_subject")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@index([userId])
+  @@map("auth_identities")
+}
+
+// One row per signed-in device. Refresh tokens rotate on every use (RefreshToken); presenting a
+// used token again revokes the whole session (reuse detection, SYSTEM_DESIGN §9.1).
+model Session {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  deviceLabel   String?   @map("device_label") @db.VarChar(80)
+  isStaff       Boolean   @default(false) @map("is_staff")
+  mfaVerifiedAt DateTime? @map("mfa_verified_at") @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastUsedAt    DateTime  @default(now()) @map("last_used_at") @db.Timestamptz(3)
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz(3)
+  revokeReason  String?   @map("revoke_reason") @db.VarChar(32)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([userId, revokedAt])
+  @@map("sessions")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  sessionId String    @map("session_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash") // SHA-256 of the 256-bit token
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+// Magic links expire after 10 minutes. `codeHash` is a 6-digit code for when the link opens in
+// another browser.
+model MagicLink {
+  id        String           @id @default(uuid(7)) @db.Uuid
+  tokenHash String           @unique @map("token_hash")
+  codeHash  String           @map("code_hash")
+  email     String
+  userId    String?          @map("user_id") @db.Uuid
+  purpose   MagicLinkPurpose @default(sign_in)
+  attempts  Int              @default(0) @db.SmallInt
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt DateTime         @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime?        @map("used_at") @db.Timestamptz(3)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, createdAt(sort: Desc)])
+  @@index([expiresAt])
+  @@map("magic_links")
+}
+
+model PasswordReset {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_resets")
+}
+
+// Staff TOTP. `lastUsedStep` blocks replay of a code within its window.
+model MfaFactor {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  type         String    @default("totp") @db.VarChar(16)
+  secretEnc    Bytes     @map("secret_enc")
+  confirmedAt  DateTime? @map("confirmed_at") @db.Timestamptz(3)
+  lastUsedStep BigInt?   @map("last_used_step")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("mfa_factors")
+}
+
+// Retained 12 months (ENGINEERING_RULES §5.3).
+model SignInEvent {
+  id         String       @id @default(uuid(7)) @db.Uuid
+  userId     String?      @map("user_id") @db.Uuid
+  method     SignInMethod
+  result     SignInResult
+  deviceType String?      @map("device_type") @db.VarChar(16)
+  at         DateTime     @default(now()) @db.Timestamptz(3)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, at(sort: Desc)])
+  @@index([at])
+  @@map("sign_in_events")
+}
+
+// Anonymous Browse-mode device tokens: no user row, used only for rate limits on the anonymous
+// endpoints (snapshot, AI). Stored hashed.
+model BrowseToken {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastUsedAt DateTime  @default(now()) @map("last_used_at") @db.Timestamptz(3)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(3)
+  upgradedAt DateTime? @map("upgraded_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("browse_tokens")
+}

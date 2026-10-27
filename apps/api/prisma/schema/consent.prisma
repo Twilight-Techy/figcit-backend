@@ -1,0 +1,25 @@
+enum ConsentPurpose {
+  wellbeing_data       // special-category processing needed for the service
+  personalisation
+  analytics
+  research
+  institution_sharing
+
+  @@map("consent_purpose")
+}
+
+// Append-only ledger: the latest row per (user, purpose) wins.
+model Consent {
+  id            String         @id @default(uuid(7)) @db.Uuid
+  userId        String         @map("user_id") @db.Uuid
+  purpose       ConsentPurpose
+  granted       Boolean
+  noticeVersion String         @map("notice_version") @db.VarChar(16)
+  source        String         @default("settings") @db.VarChar(16) // onboarding | settings | upgrade
+  at            DateTime       @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, at(sort: Desc)])
+  @@map("consents")
+}

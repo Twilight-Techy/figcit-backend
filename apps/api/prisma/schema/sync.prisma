@@ -1,0 +1,32 @@
+// Applied offline operations, so a re-sent batch is a no-op (SYSTEM_DESIGN §8).
+model SyncOperation {
+  id         String   @id @db.Uuid // client-generated operation id
+  userId     String   @map("user_id") @db.Uuid
+  entity     String   @db.VarChar(32)
+  entityId   String   @map("entity_id") @db.Uuid
+  op         String   @db.VarChar(8) // create | update | delete
+  resultCode String   @map("result_code") @db.VarChar(24) // applied | duplicate | conflict_lost | rejected
+  appliedAt  DateTime @default(now()) @map("applied_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, appliedAt])
+  @@map("sync_operations")
+}
+
+// `Idempotency-Key` header replay store, kept 24 hours.
+model IdempotencyKey {
+  userId         String   @map("user_id") @db.Uuid
+  key            String   @db.VarChar(80)
+  method         String   @db.VarChar(8)
+  path           String   @db.VarChar(200)
+  responseStatus Int      @map("response_status") @db.SmallInt
+  responseBody   Json     @map("response_body")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, key])
+  @@index([createdAt])
+  @@map("idempotency_keys")
+}

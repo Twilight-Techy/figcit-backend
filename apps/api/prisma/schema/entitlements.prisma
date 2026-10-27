@@ -1,0 +1,57 @@
+enum EntitlementSource {
+  none
+  web
+  store
+  institution
+  staff_grant
+
+  @@map("entitlement_source")
+}
+
+enum EntitlementStatus {
+  active
+  grace
+  cancelled
+  expired
+
+  @@map("entitlement_status")
+}
+
+model Plan {
+  code       String   @id @db.VarChar(24) // free | advanced_monthly | advanced_yearly | institution
+  name       String   @db.VarChar(48)
+  priceMinor Int?     @map("price_minor") // pence; null for free / institution
+  currency   String   @default("GBP") @db.Char(3)
+  interval   String?  @db.VarChar(8) // month | year
+  features   String[] @default([])
+  active     Boolean  @default(true)
+  position   Int      @default(0) @db.SmallInt
+
+  entitlements Entitlement[]
+
+  @@map("plans")
+}
+
+model Entitlement {
+  id          String            @id @default(uuid(7)) @db.Uuid
+  userId      String            @map("user_id") @db.Uuid
+  planCode    String            @map("plan_code") @db.VarChar(24)
+  source      EntitlementSource
+  status      EntitlementStatus @default(active)
+  tenantId    String?           @map("tenant_id") @db.Uuid
+  providerRef String?           @map("provider_ref") @db.VarChar(120)
+  startsAt    DateTime          @default(now()) @map("starts_at") @db.Timestamptz(3)
+  renewsAt    DateTime?         @map("renews_at") @db.Timestamptz(3)
+  graceUntil  DateTime?         @map("grace_until") @db.Timestamptz(3)
+  endsAt      DateTime?         @map("ends_at") @db.Timestamptz(3)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan   Plan    @relation(fields: [planCode], references: [code])
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([providerRef])
+  @@map("entitlements")
+}

@@ -1,0 +1,64 @@
+enum SafetyTrigger {
+  button     // the user opened Help
+  phrase     // free text matched a safety phrase
+  option     // a risk option was chosen
+  sustained  // sustained Red over time (SF-2)
+
+  @@map("safety_trigger")
+}
+
+// No text is ever stored: only where it came from, which rule matched and what the user chose.
+model SafetyEvent {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  userId       String?       @map("user_id") @db.Uuid
+  sourceModule String        @map("source_module") @db.VarChar(32)
+  trigger      SafetyTrigger
+  ruleId       String?       @map("rule_id") @db.VarChar(32)
+  category     String?       @db.VarChar(32)
+  routeChosen  String?       @map("route_chosen") @db.VarChar(32)
+  origin       Origin        @default(online)
+  at           DateTime      @default(now()) @db.Timestamptz(3)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, at(sort: Desc)])
+  @@index([at])
+  @@map("safety_events")
+}
+
+model SupportPlan {
+  userId             String   @id @map("user_id") @db.Uuid
+  preferredRoutes    String[] @default([]) @map("preferred_routes")
+  signsEnc           Bytes?   @map("signs_enc")
+  whatHelpsEnc       Bytes?   @map("what_helps_enc")
+  whatToAvoidEnc     Bytes?   @map("what_to_avoid_enc")
+  messagesEnc        Bytes?   @map("messages_enc") // pre-written messages
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  clientUpdatedAt    DateTime @default(now()) @map("client_updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("support_plans")
+}
+
+model TrustedContact {
+  id                 String    @id @default(uuid(7)) @db.Uuid
+  userId             String    @map("user_id") @db.Uuid
+  nameEnc            Bytes     @map("name_enc")
+  phoneEnc           Bytes?    @map("phone_enc")
+  emailEnc           Bytes?    @map("email_enc")
+  relationship       String?   @db.VarChar(32)
+  contactWhen        String[]  @default(["connect"]) @map("contact_when") // connect | sos
+  consentConfirmedAt DateTime? @map("consent_confirmed_at") @db.Timestamptz(3)
+  position           Int       @default(0) @db.SmallInt
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  clientUpdatedAt    DateTime  @default(now()) @map("client_updated_at") @db.Timestamptz(3)
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedStarters SavedStarter[]
+
+  @@index([userId, position])
+  @@map("trusted_contacts")
+}
