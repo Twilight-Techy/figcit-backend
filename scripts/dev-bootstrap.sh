@@ -16,7 +16,7 @@ if [ "$(id -u)" = "0" ] && command -v su >/dev/null; then
     || su postgres -c "createdb -O figcit figcit_shadow"
 fi
 grep -q 'localhost:5432:\*:figcit' ~/.pgpass 2>/dev/null || { echo "localhost:5432:*:figcit:figcit" >> ~/.pgpass; chmod 600 ~/.pgpass; }
-[ -f .env ] || cp .env.example .env
+node scripts/dev-env.mjs
 
 corepack enable >/dev/null 2>&1 || true
 pnpm install --frozen-lockfile

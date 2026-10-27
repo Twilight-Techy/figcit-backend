@@ -48,12 +48,18 @@ export default tseslint.config(
       '@typescript-eslint/explicit-module-boundary-types': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
   {
-    // NestJS classes are wired by decorators and injected constructors.
+    // NestJS classes are wired by decorators and injected constructors; DI constructors routinely
+    // take more than four services (rules 15 exception, DECISIONS B-17).
     files: ['apps/api/src/**/*.ts'],
     rules: {
+      'max-params': ['error', 6],
       '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }],
       '@typescript-eslint/parameter-properties': 'off',
     },
@@ -102,7 +108,7 @@ export default tseslint.config(
   {
     files: ['scripts/**/*.mjs'],
     languageOptions: {
-      globals: { console: 'readonly', process: 'readonly', URL: 'readonly' },
+      globals: { console: 'readonly', process: 'readonly', URL: 'readonly', Buffer: 'readonly' },
     },
   },
 );
