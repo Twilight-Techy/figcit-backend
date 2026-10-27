@@ -88,6 +88,15 @@ export class CheckInService {
 
     this.recs.announce(userId, outcome.run.id, outcome.run.result);
     this.events.emit('checkin.created', { userId, checkInId: outcome.checkInId });
+    if (input.recheckOfId) {
+      this.events.emit('recheck.evaluated', {
+        userId,
+        previousCheckInId: input.recheckOfId,
+        checkInId: outcome.checkInId,
+        light: outcome.run.result.light,
+        rule: outcome.run.result.recheck?.rule ?? null,
+      });
+    }
     const row = await this.repo.summary(userId, outcome.checkInId);
     if (!row) throw new NotFound('check-in');
     return { checkIn: toSummary(row, snapshot), card: outcome.run.card };

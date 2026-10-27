@@ -12,6 +12,7 @@ import { HealthModule } from './modules/health/health.module.js';
 import { RecommendationModule } from './modules/recommendation/recommendation.module.js';
 import { RulesModule } from './modules/rules/rules.module.js';
 import { SafetyModule } from './modules/safety/safety.module.js';
+import { SessionsModule } from './modules/sessions/sessions.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { DevModule } from './platform/dev/dev.module.js';
 import { EventsModule } from './platform/events/events.module.js';
@@ -40,6 +41,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     RecommendationModule,
     RulesModule,
     SafetyModule,
+    SessionsModule,
     UsersModule,
   ],
 })

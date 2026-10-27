@@ -48,10 +48,10 @@ export class SafetyService {
     userId: string | null;
     sourceModule: string;
     trigger: 'button' | 'phrase' | 'option' | 'sustained';
-    ruleId?: string | null;
-    category?: string | null;
-    routeChosen?: string | null;
-    origin?: 'online' | 'offline';
+    ruleId?: string | null | undefined;
+    category?: string | null | undefined;
+    routeChosen?: string | null | undefined;
+    origin?: 'online' | 'offline' | undefined;
   }): Promise<void> {
     await this.prisma.safetyEvent.create({
       data: {
