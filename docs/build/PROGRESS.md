@@ -4,6 +4,8 @@ The end-to-end build described in `BRIEF.md`. Work happens on branch `claude/int
 
 Local environment: Postgres 16 runs in the container (`service postgresql start`; role/db `figcit`/`figcit`). Docker is installed but may be unusable; ffmpeg is installed.
 
+**After a container reset:** clone both repos into `/home/user`, check out `claude/intelligent-ride-vnjnew`, run `scripts/dev-bootstrap.sh` in the backend, then `pnpm install` in the PWA. The inherited `DATABASE_URL` points at an unrelated Neon database; `.env` overrides it (DECISIONS B-05), never use it.
+
 ## Phase 1: Database
 - [ ] Prisma schema for every module, with relations, indexes and constraints (`apps/api/prisma/schema/*.prisma`)
 - [ ] Initial migration (plus raw SQL for partial indexes and append-only guards)
