@@ -66,6 +66,7 @@ Places where the source documents, the Figma designs and the live website disagr
 | [D-36](#d-36-workbook-open-items) | Workbook items still marked "confirm" | P1 | Founder, Clinical Safety |
 | [D-37](#d-37-build-plan-vs-other-plans-in-drive) | Build plan vs other plans in Drive | P1 | Founder |
 | [D-38](#d-38-ai-model-per-task) | Which open model per task | P2 | Tech lead, after speed tests |
+| [D-39](#d-39-support-without-a-check-in) | Support without a check-in | P1 | Founder, Clinical Safety |
 
 ---
 
@@ -152,6 +153,20 @@ Places where the source documents, the Figma designs and the live website disagr
 - **Figma S07:** 18 harder and 9 lighter chips. Several families have no chip (rejection/hurt, boredom, social hangover, task paralysis, confusion, panicked); some live in sensations instead (shutdown, hyperfocus, time blindness, decision paralysis in the Cognitive tab; sensory overload in Sensory). "Tired" and "Foggy" have no family.
 - **Why it matters:** each chip must resolve to a family (PRD FR-M03-01), and some sensations set engine flags (shutdown, overload).
 - **Recommendation:** we draft a chip → family → flag mapping table for approval, and add the missing chips or confirm they're intentionally covered by sensations.
+- **Decision:**
+
+### D-39 Support without a check-in
+- **Figma S05:** Home has "I need help with…", which goes straight to the Need screen (S11) without a check-in. S11 offers "I just want support", which skips the task question.
+- **PRD 3 (support-only flow):** "any entry → Need ('I just want support') → Engine → pathway → Feedback."
+- **Workbook Tab 8, steps 1–2:** the user may "state what they need help with, OR simply check in", but step 2 (Energy × Mood → cell → baseline band) is what every later stage builds on.
+- **Gap:** none of the documents say what the engine does with no state. Through "I need help with…" there's no check-in, so no light; with "I just want support" there's no specific need either.
+- **Why it matters:** the light decides what's safe to offer (Amber forces support first, Red defers tasks and shows "Get support now", Advanced tools are hidden in both). Guessing a light could offer too much to someone who is struggling.
+- **Recommendation:**
+  1. If there's a check-in from the last few hours (configurable, e.g. 4 hours), use its state; Home already shows it with "Re-check".
+  2. Otherwise, before the card, show one skippable Energy × Mood screen (two taps).
+  3. If skipped, treat it as "Not sure": baseline Yellow (rule NS-1), with EX-1 still applying if a strong feeling is logged, and nothing raising it.
+  4. If there's also no specific need ("I just want support"), the card offers a short choice of free support (Regulate, Dump, Connect) with Help visible, instead of one recommendation.
+  5. Safety is unchanged: typed text is still checked and Help is always one tap away.
 - **Decision:**
 
 ### D-36 Workbook open items
