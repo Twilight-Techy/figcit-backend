@@ -4,6 +4,8 @@ The end-to-end build described in `BRIEF.md`. Work happens on branch `claude/int
 
 Local environment: Postgres 16 runs in the container (`service postgresql start`; role/db `figcit`/`figcit`). Docker is installed but may be unusable; ffmpeg is installed.
 
+**After a container restart (files kept):** `service postgresql start`, then `/tmp/claude-0/start-api.sh` if needed (recreate the helpers from the notes in `DECISIONS.md` if `/tmp` was wiped).
+
 **After a container reset:** clone both repos into `/home/user`, check out `claude/intelligent-ride-vnjnew`, run `scripts/dev-bootstrap.sh` in the backend, then `pnpm install` in the PWA. The inherited `DATABASE_URL` points at an unrelated Neon database; `.env` overrides it (DECISIONS B-05), never use it.
 
 ## Phase 1: Database
@@ -19,17 +21,22 @@ Local environment: Postgres 16 runs in the container (`service postgresql start`
 - [ ] xlsx upload path (exceljs) for the admin snapshot flow — do with Admin
 
 ## Phase 3: API platform
-- [ ] Config, logging, problem-details errors, zod validation, OpenAPI generation
-- [ ] Crypto, audit, users, preferences, consent
-- [ ] Auth: magic link, password, refresh rotation, Google (stub-able), Browse token, staff MFA
-- [ ] Jobs (pg-boss), mail (nodemailer; dev log transport), files (local disk + S3 adapter)
-- [ ] Rate limits, CORS, security headers, health
+- [x] Config, logging, problem-details errors, zod validation
+- [ ] OpenAPI generation script
+- [x] Crypto, audit, users, preferences, consent
+- [x] Auth: magic link, password, refresh rotation, Google (stub-able), Browse token, staff MFA
+- [x] Jobs (pg-boss), mail (nodemailer; dev mailbox), storage (local disk + S3 adapter)
+- [ ] Worker entry with job handlers; files controller; idempotency interceptor
+- [x] Rate limits, CORS, security headers, health
 
 ## Phase 4: API product modules
-- [ ] Rules + Content
-- [ ] Check-in, Recommendation (+ actions, adapt, why), Safety (+ support plan, trusted contacts, SF-2 job)
-- [ ] Sessions & feedback (recheck, Blue recovery), Regulate
-- [ ] Dump, Express, Tasks (+ ordering, break-down, focus), AI gateway with fallbacks, Speech
+- [x] Rules
+- [ ] Content
+- [x] Check-in, Recommendation (+ actions, adapt, why), Safety (+ support plan, trusted contacts)
+- [ ] SF-2 sustained-Red job
+- [x] Sessions & feedback (recheck, Blue recovery); Regulate uses sessions
+- [x] Tasks (+ ordering, break-down), AI gateway with fallbacks
+- [ ] Dump, Express, Speech
 - [ ] Adapt, Connect, Reflect + Patterns, Practices
 - [ ] Notifications (push, reminders, inbox), Progress, Shares
 - [ ] Entitlements/Plans, Billing (fake provider), Analytics, Sync
@@ -49,7 +56,7 @@ Local environment: Postgres 16 runs in the container (`service postgresql start`
 - [ ] Admin console, Institution dashboard
 
 ## Phase 7: Verification
-- [ ] API e2e against seeded Postgres
+- [ ] API e2e against seeded Postgres (harness in `apps/api/test`, own `figcit_test` db; 27 tests so far)
 - [ ] Playwright journeys across every screen; navigation audit (every screen reachable)
 - [ ] Accessibility (axe), budgets, offline
 - [ ] Final report: what works, decisions, blockers
