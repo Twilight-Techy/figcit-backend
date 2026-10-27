@@ -3,6 +3,7 @@ import { ConfigModule } from './common/config/config.module.js';
 import { CryptoModule } from './common/crypto/crypto.module.js';
 import { DbModule } from './common/db/db.module.js';
 import { GuardsModule } from './common/guards/guards.module.js';
+import { AiModule } from './modules/ai/ai.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CheckInModule } from './modules/checkin/checkin.module.js';
@@ -13,6 +14,7 @@ import { RecommendationModule } from './modules/recommendation/recommendation.mo
 import { RulesModule } from './modules/rules/rules.module.js';
 import { SafetyModule } from './modules/safety/safety.module.js';
 import { SessionsModule } from './modules/sessions/sessions.module.js';
+import { TasksModule } from './modules/tasks/tasks.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { DevModule } from './platform/dev/dev.module.js';
 import { EventsModule } from './platform/events/events.module.js';
@@ -31,6 +33,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     JobsModule,
     MailModule,
     StorageModule,
+    AiModule,
     AuditModule,
     AuthModule,
     CheckInModule,
@@ -42,6 +45,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     RulesModule,
     SafetyModule,
     SessionsModule,
+    TasksModule,
     UsersModule,
   ],
 })

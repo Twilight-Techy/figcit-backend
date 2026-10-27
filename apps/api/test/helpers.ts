@@ -16,12 +16,13 @@ export interface Api {
   close(): Promise<void>;
 }
 
-export async function bootApi(): Promise<Api> {
+export async function bootApi(overrides: Record<string, string> = {}): Promise<Api> {
   process.env['NODE_ENV'] = 'test';
   process.env['DEV_MAILBOX'] = 'true';
   process.env['RATE_LIMIT_ENABLED'] = 'false';
   process.env['LOG_LEVEL'] = 'error';
   loadDotEnv();
+  Object.assign(process.env, overrides);
   const { createApp } = await import('../src/app.factory.js');
   const app = await createApp(loadEnv(), { logger: false });
   await app.init();
