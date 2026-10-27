@@ -1,0 +1,19 @@
+{
+  "name": "@figcit/rules-compiler",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Reads the rules workbook (.xlsx) and writes the snapshot JSON and engine fixtures.",
+  "type": "module",
+  "bin": {
+    "figcit-rules": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "fixtures:generate": "tsx src/cli.ts fixtures"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

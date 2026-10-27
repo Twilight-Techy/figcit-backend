@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+dist/
+coverage/
+docs/
+openapi/openapi.json
+packages/engine/fixtures/
+apps/api/prisma/migrations/
+*.md
+.github/ISSUE_TEMPLATE/

@@ -1,0 +1,11 @@
+// Multi-file schema: one file per module (WORKFLOW §3). Edit only your module's file.
+// Tables and columns are snake_case via @@map/@map (rules 2.4).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

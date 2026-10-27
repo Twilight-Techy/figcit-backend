@@ -1,0 +1,43 @@
+{
+  "name": "@figcit/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "scripts": {
+    "dev": "node --watch-path=src --import @swc-node/register/esm-register src/main.ts",
+    "dev:worker": "node --watch-path=src --import @swc-node/register/esm-register src/worker.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "start:worker": "node dist/worker.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts --passWithNoTests",
+    "db:generate": "prisma generate",
+    "db:migration": "prisma migrate dev --create-only --name",
+    "openapi:generate": "echo 'OpenAPI generation arrives with backend issue #6' && exit 1"
+  },
+  "prisma": {
+    "schema": "prisma/schema"
+  },
+  "dependencies": {
+    "@figcit/engine": "workspace:*",
+    "@nestjs/common": "^11.2.8",
+    "@nestjs/core": "^11.2.8",
+    "@nestjs/platform-fastify": "^11.2.8",
+    "@prisma/client": "^6.19.3",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.2.8",
+    "@swc-node/register": "1.12.1",
+    "@swc/core": "1.16.20",
+    "prisma": "^6.19.3",
+    "unplugin-swc": "2.0.0"
+  }
+}

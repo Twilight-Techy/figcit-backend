@@ -1,0 +1,37 @@
+# Local stack: Postgres, Mailpit (email), SeaweedFS (S3-compatible storage).
+# Start with: docker compose -f docker/compose.yaml up -d
+name: figcit
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: figcit
+      POSTGRES_PASSWORD: figcit
+      POSTGRES_DB: figcit
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U figcit']
+      interval: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # web inbox
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    command: server -s3 -dir=/data
+    ports:
+      - '8333:8333' # S3 API
+    volumes:
+      - seaweedfs:/data
+
+volumes:
+  postgres:
+  seaweedfs:
