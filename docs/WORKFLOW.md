@@ -30,7 +30,7 @@ Work is split by **vertical slice**: each person owns whole features end to end,
 | PWA | `design-system/`, `lib/`, `engine/`, the root layout and Help pill; features `home`, `check-in`, `recommendation`, `safety`, `feedback`, `dump`, `express`, `tasks`, `reflect`, `admin` | `offline/` (Dexie, outbox, sync), `sw/`, `api/` (generated client), PWA CI and hosting config (`vercel.json`, security headers); features `auth`, `onboarding`, `settings`, `notifications`, `plans`, `progress`, `regulate`, `adapt`, `connect`, `meditate` |
 | Why this split | The rules engine, safety, the main journey, the AI features and the UI foundations are one connected piece of product logic | Accounts, data, sync, scheduling, deployment and security are one connected piece of platform, plus the pathways that are mostly data and timers |
 
-**Shared, owned by one lane, changed by both through small PRs:** the design system and root layout (Lane A), the engine's public types (Lane A), the Prisma base schema files `_shared.prisma` and `users.prisma` (Lane B), and `offline/db.ts` (Lane B).
+**Shared, owned by one lane, changed by both through small PRs:** the design system and root layout (Lane A), the engine's public types (Lane A), the Prisma base schema files `_shared.prisma` and `users.prisma` (Lane B), and `src/lib/db/` (Lane B).
 
 **First sprint (S0), both working from day one:**
 
@@ -62,10 +62,10 @@ Most conflicts come from a few shared files. Each has a rule that makes conflict
 | --- | --- |
 | Messages (copy) | **One file per feature**: `src/messages/en/<feature>.json`. You only edit your features' files. |
 | Routes | Each feature's routes sit in their own folder under `src/app/`; the lane that owns the feature owns its folder. |
-| `src/app/layout.tsx` | Lane B, tier A review (it holds the Help pill). |
-| Design system | Lane B. Need a new component or token? Open a small PR or an issue tagged `design-system`; don't add one-off styles in a feature. |
+| `src/app/layout.tsx` | Lane A, tier A review (it holds the Help pill). |
+| Design system (`src/ds/`) | Lane A. Need a new component or token? Open a small PR or an issue tagged `design-system`; don't add one-off styles in a feature. |
 | `src/api/` (generated client) | Never hand-merge: take either side, then `pnpm api:generate`. |
-| Dexie schema version | Tables are declared in each feature's `local.schema.ts`; `offline/db.ts` combines them. On a version-number conflict, take the higher number plus one, and rerun the migration tests. |
+| Dexie schema version | Tables are declared in each feature's `local.schema.ts`; `src/lib/db/` combines them. On a version-number conflict, take the higher number plus one, and rerun the migration tests. |
 
 ### Both repos
 | File | Rule |

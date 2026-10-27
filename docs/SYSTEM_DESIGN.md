@@ -101,9 +101,10 @@ figcit-backend/
         main.ts             starts the HTTP API
         worker.ts           starts the job worker (same modules, no HTTP)
         modules/            one folder per module (section 4)
-        common/             guards, interceptors, crypto, validation, errors
+        common/             config, crypto, db, errors, guards, openapi (no module logic)
+        platform/           metrics and other cross-cutting infrastructure
       prisma/
-        schema.prisma
+        schema/             multi-file schema: _shared.prisma + one <module>.prisma each
         migrations/
       test/                 e2e tests (Testcontainers Postgres)
   packages/
@@ -115,7 +116,9 @@ figcit-backend/
     specs/                  source documents
     CONFLICTS.md
     SYSTEM_DESIGN.md
-  docker/                   Dockerfile, docker-compose for local dev and VPS
+  openapi/                  generated openapi.json (never hand-edited)
+  docker/                   compose.yaml for the local stack, api.Dockerfile
+  scripts/                  repo checks used by CI
   .github/workflows/        CI and deploy
 ```
 
