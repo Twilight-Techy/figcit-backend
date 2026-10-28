@@ -59,4 +59,4 @@ Local environment: Postgres 16 runs in the container (`service postgresql start`
 - [x] API e2e against seeded Postgres (harness in `apps/api/test`, own `figcit_test` db; 68 tests incl. seeded personas)
 - [x] Playwright journeys across every screen; navigation audit (every screen reachable)
 - [x] Accessibility (axe), budgets, offline
-- [ ] Final report: what works, decisions, blockers
+- [x] Final report: what works, decisions, blockers (`REPORT.md`)
