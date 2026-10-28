@@ -70,6 +70,28 @@ export class SafetyService {
     });
   }
 
+  /** Records a phrase match and returns the user's crisis routes, for modules that screen text. */
+  async flag(
+    userId: string,
+    sourceModule: string,
+    match: SafetyMatch,
+    origin: 'online' | 'offline' = 'online',
+  ): Promise<CrisisRoute[]> {
+    await this.record({
+      userId,
+      sourceModule,
+      trigger: 'phrase',
+      ruleId: match.ruleId,
+      category: match.category,
+      origin,
+    });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { region: true },
+    });
+    return [...(await this.routes(user?.region ?? 'GB'))];
+  }
+
   async routes(region: string): Promise<readonly CrisisRoute[]> {
     const { snapshot } = await this.screenFor();
     return snapshot.crisisRoutes[region] ?? snapshot.crisisRoutes['GB'] ?? [];

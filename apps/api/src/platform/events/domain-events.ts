@@ -14,7 +14,12 @@ export interface DomainEventMap {
   'recommendation.created': { userId: string; recommendationId: string; light: string };
   'session.completed': { userId: string; sessionId: string; pathway: string };
   'safety.triggered': { userId: string | null; sourceModule: string };
-  'reflection.created': { userId: string; topicTag: string | null };
+  'reflection.created': {
+    userId: string;
+    reflectionId: string;
+    topicTag: string | null;
+    dumpItemId: string | null;
+  };
   'user.deleted': { userId: string };
   'entitlement.changed': { userId: string };
 }

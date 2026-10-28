@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import { evaluate, type EngineInput, type EngineResult, type UserSignals } from '@figcit/engine';
+import {
+  evaluate,
+  type EngineInput,
+  type EngineResult,
+  type Light,
+  type UserSignals,
+} from '@figcit/engine';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { NotFound } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
@@ -9,6 +15,8 @@ import { SafetyService } from '../safety/safety.service.js';
 import { toCard } from './card.js';
 import type { CardDto } from './recommendation.schemas.js';
 import { SignalsService } from './signals.service.js';
+
+const STATE_FRESH_MS = 6 * 3_600_000;
 
 /** What is stored in `recommendations.trace` so a card can be re-rendered and the decision replayed. */
 interface StoredTrace {
@@ -102,6 +110,52 @@ export class RecommendationService {
     });
     if (!tx) this.announce(opts.userId, row.id, result);
     return { id: row.id, result, card };
+  }
+
+  /**
+   * The user's state from their latest card in the last few hours (Yellow when unknown), with the
+   * check-in's peak negative intensity and families. Used by task order and the Reflect gate.
+   */
+  async currentState(
+    userId: string,
+    now = new Date(),
+  ): Promise<{
+    light: Light;
+    known: boolean;
+    peakNegative: number;
+    families: string[];
+    setting: string | null;
+  }> {
+    const rec = await this.prisma.recommendation.findFirst({
+      where: { userId, createdAt: { gt: new Date(now.getTime() - STATE_FRESH_MS) } },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        light: true,
+        checkIn: {
+          select: {
+            emotions: { select: { familyCode: true, intensity: true } },
+            context: { select: { environment: true } },
+          },
+        },
+      },
+    });
+    if (!rec)
+      return { light: 'yellow', known: false, peakNegative: 0, families: [], setting: null };
+    const { snapshot } = await this.rules.current();
+    const negative = new Set(
+      snapshot.families.filter((f) => f.valence === 'negative').map((f) => f.code),
+    );
+    const emotions = rec.checkIn.emotions;
+    return {
+      light: rec.light,
+      known: true,
+      peakNegative: Math.max(
+        0,
+        ...emotions.filter((e) => negative.has(e.familyCode)).map((e) => e.intensity),
+      ),
+      families: [...new Set(emotions.map((e) => e.familyCode))],
+      setting: rec.checkIn.context?.environment ?? null,
+    };
   }
 
   signalsFor(userId: string, now = new Date()): Promise<UserSignals> {

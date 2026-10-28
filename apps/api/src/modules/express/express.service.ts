@@ -186,20 +186,10 @@ export class ExpressService {
     const purpose = c.decOpt(row.purposeEnc) ?? undefined;
     const match = await this.safety.check([text, purpose]);
     if (!match) return { text, purpose, blocked: null };
-    await this.safety.record({
-      userId,
-      sourceModule: 'express',
-      trigger: 'phrase',
-      ruleId: match.ruleId,
-      category: match.category,
-    });
-    const region =
-      (await this.prisma.user.findUnique({ where: { id: userId }, select: { region: true } }))
-        ?.region ?? 'GB';
     return {
       text,
       purpose,
-      blocked: { safety: true, crisisRoutes: [...(await this.safety.routes(region))] },
+      blocked: { safety: true, crisisRoutes: await this.safety.flag(userId, 'express', match) },
     };
   }
 

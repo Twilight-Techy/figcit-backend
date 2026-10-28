@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, type OnModuleInit } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import type { z } from 'zod';
 import { CryptoService, type UserCipher } from '../../common/crypto/crypto.service.js';
@@ -84,7 +84,7 @@ export function splitItems(text: string): string[] {
 
 /** Dump: get it out of your head, then sort it (M05, S15–S17, Figma S101–S104). */
 @Injectable()
-export class DumpService {
+export class DumpService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly crypto: CryptoService,
@@ -92,6 +92,16 @@ export class DumpService {
     private readonly tasks: TasksService,
     private readonly events: DomainEvents,
   ) {}
+
+  onModuleInit(): void {
+    this.events.on('reflection.created', async (e) => {
+      if (!e.dumpItemId) return;
+      const owned = await this.prisma.dumpItem.count({
+        where: { id: e.dumpItemId, userId: e.userId },
+      });
+      if (owned) await this.moved(e.userId, e.dumpItemId, 'reflection', e.reflectionId);
+    });
+  }
 
   async create(userId: string, input: DumpCreate): Promise<z.infer<typeof dumpCreatedSchema>> {
     const c = await this.crypto.forUser(userId);
@@ -123,24 +133,9 @@ export class DumpService {
       },
       select: DUMP_SELECT,
     });
-    if (match)
-      await this.safety.record({
-        userId,
-        sourceModule: 'dump',
-        trigger: 'phrase',
-        ruleId: match.ruleId,
-        category: match.category,
-      });
-    else this.events.emit('dump.created', { userId, dumpId: row.id });
-    const region = match
-      ? ((await this.prisma.user.findUnique({ where: { id: userId }, select: { region: true } }))
-          ?.region ?? 'GB')
-      : 'GB';
-    return {
-      ...dumpDto(row, c),
-      safety: match !== null,
-      crisisRoutes: match ? [...(await this.safety.routes(region))] : [],
-    };
+    if (!match) this.events.emit('dump.created', { userId, dumpId: row.id });
+    const crisisRoutes = match ? await this.safety.flag(userId, 'dump', match, input.origin) : [];
+    return { ...dumpDto(row, c), safety: match !== null, crisisRoutes };
   }
 
   async get(userId: string, id: string): Promise<DumpDto> {

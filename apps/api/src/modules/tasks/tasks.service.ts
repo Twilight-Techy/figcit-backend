@@ -9,6 +9,7 @@ import { nextOccurrence, parseRule } from '../../common/time/rrule.js';
 import { timelineFor } from '../../common/time/timeline.js';
 import { AiService } from '../ai/ai.service.js';
 import { breakDownTask } from '../ai/ai.tasks.js';
+import { RecommendationService } from '../recommendation/recommendation.service.js';
 import { RulesService } from '../rules/rules.service.js';
 import { TASK_SELECT, liveTimeline, toTaskDto } from './tasks.mapper.js';
 import type {
@@ -21,7 +22,6 @@ import type {
 } from './tasks.schemas.js';
 
 const MAX_ACTIVE = 500;
-const LIGHT_FRESH_MS = 6 * 3_600_000;
 const STRAINED = new Set<Light>(['amber', 'red']);
 
 function updateData(
@@ -55,6 +55,7 @@ export class TasksService {
     private readonly crypto: CryptoService,
     private readonly rules: RulesService,
     private readonly ai: AiService,
+    private readonly recs: RecommendationService,
   ) {}
 
   private async ctx(userId: string): Promise<{
@@ -276,14 +277,9 @@ export class TasksService {
     };
   }
 
-  /** The light from the user's latest card in the last few hours; Yellow when we don't know. */
   async currentLight(userId: string): Promise<{ light: Light; known: boolean }> {
-    const rec = await this.prisma.recommendation.findFirst({
-      where: { userId, createdAt: { gt: new Date(Date.now() - LIGHT_FRESH_MS) } },
-      orderBy: { createdAt: 'desc' },
-      select: { light: true },
-    });
-    return rec ? { light: rec.light, known: true } : { light: 'yellow', known: false };
+    const { light, known } = await this.recs.currentState(userId);
+    return { light, known };
   }
 
   async ordered(userId: string): Promise<z.infer<typeof orderedSchema>> {
