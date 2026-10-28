@@ -18,7 +18,7 @@
     "test:e2e": "vitest run --config vitest.e2e.config.ts --passWithNoTests",
     "db:generate": "prisma generate",
     "db:migration": "prisma migrate dev --create-only --name",
-    "openapi:generate": "echo 'OpenAPI generation arrives with backend issue #6' && exit 1",
+    "openapi:generate": "node --conditions=development --import @swc-node/register/esm-register src/openapi.ts",
     "db:seed": "prisma db seed",
     "db:migrate": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force"
