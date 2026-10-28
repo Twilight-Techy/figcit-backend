@@ -65,16 +65,16 @@ describe('dump', () => {
     const moved = await api.req<{ item: Item; targetId: string }>(
       'POST',
       `/dump-items/${String(todo?.id)}/to-task`,
-      { token, body: {} },
+      { token, body: { timeline: 'T2' } },
     );
     expect(moved.status).toBe(201);
     expect(moved.body.item.movedTo).toBe('task');
-    const task = await api.req<{ title: string; source: string }>(
+    const task = await api.req<{ title: string; source: string; timeline: string | null }>(
       'GET',
       `/tasks/${moved.body.targetId}`,
       { token },
     );
-    expect(task.body).toMatchObject({ title: 'Call the dentist', source: 'dump' });
+    expect(task.body).toMatchObject({ title: 'Call the dentist', source: 'dump', timeline: 'T2' });
     const again = await api.req<{ targetId: string }>(
       'POST',
       `/dump-items/${String(todo?.id)}/to-task`,

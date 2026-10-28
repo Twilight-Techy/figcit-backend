@@ -12,3 +12,12 @@ These need a moderated real-time service and safeguarding decisions that don't e
 
 ## X-04: No model server in this container
 Every AI task runs through its rule-based fallback here. The real-model path is tested end to end against a fake OpenAI-compatible server (`apps/api/test/fake-model.ts`): constrained output, checks, replace-on-failure, circuit breaker and SSE streaming. Quality of real model output (Qwen3.5-4B) still needs the week-1 test from SYSTEM_DESIGN §4.3.8.
+
+## X-05: Research dataset pipeline
+S149 needs a separate de-identified store, ethics approval and a consent version for research. The screen is built with Generate disabled; the `research` consent purpose is already recorded.
+
+## X-06: Web Push keys
+`VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` aren't set here, so `GET /push/vapid-key` returns null and the app says push isn't set up; every reminder still lands in the inbox (B-23). Set the keys to turn push on.
+
+## X-07: No speech server
+Voice capture records on the device, but there is no Whisper server in this container, so transcription returns "not available" and the screens offer typing (Express keeps the recording to save). Point `WHISPER_URL` at a whisper server to enable it.

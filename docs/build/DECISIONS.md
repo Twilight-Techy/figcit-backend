@@ -45,3 +45,35 @@ The admin console uploads the workbook as its CSV tabs (the same files as `docs/
 
 ## B-27: Institution dashboards
 Weekly aggregates from members who turned on institution sharing; any cell with fewer people than the tenant's anonymity floor (minimum 5, default 20 for new tenants) is stored as suppressed. Support leads see only those trends and what a member writes in "Ask for support".
+
+## B-28: The PWA carries a copy of the engine
+`figcit-pwa/vendor/engine` is copied from `packages/engine` by `scripts/sync-engine.mjs` (path alias `@figcit/engine`), because the PWA repo can't depend on a workspace package in another repo yet. Run the script after any engine change; the engine stays pure, so the copy is the same code.
+
+## B-29: What Browse mode can do
+On the device, with no account: check-in and the card (device engine), Regulate, built-in Meditate, Dump, Tasks (with rule-based break-down), Adapt, Reflect prompts, communication cards, Help, comfort settings. Everything is queued in the outbox and sent by `/me/upgrade-from-browse`. Needs an account (shows "Make an account"): Express drafts, Connect, own practices, Progress, Patterns, Reminders, Support plan, Plans, Institution.
+
+## B-30: Content and rules the PWA bundles
+`public/data/content.json` (tool scripts, prompts, starters, cards) is a build-time copy of `GET /v1/content`; the app prefers the live release and falls back to it offline. `src/lib/tasks/break-down.ts` copies the API's rule fallback so Browse mode can break tasks down.
+
+## B-31: Sounds are made on the device
+Brown/white noise, rain, river, birds and hum are generated with WebAudio instead of shipping audio files (no downloads, work offline). Real recordings can replace them later behind the same list.
+
+## B-32: Tap instead of drag
+Sorting dump items, putting steps in order and "what matters now" use tap-to-pick, up/down buttons and a select, not drag and drop, so they work with a keyboard, a switch or a screen reader.
+
+## B-33: Plan names and prices
+The designs say "Prime £7 / Premium £13"; the app shows the server's plans (Plus monthly, yearly and concession; X-01). Checkout uses the fake provider's page `/plans/checkout/` (B-26).
+
+## B-34: Institution views
+Cohort filters by programme and year (S32) aren't built: we collect no programme/year attributes (data minimisation). The dashboard filters by time range; each week's figures show only when they clear the floor, and weeks under it are left out and counted. Export is CSV or print-to-PDF made in the browser from the same aggregates; PPTX is not offered. The S50 "student summary" is the member's own share link (S47) or their "Ask for support" message; there is no per-student view.
+
+## B-35: Smaller product calls
+- Language: English (UK) only; the other languages are listed as "coming soon".
+- Notification style is silent / gentle / standard; "off" is turning categories off.
+- Trusted contacts can be contacted for Connect and Help/SOS; there is no automatic "escalation" option because the app never contacts anyone by itself.
+- Research export (S149) is shown but disabled until the research pipeline exists (X-05).
+- Permission explainers (S87, S88) show once per device, before the browser asks.
+- After "Sign in with your institution code", sign-in continues to Institution.
+
+## B-36: Offline
+`scripts/sw.mjs` runs after `next build` and writes `out/sw.js`, which precaches every page, its RSC payload (`index.txt`) and assets. Pages are network-first with the cached copy as fallback (Help if nothing else); assets are cache-first. The same worker shows push reminders.

@@ -43,20 +43,20 @@ Local environment: Postgres 16 runs in the container (`service postgresql start`
 - [x] Privacy (export, delete, retention), Admin, Institutions
 
 ## Phase 5: PWA foundation
-- [ ] Tokens and six themes, comfort settings before first paint, design-system components
-- [ ] i18n/messages, API client + auth wrapper, Dexie + outbox + sync, service worker
-- [ ] Engine on device + snapshot cache, safety hook, Help/SOS, error/offline states
+- [x] Tokens and six themes, comfort settings before first paint, design-system components
+- [x] i18n/messages, API client + auth wrapper, Dexie + outbox + sync, service worker
+- [x] Engine on device + snapshot cache, safety hook, Help/SOS, error/offline states
 
 ## Phase 6: PWA screens (all of design/SCREENS.md)
-- [ ] Onboarding, consent, auth, Browse
-- [ ] Home, navigation, check-in flow, need/demand, quick check-in
-- [ ] Card, sheets, guards, feedback/recheck
-- [ ] Regulate, Dump, Express, Tasks/Focus, Adapt, Connect, Reflect/Patterns, Meditate/Practices
-- [ ] Progress, Share, Reminders, Notifications, Settings, Plans, Install, Export/Delete
-- [ ] Admin console, Institution dashboard
+- [x] Onboarding, consent, auth, Browse
+- [x] Home, navigation, check-in flow, need/demand, quick check-in
+- [x] Card, sheets, guards, feedback/recheck
+- [x] Regulate, Dump, Express, Tasks/Focus, Adapt, Connect, Reflect/Patterns, Meditate/Practices
+- [x] Progress, Share, Reminders, Notifications, Settings, Plans, Install, Export/Delete
+- [x] Admin console, Institution dashboard
 
 ## Phase 7: Verification
-- [ ] API e2e against seeded Postgres (harness in `apps/api/test`, own `figcit_test` db; 67 tests incl. seeded personas)
-- [ ] Playwright journeys across every screen; navigation audit (every screen reachable)
-- [ ] Accessibility (axe), budgets, offline
+- [x] API e2e against seeded Postgres (harness in `apps/api/test`, own `figcit_test` db; 68 tests incl. seeded personas)
+- [x] Playwright journeys across every screen; navigation audit (every screen reachable)
+- [x] Accessibility (axe), budgets, offline
 - [ ] Final report: what works, decisions, blockers
