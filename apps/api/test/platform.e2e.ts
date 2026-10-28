@@ -437,3 +437,20 @@ describe('institutions', () => {
     ).toBe('free');
   });
 });
+
+describe('web sessions', () => {
+  it('refreshes from the cookie with no request body', async () => {
+    const email = `web-${randomUUID()}@example.test`;
+    await api.req('POST', '/auth/magic-link', { body: { email } });
+    const mail = await api.req<{ mail: { to: string; text: string }[] }>('GET', '/dev/mailbox');
+    const code = /\b(\d{6})\b/.exec(mail.body.mail.find((m) => m.to === email)?.text ?? '')?.[1];
+    const verify = await api.req('POST', '/auth/magic-link/verify', { body: { email, code } });
+    const cookie = String(verify.headers['set-cookie']).split(';')[0] ?? '';
+    expect(cookie).toMatch(/^figcit_rt=/);
+    const res = await api.req<{ accessToken: string }>('POST', '/auth/refresh', {
+      headers: { cookie },
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.accessToken).toBeTruthy();
+  });
+});

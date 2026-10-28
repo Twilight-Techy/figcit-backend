@@ -249,9 +249,10 @@ export class AuthController {
   async refresh(
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
-    @Body(new ZodPipe(refreshSchema)) body: z.infer<typeof refreshSchema>,
+    // Browsers send the cookie and often no body at all.
+    @Body(new ZodPipe(refreshSchema.optional())) body: z.infer<typeof refreshSchema> | undefined,
   ): Promise<SessionDto> {
-    const token = body.refreshToken ?? req.cookies[REFRESH_COOKIE];
+    const token = body?.refreshToken ?? req.cookies[REFRESH_COOKIE];
     if (!token) throw new Unauthorized();
     return this.respond(req, reply, await this.sessions.rotate(token));
   }
