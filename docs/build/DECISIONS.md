@@ -77,3 +77,6 @@ Cohort filters by programme and year (S32) aren't built: we collect no programme
 
 ## B-36: Offline
 `scripts/sw.mjs` runs after `next build` and writes `out/sw.js`, which precaches every page, its RSC payload (`index.txt`) and assets. Pages are network-first with the cached copy as fallback (Help if nothing else); assets are cache-first. The same worker shows push reminders.
+
+## B-37: Bundle budgets, measured
+With `"sideEffects"` declared in the PWA's package.json (so unused re-exports in feature indexes are dropped) and Advanced gates split from the Regulate tool map, Next reports (compressed): Welcome 120 KB, Home 133 KB (budget 130), card 132 KB, routes add 41–44 KB over the 103 KB shared framework (budget 40). `size-limit` isn't wired yet (the `size` script still says so); the next cut is lazy-loading TanStack Query devtools-free paths and the check-in catalogue.
