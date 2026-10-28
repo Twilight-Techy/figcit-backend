@@ -1,0 +1,24 @@
+// Product events: codes only, pseudonymous user hash, only with analytics consent.
+// Retained 13 months. Partitioning by month is deferred until volume needs it (DECISIONS B-03).
+model Event {
+  id       String   @id @default(uuid(7)) @db.Uuid
+  name     String   @db.VarChar(64)
+  userHash String?  @map("user_hash") @db.Char(64)
+  props    Json     @default("{}")
+  at       DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([name, at])
+  @@index([at])
+  @@map("events")
+}
+
+// Daily roll-ups maintained by the worker; request paths read these, never COUNT(*) on events.
+model DailyRollup {
+  day       DateTime @db.Date
+  metric    String   @db.VarChar(48)
+  dimension String   @default("") @db.VarChar(48)
+  value     BigInt
+
+  @@id([day, metric, dimension])
+  @@map("daily_rollups")
+}

@@ -1,6 +1,6 @@
 # Working together: two people, many agents, two repos
 
-How the two of us build `figcit-backend` and `figcit-pwa` at full speed without waiting on each other or overwriting each other's work. We both run coding agents (Claude Code, OpenCode) and track work in one GitHub Project.
+How the two of us build `figcit-backend` and `figcit-pwa` at full speed without waiting on each other or overwriting each other's work. We both run coding agents (Claude Code, OpenCode) and track work in GitHub issues (and a GitHub Project once our agents can reach it: section 12.1).
 
 This file is **identical in both repos**. Change it in both in the same pull-request pair.
 
@@ -11,7 +11,7 @@ Agents: your operating instructions are in `AGENTS.md` at the repo root. This do
 ## 1. The six rules
 
 1. **One issue = one branch = one worktree = one agent session = one pull request.** No agent works on two issues at once; no two agents share a branch.
-2. **Claim before you code.** Assign yourself and set the issue to *In progress* on the board before any code is written. The board is the lock: if it's claimed, it's not yours.
+2. **Claim before you code.** Set the issue to *In progress* (the `status:in-progress` label until the board works: section 12.1) before any code is written. That's the lock: if it's claimed, it's not yours.
 3. **Stay in your lane.** Each person owns a set of modules in both repos (section 2). Touching the other lane's files needs a comment on their issue first, or a small separate PR they review.
 4. **Contract first across repos.** When a feature spans both repos, the API contract merges first (in a few minutes), so the PWA never waits for the backend implementation (section 6).
 5. **Small and often.** Branches live less than a day (two at most); pull requests aim for under 400 changed lines; auto-merge when checks pass.
@@ -27,10 +27,10 @@ Work is split by **vertical slice**: each person owns whole features end to end,
 | --- | --- | --- |
 | Owner | **Twilight-Techy** | **Abdurrahman Adenowo** (`OadeO6`) |
 | Backend | `packages/engine`, `packages/rules-compiler`; modules Rules, Content, CheckIn, Recommendation, Safety, Feedback, AI, Speech, Dump, Express, Tasks, Reflect, Admin (rules, content, decision log, safety events) | Workspace and tooling, Docker, CI/CD, environments and hosting, database setup, backups, observability (logs, metrics, GlitchTip, uptime), AI server deployment (llama.cpp, whisper.cpp); modules Auth, Users, Consent, Audit, Sync, Notifications, Jobs, Files, Entitlements, Analytics, Health, Regulate, Adapt, Connect, Practices, Progress |
-| PWA | `design-system/`, `lib/`, `engine/`, the root layout and Help pill; features `home`, `check-in`, `recommendation`, `safety`, `feedback`, `dump`, `express`, `tasks`, `reflect`, `admin` | `offline/` (Dexie, outbox, sync), `sw/`, `api/` (generated client), PWA CI and hosting config (`vercel.json`, security headers); features `auth`, `onboarding`, `settings`, `notifications`, `plans`, `progress`, `regulate`, `adapt`, `connect`, `meditate` |
+| PWA | `src/ds/` (design system), `src/lib/` except the Lane B folders, the root layout and Help pill; features `home`, `help`, `checkin`, `recommendation`, `safety`, `support-plan`, `feedback`, `dump`, `speech`, `express`, `tasks`, `reflect`, `admin` | `src/lib/db/` (Dexie), `src/lib/sync/` (outbox, sync), `src/lib/http/`, `src/lib/errors/`, `src/api/` (generated client), `src/mocks/`, `src/sw/`, PWA CI and hosting config (`vercel.json`, security headers); features `system`, `auth`, `onboarding`, `settings`, `notifications`, `reminders`, `install`, `plans`, `progress`, `share`, `regulate`, `adapt`, `connect`, `practices`, `institutions` |
 | Why this split | The rules engine, safety, the main journey, the AI features and the UI foundations are one connected piece of product logic | Accounts, data, sync, scheduling, deployment and security are one connected piece of platform, plus the pathways that are mostly data and timers |
 
-**Shared, owned by one lane, changed by both through small PRs:** the design system and root layout (Lane A), the engine's public types (Lane A), the Prisma base schema files `_shared.prisma` and `users.prisma` (Lane B), and `offline/db.ts` (Lane B).
+**Shared, owned by one lane, changed by both through small PRs:** the design system and root layout (Lane A), the engine's public types (Lane A), the Prisma base schema files `_shared.prisma` and `users.prisma` (Lane B), and `src/lib/db/` (Lane B).
 
 **First sprint (S0), both working from day one:**
 
@@ -62,10 +62,10 @@ Most conflicts come from a few shared files. Each has a rule that makes conflict
 | --- | --- |
 | Messages (copy) | **One file per feature**: `src/messages/en/<feature>.json`. You only edit your features' files. |
 | Routes | Each feature's routes sit in their own folder under `src/app/`; the lane that owns the feature owns its folder. |
-| `src/app/layout.tsx` | Lane B, tier A review (it holds the Help pill). |
-| Design system | Lane B. Need a new component or token? Open a small PR or an issue tagged `design-system`; don't add one-off styles in a feature. |
+| `src/app/layout.tsx` | Lane A, tier A review (it holds the Help pill). |
+| Design system (`src/ds/`) | Lane A. Need a new component or token? Open a small PR or an issue tagged `design-system`; don't add one-off styles in a feature. |
 | `src/api/` (generated client) | Never hand-merge: take either side, then `pnpm api:generate`. |
-| Dexie schema version | Tables are declared in each feature's `local.schema.ts`; `offline/db.ts` combines them. On a version-number conflict, take the higher number plus one, and rerun the migration tests. |
+| Dexie schema version | Tables are declared in each feature's `local.schema.ts`; `src/lib/db/` combines them. On a version-number conflict, take the higher number plus one, and rerun the migration tests. |
 
 ### Both repos
 | File | Rule |
@@ -117,10 +117,10 @@ Worktrees on one machine must not fight over local resources:
 
 ### What every agent session does
 1. Read `AGENTS.md`, then the issue.
-2. Check the issue is claimed by its person and *In progress*; check no other open PR touches the same module (see the issue's **Touches** field).
+2. Check the issue is assigned to its person and *In progress* (section 12.1); check no other open PR touches the same module (see the issue's **Touches** field).
 3. Work only within the files the issue says it touches. If the change needs more, say so in the issue and stop or narrow the change.
 4. Run the checks (`pnpm check`: lint, types, tests, budgets) until green.
-5. Open the PR with the template filled in, link the issue, set auto-merge, move the card to *In review*.
+5. Open the PR with the template filled in, link the issue, set auto-merge (tier rules in section 12.4), move the issue to *In review*.
 6. Stop. One issue per session.
 
 ### What agents never do
@@ -186,8 +186,8 @@ One Project for both repos (owned by the `Twilight-Techy` account), managed by b
 
 ## 8. Staying in sync without meetings
 
-- **The board is the status.** No daily stand-up needed; check *Now* before starting a session.
-- **Blocked?** Set Status to *Blocked*, link the blocking issue in a comment, mention the other person, then pick up a different issue.
+- **The issues are the status** (the board, once it works). No daily stand-up needed; check what's *In progress* and *In review* before starting a session.
+- **Blocked?** Mark it *Blocked* (section 12.1), link the blocking issue in a comment, mention the other person, then pick up a different issue.
 - **Product questions** go in the issue (`needs-decision`); decisions get recorded in `docs/CONFLICTS.md` or an ADR, never only in chat.
 - **Weekly, 15 minutes:** plan the next sprint, rebalance lanes if needed, look at anything *Blocked* for more than a day.
 
@@ -213,7 +213,7 @@ One Project for both repos (owned by the `Twilight-Techy` account), managed by b
    - block force-pushes and deletion.
 4. Repo settings: allow squash merge only; allow auto-merge; delete branches after merge.
 5. Create the GitHub Project with the fields and views in section 7, and turn on its built-in workflows.
-6. Create labels: `lane-a`, `lane-b`, `tier-a`, `needs-decision`, `blocked`, `design-system`, `contract`.
+6. Create labels: `lane-a`, `lane-b`, `tier-a`, `needs-decision`, `blocked`, `design-system`, `contract`, `status:in-progress`, `status:in-review`, plus `sprint:S0`–`sprint:S13`, `size:xs|s|m` and `p0|p1|p2` (most already exist from the backlog).
 7. Each of us: enable the GitHub MCP **projects** toolset in our agent setup (Claude Code and OpenCode), and generate an age key for SOPS.
 8. Each of us: set git identity to our own GitHub email, and give our agents our own GitHub access (section 11).
 
@@ -235,3 +235,78 @@ We share one Claude account but each have our own GitHub account. GitHub attribu
 3. **The PR author is the person whose agent did the work.** This matters for tier-A reviews: GitHub doesn't let anyone approve their own PR, so a PR opened under the wrong account blocks the review.
 
 **Shared Claude usage:** one account means one set of usage limits. When both of us run many agents at once, stagger the heavy sessions (large refactors, long test runs) and keep sessions to one issue each.
+
+---
+
+## 12. Issues and pull requests
+
+### 12.1 Status without the Project board
+Until the GitHub Project works through our agents' MCP tools (section 7), **the assignee and labels are the status**. Once the board works, its Status field replaces the `status:` labels; don't keep both.
+
+| Status | How it shows on the issue |
+| --- | --- |
+| Backlog | Open, no status label, and at least one issue under **Depends on** is still open |
+| Ready | Open, no status label, and everything under **Depends on** is closed (or, for an API dependency, its contract PR has merged: section 6) |
+| In progress | Assigned to the person working on it, label `status:in-progress` |
+| In review | Label `status:in-review`; the PR is open and linked |
+| Blocked | Label `blocked`, plus a comment naming the blocker (issue, PR or decision) and mentioning the person who can unblock it |
+| Done | Closed by the merged PR |
+
+Swap the label when the status changes; an issue has at most one `status:` label.
+
+### 12.2 Picking and claiming an issue
+1. **Pick from your own lane:** issues assigned to you. To take one from the other lane, ask on the issue and wait for its owner to reassign it.
+2. **In this order:** earliest sprint first, then priority (P0 → P2), then lowest number. Skip anything that isn't *Ready*.
+3. **Check for overlap:** no open PR may touch the same folders as the issue's **Touches**. If one does, pick another issue.
+4. **Claim it:** add `status:in-progress` before writing any code. That label is the lock.
+5. **Limits:** one issue per agent session, and at most three issues *In progress* per person. Finish or hand back before claiming a fourth.
+6. **Going quiet:** an issue *In progress* with no pushed commit for two working days gets a comment saying why, or the label comes off so someone else can take it.
+
+### 12.3 Writing and changing issues
+- **Format:** new issues use the `task` template. The first line holds PRD ref, lane, tier, sprint, size and priority; then **Goal**, **Acceptance criteria** (checkboxes), **Touches**, **Depends on** and **Notes**.
+- **Labels:** one each of `lane-a`/`lane-b`, `sprint:Sx`, `size:xs|s|m` and `p0|p1|p2`. Add `tier-a` when **Touches** includes a tier-A path, `contract` for an API contract, and `needs-decision` when the issue rests on an open CONFLICTS item. Assign the issue to its lane's owner.
+- **References:** a reference to the other repo is always written in full (`Twilight-Techy/figcit-backend#42`). A bare `#42` points at the current repo.
+- **Too big:** an issue bigger than M is split before work starts. Open the parts as new issues, link them from the original, and close the original as *not planned* with a comment listing the parts.
+- **Follow-up issues:** agents may open one for:
+  - a bug found outside the issue's **Touches**;
+  - work cut from a PR's scope;
+  - the issue link a `TODO` needs (ENGINEERING_RULES §14).
+
+  The follow-up gets the same template and labels, goes to its lane's owner, and is linked from the PR. Product questions are not follow-up issues: they're a `needs-decision` comment on the existing issue.
+- **Changing an issue:**
+  - **Ticking criteria:** the author ticks acceptance criteria as they're met.
+  - **Adding or removing criteria:** needs a comment saying why.
+  - **The other lane's issues:** comment rather than edit.
+- **Closing:**
+  - **Normal:** issues close through a merged PR (`Closes #N`).
+  - **Already done elsewhere:** close as *completed* with a link to where it was done.
+  - **Dropped:** close as *not planned* with the reason.
+  - **Who closes:** only the issue's owner closes it by hand.
+
+### 12.4 Pull requests
+- **One PR per issue**, with two exceptions, both of which link the issue with `Part of #N` until the last PR uses `Closes #N`:
+  - the contract PR and the implementation PR for an API (section 6);
+  - a change over 400 lines, split into a short stack of PRs.
+- **Title:** a conventional commit (`feat(checkin): store emotions with intensity`). A squash merge uses it as the commit message on `main`.
+- **Body:** the PR template, filled in. Name any CONFLICTS item and the recommendation used. Add the issue's lane label to the PR, and `tier-a` or `contract` where they apply.
+- **Draft, then ready:**
+  - **Opening:** open a draft early (section 4).
+  - **Ready:** mark it ready only when `pnpm check` passes and the author has read the whole diff.
+  - **Label swap:** at the same time, move the issue from `status:in-progress` to `status:in-review`.
+- **Which tier, when the signals disagree:** the stricter one wins.
+  - **PR touches a CODEOWNERS path but the issue lacks `tier-a`:** branch protection already requires the review. Add the label to the issue.
+  - **Issue is `tier-a` but the PR touches no CODEOWNERS path:** nothing enforces the review. Request the other person's review and turn auto-merge on only after they approve.
+- **Review comments:**
+  - **Who fixes them:** the author's agent, in a new session in the same worktree and on the same branch.
+  - **Replying:** reply on each thread with what changed, or why nothing did. Resolve the threads you fixed.
+  - **Changes requested:** re-request the reviewer's review.
+  - **Turnaround:** the reviewer aims to respond within 4 working hours for tier A (section 4).
+- **History:** before review starts, rebase and force-push your own branch freely. Once the PR is marked ready, bring `main` in with `git merge origin/main` instead, so review threads stay attached. The squash merge tidies it up.
+- **Stale PRs:**
+  - **Quiet ready PR:** one with no activity for one working day gets a status comment from its author.
+  - **Old draft:** one older than two working days is split or closed.
+- **Merging:**
+  - **How:** always through auto-merge. Agents never approve or merge (section 11).
+  - **When:** a tier-A PR merges itself once the other person approves.
+  - **Afterwards:** the issue closes, its `status:` label comes off, and the author removes the worktree.
+- **Reverting:** a revert PR links the original PR and reopens its issue with a comment saying what broke.

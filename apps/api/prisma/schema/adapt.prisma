@@ -1,0 +1,40 @@
+enum AdaptationKind {
+  environment
+  scope
+  modality
+  pace
+  sequence
+  instructions
+  communication
+
+  @@map("adaptation_kind")
+}
+
+model Adaptation {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  userId           String         @map("user_id") @db.Uuid
+  recommendationId String         @map("recommendation_id") @db.Uuid
+  kind             AdaptationKind
+  detailCode       String         @map("detail_code") @db.VarChar(64)
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@index([recommendationId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("adaptations")
+}
+
+// Favourite adaptations, offered first next time.
+model SavedAdaptation {
+  userId     String         @map("user_id") @db.Uuid
+  kind       AdaptationKind
+  detailCode String         @map("detail_code") @db.VarChar(64)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, kind, detailCode])
+  @@map("saved_adaptations")
+}

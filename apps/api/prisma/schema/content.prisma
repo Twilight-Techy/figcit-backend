@@ -1,0 +1,87 @@
+enum ContentStatus {
+  draft
+  in_review
+  published
+  retired
+
+  @@map("content_status")
+}
+
+enum ContentKind {
+  copy          // screen wording
+  tool_script   // Breathe steps, Ground prompts, Move routines
+  reflect_prompt
+  practice      // neutral practice library
+  starter       // Connect message starters
+  adaptation    // Adapt library
+  comm_card     // communication cards (always free)
+  help_route    // crisis routes per region
+  card_wording  // recommendation card wording and rationale templates
+  pattern_template
+  ai_prompt
+
+  @@map("content_kind")
+}
+
+// Versioned content (SYSTEM_DESIGN §4.1 ContentModule). One row per (key, locale, version).
+model ContentItem {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  key           String        @db.VarChar(120) // e.g. tool.regulate.breathe.box
+  locale        String        @default("en-GB") @db.VarChar(16)
+  version       Int
+  kind          ContentKind
+  status        ContentStatus @default(draft)
+  body          Json
+  touchesSafety Boolean       @default(false) @map("touches_safety")
+  authorId      String?       @map("author_id") @db.Uuid
+  reviewerId    String?       @map("reviewer_id") @db.Uuid
+  reviewedAt    DateTime?     @map("reviewed_at") @db.Timestamptz(3)
+  publishedAt   DateTime?     @map("published_at") @db.Timestamptz(3)
+  releaseId     Int?          @map("release_id")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  author   User?           @relation("ContentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  reviewer User?           @relation("ContentReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  release  ContentRelease? @relation(fields: [releaseId], references: [id], onDelete: SetNull)
+
+  @@unique([key, locale, version])
+  @@index([status, kind, locale])
+  @@index([releaseId])
+  @@map("content_items")
+}
+
+// Each publish creates a release; clients fetch `GET /content?since=<release id>`.
+model ContentRelease {
+  id          Int      @id @default(autoincrement())
+  publishedAt DateTime @default(now()) @map("published_at") @db.Timestamptz(3)
+  publishedBy String?  @map("published_by") @db.Uuid
+  itemCount   Int      @map("item_count")
+
+  items ContentItem[]
+
+  @@map("content_releases")
+}
+
+enum ToolTier {
+  free
+  advanced
+
+  @@map("tool_tier")
+}
+
+// Tool catalogue (workbook Tab 6d), mirrored into the snapshot.
+model Tool {
+  toolId      String   @id @map("tool_id") @db.VarChar(48)
+  pathway     Pathway
+  name        String   @db.VarChar(80)
+  tier        ToolTier @default(free)
+  safetyFloor Boolean  @default(false) @map("safety_floor")
+  publicSafe  Boolean  @default(true) @map("public_safe")
+  eyesOpen    Boolean  @default(true) @map("eyes_open")
+  minutes     Int?     @db.SmallInt
+  active      Boolean  @default(true)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([pathway, active])
+  @@map("tools")
+}

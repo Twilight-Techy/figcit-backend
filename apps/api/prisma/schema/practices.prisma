@@ -1,0 +1,38 @@
+enum PracticeType {
+  ritual
+  prayer
+  recitation
+  meditation
+  other
+
+  @@map("practice_type")
+}
+
+// The user's own practices: always free on every plan (ENT-4).
+model Practice {
+  id                  String       @id @default(uuid(7)) @db.Uuid
+  userId              String       @map("user_id") @db.Uuid
+  type                PracticeType
+  nameEnc             Bytes        @map("name_enc")
+  contentEnc          Bytes?       @map("content_enc")
+  linkEnc             Bytes?       @map("link_enc")
+  audioFileId         String?      @map("audio_file_id") @db.Uuid
+  scheduleRule        String?      @map("schedule_rule") @db.VarChar(200) // RRULE, timeline TR
+  reminderStyle       String       @default("gentle") @map("reminder_style") @db.VarChar(16)
+  minutes             Int?         @db.SmallInt
+  helpsWhenStruggling Boolean      @default(false) @map("helps_when_struggling")
+  makesMeWorse        Boolean      @default(false) @map("makes_me_worse")
+  isTransitionRitual  Boolean      @default(false) @map("is_transition_ritual")
+  position            Int          @default(0) @db.SmallInt
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  clientUpdatedAt     DateTime     @default(now()) @map("client_updated_at") @db.Timestamptz(3)
+  deletedAt           DateTime?    @map("deleted_at") @db.Timestamptz(3)
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  audioFile StoredFile?      @relation(fields: [audioFileId], references: [id], onDelete: SetNull)
+  sessions  PathwaySession[]
+
+  @@index([userId, position])
+  @@map("practices")
+}

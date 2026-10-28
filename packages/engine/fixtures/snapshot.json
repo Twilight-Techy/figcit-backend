@@ -1,0 +1,4083 @@
+{
+  "version": "3.3.0+7c6bace7",
+  "workbookVersion": "3.3",
+  "cells": [
+    {
+      "id": "E1M1",
+      "energy": 1,
+      "mood": 1,
+      "name": "Hibernate",
+      "icon": "🌙",
+      "meaning": "Rest is the task right now — everything else can wait.",
+      "band": "very_constrained",
+      "because": "running on empty"
+    },
+    {
+      "id": "E1M2",
+      "energy": 1,
+      "mood": 2,
+      "name": "Gentle Drift",
+      "icon": "🌱",
+      "meaning": "Low on fuel and feeling flat — small, soft steps only.",
+      "band": "very_constrained",
+      "because": "low on fuel"
+    },
+    {
+      "id": "E1M3",
+      "energy": 1,
+      "mood": 3,
+      "name": "Tender Space",
+      "icon": "🕯️",
+      "meaning": "Calm but running on empty — be gentle with yourself.",
+      "band": "constrained",
+      "because": "calm but running on empty"
+    },
+    {
+      "id": "E1M4",
+      "energy": 1,
+      "mood": 4,
+      "name": "Quiet Glow",
+      "icon": "☁️",
+      "meaning": "Peaceful and settled, just low on energy — enjoy the stillness.",
+      "band": "constrained",
+      "because": "peaceful"
+    },
+    {
+      "id": "E2M1",
+      "energy": 2,
+      "mood": 1,
+      "name": "Ground First",
+      "icon": "🌱",
+      "meaning": "Some energy, but unsettled — steady yourself before anything else.",
+      "band": "constrained",
+      "because": "unsettled with a little energy"
+    },
+    {
+      "id": "E2M2",
+      "energy": 2,
+      "mood": 2,
+      "name": "Slow Warm",
+      "icon": "☀️",
+      "meaning": "Warming up slowly — low-pressure tasks fit best.",
+      "band": "conditional",
+      "because": "warming up slowly"
+    },
+    {
+      "id": "E2M3",
+      "energy": 2,
+      "mood": 3,
+      "name": "Building Up",
+      "icon": "✨",
+      "meaning": "Familiar tasks welcome here.",
+      "band": "conditional",
+      "because": "building up"
+    },
+    {
+      "id": "E2M4",
+      "energy": 2,
+      "mood": 4,
+      "name": "Ready to Try",
+      "icon": "⚙️",
+      "meaning": "Settled and willing — a good moment to start something.",
+      "band": "available",
+      "because": "settled"
+    },
+    {
+      "id": "E3M1",
+      "energy": 3,
+      "mood": 1,
+      "name": "Activate",
+      "icon": "🔥",
+      "meaning": "Energy is up but so is friction — channel it before you use it.",
+      "band": "conditional",
+      "because": "energised but feeling friction"
+    },
+    {
+      "id": "E3M2",
+      "energy": 3,
+      "mood": 2,
+      "name": "Flow Entering",
+      "icon": "🎯",
+      "meaning": "Getting going, though mood's still catching up — ease in.",
+      "band": "conditional",
+      "because": "getting going while your mood catches up"
+    },
+    {
+      "id": "E3M3",
+      "energy": 3,
+      "mood": 3,
+      "name": "Full Flow",
+      "icon": "🌊",
+      "meaning": "Steady energy, clear head — good for focused work.",
+      "band": "available",
+      "because": "steady with a clear head"
+    },
+    {
+      "id": "E3M4",
+      "energy": 3,
+      "mood": 4,
+      "name": "Creative Peak",
+      "icon": "🎨",
+      "meaning": "Energised and in a good place — great for ideas and making things.",
+      "band": "available",
+      "because": "energised"
+    },
+    {
+      "id": "E4M1",
+      "energy": 4,
+      "mood": 1,
+      "name": "Regain Base",
+      "icon": "💧",
+      "meaning": "Lots of energy but mood is scattered — find your footing first.",
+      "band": "conditional",
+      "because": "full of energy but scattered"
+    },
+    {
+      "id": "E4M2",
+      "energy": 4,
+      "mood": 2,
+      "name": "Storm Mode",
+      "icon": "⚡",
+      "meaning": "Wired and on edge — high energy needs an outlet, not a task yet.",
+      "band": "conditional",
+      "because": "wired"
+    },
+    {
+      "id": "E4M3",
+      "energy": 4,
+      "mood": 3,
+      "name": "Release First",
+      "icon": "🌊",
+      "meaning": "Charged up and steady — let some energy out before diving in.",
+      "band": "conditional",
+      "because": "charged up"
+    },
+    {
+      "id": "E4M4",
+      "energy": 4,
+      "mood": 4,
+      "name": "Peak Flow",
+      "icon": "🚀",
+      "meaning": "High energy, feeling good — your best window for big things.",
+      "band": "available",
+      "because": "full of energy and feeling good"
+    }
+  ],
+  "lights": {
+    "green": {
+      "label": "Good to go",
+      "icon": "●",
+      "hex": "#5E8C61"
+    },
+    "yellow": {
+      "label": "Go gently",
+      "icon": "◐",
+      "hex": "#D8B64C"
+    },
+    "amber": {
+      "label": "Reduce the load first",
+      "icon": "▲",
+      "hex": "#D98A3D"
+    },
+    "red": {
+      "label": "Take care first",
+      "icon": "■",
+      "hex": "#B5574B"
+    },
+    "blue": {
+      "label": "Steadier",
+      "icon": "◆",
+      "hex": "#5B7FA6"
+    }
+  },
+  "families": [
+    {
+      "code": "distress",
+      "label": "Distress / overwhelm",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're feeling {intensity} overwhelm"
+    },
+    {
+      "code": "racing",
+      "label": "Racing / disorganised thoughts",
+      "valence": "negative",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "your head is full and hard to sort"
+    },
+    {
+      "code": "anxious",
+      "label": "Anxious / fearful",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're feeling {intensity} anxiety"
+    },
+    {
+      "code": "anger",
+      "label": "Anger / frustration",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're feeling {intensity} frustration"
+    },
+    {
+      "code": "word_finding",
+      "label": "Word-finding / communication difficulty",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "the words aren't coming easily"
+    },
+    {
+      "code": "loneliness",
+      "label": "Loneliness / isolation",
+      "valence": "negative",
+      "ex1": null,
+      "cx1": true,
+      "feeling": "you're feeling on your own"
+    },
+    {
+      "code": "sadness",
+      "label": "Sadness / low mood",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're feeling {intensity} low"
+    },
+    {
+      "code": "restlessness",
+      "label": "Restlessness",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "your body wants to move"
+    },
+    {
+      "code": "misaligned",
+      "label": "Disconnected / misaligned",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "the way you're doing this isn't working"
+    },
+    {
+      "code": "positive_activation",
+      "label": "Positive activation",
+      "valence": "positive",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you're feeling bright and switched on"
+    },
+    {
+      "code": "calm",
+      "label": "Calm / content",
+      "valence": "positive",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you're feeling settled"
+    },
+    {
+      "code": "shame",
+      "label": "Shame / guilt",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're being hard on yourself"
+    },
+    {
+      "code": "shutdown",
+      "label": "Shutdown / freeze / numb",
+      "valence": "negative",
+      "ex1": "any",
+      "cx1": true,
+      "feeling": "your body has gone quiet and words aren't coming"
+    },
+    {
+      "code": "task_paralysis",
+      "label": "Task paralysis / can’t start",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you want to start but can't get going"
+    },
+    {
+      "code": "sensory_overload",
+      "label": "Sensory overload building",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "everything around you is a lot right now"
+    },
+    {
+      "code": "hyperfocus",
+      "label": "Hyperfocus lock / time blindness",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you've been locked in for a while"
+    },
+    {
+      "code": "boredom",
+      "label": "Boredom / under-stimulation",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you're under-stimulated"
+    },
+    {
+      "code": "social_hangover",
+      "label": "Social hangover / masking fatigue",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're drained after being around people"
+    },
+    {
+      "code": "confusion",
+      "label": "Confusion / decision paralysis",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "it's hard to see what matters most"
+    },
+    {
+      "code": "grief",
+      "label": "Grief / loss",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "you're carrying a loss"
+    },
+    {
+      "code": "rejection",
+      "label": "Rejection sensitivity / hurt",
+      "valence": "negative",
+      "ex1": "high",
+      "cx1": true,
+      "feeling": "a comment is still stinging"
+    },
+    {
+      "code": "make_sense",
+      "label": "Wanting to make sense of an experience",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you're trying to make sense of what happened"
+    },
+    {
+      "code": "relief",
+      "label": "Relief / accomplishment",
+      "valence": "positive",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you got through something hard"
+    },
+    {
+      "code": "anticipatory",
+      "label": "Anticipatory unease / dread",
+      "valence": "negative",
+      "ex1": null,
+      "cx1": true,
+      "feeling": "you're uneasy about what's coming"
+    },
+    {
+      "code": "stillness",
+      "label": "Need for stillness / inner quiet",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you'd like some quiet inside"
+    },
+    {
+      "code": "spiritual",
+      "label": "Spiritual / faith need",
+      "valence": "neutral",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "you want time with what matters to you"
+    },
+    {
+      "code": "gratitude",
+      "label": "Gratitude / contentment",
+      "valence": "positive",
+      "ex1": null,
+      "cx1": false,
+      "feeling": "there's something good to notice"
+    },
+    {
+      "code": "rumination",
+      "label": "Rumination / replay loop",
+      "valence": "negative",
+      "ex1": null,
+      "cx1": true,
+      "feeling": "you can't stop going over it"
+    },
+    {
+      "code": "tiredness",
+      "label": "Tiredness",
+      "valence": "negative",
+      "ex1": null,
+      "cx1": true,
+      "feeling": "you're tired"
+    }
+  ],
+  "emotions": [
+    {
+      "code": "anxious",
+      "label": "Anxious",
+      "emoji": "😟",
+      "family": "anxious",
+      "side": "harder"
+    },
+    {
+      "code": "sad",
+      "label": "Sad",
+      "emoji": "😢",
+      "family": "sadness",
+      "side": "harder"
+    },
+    {
+      "code": "tired",
+      "label": "Tired",
+      "emoji": "😮‍💨",
+      "family": "tiredness",
+      "side": "harder"
+    },
+    {
+      "code": "frustrated",
+      "label": "Frustrated",
+      "emoji": "😤",
+      "family": "anger",
+      "side": "harder"
+    },
+    {
+      "code": "overwhelmed",
+      "label": "Overwhelmed",
+      "emoji": "😵‍💫",
+      "family": "distress",
+      "side": "harder"
+    },
+    {
+      "code": "restless",
+      "label": "Restless",
+      "emoji": "🌀",
+      "family": "restlessness",
+      "side": "harder"
+    },
+    {
+      "code": "angry",
+      "label": "Angry",
+      "emoji": "😠",
+      "family": "anger",
+      "side": "harder"
+    },
+    {
+      "code": "numb",
+      "label": "Numb",
+      "emoji": "😶",
+      "family": "shutdown",
+      "side": "harder"
+    },
+    {
+      "code": "foggy",
+      "label": "Foggy",
+      "emoji": "🌫️",
+      "family": "confusion",
+      "side": "harder"
+    },
+    {
+      "code": "lonely",
+      "label": "Lonely",
+      "emoji": "🫥",
+      "family": "loneliness",
+      "side": "harder"
+    },
+    {
+      "code": "distress",
+      "label": "Distress",
+      "emoji": "😣",
+      "family": "distress",
+      "side": "harder"
+    },
+    {
+      "code": "hopeless",
+      "label": "Hopeless",
+      "emoji": "🕳️",
+      "family": "sadness",
+      "side": "harder",
+      "riskAtIntensity": 7
+    },
+    {
+      "code": "grief",
+      "label": "Grief",
+      "emoji": "🖤",
+      "family": "grief",
+      "side": "harder"
+    },
+    {
+      "code": "loss",
+      "label": "Loss",
+      "emoji": "🥀",
+      "family": "grief",
+      "side": "harder"
+    },
+    {
+      "code": "shame",
+      "label": "Shame",
+      "emoji": "😔",
+      "family": "shame",
+      "side": "harder"
+    },
+    {
+      "code": "guilt",
+      "label": "Guilt",
+      "emoji": "😞",
+      "family": "shame",
+      "side": "harder"
+    },
+    {
+      "code": "uneasy_ahead",
+      "label": "Uneasy about what's coming",
+      "emoji": "😬",
+      "family": "anticipatory",
+      "side": "harder"
+    },
+    {
+      "code": "going_over",
+      "label": "Going over and over it",
+      "emoji": "🔁",
+      "family": "rumination",
+      "side": "harder"
+    },
+    {
+      "code": "bored",
+      "label": "Bored",
+      "emoji": "🥱",
+      "family": "boredom",
+      "side": "harder"
+    },
+    {
+      "code": "stuck_start",
+      "label": "Stuck — can't start",
+      "emoji": "🧱",
+      "family": "task_paralysis",
+      "side": "harder"
+    },
+    {
+      "code": "hurt_comment",
+      "label": "Hurt by a comment",
+      "emoji": "💢",
+      "family": "rejection",
+      "side": "harder"
+    },
+    {
+      "code": "peopled_out",
+      "label": "Peopled out",
+      "emoji": "🫠",
+      "family": "social_hangover",
+      "side": "harder"
+    },
+    {
+      "code": "overloaded",
+      "label": "Too much input",
+      "emoji": "🔊",
+      "family": "sensory_overload",
+      "side": "harder"
+    },
+    {
+      "code": "not_working",
+      "label": "This way isn't working",
+      "emoji": "🧩",
+      "family": "misaligned",
+      "side": "harder"
+    },
+    {
+      "code": "racing_head",
+      "label": "Too much in my head",
+      "emoji": "💭",
+      "family": "racing",
+      "side": "harder"
+    },
+    {
+      "code": "locked_in",
+      "label": "Locked in, can't stop",
+      "emoji": "⏳",
+      "family": "hyperfocus",
+      "side": "harder"
+    },
+    {
+      "code": "lost_for_words",
+      "label": "Can't find the words",
+      "emoji": "🤐",
+      "family": "word_finding",
+      "side": "harder"
+    },
+    {
+      "code": "calm",
+      "label": "Calm",
+      "emoji": "😌",
+      "family": "calm",
+      "side": "lighter"
+    },
+    {
+      "code": "happy",
+      "label": "Happy",
+      "emoji": "😊",
+      "family": "positive_activation",
+      "side": "lighter"
+    },
+    {
+      "code": "hopeful",
+      "label": "Hopeful",
+      "emoji": "🌤️",
+      "family": "calm",
+      "side": "lighter"
+    },
+    {
+      "code": "grateful",
+      "label": "Grateful",
+      "emoji": "🙏",
+      "family": "gratitude",
+      "side": "lighter"
+    },
+    {
+      "code": "relieved",
+      "label": "Relieved",
+      "emoji": "😮",
+      "family": "relief",
+      "side": "lighter"
+    },
+    {
+      "code": "curious",
+      "label": "Curious",
+      "emoji": "🧐",
+      "family": "positive_activation",
+      "side": "lighter"
+    },
+    {
+      "code": "excited",
+      "label": "Excited",
+      "emoji": "🤩",
+      "family": "positive_activation",
+      "side": "lighter"
+    },
+    {
+      "code": "focused",
+      "label": "Focused",
+      "emoji": "🎯",
+      "family": "calm",
+      "side": "lighter"
+    },
+    {
+      "code": "content",
+      "label": "Content",
+      "emoji": "🙂",
+      "family": "calm",
+      "side": "lighter"
+    },
+    {
+      "code": "proud",
+      "label": "Proud of myself",
+      "emoji": "🌟",
+      "family": "relief",
+      "side": "lighter"
+    },
+    {
+      "code": "need_quiet",
+      "label": "Need stillness",
+      "emoji": "🕯️",
+      "family": "stillness",
+      "side": "lighter"
+    },
+    {
+      "code": "want_practice",
+      "label": "Want to pray or practise",
+      "emoji": "📿",
+      "family": "spiritual",
+      "side": "lighter"
+    },
+    {
+      "code": "making_sense",
+      "label": "Making sense of something",
+      "emoji": "🧭",
+      "family": "make_sense",
+      "side": "lighter"
+    }
+  ],
+  "sensations": [
+    {
+      "code": "bright_lights",
+      "label": "Bright lights",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "flickering",
+      "label": "Flickering",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "glare",
+      "label": "Glare",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "loud_sound",
+      "label": "Loud sound",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "sudden_noise",
+      "label": "Sudden noise",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "ringing",
+      "label": "Ringing",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "background_hum",
+      "label": "Background hum",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "strong_smells",
+      "label": "Strong smells",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "scratchy_fabric",
+      "label": "Scratchy fabric",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "tight_clothing",
+      "label": "Tight clothing",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "visual_clutter",
+      "label": "Visual clutter",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "craving_pressure",
+      "label": "Craving pressure",
+      "category": "sensory",
+      "flags": []
+    },
+    {
+      "code": "overstimulated",
+      "label": "Overstimulated",
+      "category": "sensory",
+      "flags": [
+        "overload"
+      ]
+    },
+    {
+      "code": "brain_fog",
+      "label": "Brain fog",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "racing_thoughts",
+      "label": "Racing thoughts",
+      "category": "cognitive",
+      "flags": [
+        "racing"
+      ]
+    },
+    {
+      "code": "looping",
+      "label": "Looping",
+      "category": "cognitive",
+      "flags": [
+        "racing"
+      ]
+    },
+    {
+      "code": "cant_focus",
+      "label": "Can't focus",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "hyperfocus",
+      "label": "Hyperfocus",
+      "category": "cognitive",
+      "flags": [
+        "hyperfocus"
+      ]
+    },
+    {
+      "code": "blank_mind",
+      "label": "Blank mind",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "memory_slips",
+      "label": "Memory slips",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "decision_paralysis",
+      "label": "Decision paralysis",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "distractible",
+      "label": "Distractible",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "time_blindness",
+      "label": "Time blindness",
+      "category": "cognitive",
+      "flags": [
+        "hyperfocus"
+      ]
+    },
+    {
+      "code": "zoning_out",
+      "label": "Zoning out",
+      "category": "cognitive",
+      "flags": []
+    },
+    {
+      "code": "detached",
+      "label": "Feel detached or unreal",
+      "category": "cognitive",
+      "flags": [
+        "detached"
+      ]
+    },
+    {
+      "code": "tension",
+      "label": "Tension",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "tightness",
+      "label": "Tightness",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "heaviness",
+      "label": "Heaviness",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "aches",
+      "label": "Aches",
+      "category": "body",
+      "flags": [
+        "pain"
+      ]
+    },
+    {
+      "code": "teeth_grinding",
+      "label": "Teeth grinding",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "numbing",
+      "label": "Numbing",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "tingling",
+      "label": "Tingling",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "sharp_pain",
+      "label": "Sharp pain",
+      "category": "body",
+      "flags": [
+        "pain"
+      ]
+    },
+    {
+      "code": "dull_pain",
+      "label": "Dull pain",
+      "category": "body",
+      "flags": [
+        "pain"
+      ]
+    },
+    {
+      "code": "throbbing",
+      "label": "Throbbing",
+      "category": "body",
+      "flags": [
+        "pain"
+      ]
+    },
+    {
+      "code": "hot_flashes",
+      "label": "Hot flashes",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "itchy",
+      "label": "Itchy",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "discomfort",
+      "label": "Discomfort",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "contractions",
+      "label": "Contractions",
+      "category": "body",
+      "flags": [
+        "pain"
+      ]
+    },
+    {
+      "code": "chest_tight",
+      "label": "Chest tight",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "heart_racing",
+      "label": "Heart racing",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "short_of_breath",
+      "label": "Short of breath",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "nausea",
+      "label": "Nausea",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "dizzy",
+      "label": "Dizzy",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "heavy_limbs",
+      "label": "Heavy limbs",
+      "category": "body",
+      "flags": []
+    },
+    {
+      "code": "pain_hard_to_locate",
+      "label": "Pain hard to locate",
+      "category": "body",
+      "flags": [
+        "pain"
+      ]
+    },
+    {
+      "code": "words_stuck",
+      "label": "Words stuck",
+      "category": "communication",
+      "flags": [
+        "word_finding"
+      ]
+    },
+    {
+      "code": "cant_speak_aloud",
+      "label": "Can't speak aloud",
+      "category": "communication",
+      "flags": [
+        "shutdown"
+      ]
+    },
+    {
+      "code": "selective_mutism",
+      "label": "Selective mutism",
+      "category": "communication",
+      "flags": [
+        "shutdown"
+      ]
+    },
+    {
+      "code": "speaking_drains",
+      "label": "Speaking drains me",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "word_finding",
+      "label": "Word-finding trouble",
+      "category": "communication",
+      "flags": [
+        "word_finding"
+      ]
+    },
+    {
+      "code": "scripting_needed",
+      "label": "Scripting needed",
+      "category": "communication",
+      "flags": [
+        "word_finding"
+      ]
+    },
+    {
+      "code": "text_easier",
+      "label": "Text easier",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "misread_as_rude",
+      "label": "Misread as rude",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "slow_to_reply",
+      "label": "Slow to reply",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "processing_time",
+      "label": "Need processing time",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "cant_small_talk",
+      "label": "Can't small-talk",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "eye_contact_hard",
+      "label": "Eye contact hard",
+      "category": "communication",
+      "flags": []
+    },
+    {
+      "code": "masking_heavily",
+      "label": "Masking heavily",
+      "category": "communication",
+      "flags": [
+        "masking"
+      ]
+    },
+    {
+      "code": "restless",
+      "label": "Restless",
+      "category": "movement",
+      "flags": [
+        "restless"
+      ]
+    },
+    {
+      "code": "fidgeting",
+      "label": "Fidgeting",
+      "category": "movement",
+      "flags": []
+    },
+    {
+      "code": "rocking",
+      "label": "Rocking",
+      "category": "movement",
+      "flags": []
+    },
+    {
+      "code": "pacing",
+      "label": "Pacing",
+      "category": "movement",
+      "flags": [
+        "restless"
+      ]
+    },
+    {
+      "code": "leg_bouncing",
+      "label": "Leg bouncing",
+      "category": "movement",
+      "flags": []
+    },
+    {
+      "code": "hand_flapping",
+      "label": "Hand-flapping",
+      "category": "movement",
+      "flags": []
+    },
+    {
+      "code": "need_to_stim",
+      "label": "Need to stim",
+      "category": "movement",
+      "flags": []
+    },
+    {
+      "code": "cant_sit_still",
+      "label": "Can't sit still",
+      "category": "movement",
+      "flags": [
+        "restless"
+      ]
+    },
+    {
+      "code": "frozen",
+      "label": "Frozen / stuck",
+      "category": "movement",
+      "flags": [
+        "shutdown"
+      ]
+    },
+    {
+      "code": "craving_movement",
+      "label": "Craving movement",
+      "category": "movement",
+      "flags": [
+        "restless"
+      ]
+    },
+    {
+      "code": "tapping",
+      "label": "Tapping",
+      "category": "movement",
+      "flags": []
+    },
+    {
+      "code": "shutdown",
+      "label": "Shutdown",
+      "category": "movement",
+      "flags": [
+        "shutdown"
+      ]
+    },
+    {
+      "code": "hungry",
+      "label": "Hungry",
+      "category": "interoception",
+      "flags": [
+        "interoception_unmet"
+      ]
+    },
+    {
+      "code": "not_sure_hungry",
+      "label": "Not sure if hungry",
+      "category": "interoception",
+      "flags": []
+    },
+    {
+      "code": "thirsty",
+      "label": "Thirsty",
+      "category": "interoception",
+      "flags": [
+        "interoception_unmet"
+      ]
+    },
+    {
+      "code": "full_bloated",
+      "label": "Full / bloated",
+      "category": "interoception",
+      "flags": []
+    },
+    {
+      "code": "need_toilet",
+      "label": "Need the toilet",
+      "category": "interoception",
+      "flags": [
+        "interoception_unmet"
+      ]
+    },
+    {
+      "code": "tired_wired",
+      "label": "Tired but wired",
+      "category": "interoception",
+      "flags": [
+        "interoception_unmet"
+      ]
+    },
+    {
+      "code": "too_hot",
+      "label": "Too hot",
+      "category": "interoception",
+      "flags": [
+        "interoception_unmet"
+      ]
+    },
+    {
+      "code": "too_cold",
+      "label": "Too cold",
+      "category": "interoception",
+      "flags": [
+        "interoception_unmet"
+      ]
+    },
+    {
+      "code": "cant_tell",
+      "label": "Can't tell how I feel (that's okay)",
+      "category": "interoception",
+      "flags": []
+    },
+    {
+      "code": "calm_inside",
+      "label": "Calm inside",
+      "category": "interoception",
+      "flags": []
+    }
+  ],
+  "bodyRegions": [
+    {
+      "code": "head",
+      "label": "Head"
+    },
+    {
+      "code": "face_jaw",
+      "label": "Face and jaw"
+    },
+    {
+      "code": "neck",
+      "label": "Neck"
+    },
+    {
+      "code": "shoulders",
+      "label": "Shoulders"
+    },
+    {
+      "code": "chest",
+      "label": "Chest"
+    },
+    {
+      "code": "stomach",
+      "label": "Stomach"
+    },
+    {
+      "code": "back",
+      "label": "Back"
+    },
+    {
+      "code": "arms",
+      "label": "Arms"
+    },
+    {
+      "code": "hands",
+      "label": "Hands"
+    },
+    {
+      "code": "hips",
+      "label": "Hips"
+    },
+    {
+      "code": "legs",
+      "label": "Legs"
+    },
+    {
+      "code": "feet",
+      "label": "Feet"
+    }
+  ],
+  "environments": [
+    {
+      "code": "home",
+      "label": "Home",
+      "settingClass": "private",
+      "common": true,
+      "excludeTools": []
+    },
+    {
+      "code": "school",
+      "label": "School",
+      "settingClass": "work_school",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus"
+      ]
+    },
+    {
+      "code": "work",
+      "label": "Work",
+      "settingClass": "work_school",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus"
+      ]
+    },
+    {
+      "code": "public",
+      "label": "Public",
+      "settingClass": "public",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "transit",
+      "label": "Transit",
+      "settingClass": "transit",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice",
+        "step_out"
+      ]
+    },
+    {
+      "code": "restaurant",
+      "label": "Restaurant",
+      "settingClass": "public",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "mall",
+      "label": "Mall",
+      "settingClass": "public",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "station",
+      "label": "Bus / train station",
+      "settingClass": "unfamiliar",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan"
+      ]
+    },
+    {
+      "code": "worship",
+      "label": "Place of worship",
+      "settingClass": "worship",
+      "common": true,
+      "excludeTools": [
+        "sounds",
+        "sounds_plus",
+        "create",
+        "move",
+        "movement_plus",
+        "reflect_checkout",
+        "end_of_day"
+      ]
+    },
+    {
+      "code": "prayer_room",
+      "label": "Prayer or quiet room",
+      "settingClass": "prayer_room",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "movement_plus"
+      ]
+    },
+    {
+      "code": "in_bed",
+      "label": "In bed / can't get up",
+      "settingClass": "in_bed",
+      "common": true,
+      "excludeTools": [
+        "move",
+        "step_out",
+        "movement_plus",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "open_plan",
+      "label": "Open-plan office",
+      "settingClass": "observed",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan"
+      ]
+    },
+    {
+      "code": "library",
+      "label": "Library / study space",
+      "settingClass": "work_school",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus"
+      ]
+    },
+    {
+      "code": "lab",
+      "label": "Lab / workshop",
+      "settingClass": "work_school",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus"
+      ]
+    },
+    {
+      "code": "lecture",
+      "label": "Lecture hall",
+      "settingClass": "public",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "seminar",
+      "label": "Seminar room / tutorial",
+      "settingClass": "formal",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "sounds",
+        "sounds_plus",
+        "movement_plus",
+        "step_out",
+        "body_scan",
+        "walking_practice",
+        "dump_voice",
+        "reflect_checkout"
+      ]
+    },
+    {
+      "code": "meeting",
+      "label": "Meeting room",
+      "settingClass": "formal",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "sounds",
+        "sounds_plus",
+        "movement_plus",
+        "step_out",
+        "body_scan",
+        "walking_practice",
+        "dump_voice",
+        "reflect_checkout"
+      ]
+    },
+    {
+      "code": "online_meeting",
+      "label": "Online meeting, camera on",
+      "settingClass": "formal",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "sounds",
+        "sounds_plus",
+        "movement_plus",
+        "step_out",
+        "body_scan",
+        "walking_practice",
+        "dump_voice",
+        "reflect_checkout"
+      ]
+    },
+    {
+      "code": "exam_hall",
+      "label": "Exam hall",
+      "settingClass": "exam",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "sounds",
+        "sounds_plus",
+        "movement_plus",
+        "step_out",
+        "body_scan",
+        "walking_practice",
+        "dump_voice",
+        "dump_text",
+        "reflect_checkout",
+        "stillness",
+        "settle_3",
+        "settle_5",
+        "settle_10",
+        "settle_20",
+        "trusted_contact",
+        "quick_message"
+      ]
+    },
+    {
+      "code": "clinical",
+      "label": "Placement ward / clinical setting",
+      "settingClass": "clinical",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "sounds",
+        "sounds_plus",
+        "movement_plus",
+        "body_scan",
+        "walking_practice",
+        "reflect_checkout",
+        "stillness",
+        "settle_5",
+        "settle_10",
+        "settle_20"
+      ]
+    },
+    {
+      "code": "caring",
+      "label": "Caring for a child or someone",
+      "settingClass": "caring",
+      "common": false,
+      "excludeTools": [
+        "body_scan",
+        "step_out",
+        "sleep_winddown"
+      ]
+    },
+    {
+      "code": "travelling",
+      "label": "Unfamiliar place / travelling",
+      "settingClass": "unfamiliar",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan"
+      ]
+    },
+    {
+      "code": "waiting_room",
+      "label": "Waiting room",
+      "settingClass": "public",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "social_event",
+      "label": "Social event / party",
+      "settingClass": "social_event",
+      "common": false,
+      "excludeTools": [
+        "sounds",
+        "sounds_plus",
+        "create"
+      ]
+    },
+    {
+      "code": "cafe",
+      "label": "Café",
+      "settingClass": "public",
+      "common": false,
+      "excludeTools": [
+        "move",
+        "create",
+        "movement_plus",
+        "body_scan",
+        "walking_practice"
+      ]
+    },
+    {
+      "code": "gym_outdoors",
+      "label": "Gym / outdoors",
+      "settingClass": "outdoors",
+      "common": false,
+      "excludeTools": []
+    },
+    {
+      "code": "somewhere_else",
+      "label": "Somewhere else",
+      "settingClass": "private",
+      "common": false,
+      "excludeTools": []
+    }
+  ],
+  "socials": [
+    {
+      "code": "alone",
+      "label": "Alone",
+      "observed": false,
+      "othersPresent": false
+    },
+    {
+      "code": "family",
+      "label": "Family",
+      "observed": false,
+      "othersPresent": true
+    },
+    {
+      "code": "friends",
+      "label": "Friends",
+      "observed": false,
+      "othersPresent": true
+    },
+    {
+      "code": "classmates",
+      "label": "Classmates",
+      "observed": true,
+      "othersPresent": true
+    },
+    {
+      "code": "colleagues",
+      "label": "Colleagues",
+      "observed": true,
+      "othersPresent": true
+    },
+    {
+      "code": "strangers",
+      "label": "Strangers",
+      "observed": true,
+      "othersPresent": true
+    }
+  ],
+  "times": [
+    {
+      "code": "no_rush",
+      "label": "No rush"
+    },
+    {
+      "code": "some_time",
+      "label": "Some time"
+    },
+    {
+      "code": "limited",
+      "label": "Limited"
+    },
+    {
+      "code": "right_now",
+      "label": "Right now"
+    }
+  ],
+  "supports": [
+    {
+      "code": "just_me",
+      "label": "Just me"
+    },
+    {
+      "code": "can_call",
+      "label": "Can call someone"
+    },
+    {
+      "code": "someone_with_me",
+      "label": "Someone with me"
+    },
+    {
+      "code": "headphones",
+      "label": "Headphones / headset"
+    }
+  ],
+  "sensitivityFlags": [
+    {
+      "code": "sound",
+      "label": "Sound",
+      "emoji": "🔊"
+    },
+    {
+      "code": "noise",
+      "label": "Noise",
+      "emoji": "📢"
+    },
+    {
+      "code": "lights",
+      "label": "Lights",
+      "emoji": "💡"
+    },
+    {
+      "code": "crowd",
+      "label": "Crowd",
+      "emoji": "👥"
+    },
+    {
+      "code": "smell",
+      "label": "Smell",
+      "emoji": "👃"
+    },
+    {
+      "code": "temperature",
+      "label": "Temperature",
+      "emoji": "🌡"
+    },
+    {
+      "code": "touch",
+      "label": "Touch",
+      "emoji": "✋"
+    },
+    {
+      "code": "visual_clutter",
+      "label": "Visual clutter",
+      "emoji": "🧩"
+    }
+  ],
+  "needs": [
+    {
+      "code": "clear_head",
+      "label": "There's too much in my head",
+      "route": [
+        "dump"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "common": true
+    },
+    {
+      "code": "feel_calmer",
+      "label": "Help me feel calmer",
+      "route": [
+        "regulate"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "common": true
+    },
+    {
+      "code": "find_words",
+      "label": "Help me say this",
+      "route": [
+        "express"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": true,
+      "pattern": 9,
+      "common": true
+    },
+    {
+      "code": "get_started",
+      "label": "Help me start a task",
+      "route": [
+        "execute"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": false,
+      "pattern": 17,
+      "common": true
+    },
+    {
+      "code": "change_how",
+      "label": "Change how I'm doing this",
+      "route": [
+        "adapt"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 12,
+      "common": true
+    },
+    {
+      "code": "someone_to_talk",
+      "label": "I need someone to talk to",
+      "route": [
+        "connect"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 11,
+      "common": true
+    },
+    {
+      "code": "speak_up",
+      "label": "Help me speak up for myself",
+      "route": [
+        "reflect",
+        "express",
+        "connect"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": true,
+      "pattern": 35,
+      "common": true
+    },
+    {
+      "code": "make_sense",
+      "label": "Make sense of today",
+      "route": [
+        "reflect"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 32,
+      "common": true
+    },
+    {
+      "code": "pray_practice",
+      "label": "Pray or do my practice",
+      "route": [
+        "meditate",
+        "adapt"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 37,
+      "common": true
+    },
+    {
+      "code": "find_stillness",
+      "label": "Find stillness",
+      "route": [
+        "meditate"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 38,
+      "common": true
+    },
+    {
+      "code": "grateful",
+      "label": "I'm grateful, I want to note it",
+      "route": [
+        "meditate",
+        "reflect"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 38,
+      "common": true
+    },
+    {
+      "code": "break_down",
+      "label": "Break it into steps",
+      "route": [
+        "execute"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": false,
+      "common": false
+    },
+    {
+      "code": "decide_first",
+      "label": "What should I do first?",
+      "route": [
+        "dump",
+        "execute"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": false,
+      "pattern": 22,
+      "common": false
+    },
+    {
+      "code": "stop_switch",
+      "label": "I need to stop or move on",
+      "route": [
+        "adapt",
+        "execute"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": true,
+      "pattern": 20,
+      "common": false
+    },
+    {
+      "code": "rest",
+      "label": "I need to rest",
+      "route": [
+        "regulate"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "common": false
+    },
+    {
+      "code": "ask_help",
+      "label": "Help me ask for support",
+      "route": [
+        "express",
+        "connect"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": true,
+      "pattern": 9,
+      "common": false
+    },
+    {
+      "code": "prepare_event",
+      "label": "Help me get ready for something",
+      "route": [
+        "adapt",
+        "execute"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": false,
+      "common": false
+    },
+    {
+      "code": "recover_event",
+      "label": "That took a lot out of me",
+      "route": [
+        "regulate",
+        "reflect",
+        "meditate"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 23,
+      "common": false
+    },
+    {
+      "code": "learn_what_works",
+      "label": "What actually helps me?",
+      "route": [
+        "reflect"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 34,
+      "common": false
+    },
+    {
+      "code": "start_end_day",
+      "label": "Help me start or close the day",
+      "route": [
+        "meditate",
+        "reflect"
+      ],
+      "nucripce": true,
+      "worksWithoutTask": true,
+      "pattern": 39,
+      "common": false
+    },
+    {
+      "code": "feel_connected",
+      "label": "I feel disconnected from what matters",
+      "route": [
+        "meditate",
+        "connect"
+      ],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 37,
+      "common": false
+    },
+    {
+      "code": "urgent_help",
+      "label": "I need help now",
+      "route": [],
+      "nucripce": false,
+      "worksWithoutTask": true,
+      "pattern": 28,
+      "common": false
+    }
+  ],
+  "demandKinds": [
+    {
+      "code": "study",
+      "label": "Study"
+    },
+    {
+      "code": "work",
+      "label": "Work"
+    },
+    {
+      "code": "health",
+      "label": "Health"
+    },
+    {
+      "code": "social",
+      "label": "Social"
+    },
+    {
+      "code": "home",
+      "label": "Home & other"
+    }
+  ],
+  "demandTraits": [
+    {
+      "code": "first_time",
+      "label": "First time doing this",
+      "drivers": [
+        "novelty"
+      ]
+    },
+    {
+      "code": "consequence",
+      "label": "Real consequence if late",
+      "drivers": [
+        "urgency"
+      ]
+    },
+    {
+      "code": "multi_step",
+      "label": "Lots of steps or hard thinking",
+      "drivers": [
+        "challenge"
+      ]
+    },
+    {
+      "code": "done_before",
+      "label": "I've done this before",
+      "drivers": [
+        "routine"
+      ]
+    },
+    {
+      "code": "enjoy",
+      "label": "I enjoy this",
+      "drivers": [
+        "interest"
+      ]
+    },
+    {
+      "code": "matters",
+      "label": "This really matters to me",
+      "drivers": [
+        "passion"
+      ]
+    },
+    {
+      "code": "with_others",
+      "label": "Involves other people",
+      "drivers": [
+        "collaboration"
+      ]
+    },
+    {
+      "code": "research",
+      "label": "Finding things out",
+      "drivers": [
+        "exploration"
+      ]
+    },
+    {
+      "code": "communication",
+      "label": "Writing or saying something to someone",
+      "drivers": [
+        "collaboration"
+      ]
+    },
+    {
+      "code": "focus",
+      "label": "Needs focus",
+      "drivers": []
+    },
+    {
+      "code": "imposed",
+      "label": "Someone else set this",
+      "drivers": []
+    },
+    {
+      "code": "transition",
+      "label": "Switching from something else",
+      "drivers": [
+        "routine"
+      ]
+    },
+    {
+      "code": "stopping",
+      "label": "I need to stop or wind down",
+      "drivers": []
+    },
+    {
+      "code": "ask_adjustment",
+      "label": "Asking for help or an adjustment",
+      "drivers": [
+        "collaboration"
+      ]
+    },
+    {
+      "code": "recurring_practice",
+      "label": "My regular practice",
+      "drivers": [
+        "routine"
+      ]
+    },
+    {
+      "code": "reflective_work",
+      "label": "Reflective log, supervision or appraisal",
+      "drivers": [
+        "challenge",
+        "routine"
+      ]
+    },
+    {
+      "code": "event_prep",
+      "label": "Getting ready for an event",
+      "drivers": [
+        "urgency",
+        "challenge"
+      ]
+    },
+    {
+      "code": "start_day",
+      "label": "Getting going for the day",
+      "drivers": [
+        "routine"
+      ]
+    }
+  ],
+  "timelines": [
+    {
+      "code": "T0",
+      "label": "Now",
+      "definition": "Due within the next 60 minutes, or happening now.",
+      "stepCap": 3,
+      "urgency": 1
+    },
+    {
+      "code": "T1",
+      "label": "Later today",
+      "definition": "Due in more than 1 hour but before the end of today.",
+      "stepCap": 5,
+      "urgency": 0.8
+    },
+    {
+      "code": "T2",
+      "label": "This week",
+      "definition": "Due tomorrow or within the next 7 days.",
+      "stepCap": 8,
+      "urgency": 0.5
+    },
+    {
+      "code": "T3",
+      "label": "This month",
+      "definition": "Due in more than 7 days and up to 4 weeks.",
+      "stepCap": 10,
+      "urgency": 0.25
+    },
+    {
+      "code": "T4",
+      "label": "Months",
+      "definition": "Due in more than 4 weeks and up to 12 months.",
+      "stepCap": 10,
+      "urgency": 0.2
+    },
+    {
+      "code": "T5",
+      "label": "Long-term",
+      "definition": "Due in more than 12 months.",
+      "stepCap": 10,
+      "urgency": 0
+    },
+    {
+      "code": "T6",
+      "label": "No deadline",
+      "definition": "No due date and no consequence for delay; user-chosen timing.",
+      "stepCap": 10,
+      "urgency": 0
+    },
+    {
+      "code": "TX",
+      "label": "Overdue",
+      "definition": "The deadline has already passed (any amount of time).",
+      "stepCap": 3,
+      "urgency": 0.8
+    },
+    {
+      "code": "TR",
+      "label": "Recurring",
+      "definition": "Repeats on a schedule (e.g. daily meds routine, weekly report). The engine uses the NEXT occurrence to set T0-T5 for urgency.",
+      "stepCap": 5,
+      "urgency": 0.5
+    }
+  ],
+  "tools": [
+    {
+      "id": "breathe",
+      "pathway": "regulate",
+      "name": "Breathe",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "ground",
+      "pathway": "regulate",
+      "name": "Ground (5-4-3-2-1)",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "move",
+      "pathway": "regulate",
+      "name": "Move",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": true,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "sounds",
+      "pathway": "regulate",
+      "name": "Sounds",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "step_out",
+      "pathway": "regulate",
+      "name": "Step out",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": true,
+      "minutes": 2
+    },
+    {
+      "id": "rest",
+      "pathway": "regulate",
+      "name": "Rest timer",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10
+    },
+    {
+      "id": "body_basics",
+      "pathway": "regulate",
+      "name": "Body basics",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "sounds_plus",
+      "pathway": "regulate",
+      "name": "Advanced Sounds",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10
+    },
+    {
+      "id": "movement_plus",
+      "pathway": "regulate",
+      "name": "Advanced Movement",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": true,
+      "verbal": false,
+      "leave": false,
+      "minutes": 8
+    },
+    {
+      "id": "create",
+      "pathway": "regulate",
+      "name": "Create",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10
+    },
+    {
+      "id": "reset_games",
+      "pathway": "regulate",
+      "name": "Attention reset games",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "sleep_winddown",
+      "pathway": "regulate",
+      "name": "Sleep wind-down",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 15
+    },
+    {
+      "id": "rewrite",
+      "pathway": "express",
+      "name": "Rewrite",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "simplify",
+      "pathway": "express",
+      "name": "Simplify",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "comm_cards",
+      "pathway": "express",
+      "name": "Communication cards",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 1
+    },
+    {
+      "id": "help_templates",
+      "pathway": "express",
+      "name": "Ask-for-help templates",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "draft",
+      "pathway": "express",
+      "name": "Draft from scratch",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "structure",
+      "pathway": "express",
+      "name": "Structure",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "script",
+      "pathway": "express",
+      "name": "Script",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "tone_check",
+      "pathway": "express",
+      "name": "Tone check",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "simplify_resource",
+      "pathway": "express",
+      "name": "Simplify a document",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "send_later",
+      "pathway": "express",
+      "name": "Send later",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 1
+    },
+    {
+      "id": "smallest_step",
+      "pathway": "execute",
+      "name": "Smallest next step",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "two_minute_start",
+      "pathway": "execute",
+      "name": "Two-minute start",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "breakdown",
+      "pathway": "execute",
+      "name": "Break it down",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "pick_one",
+      "pathway": "execute",
+      "name": "Pick one of three",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "focus_timer",
+      "pathway": "execute",
+      "name": "Focus timer",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 25
+    },
+    {
+      "id": "start_task",
+      "pathway": "execute",
+      "name": "Start the task",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 25
+    },
+    {
+      "id": "breakdown_plus",
+      "pathway": "execute",
+      "name": "Full breakdown and re-plan",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "ai_body_double",
+      "pathway": "execute",
+      "name": "AI body double",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 25
+    },
+    {
+      "id": "overdue_repair",
+      "pathway": "execute",
+      "name": "Overdue repair assistant",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "routine_builder",
+      "pathway": "execute",
+      "name": "Routine builder",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "dump_text",
+      "pathway": "dump",
+      "name": "Brain dump",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "dump_voice",
+      "pathway": "dump",
+      "name": "Voice dump",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "sort_manual",
+      "pathway": "dump",
+      "name": "Sort my list",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "ai_sort",
+      "pathway": "dump",
+      "name": "AI sorting",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "photo_capture",
+      "pathway": "dump",
+      "name": "Photo capture",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "dump_search",
+      "pathway": "dump",
+      "name": "Search my dumps",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 1
+    },
+    {
+      "id": "adapt_environment",
+      "pathway": "adapt",
+      "name": "Change the environment",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "adapt_format",
+      "pathway": "adapt",
+      "name": "Change the format",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "adapt_pace",
+      "pathway": "adapt",
+      "name": "Change the pace",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "adapt_scope",
+      "pathway": "adapt",
+      "name": "Make it smaller",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "adapt_sequence",
+      "pathway": "adapt",
+      "name": "Change the order",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "adapt_instructions",
+      "pathway": "adapt",
+      "name": "Clearer instructions",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "adapt_communication",
+      "pathway": "adapt",
+      "name": "Change how you communicate",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2
+    },
+    {
+      "id": "stop_point",
+      "pathway": "adapt",
+      "name": "Set a stop point",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 1
+    },
+    {
+      "id": "adjustment_passport",
+      "pathway": "adapt",
+      "name": "Adjustment Passport",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "transition_planner",
+      "pathway": "adapt",
+      "name": "Transition planner",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3
+    },
+    {
+      "id": "context_plans",
+      "pathway": "adapt",
+      "name": "Context plans",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "reflect_checkout",
+      "pathway": "reflect",
+      "name": "Three-prompt check-out",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5,
+      "practiceFormat": "chips"
+    },
+    {
+      "id": "gratitude_note",
+      "pathway": "reflect",
+      "name": "Gratitude note",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 2,
+      "practiceFormat": "chips"
+    },
+    {
+      "id": "end_of_day",
+      "pathway": "reflect",
+      "name": "End-of-day close",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3,
+      "practiceFormat": "written"
+    },
+    {
+      "id": "what_helped",
+      "pathway": "reflect",
+      "name": "What helped insights",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3,
+      "practiceFormat": "chips"
+    },
+    {
+      "id": "pattern_review",
+      "pathway": "reflect",
+      "name": "Pattern review",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5,
+      "practiceFormat": "chips"
+    },
+    {
+      "id": "self_advocacy",
+      "pathway": "reflect",
+      "name": "Self-advocacy prep",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 8,
+      "practiceFormat": "written"
+    },
+    {
+      "id": "quick_message",
+      "pathway": "connect",
+      "name": "One-tap message",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 1
+    },
+    {
+      "id": "trusted_contact",
+      "pathway": "connect",
+      "name": "Reach a trusted person",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": true,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "my_groups",
+      "pathway": "connect",
+      "name": "My groups",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "peer_spaces",
+      "pathway": "connect",
+      "name": "Peer community spaces",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10
+    },
+    {
+      "id": "checkin_buddy",
+      "pathway": "connect",
+      "name": "Check-in buddy",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "body_double_rooms",
+      "pathway": "connect",
+      "name": "Body-doubling rooms",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 25
+    },
+    {
+      "id": "own_practice",
+      "pathway": "meditate",
+      "name": "My practice",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5
+    },
+    {
+      "id": "settle_3",
+      "pathway": "meditate",
+      "name": "Three-minute settle",
+      "tier": "free",
+      "safetyFloor": true,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3,
+      "practiceFormat": "silent"
+    },
+    {
+      "id": "settle_5",
+      "pathway": "meditate",
+      "name": "Five-minute settle",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5,
+      "practiceFormat": "silent"
+    },
+    {
+      "id": "stillness",
+      "pathway": "meditate",
+      "name": "Stillness timer",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 5,
+      "practiceFormat": "silent"
+    },
+    {
+      "id": "gratitude_practice",
+      "pathway": "meditate",
+      "name": "Gratitude practice",
+      "tier": "free",
+      "safetyFloor": false,
+      "discreet": true,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 3,
+      "practiceFormat": "silent"
+    },
+    {
+      "id": "settle_10",
+      "pathway": "meditate",
+      "name": "Ten-minute guided settle",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10,
+      "practiceFormat": "eyes_closed"
+    },
+    {
+      "id": "settle_20",
+      "pathway": "meditate",
+      "name": "Twenty-minute guided settle",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 20,
+      "practiceFormat": "eyes_closed"
+    },
+    {
+      "id": "walking_practice",
+      "pathway": "meditate",
+      "name": "Walking practice",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": false,
+      "movement": true,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10,
+      "practiceFormat": "walking"
+    },
+    {
+      "id": "body_scan",
+      "pathway": "meditate",
+      "name": "Body scan",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": false,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10,
+      "practiceFormat": "body_scan"
+    },
+    {
+      "id": "recitation_player",
+      "pathway": "meditate",
+      "name": "Recitation player",
+      "tier": "advanced",
+      "safetyFloor": false,
+      "discreet": false,
+      "eyesOpen": true,
+      "audio": true,
+      "movement": false,
+      "verbal": false,
+      "leave": false,
+      "minutes": 10,
+      "practiceFormat": "spoken"
+    }
+  ],
+  "patterns": [
+    {
+      "id": 1,
+      "title": "What would you like to do?",
+      "button": "Open Home",
+      "alternatives": [
+        "Check in again",
+        "Explore Regulate anyway"
+      ],
+      "suggestion": "leaving the choice with you"
+    },
+    {
+      "id": 2,
+      "title": "Start [task] now",
+      "button": "Start",
+      "alternatives": [
+        "Break it down first"
+      ],
+      "suggestion": "going straight in"
+    },
+    {
+      "id": 3,
+      "title": "Start with what you already know",
+      "button": "Start small",
+      "alternatives": [
+        "Add a short reset first"
+      ],
+      "suggestion": "starting with the familiar part"
+    },
+    {
+      "id": 4,
+      "title": "Want a 2-minute reset before we start?",
+      "button": "Short reset",
+      "alternatives": [
+        "Skip to task"
+      ],
+      "suggestion": "a short reset before you start"
+    },
+    {
+      "id": 5,
+      "title": "Let's reduce the load first",
+      "button": "Try a short reset",
+      "alternatives": [
+        "I'll try the task anyway"
+      ],
+      "suggestion": "a quick reset before the task"
+    },
+    {
+      "id": 6,
+      "title": "Let's reduce the load first",
+      "button": "Try a short reset",
+      "alternatives": [
+        "Dump instead",
+        "Talk to someone"
+      ],
+      "suggestion": "easing the load first"
+    },
+    {
+      "id": 7,
+      "title": "Let's take care of you first",
+      "button": "Regulate now",
+      "alternatives": [
+        "Get support now"
+      ],
+      "suggestion": "taking care of you before anything else"
+    },
+    {
+      "id": 8,
+      "title": "Let's take care of you first",
+      "button": "Try a short reset",
+      "alternatives": [
+        "Dump instead",
+        "Talk to someone"
+      ],
+      "suggestion": "rest before anything else"
+    },
+    {
+      "id": 9,
+      "title": "Let's put this into words together",
+      "button": "Draft this",
+      "alternatives": [
+        "Simplify instead"
+      ],
+      "suggestion": "getting the words down together"
+    },
+    {
+      "id": 10,
+      "title": "Let's draft this — you choose when to send it",
+      "button": "Draft",
+      "alternatives": [
+        "Regulate first"
+      ],
+      "suggestion": "drafting it now and sending only when you choose"
+    },
+    {
+      "id": 11,
+      "title": "Want to reach out to someone?",
+      "button": "Connect",
+      "alternatives": [
+        "Regulate instead"
+      ],
+      "suggestion": "reaching out to someone"
+    },
+    {
+      "id": 12,
+      "title": "Would a different way of doing this make it easier?",
+      "button": "Adapt this",
+      "alternatives": [
+        "Keep as is"
+      ],
+      "suggestion": "changing the conditions, not you"
+    },
+    {
+      "id": 13,
+      "title": "Want to adjust your environment first?",
+      "button": "Adapt",
+      "alternatives": [
+        "Start task anyway"
+      ],
+      "suggestion": "adjusting your surroundings first"
+    },
+    {
+      "id": 14,
+      "title": "Explore this for 10 minutes?",
+      "button": "Explore",
+      "alternatives": [
+        "Save for later"
+      ],
+      "suggestion": "following your curiosity"
+    },
+    {
+      "id": 15,
+      "title": "Let's do the smallest version first",
+      "button": "Smallest step",
+      "alternatives": [
+        "I need more time"
+      ],
+      "suggestion": "the smallest version first"
+    },
+    {
+      "id": 16,
+      "title": "Let's just breathe — no words needed",
+      "button": "Start",
+      "alternatives": [
+        "Send my 'I need quiet' message",
+        "Get support now"
+      ],
+      "suggestion": "something you can do with one tap and no words"
+    },
+    {
+      "id": 17,
+      "title": "Let's just do the first two minutes",
+      "button": "Start with me",
+      "alternatives": [
+        "Break it down more"
+      ],
+      "suggestion": "just the first two minutes"
+    },
+    {
+      "id": 18,
+      "title": "Let's take one small step to put this right",
+      "button": "Draft the message",
+      "alternatives": [
+        "Short reset first"
+      ],
+      "suggestion": "one small step to put this right"
+    },
+    {
+      "id": 19,
+      "title": "Let's turn the volume down first",
+      "button": "Find a quieter spot",
+      "alternatives": [
+        "Put headphones on",
+        "Get support now"
+      ],
+      "suggestion": "turning the input down first"
+    },
+    {
+      "id": 20,
+      "title": "Let's set a stopping point and top up",
+      "button": "Take a 5-minute break",
+      "alternatives": [
+        "Remind me in 20 minutes",
+        "Keep going"
+      ],
+      "suggestion": "a stopping point and a top-up"
+    },
+    {
+      "id": 21,
+      "title": "Let's make this less boring",
+      "button": "Add a boost",
+      "alternatives": [
+        "Just start"
+      ],
+      "suggestion": "adding a boost to make it less boring"
+    },
+    {
+      "id": 22,
+      "title": "Let's find the one thing that matters now",
+      "button": "Sort my list",
+      "alternatives": [
+        "Dump it all first"
+      ],
+      "suggestion": "finding the one thing that matters now"
+    },
+    {
+      "id": 23,
+      "title": "Time to recharge — quiet counts as doing something",
+      "button": "Quiet reset",
+      "alternatives": [
+        "Do it later"
+      ],
+      "suggestion": "a quiet recharge"
+    },
+    {
+      "id": 24,
+      "title": "Let's look after your body first",
+      "button": "Rest",
+      "alternatives": [
+        "Ask for an adjustment"
+      ],
+      "suggestion": "looking after your body first"
+    },
+    {
+      "id": 25,
+      "title": "Be gentle with yourself today",
+      "button": "Reach out",
+      "alternatives": [
+        "Lighten the load",
+        "Get support now"
+      ],
+      "suggestion": "being gentle with yourself today"
+    },
+    {
+      "id": 26,
+      "title": "Let's get the replay out of your head",
+      "button": "Brain dump",
+      "alternatives": [
+        "Draft a reply",
+        "Talk to someone"
+      ],
+      "suggestion": "getting the replay out of your head"
+    },
+    {
+      "id": 27,
+      "title": "Not sure is okay — let's start with your body",
+      "button": "Quick body check",
+      "alternatives": [
+        "Pick a state anyway"
+      ],
+      "suggestion": "starting with your body"
+    },
+    {
+      "id": 28,
+      "title": "You don't have to go through this alone",
+      "button": "Get support now",
+      "alternatives": [
+        "Call my trusted contact",
+        "Samaritans"
+      ],
+      "suggestion": "reaching support now"
+    },
+    {
+      "id": 29,
+      "title": "Body basics first — then we'll pick this back up",
+      "button": "I've sorted it",
+      "alternatives": [
+        "Remind me in 10 minutes",
+        "Skip"
+      ],
+      "suggestion": "meeting your body’s needs first"
+    },
+    {
+      "id": 30,
+      "title": "No problem — I'll stay out of your way",
+      "button": "Open Home",
+      "alternatives": [
+        "Check in later",
+        "Remind me tomorrow"
+      ],
+      "suggestion": "giving you some space"
+    },
+    {
+      "id": 31,
+      "title": "You're steadier — want to pick up gently?",
+      "button": "Start small",
+      "alternatives": [
+        "Rest a bit longer",
+        "Reflect on what helped"
+      ],
+      "suggestion": "picking up gently"
+    },
+    {
+      "id": 32,
+      "title": "Want to make sense of today, briefly?",
+      "button": "Reflect",
+      "alternatives": [],
+      "suggestion": "a short reflection"
+    },
+    {
+      "id": 33,
+      "title": "Want to note what helped today?",
+      "button": "Reflect",
+      "alternatives": [
+        "Just rest"
+      ],
+      "suggestion": "noting what helped"
+    },
+    {
+      "id": 34,
+      "title": "This has come up a few times — want to look at what helps?",
+      "button": "Look at my pattern",
+      "alternatives": [
+        "Don't show me this pattern"
+      ],
+      "suggestion": "looking at what has helped before"
+    },
+    {
+      "id": 35,
+      "title": "Let's gather your points first",
+      "button": "Reflect, then draft",
+      "alternatives": [
+        "Draft straight away"
+      ],
+      "suggestion": "gathering your points before drafting"
+    },
+    {
+      "id": 36,
+      "title": "Want to settle in before you go?",
+      "button": "5-minute settle",
+      "alternatives": [
+        "Just prepare"
+      ],
+      "suggestion": "a few minutes to settle first"
+    },
+    {
+      "id": 37,
+      "title": "It's time for your [practice]",
+      "button": "Begin",
+      "alternatives": [
+        "Remind me in 15 minutes",
+        "Find a quiet space"
+      ],
+      "suggestion": "your own practice"
+    },
+    {
+      "id": 38,
+      "title": "Want some quiet time?",
+      "button": "Start stillness",
+      "alternatives": [
+        "Gratitude practice instead"
+      ],
+      "suggestion": "a few minutes of stillness"
+    },
+    {
+      "id": 39,
+      "title": "Ready to close the day?",
+      "button": "Closing ritual",
+      "alternatives": [
+        "Just sleep"
+      ],
+      "suggestion": "closing the day your way"
+    },
+    {
+      "id": 40,
+      "title": "Let's get it out of your head instead of going over it",
+      "button": "Brain dump",
+      "alternatives": [
+        "Short reset",
+        "Talk to someone"
+      ],
+      "suggestion": "getting it out instead of going over it"
+    },
+    {
+      "id": 41,
+      "title": "Let's just breathe — no words needed",
+      "button": "Start",
+      "alternatives": [
+        "Get support now"
+      ],
+      "suggestion": "breathing along first, eyes open"
+    }
+  ],
+  "notSure": {
+    "questions": [
+      {
+        "code": "body",
+        "label": "Your body",
+        "options": [
+          {
+            "code": "heavy",
+            "label": "Heavy",
+            "emoji": "🪨"
+          },
+          {
+            "code": "floaty",
+            "label": "Floaty",
+            "emoji": "🌫"
+          },
+          {
+            "code": "buzzy",
+            "label": "Buzzy",
+            "emoji": "⚡"
+          },
+          {
+            "code": "settled",
+            "label": "Settled",
+            "emoji": "🌿"
+          }
+        ]
+      },
+      {
+        "code": "energy",
+        "label": "Your energy",
+        "options": [
+          {
+            "code": "empty",
+            "label": "Empty",
+            "emoji": "🪫"
+          },
+          {
+            "code": "low",
+            "label": "Low",
+            "emoji": "🔋"
+          },
+          {
+            "code": "some",
+            "label": "Some",
+            "emoji": "🔋"
+          },
+          {
+            "code": "full",
+            "label": "Full",
+            "emoji": "🔋"
+          }
+        ]
+      },
+      {
+        "code": "comfort",
+        "label": "How comfortable",
+        "options": [
+          {
+            "code": "hard",
+            "label": "Hard",
+            "emoji": "🌧"
+          },
+          {
+            "code": "uneasy",
+            "label": "Uneasy",
+            "emoji": "⛅"
+          },
+          {
+            "code": "okay",
+            "label": "Okay",
+            "emoji": "🌤"
+          },
+          {
+            "code": "good",
+            "label": "Good",
+            "emoji": "☀️"
+          }
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "when": [
+          "heavy",
+          "empty",
+          "okay"
+        ],
+        "cell": "E1M2"
+      },
+      {
+        "when": [
+          "buzzy",
+          "empty",
+          "okay"
+        ],
+        "cell": "E1M2"
+      },
+      {
+        "when": [
+          "heavy",
+          "low",
+          "okay"
+        ],
+        "cell": "E2M2"
+      },
+      {
+        "when": [
+          "buzzy",
+          "low",
+          "okay"
+        ],
+        "cell": "E2M2"
+      },
+      {
+        "when": [
+          "heavy",
+          "some",
+          "okay"
+        ],
+        "cell": "E3M2"
+      },
+      {
+        "when": [
+          "buzzy",
+          "some",
+          "okay"
+        ],
+        "cell": "E3M2"
+      },
+      {
+        "when": [
+          "heavy",
+          "full",
+          "okay"
+        ],
+        "cell": "E4M2"
+      },
+      {
+        "when": [
+          "buzzy",
+          "full",
+          "okay"
+        ],
+        "cell": "E4M2"
+      },
+      {
+        "when": [
+          "*",
+          "empty",
+          "hard"
+        ],
+        "cell": "E1M1"
+      },
+      {
+        "when": [
+          "*",
+          "empty",
+          "uneasy"
+        ],
+        "cell": "E1M2"
+      },
+      {
+        "when": [
+          "*",
+          "empty",
+          "okay"
+        ],
+        "cell": "E1M3"
+      },
+      {
+        "when": [
+          "*",
+          "empty",
+          "good"
+        ],
+        "cell": "E1M4"
+      },
+      {
+        "when": [
+          "*",
+          "low",
+          "hard"
+        ],
+        "cell": "E2M1"
+      },
+      {
+        "when": [
+          "*",
+          "low",
+          "uneasy"
+        ],
+        "cell": "E2M2"
+      },
+      {
+        "when": [
+          "*",
+          "low",
+          "okay"
+        ],
+        "cell": "E2M3"
+      },
+      {
+        "when": [
+          "*",
+          "low",
+          "good"
+        ],
+        "cell": "E2M4"
+      },
+      {
+        "when": [
+          "*",
+          "some",
+          "hard"
+        ],
+        "cell": "E3M1"
+      },
+      {
+        "when": [
+          "*",
+          "some",
+          "uneasy"
+        ],
+        "cell": "E3M2"
+      },
+      {
+        "when": [
+          "*",
+          "some",
+          "okay"
+        ],
+        "cell": "E3M3"
+      },
+      {
+        "when": [
+          "*",
+          "some",
+          "good"
+        ],
+        "cell": "E3M4"
+      },
+      {
+        "when": [
+          "*",
+          "full",
+          "hard"
+        ],
+        "cell": "E4M1"
+      },
+      {
+        "when": [
+          "*",
+          "full",
+          "uneasy"
+        ],
+        "cell": "E4M2"
+      },
+      {
+        "when": [
+          "*",
+          "full",
+          "okay"
+        ],
+        "cell": "E4M3"
+      },
+      {
+        "when": [
+          "*",
+          "full",
+          "good"
+        ],
+        "cell": "E4M4"
+      }
+    ]
+  },
+  "safety": {
+    "phrases": [
+      {
+        "id": "SF-1.suicide",
+        "category": "suicide",
+        "phrases": [
+          "kill myself",
+          "killing myself",
+          "end my life",
+          "ending my life",
+          "end it all",
+          "take my own life",
+          "take my life",
+          "suicide",
+          "suicidal",
+          "want to die",
+          "wanna die",
+          "wish i was dead",
+          "wish i were dead",
+          "better off dead",
+          "better off without me",
+          "no reason to live",
+          "no point living",
+          "no point in living",
+          "whats the point of living",
+          "dont want to be here",
+          "dont want to be here anymore",
+          "do not want to be here",
+          "dont want to exist",
+          "not want to wake up",
+          "never wake up",
+          "dont want to wake up",
+          "cant go on",
+          "cannot go on",
+          "cant do this anymore",
+          "disappear forever",
+          "not be around anymore",
+          "say goodbye forever",
+          "feel like a burden",
+          "feeling like a burden",
+          "im a burden",
+          "i am a burden",
+          "everyone would be better off",
+          "overdose",
+          "take all my pills",
+          "hang myself",
+          "jump off a bridge",
+          "jump in front of"
+        ]
+      },
+      {
+        "id": "SF-1.self_harm",
+        "category": "self_harm",
+        "phrases": [
+          "hurt myself",
+          "hurting myself",
+          "harm myself",
+          "harming myself",
+          "self harm",
+          "selfharm",
+          "cut myself",
+          "cutting myself",
+          "burn myself",
+          "punish myself",
+          "want to bleed"
+        ]
+      },
+      {
+        "id": "SF-1.harm_others",
+        "category": "harm_others",
+        "phrases": [
+          "kill him",
+          "kill her",
+          "kill them",
+          "kill someone",
+          "hurt someone",
+          "hurt them badly",
+          "want to hurt people"
+        ]
+      },
+      {
+        "id": "SF-1.danger",
+        "category": "danger",
+        "phrases": [
+          "not safe at home",
+          "not safe here",
+          "he hits me",
+          "she hits me",
+          "they hit me",
+          "being abused",
+          "someone is hurting me",
+          "scared for my life",
+          "going to hurt me",
+          "threatened to kill"
+        ]
+      }
+    ],
+    "exclusions": [
+      "kill myself laughing",
+      "killed it",
+      "kill time",
+      "dying to see",
+      "dying to know",
+      "to die for",
+      "die of embarrassment",
+      "suicide squad",
+      "kill the lights"
+    ]
+  },
+  "crisisRoutes": {
+    "GB": [
+      {
+        "id": "emergency",
+        "label": "In danger now",
+        "detail": "Call 999",
+        "href": "tel:999",
+        "kind": "call"
+      },
+      {
+        "id": "nhs111",
+        "label": "NHS 111 (choose the mental health option)",
+        "detail": "Call 111",
+        "href": "tel:111",
+        "kind": "call"
+      },
+      {
+        "id": "samaritans",
+        "label": "Samaritans, any time",
+        "detail": "Call 116 123",
+        "href": "tel:116123",
+        "kind": "call"
+      },
+      {
+        "id": "shout",
+        "label": "Shout, by text",
+        "detail": "Text SHOUT to 85258",
+        "href": "sms:85258?body=SHOUT",
+        "kind": "text"
+      }
+    ],
+    "INTL": [
+      {
+        "id": "emergency",
+        "label": "In danger now",
+        "detail": "Call your local emergency number",
+        "href": "tel:112",
+        "kind": "call"
+      },
+      {
+        "id": "findahelpline",
+        "label": "Find a free helpline near you",
+        "detail": "findahelpline.com",
+        "href": "https://findahelpline.com",
+        "kind": "link"
+      }
+    ]
+  },
+  "thresholds": {
+    "high": 7,
+    "veryHigh": 9,
+    "moderate": 4,
+    "cx1Flags": 2,
+    "maxBandDrop": 2,
+    "recoveryMinutes": 45,
+    "recheckImprovedIntensityDrop": 2,
+    "ruminationTopicCount": 3,
+    "recurringStruggleCount": 3,
+    "declinesBeforeQuiet": 3,
+    "quietPeriodMinutes": 120,
+    "publicMeditateMaxMinutes": 3,
+    "sustainedRedDays": 7,
+    "sustainedNoImprovementDays": 14,
+    "maxEmotions": 3,
+    "aiConfidence": 0.7
+  }
+}

@@ -1,0 +1,93 @@
+enum TenantRole {
+  member
+  support_lead
+  admin
+
+  @@map("tenant_role")
+}
+
+model Tenant {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  name           String   @db.VarChar(120)
+  slug           String   @unique @db.VarChar(64)
+  kind           String   @default("employer") @db.VarChar(16) // school | university | employer | other
+  anonymityFloor Int      @default(10) @map("anonymity_floor") @db.SmallInt // D-16
+  seatsPlanCode  String?  @map("seats_plan_code") @db.VarChar(24)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  users        User[]
+  memberships  TenantMembership[]
+  inviteCodes  InviteCode[]
+  aggregates   CohortAggregate[]
+  outreach     OutreachRequest[]
+  shares       Share[]
+  entitlements Entitlement[]
+
+  @@map("tenants")
+}
+
+model TenantMembership {
+  id       String     @id @default(uuid(7)) @db.Uuid
+  tenantId String     @map("tenant_id") @db.Uuid
+  userId   String     @map("user_id") @db.Uuid
+  role     TenantRole @default(member)
+  joinedAt DateTime   @default(now()) @map("joined_at") @db.Timestamptz(3)
+  leftAt   DateTime?  @map("left_at") @db.Timestamptz(3)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([userId])
+  @@map("tenant_memberships")
+}
+
+model InviteCode {
+  code      String    @id @db.VarChar(16)
+  tenantId  String    @map("tenant_id") @db.Uuid
+  maxUses   Int?      @map("max_uses")
+  uses      Int       @default(0)
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("invite_codes")
+}
+
+// Weekly group trends. Cells under the anonymity floor are stored as suppressed, never as values.
+model CohortAggregate {
+  tenantId   String   @map("tenant_id") @db.Uuid
+  weekStart  DateTime @map("week_start") @db.Date
+  metric     String   @db.VarChar(48)
+  dimension  String   @default("") @db.VarChar(48)
+  value      Int?
+  suppressed Boolean  @default(false)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, weekStart, metric, dimension])
+  @@map("cohort_aggregates")
+}
+
+// "Ask for support": only what the user wrote for it reaches the support lead (D-17).
+model OutreachRequest {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  messageEnc  Bytes     @map("message_enc")
+  preferred   String    @default("email") @db.VarChar(16) // email | phone | in_person
+  status      String    @default("open") @db.VarChar(16) // open | acknowledged | closed
+  handledById String?   @map("handled_by_id") @db.Uuid
+  handledAt   DateTime? @map("handled_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  handledBy User?  @relation("OutreachHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, status, createdAt(sort: Desc)])
+  @@index([userId])
+  @@map("outreach_requests")
+}

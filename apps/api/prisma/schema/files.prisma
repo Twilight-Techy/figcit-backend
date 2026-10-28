@@ -1,0 +1,42 @@
+enum FilePurpose {
+  transcription_input
+  voice_note
+  practice_audio
+  export
+
+  @@map("file_purpose")
+}
+
+enum FileStatus {
+  pending
+  uploaded
+  deleted
+
+  @@map("file_status")
+}
+
+// Private objects in S3-compatible storage. Bytes never pass through the API (presigned URLs).
+model StoredFile {
+  id          String      @id @default(uuid(7)) @db.Uuid
+  userId      String?     @map("user_id") @db.Uuid
+  purpose     FilePurpose
+  storageKey  String      @unique @map("storage_key")
+  contentType String      @map("content_type") @db.VarChar(64)
+  sizeBytes   Int?        @map("size_bytes")
+  maxBytes    Int         @map("max_bytes")
+  encrypted   Boolean     @default(false)
+  status      FileStatus  @default(pending)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  uploadedAt  DateTime?   @map("uploaded_at") @db.Timestamptz(3)
+  expiresAt   DateTime?   @map("expires_at") @db.Timestamptz(3)
+  deletedAt   DateTime?   @map("deleted_at") @db.Timestamptz(3)
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transcription Transcription?
+  practices     Practice[]
+  exportJob     ExportJob?
+
+  @@index([userId, purpose])
+  @@index([status, expiresAt])
+  @@map("stored_files")
+}

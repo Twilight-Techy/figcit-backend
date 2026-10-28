@@ -1,0 +1,36 @@
+{
+  "name": "figcit-backend",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @figcit/api dev",
+    "build": "pnpm -r run build",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "test:e2e": "pnpm --filter @figcit/api test:e2e",
+    "bench": "pnpm --filter @figcit/engine bench",
+    "check:engine-deps": "node scripts/check-engine-deps.mjs",
+    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run check:engine-deps",
+    "db:generate": "pnpm --filter @figcit/api db:generate",
+    "db:migration": "pnpm --filter @figcit/api db:migration",
+    "openapi:generate": "pnpm --filter @figcit/api openapi:generate",
+    "fixtures:generate": "pnpm --filter @figcit/rules-compiler fixtures:generate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "5.0.5",
+    "eslint": "^9.39.5",
+    "prettier": "^3.9.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
+  }
+}

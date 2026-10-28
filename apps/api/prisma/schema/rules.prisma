@@ -1,0 +1,39 @@
+enum SnapshotStatus {
+  draft
+  in_review
+  safety_review
+  published
+  retired
+
+  @@map("snapshot_status")
+}
+
+// Compiled rule sets (SYSTEM_DESIGN §5.4). Published snapshots are immutable; at most one is
+// published at a time (partial unique index in migration SQL). Rollback = publish an older one.
+model RuleSnapshot {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  version          String         @unique @db.VarChar(32) // e.g. 3.3.0+1
+  hash             String         @db.Char(64) // SHA-256 of the canonical JSON
+  sourceFileKey    String?        @map("source_file_key")
+  status           SnapshotStatus @default(draft)
+  json             Json // the snapshot the engine loads
+  fixtureReport    Json?          @map("fixture_report")
+  diffSummary      Json?          @map("diff_summary")
+  touchesSafety    Boolean        @default(false) @map("touches_safety")
+  notes            String?        @db.VarChar(500)
+  createdById      String?        @map("created_by_id") @db.Uuid
+  reviewedById     String?        @map("reviewed_by_id") @db.Uuid
+  reviewedAt       DateTime?      @map("reviewed_at") @db.Timestamptz(3)
+  safetySignedById String?        @map("safety_signed_by_id") @db.Uuid
+  safetySignedAt   DateTime?      @map("safety_signed_at") @db.Timestamptz(3)
+  publishedAt      DateTime?      @map("published_at") @db.Timestamptz(3)
+  retiredAt        DateTime?      @map("retired_at") @db.Timestamptz(3)
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  createdBy      User? @relation("SnapshotCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  reviewedBy     User? @relation("SnapshotReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  safetySignedBy User? @relation("SnapshotSafetySigner", fields: [safetySignedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+  @@map("rule_snapshots")
+}

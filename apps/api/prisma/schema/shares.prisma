@@ -1,0 +1,24 @@
+// A user-chosen snapshot of sections, frozen at share time and encrypted. Only the token's hash
+// is stored; revoke takes effect at once.
+model Share {
+  id                String    @id @default(uuid(7)) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  tenantId          String?   @map("tenant_id") @db.Uuid // set when shared with an institution
+  recipientLabelEnc Bytes?    @map("recipient_label_enc")
+  sections          String[]
+  rangeDays         Int       @map("range_days") @db.SmallInt
+  snapshotEnc       Bytes     @map("snapshot_enc")
+  tokenHash         String    @unique @map("token_hash")
+  expiresAt         DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt         DateTime? @map("revoked_at") @db.Timestamptz(3)
+  viewCount         Int       @default(0) @map("view_count")
+  lastViewedAt      DateTime? @map("last_viewed_at") @db.Timestamptz(3)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([tenantId])
+  @@map("shares")
+}

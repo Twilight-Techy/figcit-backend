@@ -1,0 +1,70 @@
+enum SessionOutcome {
+  helped
+  a_bit
+  not_really
+  skipped
+
+  @@map("session_outcome")
+}
+
+// One row per time a tool is used, in any pathway: Regulate tools, focus sessions, practices,
+// Connect starters, Reflect sessions. Pathway-specific details are nullable columns.
+model PathwaySession {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  recommendationId String?   @map("recommendation_id") @db.Uuid
+  pathway          Pathway
+  toolId           String    @map("tool_id") @db.VarChar(48)
+  startedAt        DateTime  @map("started_at") @db.Timestamptz(3)
+  endedAt          DateTime? @map("ended_at") @db.Timestamptz(3)
+  lengthSeconds    Int?      @map("length_seconds")
+  completed        Boolean   @default(false)
+  stoppedEarly     Boolean   @default(false) @map("stopped_early")
+  // Execute / focus
+  taskId           String?   @map("task_id") @db.Uuid
+  currentStepId    String?   @map("current_step_id") @db.Uuid
+  remainingSeconds Int?      @map("remaining_seconds")
+  pausedAt         DateTime? @map("paused_at") @db.Timestamptz(3)
+  // Meditate / practices
+  practiceId       String?   @map("practice_id") @db.Uuid
+  eyesOpen         Boolean?  @map("eyes_open")
+  contextPublic    Boolean?  @map("context_public")
+  origin           Origin    @default(online)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recommendation Recommendation? @relation(fields: [recommendationId], references: [id], onDelete: SetNull)
+  task           Task?           @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  practice       Practice?       @relation(fields: [practiceId], references: [id], onDelete: SetNull)
+  feedback       Feedback?
+  reflections    Reflection[]
+
+  @@index([userId, startedAt(sort: Desc)])
+  @@index([userId, pathway, startedAt(sort: Desc)])
+  @@index([recommendationId])
+  @@index([taskId])
+  @@map("pathway_sessions")
+}
+
+// "Did it help?" after a tool, plus the re-check and Blue recovery window (RC-1–RC-5).
+model Feedback {
+  id                 String          @id @default(uuid(7)) @db.Uuid
+  sessionId          String          @unique @map("session_id") @db.Uuid
+  userId             String          @map("user_id") @db.Uuid
+  outcome            SessionOutcome
+  helpful            Int?            @db.SmallInt // 1–5
+  effort             Int?            @db.SmallInt // 1–5
+  recheckCheckInId   String?         @map("recheck_check_in_id") @db.Uuid
+  recheckRule        String?         @map("recheck_rule") @db.VarChar(8) // RC-1…RC-5
+  recoveryStartedAt  DateTime?       @map("recovery_started_at") @db.Timestamptz(3)
+  recoveryEndsAt     DateTime?       @map("recovery_ends_at") @db.Timestamptz(3)
+  nextStepReleasedAt DateTime?       @map("next_step_released_at") @db.Timestamptz(3)
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  session        PathwaySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recheckCheckIn CheckIn?       @relation("FeedbackRecheck", fields: [recheckCheckInId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("feedback")
+}

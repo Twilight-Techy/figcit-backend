@@ -1,0 +1,75 @@
+enum TaskStatus {
+  open
+  done
+  dropped
+
+  @@map("task_status")
+}
+
+enum TaskSource {
+  manual
+  demand
+  dump
+  express
+
+  @@map("task_source")
+}
+
+enum DayPlanSlot {
+  now
+  later
+  not_today
+
+  @@map("day_plan_slot")
+}
+
+// Max 500 active tasks per user; steps capped by the timeline code (Tab 4), max 20.
+model Task {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  userId          String        @map("user_id") @db.Uuid
+  titleEnc        Bytes         @map("title_enc")
+  type            String?       @db.VarChar(48) // demand type code (Tab 6)
+  timelineCode    TimelineCode? @map("timeline_code")
+  dueAt           DateTime?     @map("due_at") @db.Timestamptz(3)
+  recurrenceRule  String?       @map("recurrence_rule") @db.VarChar(200) // RFC 5545 RRULE
+  puttingOff      Boolean       @default(false) @map("putting_off")
+  nucripceTags    String[]      @default([]) @map("nucripce_tags")
+  status          TaskStatus    @default(open)
+  source          TaskSource    @default(manual)
+  sourceDumpItemId String?      @map("source_dump_item_id") @db.Uuid
+  snoozedUntil    DateTime?     @map("snoozed_until") @db.Timestamptz(3)
+  planSlot        DayPlanSlot?  @map("plan_slot")
+  planDate        DateTime?     @map("plan_date") @db.Date
+  skipCount       Int           @default(0) @map("skip_count") @db.SmallInt
+  doneAt          DateTime?     @map("done_at") @db.Timestamptz(3)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  clientUpdatedAt DateTime      @default(now()) @map("client_updated_at") @db.Timestamptz(3)
+  deletedAt       DateTime?     @map("deleted_at") @db.Timestamptz(3)
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceDumpItem  DumpItem?        @relation(fields: [sourceDumpItemId], references: [id], onDelete: SetNull)
+  steps           TaskStep[]
+  needSelections  NeedSelection[]
+  recommendations Recommendation[]
+  sessions        PathwaySession[]
+
+  @@index([userId, status, dueAt])
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("tasks")
+}
+
+model TaskStep {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  taskId    String    @map("task_id") @db.Uuid
+  position  Int       @db.SmallInt
+  textEnc   Bytes     @map("text_enc")
+  source    String    @default("user") @db.VarChar(8) // user | template | ai
+  doneAt    DateTime? @map("done_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, position])
+  @@map("task_steps")
+}

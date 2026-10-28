@@ -1,0 +1,29 @@
+enum AiOutcome {
+  ok
+  fallback
+  timeout
+  invalid
+  blocked
+  circuit_open
+  not_entitled
+
+  @@map("ai_outcome")
+}
+
+// One row per AI call, never with text (ENGINEERING_RULES §8). Retained 90 days.
+model AiCall {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  task          String    @db.VarChar(32)
+  userHash      String?   @map("user_hash") @db.Char(64)
+  model         String?   @db.VarChar(64)
+  promptVersion String?   @map("prompt_version") @db.VarChar(32)
+  outcome       AiOutcome
+  latencyMs     Int       @map("latency_ms")
+  inputTokens   Int?      @map("input_tokens")
+  outputTokens  Int?      @map("output_tokens")
+  at            DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([task, at])
+  @@index([at])
+  @@map("ai_calls")
+}

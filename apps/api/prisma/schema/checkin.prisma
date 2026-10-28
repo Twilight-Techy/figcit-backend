@@ -1,0 +1,126 @@
+enum CheckInSource {
+  grid
+  not_sure
+
+  @@map("check_in_source")
+}
+
+// How the user arrived: the full check-in, the "I need help with…" quick path (D-39), or a recheck.
+enum CheckInEntry {
+  full
+  quick
+  recheck
+
+  @@map("check_in_entry")
+}
+
+model CheckIn {
+  id                String        @id @default(uuid(7)) @db.Uuid
+  userId            String        @map("user_id") @db.Uuid
+  energy            Int?          @db.SmallInt // 1–4; null when Not sure
+  mood              Int?          @db.SmallInt // 1–4
+  cellId            String?       @map("cell_id") @db.VarChar(8) // E1M1…E4M4, NS-1
+  source            CheckInSource @default(grid)
+  entry             CheckInEntry  @default(full)
+  notSureAnswers    String[]      @default([]) @map("not_sure_answers")
+  confirmed         Boolean       @default(true)
+  recheckOfId       String?       @map("recheck_of_id") @db.Uuid
+  snapshotVersion   String        @map("snapshot_version") @db.VarChar(32)
+  createdOnDeviceAt DateTime      @map("created_on_device_at") @db.Timestamptz(3)
+  origin            Origin        @default(online)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt         DateTime?     @map("deleted_at") @db.Timestamptz(3)
+
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recheckOf       CheckIn?           @relation("Recheck", fields: [recheckOfId], references: [id], onDelete: SetNull)
+  rechecks        CheckIn[]          @relation("Recheck")
+  emotions        CheckInEmotion[]
+  sensations      CheckInSensation[]
+  context         CheckInContext?
+  need            NeedSelection?
+  recommendations Recommendation[]
+  feedbackRechecks Feedback[]        @relation("FeedbackRecheck")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([recheckOfId])
+  @@map("check_ins")
+}
+
+model CheckInEmotion {
+  id          String @id @default(uuid(7)) @db.Uuid
+  checkInId   String @map("check_in_id") @db.Uuid
+  emotionCode String @map("emotion_code") @db.VarChar(48)
+  familyCode  String @map("family_code") @db.VarChar(48)
+  intensity   Int    @db.SmallInt // 0–10
+
+  checkIn CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+
+  @@unique([checkInId, emotionCode])
+  @@map("check_in_emotions")
+}
+
+model CheckInSensation {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  checkInId   String   @map("check_in_id") @db.Uuid
+  category    String   @db.VarChar(32)
+  tagCode     String   @map("tag_code") @db.VarChar(48)
+  intensity   Int?     @db.SmallInt
+  bodyRegions String[] @default([]) @map("body_regions")
+
+  checkIn CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+
+  @@unique([checkInId, tagCode])
+  @@map("check_in_sensations")
+}
+
+model CheckInContext {
+  checkInId        String   @id @map("check_in_id") @db.Uuid
+  environment      String?  @db.VarChar(48)
+  people           String?  @db.VarChar(32)
+  timeAvailable    String?  @map("time_available") @db.VarChar(16)
+  support          String?  @db.VarChar(32)
+  sensitivityFlags String[] @default([]) @map("sensitivity_flags")
+  customTagIds     String[] @default([]) @map("custom_tag_ids") @db.Uuid
+
+  checkIn CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+
+  @@map("check_in_contexts")
+}
+
+// The user's own context/emotion labels. The label is free text, so it's encrypted.
+model CustomTag {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  type       String    @db.VarChar(16) // context | emotion | sensation
+  labelEnc   Bytes     @map("label_enc")
+  useCount   Int       @default(0) @map("use_count")
+  lastUsedAt DateTime? @map("last_used_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("custom_tags")
+}
+
+// Need and demand for a check-in (workbook Tabs 4–6b). `drivers` are NUCRIPCE codes.
+model NeedSelection {
+  checkInId       String        @id @map("check_in_id") @db.Uuid
+  needCode        String?       @map("need_code") @db.VarChar(48)
+  ownWordsEnc     Bytes?        @map("own_words_enc")
+  parsedNeedCodes String[]      @default([]) @map("parsed_need_codes")
+  justSupport     Boolean       @default(false) @map("just_support")
+  hasDemand       Boolean       @default(false) @map("has_demand")
+  demandType      String?       @map("demand_type") @db.VarChar(48)
+  taskId          String?       @map("task_id") @db.Uuid
+  dueAt           DateTime?     @map("due_at") @db.Timestamptz(3)
+  timelineCode    TimelineCode? @map("timeline_code")
+  drivers         String[]      @default([])
+
+  checkIn CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  task    Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([taskId])
+  @@map("need_selections")
+}

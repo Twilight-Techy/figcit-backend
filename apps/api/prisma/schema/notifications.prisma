@@ -1,0 +1,91 @@
+enum ReminderSubject {
+  checkin
+  task
+  practice
+  recheck
+  custom
+
+  @@map("reminder_subject")
+}
+
+enum NotificationChannel {
+  push
+  inbox
+  email
+
+  @@map("notification_channel")
+}
+
+model Reminder {
+  id          String          @id @default(uuid(7)) @db.Uuid
+  userId      String          @map("user_id") @db.Uuid
+  subjectType ReminderSubject @map("subject_type")
+  subjectId   String?         @map("subject_id") @db.Uuid
+  labelEnc    Bytes?          @map("label_enc")
+  at          DateTime?       @db.Timestamptz(3) // one-off
+  rrule       String?         @db.VarChar(200) // recurring, in the user's time zone
+  localTime   Int?            @map("local_time") @db.SmallInt // minutes after midnight
+  style       String          @default("gentle") @db.VarChar(16)
+  active      Boolean         @default(true)
+  nextRunAt   DateTime?       @map("next_run_at") @db.Timestamptz(3)
+  lastSentAt  DateTime?       @map("last_sent_at") @db.Timestamptz(3)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt   DateTime?       @map("deleted_at") @db.Timestamptz(3)
+
+  user User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs NotificationLog[]
+
+  @@index([userId])
+  @@index([nextRunAt]) // partial WHERE active AND deleted_at IS NULL (migration SQL)
+  @@map("reminders")
+}
+
+model PushSubscription {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  endpoint      String    @unique
+  keysEnc       Bytes     @map("keys_enc")
+  userAgent     String?   @map("user_agent") @db.VarChar(200)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastSuccessAt DateTime? @map("last_success_at") @db.Timestamptz(3)
+  failureCount  Int       @default(0) @map("failure_count") @db.SmallInt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+// In-app inbox: reminders that were held back (quiet hours, In worship, daily cap) land here.
+model InboxItem {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  kind      String    @db.VarChar(32) // reminder | recheck | export_ready | share_viewed | system
+  refType   String?   @map("ref_type") @db.VarChar(32)
+  refId     String?   @map("ref_id") @db.Uuid
+  readAt    DateTime? @map("read_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("inbox_items")
+}
+
+// What happened to each nudge; used for the daily cap (at most 2 task nudges a day).
+model NotificationLog {
+  id         String              @id @default(uuid(7)) @db.Uuid
+  userId     String              @map("user_id") @db.Uuid
+  reminderId String?             @map("reminder_id") @db.Uuid
+  category   String              @db.VarChar(16)
+  channel    NotificationChannel
+  result     String              @db.VarChar(24) // sent | held_quiet_hours | held_in_worship | held_cap | failed
+  at         DateTime            @default(now()) @db.Timestamptz(3)
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminder Reminder? @relation(fields: [reminderId], references: [id], onDelete: SetNull)
+
+  @@index([userId, category, at(sort: Desc)])
+  @@map("notification_logs")
+}
