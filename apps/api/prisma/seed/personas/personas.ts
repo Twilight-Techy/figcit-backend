@@ -16,7 +16,9 @@ const email = (name: string): string => `${name}@${DOMAIN}`;
 const at = (daysAgo: number, hour: number, minute = 0): Date => {
   const d = new Date(Date.now() - daysAgo * DAY);
   d.setUTCHours(hour, minute, 0, 0);
-  return d;
+  // "Today at 18:00" before 18:00 would be in the future: keep today's order, but in the past.
+  const latest = Date.now() - 60_000;
+  return d.getTime() <= latest ? d : new Date(latest - (24 * 60 - hour * 60 - minute) * 10_000);
 };
 
 /** A few weeks of check-ins with sessions and feedback; harder days follow `hardEvery`. */
