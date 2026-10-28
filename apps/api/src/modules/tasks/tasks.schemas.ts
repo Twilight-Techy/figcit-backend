@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { queryBool } from '../../common/http/query.js';
 
 export const TIMELINES = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'TX', 'TR'] as const;
 export const KINDS = ['study', 'work', 'health', 'social', 'home'] as const;
@@ -107,7 +108,7 @@ export type TaskDto = z.infer<typeof taskSchema>;
 export const taskListQuerySchema = z
   .object({
     status: z.enum(['open', 'done', 'dropped', 'all']).default('open'),
-    includeSnoozed: z.coerce.boolean().default(false),
+    includeSnoozed: queryBool.default(false),
     limit: z.coerce.number().int().min(1).max(200).default(100),
   })
   .strict();

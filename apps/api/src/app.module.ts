@@ -8,7 +8,9 @@ import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CheckInModule } from './modules/checkin/checkin.module.js';
 import { ConsentModule } from './modules/consent/consent.module.js';
+import { DumpModule } from './modules/dump/dump.module.js';
 import { EntitlementsModule } from './modules/entitlements/entitlements.module.js';
+import { ExpressModule } from './modules/express/express.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { RecommendationModule } from './modules/recommendation/recommendation.module.js';
 import { RulesModule } from './modules/rules/rules.module.js';
@@ -39,7 +41,9 @@ import { StorageModule } from './platform/storage/storage.module.js';
     CheckInModule,
     ConsentModule,
     DevModule,
+    DumpModule,
     EntitlementsModule,
+    ExpressModule,
     HealthModule,
     RecommendationModule,
     RulesModule,

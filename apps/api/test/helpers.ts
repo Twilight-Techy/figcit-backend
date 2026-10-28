@@ -13,6 +13,7 @@ export interface Api {
     opts?: { token?: string; body?: unknown; headers?: Record<string, string> },
   ): Promise<{ status: number; body: T; headers: Record<string, unknown> }>;
   signIn(email?: string): Promise<{ token: string; email: string; userId: string }>;
+  grantPlus(userId: string): Promise<void>;
   close(): Promise<void>;
 }
 
@@ -63,5 +64,13 @@ export async function bootApi(overrides: Record<string, string> = {}): Promise<A
     return { token: res.body.accessToken, email, userId: res.body.user.id };
   };
 
-  return { app, req, signIn, close: () => app.close() };
+  const { PrismaService } = await import('../src/common/db/prisma.service.js');
+  const prisma = app.get(PrismaService);
+  const grantPlus: Api['grantPlus'] = async (userId) => {
+    await prisma.entitlement.create({
+      data: { userId, planCode: 'plus_monthly', source: 'web', status: 'active' },
+    });
+  };
+
+  return { app, req, signIn, grantPlus, close: () => app.close() };
 }

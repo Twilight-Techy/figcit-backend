@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 /** Typed in-process events between modules (rules §2.1: modules react through events). */
 export interface DomainEventMap {
   'checkin.created': { userId: string; checkInId: string };
+  'dump.created': { userId: string; dumpId: string };
   'recheck.evaluated': {
     userId: string;
     previousCheckInId: string;
