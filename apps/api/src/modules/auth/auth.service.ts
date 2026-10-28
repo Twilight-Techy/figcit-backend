@@ -114,6 +114,7 @@ export class AuthService {
         data: { emailVerifiedAt: new Date() },
       });
     }
+    await this.restoreIfPending(userId);
     await this.assertActive(userId);
     await this.event(userId, 'magic_link', 'success');
     return { ...(await this.sessions.issue(userId, deviceLabel)), isNew };
@@ -290,6 +291,26 @@ export class AuthService {
     await this.assertActive(userId);
     await this.event(userId, 'google', 'success');
     return { ...(await this.sessions.issue(userId, deviceLabel)), isNew };
+  }
+
+  /**
+   * Signing in with a magic link during the deletion grace period keeps the account (DECISIONS B-21).
+   * Password sign-in doesn't, so only someone with the mailbox can bring an account back.
+   */
+  private async restoreIfPending(userId: string): Promise<void> {
+    const pending = await this.prisma.deletionRequest.findFirst({
+      where: { userId, cancelledAt: null, scheduledFor: { gt: new Date() } },
+      select: { userId: true },
+    });
+    if (!pending) return;
+    await this.prisma.$transaction([
+      this.prisma.deletionRequest.update({ where: { userId }, data: { cancelledAt: new Date() } }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { status: 'active', deletedAt: null },
+      }),
+      this.prisma.inboxItem.create({ data: { userId, kind: 'account_restored' } }),
+    ]);
   }
 
   private async assertActive(userId: string): Promise<void> {

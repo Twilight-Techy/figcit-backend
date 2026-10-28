@@ -24,3 +24,15 @@ Decisions taken during the end-to-end build under the owner's grant of full owne
 | B-18 | OpenAPI is generated from each route's `@Route` metadata and its zod schemas (`z.toJSONSchema`), not from `@nestjs/swagger` decorators. | One source of truth (the zod schemas that validate the request) and no second decorator vocabulary. |
 | B-19 | Refresh tokens: HttpOnly `figcit_rt` cookie on path `/v1/auth` for browsers, body for `X-Client: native`. Google sign-in sets the cookie in the callback and redirects to `/enter/google/`, where the app calls `/auth/refresh`. | SYSTEM_DESIGN §9.1; keeps tokens out of URLs. |
 | B-20 | Staff TOTP is implemented in-house (RFC 6238, tested against the RFC vector) instead of `otplib`. | ~40 lines with node:crypto; one fewer dependency (rules 14). |
+
+## B-21: Account deletion grace period
+`DELETE /me` (typed confirmation) soft-deletes at once: sessions revoked, reminders paused, shares turned off, push removed. Hard delete runs 30 days later (`privacy.purge`, daily). Signing in with a magic link during those 30 days keeps the account and leaves a "Welcome back" inbox notice; password sign-in does not, so only someone with the mailbox can bring it back. Safety events are kept without the user id when the account is purged (they hold no text).
+
+## B-22: SF-2 output
+A sustained flag writes a `sustained` safety event and one inbox prompt towards support (fixed wording, links to Help), at most once every 7 days. No push, no band change.
+
+## B-23: Reminders that can't be pushed go to the inbox
+Quiet hours (default 21:00–08:00 local), "in worship", category off, the 2-a-day task nudge cap, and capacity tuning (no task nudges after an Amber or Red check-in in the last 6 hours) all hold a push; the reminder lands in the inbox instead. Missed reminders are never counted.
+
+## B-24: Progress range
+7 and 30 days are free; 90 days is Advanced (SYSTEM_DESIGN §4.2 says 30 days free, full history Advanced).

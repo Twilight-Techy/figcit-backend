@@ -14,13 +14,18 @@ import { ContentModule } from './modules/content/content.module.js';
 import { DumpModule } from './modules/dump/dump.module.js';
 import { EntitlementsModule } from './modules/entitlements/entitlements.module.js';
 import { ExpressModule } from './modules/express/express.module.js';
+import { FilesModule } from './modules/files/files.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { PracticesModule } from './modules/practices/practices.module.js';
+import { PrivacyModule } from './modules/privacy/privacy.module.js';
+import { ProgressModule } from './modules/progress/progress.module.js';
 import { RecommendationModule } from './modules/recommendation/recommendation.module.js';
 import { ReflectModule } from './modules/reflect/reflect.module.js';
 import { RulesModule } from './modules/rules/rules.module.js';
 import { SafetyModule } from './modules/safety/safety.module.js';
 import { SessionsModule } from './modules/sessions/sessions.module.js';
+import { SharesModule } from './modules/shares/shares.module.js';
 import { TasksModule } from './modules/tasks/tasks.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { DevModule } from './platform/dev/dev.module.js';
@@ -52,13 +57,18 @@ import { StorageModule } from './platform/storage/storage.module.js';
     DumpModule,
     EntitlementsModule,
     ExpressModule,
+    FilesModule,
     HealthModule,
+    NotificationsModule,
     PracticesModule,
+    PrivacyModule,
+    ProgressModule,
     RecommendationModule,
     ReflectModule,
     RulesModule,
     SafetyModule,
     SessionsModule,
+    SharesModule,
     TasksModule,
     UsersModule,
   ],
