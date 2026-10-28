@@ -13,3 +13,5 @@ try {
 } finally {
   await prisma.$disconnect();
 }
+// Demo personas (every design state). Skip with SEED_PERSONAS=false, e.g. for the e2e database.
+if (process.env['SEED_PERSONAS'] !== 'false') await import('./run-personas.js');

@@ -7,6 +7,6 @@ export default defineConfig({
   schema: 'prisma/schema',
   migrations: {
     path: 'prisma/migrations',
-    seed: 'node --import @swc-node/register/esm-register prisma/seed/index.ts',
+    seed: 'node --conditions=development --import @swc-node/register/esm-register prisma/seed/index.ts',
   },
 });

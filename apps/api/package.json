@@ -21,7 +21,8 @@
     "openapi:generate": "node --conditions=development --import @swc-node/register/esm-register src/openapi.ts",
     "db:seed": "prisma db seed",
     "db:migrate": "prisma migrate deploy",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "db:seed:personas": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/run-personas.ts"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.5",

@@ -269,6 +269,17 @@ export class InstitutionsService {
           value: recs.length,
           people: new Set(recs.map((r) => r.userId)).size,
         },
+        ...(['steady', 'strained'] as const).map((group) => {
+          const xs = recs.filter(
+            (r) => (group === 'strained') === (r.light === 'amber' || r.light === 'red'),
+          );
+          return {
+            metric: 'state',
+            dimension: group,
+            value: xs.length,
+            people: new Set(xs.map((r) => r.userId)).size,
+          };
+        }),
         ...LIGHTS.map((l) => {
           const xs = recs.filter((r) => r.light === l);
           return {
