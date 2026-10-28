@@ -36,3 +36,12 @@ Quiet hours (default 21:00–08:00 local), "in worship", category off, the 2-a-d
 
 ## B-24: Progress range
 7 and 30 days are free; 90 days is Advanced (SYSTEM_DESIGN §4.2 says 30 days free, full history Advanced).
+
+## B-25: Workbook upload as CSV tabs
+The admin console uploads the workbook as its CSV tabs (the same files as `docs/specs/rules-engine-v3.3/`) in one JSON request. The compiler reads them in memory (`workbookFromTexts`), validates, runs all 189 scenarios through the engine and diffs against the live snapshot; a change to safety phrases or crisis routes needs a safety reviewer. Reading `.xlsx` directly would add exceljs; deferred until someone needs it (export each tab as CSV meanwhile).
+
+## B-26: Fake billing provider
+`BILLING_PROVIDER=fake` runs checkout, renewals, failed payments (7-day grace) and cancellation at period end with no card details, so the whole Plans flow can be tested. A real provider plugs in behind `BillingService` and the signed webhook.
+
+## B-27: Institution dashboards
+Weekly aggregates from members who turned on institution sharing; any cell with fewer people than the tenant's anonymity floor (minimum 5, default 20 for new tenants) is stored as suppressed. Support leads see only those trends and what a member writes in "Ask for support".

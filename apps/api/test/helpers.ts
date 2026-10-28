@@ -14,6 +14,8 @@ export interface Api {
   ): Promise<{ status: number; body: T; headers: Record<string, unknown> }>;
   signIn(email?: string): Promise<{ token: string; email: string; userId: string }>;
   grantPlus(userId: string): Promise<void>;
+  /** A staff member with these roles and a verified two-step sign-in. */
+  staff(roles: readonly string[]): Promise<{ token: string; userId: string; email: string }>;
   close(): Promise<void>;
 }
 
@@ -72,5 +74,23 @@ export async function bootApi(overrides: Record<string, string> = {}): Promise<A
     });
   };
 
-  return { app, req, signIn, grantPlus, close: () => app.close() };
+  const { codeAt, stepAt } = await import('../src/modules/auth/totp.js');
+  const staff: Api['staff'] = async (roles) => {
+    const first = await signIn();
+    await prisma.user.update({
+      where: { id: first.userId },
+      data: { roles: ['customer', ...roles] as never },
+    });
+    const again = await signIn(first.email);
+    const enrol = await req<{ secret: string }>('POST', '/auth/mfa/enrol', { token: again.token });
+    const verified = await req<{ accessToken: string }>('POST', '/auth/mfa/verify', {
+      token: again.token,
+      body: { code: codeAt(enrol.body.secret, stepAt(Date.now())) },
+      headers: { 'x-client': 'native' },
+    });
+    if (!verified.body.accessToken) throw new Error(`mfa failed: ${JSON.stringify(verified.body)}`);
+    return { token: verified.body.accessToken, userId: first.userId, email: first.email };
+  };
+
+  return { app, req, signIn, grantPlus, staff, close: () => app.close() };
 }

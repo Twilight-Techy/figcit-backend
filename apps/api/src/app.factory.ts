@@ -10,7 +10,8 @@ import { loadEnv, type Env } from './common/config/env.js';
 import { ProblemFilter } from './common/errors/problem.filter.js';
 
 const DEFAULT_BODY_LIMIT = 64 * 1024; // rules §6
-const UPLOAD_LIMIT = 25 * 1024 * 1024; // local storage driver only (audio uploads in development)
+const UPLOAD_LIMIT = 25 * 1024 * 1024;
+const WORKBOOK_LIMIT = 8 * 1024 * 1024; // local storage driver only (audio uploads in development)
 
 /** Builds the HTTP app. Used by main.ts, the e2e tests and the OpenAPI generator. */
 export async function createApp(
@@ -38,6 +39,12 @@ export async function createApp(
     logger: options.logger === false ? false : ['error', 'warn', 'log'],
   });
   const fastify = app.getHttpAdapter().getInstance();
+
+  // The workbook upload is the one JSON body allowed to be large (staff only).
+  fastify.addHook('onRoute', (route) => {
+    if (route.url === '/v1/admin/snapshots' && route.method === 'POST')
+      route.bodyLimit = WORKBOOK_LIMIT;
+  });
 
   // Raw bodies for local-storage uploads (any content type), with their own size limit.
   fastify.addContentTypeParser(

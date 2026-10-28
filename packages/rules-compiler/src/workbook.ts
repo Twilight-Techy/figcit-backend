@@ -124,6 +124,21 @@ function readBecause(tables: readonly (readonly string[][])[]): ReadonlyMap<stri
 export async function readWorkbook(dir: string): Promise<WorkbookTables> {
   const raw = new Map<string, string[][]>();
   for (const file of Object.values(TAB_FILES)) raw.set(file, await readTab(dir, file));
+  return tablesFrom(raw);
+}
+
+/** The same tables from CSV text already in memory (the admin upload). Missing tabs throw. */
+export function workbookFromTexts(texts: Readonly<Record<string, string>>): WorkbookTables {
+  const raw = new Map<string, string[][]>();
+  for (const file of Object.values(TAB_FILES)) {
+    const text = texts[file];
+    if (text === undefined) throw new Error(`Missing tab ${file}`);
+    raw.set(file, parseCsv(text));
+  }
+  return tablesFrom(raw);
+}
+
+function tablesFrom(raw: Map<string, string[][]>): WorkbookTables {
   const get = (file: string): string[][] => raw.get(file) ?? [];
   return {
     cells: readCells(get(TAB_FILES.cells)),

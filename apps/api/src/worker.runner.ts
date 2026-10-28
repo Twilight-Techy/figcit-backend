@@ -1,9 +1,13 @@
-import { Injectable, Logger, type OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, type OnApplicationBootstrap, type Type } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { PrismaService } from './common/db/prisma.service.js';
 import { JobsService } from './platform/jobs/jobs.service.js';
+import { AnalyticsService } from './modules/analytics/analytics.service.js';
+import { InstitutionsService } from './modules/institutions/institutions.service.js';
 import { DispatcherService } from './modules/notifications/dispatcher.service.js';
 import { PrivacyService } from './modules/privacy/privacy.service.js';
 import { SustainedService } from './modules/safety/sustained.service.js';
+import { SpeechService } from './modules/speech/speech.service.js';
 
 /** Registers every job handler and schedule (times are Europe/London). */
 @Injectable()
@@ -13,10 +17,20 @@ export class WorkerRunner implements OnApplicationBootstrap {
   constructor(
     private readonly jobs: JobsService,
     private readonly prisma: PrismaService,
-    private readonly dispatcher: DispatcherService,
-    private readonly privacy: PrivacyService,
-    private readonly sustained: SustainedService,
+    private readonly refs: ModuleRef,
   ) {}
+
+  private svc<T>(type: Type<T>): T {
+    return this.refs.get(type, { strict: false });
+  }
+
+  private get dispatcher(): DispatcherService {
+    return this.svc(DispatcherService);
+  }
+
+  private get privacy(): PrivacyService {
+    return this.svc(PrivacyService);
+  }
 
   /** Rebuilds the 7-day reflection counts so old topics stop counting towards RF-2. */
   async topicCounts(): Promise<void> {
@@ -45,10 +59,13 @@ export class WorkerRunner implements OnApplicationBootstrap {
           await this.sweepExports();
         },
         'checkin.sustained-red': async () => {
-          await this.sustained.run();
+          await this.svc(SustainedService).run();
         },
         'privacy.export': async (data) => {
           if (typeof data['jobId'] === 'string') await this.privacy.runExport(data['jobId']);
+        },
+        'speech.transcribe': async (data) => {
+          if (typeof data['id'] === 'string') await this.svc(SpeechService).transcribe(data['id']);
         },
         'privacy.purge': async () => {
           await this.privacy.purgeDue();
@@ -57,6 +74,12 @@ export class WorkerRunner implements OnApplicationBootstrap {
           this.logger.log({ removed: await this.privacy.retention() }, 'retention');
         },
         'reflect.topic-counts': () => this.topicCounts(),
+        'institutions.aggregate': async () => {
+          await this.svc(InstitutionsService).aggregate();
+        },
+        'analytics.rollup': async () => {
+          await this.svc(AnalyticsService).rollup();
+        },
       },
       {
         'reminders.tick': '* * * * *',
@@ -64,6 +87,8 @@ export class WorkerRunner implements OnApplicationBootstrap {
         'privacy.purge': '30 3 * * *',
         'retention.nightly': '0 3 * * *',
         'reflect.topic-counts': '45 2 * * *',
+        'analytics.rollup': '20 1 * * *',
+        'institutions.aggregate': '40 1 * * *',
       },
     );
   }

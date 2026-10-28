@@ -50,6 +50,9 @@ importers:
       '@figcit/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@figcit/rules-compiler':
+        specifier: workspace:*
+        version: link:../../packages/rules-compiler
       '@nestjs/common':
         specifier: ^11.2.8
         version: 11.2.8(reflect-metadata@0.2.2)(rxjs@7.8.2)

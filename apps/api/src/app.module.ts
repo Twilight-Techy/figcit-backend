@@ -4,9 +4,12 @@ import { CryptoModule } from './common/crypto/crypto.module.js';
 import { DbModule } from './common/db/db.module.js';
 import { GuardsModule } from './common/guards/guards.module.js';
 import { AdaptModule } from './modules/adapt/adapt.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
+import { AnalyticsModule } from './modules/analytics/analytics.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { BillingModule } from './modules/billing/billing.module.js';
 import { CheckInModule } from './modules/checkin/checkin.module.js';
 import { ConnectModule } from './modules/connect/connect.module.js';
 import { ConsentModule } from './modules/consent/consent.module.js';
@@ -16,6 +19,7 @@ import { EntitlementsModule } from './modules/entitlements/entitlements.module.j
 import { ExpressModule } from './modules/express/express.module.js';
 import { FilesModule } from './modules/files/files.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { InstitutionsModule } from './modules/institutions/institutions.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { PracticesModule } from './modules/practices/practices.module.js';
 import { PrivacyModule } from './modules/privacy/privacy.module.js';
@@ -26,6 +30,8 @@ import { RulesModule } from './modules/rules/rules.module.js';
 import { SafetyModule } from './modules/safety/safety.module.js';
 import { SessionsModule } from './modules/sessions/sessions.module.js';
 import { SharesModule } from './modules/shares/shares.module.js';
+import { SpeechModule } from './modules/speech/speech.module.js';
+import { SyncModule } from './modules/sync/sync.module.js';
 import { TasksModule } from './modules/tasks/tasks.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { DevModule } from './platform/dev/dev.module.js';
@@ -46,9 +52,12 @@ import { StorageModule } from './platform/storage/storage.module.js';
     MailModule,
     StorageModule,
     AdaptModule,
+    AdminModule,
     AiModule,
+    AnalyticsModule,
     AuditModule,
     AuthModule,
+    BillingModule,
     CheckInModule,
     ConnectModule,
     ConsentModule,
@@ -59,6 +68,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     ExpressModule,
     FilesModule,
     HealthModule,
+    InstitutionsModule,
     NotificationsModule,
     PracticesModule,
     PrivacyModule,
@@ -69,6 +79,8 @@ import { StorageModule } from './platform/storage/storage.module.js';
     SafetyModule,
     SessionsModule,
     SharesModule,
+    SpeechModule,
+    SyncModule,
     TasksModule,
     UsersModule,
   ],

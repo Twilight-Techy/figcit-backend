@@ -28,4 +28,14 @@ export async function setup(): Promise<void> {
   const env = { ...process.env };
   execFileSync('pnpm', ['exec', 'prisma', 'migrate', 'deploy'], { cwd: API, env, stdio: 'ignore' });
   execFileSync('pnpm', ['exec', 'prisma', 'db', 'seed'], { cwd: API, env, stdio: 'ignore' });
+  // Content published by earlier runs would leak into other tests' expectations.
+  execFileSync(
+    'psql',
+    [
+      test.toString(),
+      '-qc',
+      "DELETE FROM content_items; DELETE FROM content_releases; DELETE FROM rule_snapshots WHERE status <> 'published';",
+    ],
+    { stdio: 'ignore' },
+  );
 }
