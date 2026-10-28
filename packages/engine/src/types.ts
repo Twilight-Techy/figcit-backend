@@ -195,7 +195,7 @@ export interface SnapshotPattern {
   readonly title: string; // the CTA headline, e.g. “Let's reduce the load first”
   readonly button: string; // e.g. Try a short reset
   readonly alternatives: readonly string[]; // alternative labels from Tab 7
-  readonly suggestion: string; // rationale: "Nuccess <suggestion>"
+  readonly suggestion: string; // rationale: "NUCCESS <suggestion>" (app name: DECISIONS B-12)
 }
 
 export interface SafetyPhraseGroup {

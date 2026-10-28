@@ -51,7 +51,7 @@ describe('Tab 9 worked example', () => {
     expect(result.queuedStep?.pathway).toBe('execute');
     expect(result.alternatives.map((a) => a.kind)).toContain('try_anyway');
     expect(result.rationale.text).toMatch(
-      /^Because you're .+ anxiety, Nuccess suggests a quick reset before the task\./,
+      /^Because you're .+ anxiety, NUCCESS suggests a quick reset before the task\./,
     );
   });
 
