@@ -282,6 +282,7 @@ export class DumpService implements OnModuleInit {
       steps: [],
       ...(input.kind ? { kind: input.kind } : {}),
       ...(input.dueAt ? { dueAt: input.dueAt } : {}),
+      ...(input.timeline ? { timeline: input.timeline } : {}),
     });
     await this.prisma.task.update({ where: { id: task.id }, data: { sourceDumpItemId: id } });
     return this.moved(userId, id, 'task', task.id);

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { crisisRouteSchema } from '../recommendation/recommendation.schemas.js';
+import { TIMELINES } from '../tasks/tasks.schemas.js';
 
 export const BUCKETS = ['ideas', 'notes', 'worries', 'todo'] as const;
 const itemText = z.string().trim().min(1).max(2000);
@@ -34,6 +35,7 @@ export const toTaskSchema = z
     title: z.string().trim().min(1).max(200).optional(),
     kind: z.enum(['study', 'work', 'health', 'social', 'home']).optional(),
     dueAt: z.iso.datetime().optional(),
+    timeline: z.enum(TIMELINES).optional(),
   })
   .strict();
 
