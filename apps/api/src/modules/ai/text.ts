@@ -37,9 +37,18 @@ export function hasBanned(text: string): boolean {
 
 /** Hedging and apology phrases removed by simplify, longest first (Figma S115 "What we changed"). */
 export const HEDGES = [
+  "i completely understand if this isn't possible at all",
+  "i understand if this isn't possible",
+  'i am so sorry to bother you',
   "i'm so sorry to bother you",
   'sorry to bother you',
   "i'm really sorry",
+  'i am really sorry',
+  'i am so sorry',
+  'i am sorry',
+  'whether there might perhaps be any chance of',
+  'whether there might be any chance of',
+  'i was wondering whether',
   "i'm so sorry",
   "i'm sorry",
   'sorry for the trouble',
@@ -64,6 +73,8 @@ export const HEDGES = [
   'actually',
   'kind of',
   'sort of',
+  'perhaps',
+  'maybe',
 ];
 
 export function words(text: string): number {
