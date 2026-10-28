@@ -6,6 +6,7 @@ const bool = z.enum(['true', 'false', '1', '0']).transform((v) => v === 'true' |
 
 const envSchema = z.object({
   // Runtime
+  DOCS_ENABLED: bool.optional(), // Swagger UI at /docs; default: on outside production
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(0).max(65_535).default(3001),

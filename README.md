@@ -16,7 +16,7 @@ apps/api/                 NestJS app: src/main.ts (HTTP API), src/worker.ts (job
   test/                   e2e tests (*.e2e.ts, real Postgres)
 packages/engine/          @figcit/engine: pure, zero dependencies
 packages/rules-compiler/  workbook .xlsx → snapshot JSON + engine fixtures
-openapi/                  generated openapi.json (never hand-edit)
+openapi/                  generated openapi.json (never hand-edit); Swagger UI at /docs
 docker/                   local stack (compose.yaml) and the API image
 docs/                     specs, design, rules, workflow, conflicts, ADRs
 scripts/                  repo checks used by CI
