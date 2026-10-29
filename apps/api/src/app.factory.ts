@@ -8,6 +8,7 @@ import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fa
 import { AppModule } from './app.module.js';
 import { loadEnv, type Env } from './common/config/env.js';
 import { ProblemFilter } from './common/errors/problem.filter.js';
+import { docsEnabled, registerDocs } from './common/http/docs.js';
 
 const DEFAULT_BODY_LIMIT = 64 * 1024; // rules §6
 const UPLOAD_LIMIT = 25 * 1024 * 1024;
@@ -81,6 +82,8 @@ export async function createApp(
       allowList: ['127.0.0.1'],
     });
   }
+
+  if (docsEnabled(env)) await registerDocs(app, env);
 
   app.setGlobalPrefix('v1');
   app.useGlobalFilters(new ProblemFilter());
