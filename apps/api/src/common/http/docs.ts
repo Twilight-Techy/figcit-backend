@@ -34,6 +34,12 @@ export async function registerDocs(app: NestFastifyApplication, env: Env): Promi
   await app.register(swaggerUi, {
     routePrefix: '/docs',
     staticCSP: true,
+    // Swagger UI's default policy upgrades every asset to https; on a plain-http deployment
+    // (no TLS) that blanks the page, so drop the directive unless the API is served over https.
+    transformStaticCSP: (header) =>
+      env.API_URL.startsWith('https:')
+        ? header
+        : header.replace(/;?\s*upgrade-insecure-requests\s*;?/, ';'),
     transformSpecification: (spec) => ({ ...spec, servers: [{ url: env.API_URL }] }),
     uiConfig: {
       docExpansion: 'list',
