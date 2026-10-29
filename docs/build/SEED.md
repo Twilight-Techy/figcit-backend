@@ -15,5 +15,5 @@ To seed an external database: set `DATABASE_URL` (and the other required values 
 | `fin@nuccess.test` | Plus (yearly), cancelled: still Plus for 10 more days. |
 | `gus@nuccess.test` | Asked to delete the account: in the 30-day grace period. Signing in with a magic link brings it back. |
 | `admin@`, `safety@`, `editor@`, `supporter@nuccess.test` | Staff: admin, safety reviewer, content editor, institution supporter. |
-| `lead@nuccess.test` | Support lead at **Northbridge University** (invite code `NORTH2026`, anonymity floor 20): dashboard trends and a support request from Dee. |
+| `lead@nuccess.test` | Institution supporter (staff TOTP; lands on the dashboard), support lead at **Northbridge University** (invite code `NORTH2026`, anonymity floor 20): dashboard trends and a support request from Dee. |
 | `student01@nuccess.test` (Dee) … `student60@` | University members who share group trends; Dee asked for support. `private-student@` joined but doesn't share, so is never counted. |

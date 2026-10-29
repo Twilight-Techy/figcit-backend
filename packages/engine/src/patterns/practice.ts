@@ -155,7 +155,9 @@ export const PRACTICE_RULES: readonly Rule[] = [
     id: 34,
     when: (f) =>
       (needs(f, 'learn_what_works') || f.signals.recurringStruggleConfirmed === true) &&
-      f.signals.patternPromptsOff !== true,
+      f.signals.patternPromptsOff !== true &&
+      // Tab 7 pattern 34: Green, Yellow or Blue only.
+      (f.recovery || f.band.final === 'available' || f.band.final === 'conditional'),
     plan: () => ({
       patterns: [34],
       primary: tool(

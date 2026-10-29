@@ -3,6 +3,7 @@ import type { Snapshot } from '@figcit/engine';
 import { describe, expect, it } from 'vitest';
 import { breakDownByRules } from './fallbacks/break-down.js';
 import { suggestDriversByRules } from './fallbacks/drivers.js';
+import { draftByTemplate, scriptByTemplate, structureByTemplate } from './fallbacks/express.js';
 import { parseNeedByRules } from './fallbacks/parse-need.js';
 import { bucketFor } from './fallbacks/sort-dump.js';
 import { breakDownTask, simplify, sortDump } from './ai.tasks.js';
@@ -65,6 +66,34 @@ describe('fallbacks', () => {
     expect(r.task?.title).toMatch(/^Finish my essay/);
     expect(r.task?.type).toBe('study');
     expect(r.heard.some((h) => h.kind === 'task')).toBe(true);
+  });
+
+  it('hears everyday words, settings and events', () => {
+    const r = parseNeedByRules("I can't focus and my head is buzzing, exam tomorrow", snapshot);
+    expect(r.needs).toContain('clear_head');
+    expect(r.task?.title).toBe('Exam tomorrow');
+    expect(r.heard.map((h) => h.label)).toContain('Restless');
+    const loud = parseNeedByRules('too loud in here', snapshot);
+    expect(loud.heard).toContainEqual({ label: 'Noisy here', kind: 'setting' });
+  });
+
+  it('shortens chip labels on a word boundary', () => {
+    for (const h of parseNeedByRules('I feel so alone tonight', snapshot).heard) {
+      expect(h.label.length).toBeLessThanOrEqual(24);
+      expect(h.label).not.toMatch(/\b\w{1,2}$/);
+    }
+  });
+
+  it('turns notes into sentences for drafts, structure and scripts', () => {
+    const notes = 'need extension on essay\nmum in hospital';
+    expect(draftByTemplate(notes, 'my tutor')).toBe(
+      'Hi tutor,\n\nNeed extension on essay.\n\nMum in hospital.\n\nWould that be possible? Let me know if you need anything else from me.\n\nThanks,',
+    );
+    expect(structureByTemplate(notes).sections[1]).toEqual({
+      role: 'why',
+      text: 'Mum in hospital.',
+    });
+    expect(scriptByTemplate(notes).lines[0]?.text).toBe('Need extension on essay.');
   });
 
   it('spots support-only', () => {

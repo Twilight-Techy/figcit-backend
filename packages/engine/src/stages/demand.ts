@@ -71,16 +71,21 @@ function driversFor(
   return [...drivers].sort();
 }
 
-function usedDriversFor(band: Band, drivers: readonly Driver[]): readonly Driver[] {
+/** Tab 10: Routine only in Amber and during recovery (RC-2), deferred in Red. */
+function usedDriversFor(
+  band: Band,
+  drivers: readonly Driver[],
+  gentle: boolean,
+): readonly Driver[] {
   if (band === 'very_constrained') return [];
-  return band === 'constrained' ? ['routine'] : drivers;
+  return band === 'constrained' || gentle ? ['routine'] : drivers;
 }
 
 export function analyseDemand(
   cs: CompiledSnapshot,
   input: EngineInput,
   band: Band,
-  needs: NeedResult,
+  { needs, gentle = false }: { readonly needs: NeedResult; readonly gentle?: boolean },
 ): DemandResult {
   const demand = input.demand;
   if (!demand || needs.justSupport) return NO_DEMAND;
@@ -91,7 +96,7 @@ export function analyseDemand(
     timeline: cs.timelineByCode.get(demand.timeline),
     traits,
     drivers,
-    usedDrivers: usedDriversFor(band, drivers),
+    usedDrivers: usedDriversFor(band, drivers, gentle),
     deferred: band === 'very_constrained',
     count: Math.max(1, demand.count ?? 1),
     puttingOff: demand.puttingOff ?? false,

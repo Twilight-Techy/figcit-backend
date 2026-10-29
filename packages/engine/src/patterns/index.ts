@@ -121,16 +121,27 @@ function supportOnlyPlan(f: Facts): Plan {
     primary,
     alternatives,
     supportVisible: red || hasSupportPathway(f),
-    ...(gentle
-      ? { title: restless(f) ? 'Want to move gently for 2 minutes?' : 'Want a quiet reset?' }
-      : {}),
+    ...(gentle ? { title: restless(f) ? moveTitle(f) : 'Want a quiet reset?' } : {}),
   };
 }
+
+/** Tab 0: "move gently" at low energy (E1M4.5 family), plain "move" with energy to spare (E3M1.4). */
+const moveTitle = (f: Facts): string =>
+  (f.state.cell?.energy ?? 1) >= 3
+    ? 'Want to move for 2 minutes?'
+    : 'Want to move gently for 2 minutes?';
 
 const isRoutine = (f: Facts): boolean => f.demand.drivers.includes('routine');
 /** Tab 0 E1M2.6: a mild feeling and a familiar, routine task stay on "start with the familiar bit". */
 const redRoutineOnly = (f: Facts): boolean =>
-  isRed(f) && mildTrigger(f) && !strongTrigger(f) && isRoutine(f);
+  isRed(f) &&
+  mildTrigger(f) &&
+  !strongTrigger(f) &&
+  !needs(f, 'rest') &&
+  // Only a purely familiar task (every driver Routine); anything novel, imposed or multi-step
+  // stays deferred (Tab 10).
+  f.demand.drivers.length > 0 &&
+  f.demand.drivers.every((d) => d === 'routine');
 /** Mild (0–3) negative feelings in Amber/Red: Routine only, reset as the alternative (pattern 3). */
 const mildOnlyStrained = (f: Facts): boolean =>
   isAmberOrRed(f) &&

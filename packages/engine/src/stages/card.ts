@@ -225,7 +225,9 @@ export function buildCard(f: Facts, plan: Plan, light: Light, notes: string[]): 
 /** Stage 11: personalisation re-orders allowed alternatives only (FR-M13-04); never the primary. */
 function rerank(f: Facts, alternatives: Action[]): void {
   const scores = f.signals.toolScores;
-  if (!scores || f.signals.personalisation === false) return;
+  // Stage 11 is opt-in (consent purpose `personalisation`); the caller sends scores only once
+  // there are enough validated outcomes.
+  if (!scores || f.signals.personalisation !== true) return;
   // Stable sort by score, O(a log a) for a ≤ 4.
   alternatives.sort((a, b) => (scores[b.toolId ?? ''] ?? 0) - (scores[a.toolId ?? ''] ?? 0));
 }

@@ -25,6 +25,10 @@ export interface Facts {
   readonly needs: NeedResult;
   readonly demand: DemandResult;
   readonly safety: { readonly ruleId: string; readonly category: string } | null;
+  /** Trend against the previous check-in when this is a re-check (G-ST3). */
+  readonly trend?: 'improved' | 'same' | 'worse';
+  /** The Blue recovery window is open (RC-1); demand stays gentle (RC-2). */
+  readonly recovery: boolean;
 }
 
 export type StepSpec =

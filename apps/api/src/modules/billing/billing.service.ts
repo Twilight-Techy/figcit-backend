@@ -70,6 +70,20 @@ export class BillingService {
     concessionConfirmed: boolean,
   ): Promise<{ url: string; sessionId: string }> {
     if (this.env.BILLING_PROVIDER !== 'fake') throw new NotConfigured('Card payments');
+    // ENT-8: purchases only by adults; under-18s are covered through an institution licence.
+    const buyer = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { ageBand: true, ageConfirmedAt: true },
+    });
+    if (buyer?.ageBand === 'minor_institution')
+      throw new Forbidden('Plus is for adults. Your institution licence already covers you.');
+    if (!buyer?.ageConfirmedAt)
+      throw new AppError(
+        403,
+        'age_unconfirmed',
+        'Please confirm you are 18 or over',
+        'Only adults can buy Plus.',
+      );
     const plan = await this.prisma.plan.findUnique({ where: { code: planCode } });
     if (!plan?.active || !plan.priceMinor) throw new BadInput('That plan can’t be bought here.');
     if (plan.code === 'plus_concession' && !concessionConfirmed)

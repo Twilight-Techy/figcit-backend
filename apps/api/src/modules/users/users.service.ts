@@ -106,6 +106,9 @@ export class UsersService {
   }
 
   async confirmAge(userId: string): Promise<MeDto> {
+    // An institution-covered under-18 account stays one; only the institution can change that.
+    const current = await this.me(userId);
+    if (current.ageBand === 'minor_institution') return current;
     await this.repo.update(userId, { ageConfirmedAt: new Date(), ageBand: 'adult' });
     return this.me(userId);
   }

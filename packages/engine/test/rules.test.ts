@@ -261,3 +261,67 @@ describe('card invariants', () => {
     expect(() => run({ state: grid(5, 1) })).toThrow(RangeError);
   });
 });
+
+describe('audit fixes (docs/build/ENGINE_AUDIT.md)', () => {
+  it('Red keeps "start small" only for a purely familiar task (Tab 0 E1M2.6)', () => {
+    const familiar = run({
+      state: grid(1, 2),
+      emotions: [{ code: 'anxious', intensity: 2 }],
+      demand: { timeline: 'T3', traits: ['done_before'] },
+    });
+    expect(familiar.patterns).toEqual([3]);
+    const imposed = run({
+      state: grid(1, 1),
+      needs: ['rest'],
+      demand: { timeline: 'T4', traits: ['multi_step', 'transition', 'imposed'] },
+    });
+    expect(imposed.light).toBe('red');
+    expect(imposed.primary.pathway).not.toBe('execute');
+  });
+  it('RC-2: the recovery window keeps demand to Routine and never starts at full demand', () => {
+    const input: EngineInput = {
+      state: grid(4, 4),
+      demand: { timeline: 'T2', traits: ['first_time'] },
+    };
+    expect(run(input).patterns).toEqual([2]);
+    const r = run(input, { plan: 'free', recoveryActive: true });
+    expect(r.light).toBe('blue');
+    expect(r.drivers).toEqual(['routine']);
+    expect(r.patterns).toEqual([31]);
+  });
+  const worse = {
+    cellId: 'E3M3',
+    finalBand: 'conditional' as const,
+    light: 'yellow' as const,
+    peakIntensity: 2,
+    supportCompleted: true,
+    safetyTriggered: false,
+    pathway: 'reflect' as const,
+  };
+  it('G-ST3: a worse re-check makes the Support pathway visible', () => {
+    const r = run({
+      state: grid(2, 2),
+      emotions: [{ code: 'sad', intensity: 6 }],
+      recheckOf: worse,
+    });
+    expect(r.recheck?.outcome).toBe('worse');
+    expect(r.supportVisible).toBe(true);
+  });
+  it('RF-2: Reflect is blocked when the re-check after Reflect is worse', () => {
+    const r = run({ state: grid(3, 2), needs: ['make_sense'], recheckOf: worse });
+    expect(r.gates.some((g) => g.detail.includes('re-check after Reflect is worse'))).toBe(true);
+    expect([r.primary, ...r.alternatives].some((a) => a.pathway === 'reflect')).toBe(false);
+  });
+  it('pattern 34 is offered only in Green, Yellow or Blue', () => {
+    const signals = { plan: 'free' as const, recurringStruggleConfirmed: true };
+    expect(run({ state: grid(3, 3) }, signals).patterns).toContain(34);
+    expect(run({ state: grid(1, 1) }, signals).patterns).not.toContain(34);
+  });
+  it('stage 11 re-ranks only with the personalisation consent', () => {
+    const input: EngineInput = { state: grid(1, 1), emotions: [{ code: 'sad', intensity: 7 }] };
+    const scores = { quick_message: 5 };
+    expect(run(input, { plan: 'free', toolScores: scores }).alternatives).toEqual(
+      run(input).alternatives,
+    );
+  });
+});

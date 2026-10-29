@@ -25,7 +25,10 @@ export async function seedInstitution(
     data: { code, tenantId: tenant.id, maxUses: 500, expiresAt: new Date(Date.now() + 365 * DAY) },
   });
   const institutions = s.get(InstitutionsService);
-  const lead = await s.user(`lead@${domain}`, { nickname: 'Dr. Okafor (support lead)' });
+  const lead = await s.user(`lead@${domain}`, {
+    nickname: 'Dr. Okafor (support lead)',
+    roles: ['institution_supporter'],
+  });
   await institutions.join(lead, code);
   await s.prisma.tenantMembership.update({
     where: { tenantId_userId: { tenantId: tenant.id, userId: lead } },
