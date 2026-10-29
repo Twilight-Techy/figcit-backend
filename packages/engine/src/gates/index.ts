@@ -27,6 +27,8 @@ export function reflectBlocked(f: Facts, light: Light): string | undefined {
   if (f.exp.peakNegative >= high) return 'RF-1: negative intensity High+';
   if (f.exp.families.has('rumination')) return 'RF-2: rumination';
   if ((f.signals.ruminationTopics?.length ?? 0) > 0) return 'RF-2: same topic 3+ times in 7 days';
+  if (f.trend === 'worse' && f.input.recheckOf?.pathway === 'reflect')
+    return 'RF-2: re-check after Reflect is worse';
   return undefined;
 }
 

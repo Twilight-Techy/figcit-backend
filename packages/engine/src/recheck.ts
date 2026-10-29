@@ -10,7 +10,7 @@ export interface Recheck {
   readonly blue: boolean;
 }
 
-type PartialFacts = Omit<Facts, 'band'>;
+type PartialFacts = Omit<Facts, 'band' | 'recovery' | 'trend'>;
 
 function outcomeOf(f: PartialFacts, prev: PreviousOutcome): Recheck['outcome'] {
   const drop = f.cs.source.thresholds.recheckImprovedIntensityDrop;

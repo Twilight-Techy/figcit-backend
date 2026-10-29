@@ -27,6 +27,17 @@ describe('plans and billing (fake provider)', () => {
     expect((await api.req<{ tier: string }>('GET', '/me/entitlements', { token })).body.tier).toBe(
       'free',
     );
+    // ENT-8: only a confirmed adult can buy.
+    const unconfirmed = await api.req<{ code: string }>('POST', '/billing/checkout', {
+      token,
+      body: { planCode: 'plus_monthly' },
+    });
+    expect(unconfirmed.status).toBe(403);
+    expect(unconfirmed.body.code).toBe('age_unconfirmed');
+    expect(
+      (await api.req('POST', '/me/age-confirmation', { token, body: { confirmed18: true } }))
+        .status,
+    ).toBe(201);
     expect(
       (await api.req('POST', '/billing/checkout', { token, body: { planCode: 'plus_concession' } }))
         .status,

@@ -11,7 +11,7 @@ import type {
   whySchema,
 } from './recommendation.schemas.js';
 import { RecommendationService } from './recommendation.service.js';
-import { SignalsService } from './signals.service.js';
+import { ADVANCED_DISMISSED, SignalsService } from './signals.service.js';
 
 type ActionRequest = z.infer<typeof actionRequestSchema>;
 type ActionResult = z.infer<typeof actionResultSchema>;
@@ -61,6 +61,8 @@ export class RecommendationActionsService {
         return { ok: true, card: next.card, quietUntil: null };
       }
       case 'not_now':
+        // Dismissing the Advanced alternative (ENT-3) is not a declined suggestion.
+        if (req.reason === ADVANCED_DISMISSED) return { ok: true, card: null, quietUntil: null };
         return { ok: true, card: null, quietUntil: await this.quietUntil(userId) };
       case 'get_support':
         await this.safety.record({

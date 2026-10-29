@@ -64,7 +64,28 @@ export function diffSnapshots(
   const changed = prev
     ? keys.filter((k) => k !== 'version' && canonicalJson(prev[k]) !== canonicalJson(next[k]))
     : keys;
-  return { changed, touchesSafety: changed.some((k) => k === 'safety' || k === 'crisisRoutes') };
+  const touchesSafety =
+    changed.some((k) => k === 'safety' || k === 'crisisRoutes') ||
+    (prev !== null && safetyTierChanged(prev, next));
+  return { changed, touchesSafety };
+}
+
+const SAFETY_PATHWAYS = new Set(['regulate', 'connect']);
+const COMMUNICATION_TOOLS = new Set(['comm_cards', 'adapt_communication']);
+
+/** ENT-9: a Free/Advanced move in Regulate, Connect, communication cards or the safety floor. */
+function safetyTierChanged(prev: Snapshot, next: Snapshot): boolean {
+  const before = new Map(prev.tools.map((t) => [t.id, t]));
+  return next.tools.some((t) => {
+    const old = before.get(t.id);
+    if (!old || (old.tier === t.tier && old.safetyFloor === t.safetyFloor)) return false;
+    return (
+      SAFETY_PATHWAYS.has(t.pathway) ||
+      COMMUNICATION_TOOLS.has(t.id) ||
+      t.safetyFloor ||
+      old.safetyFloor
+    );
+  });
 }
 
 /** Runs every workbook scenario through the engine with the new snapshot. */

@@ -9,6 +9,11 @@ const SESSION_WINDOW_MS = 2 * 3_600_000; // a "session" for pattern 30 declines
 const REJECTION_WINDOW_MS = 24 * 3_600_000;
 const SAFETY_WINDOW_MS = 24 * 3_600_000;
 const OUTCOME_WINDOW_MS = 90 * 86_400_000;
+const DISMISS_WINDOW_MS = 30 * 86_400_000; // ENT-3: a dismissed Advanced offer stays dismissed
+/** Stage 11 stays off until this many validated outcomes exist (SYSTEM_DESIGN §5.2, B-38). */
+export const MIN_VALIDATED_OUTCOMES = 5;
+/** The reason code the PWA sends with not_now when the user dismisses the Advanced alternative. */
+export const ADVANCED_DISMISSED = 'advanced.dismissed';
 
 /** Loads what the engine needs to know about the user (UserSignals). The engine never queries. */
 @Injectable()
@@ -67,24 +72,62 @@ export class SignalsService {
         where: { userId, recoveryEndsAt: { gt: now } },
         select: { id: true },
       }),
-      this.prisma.$queryRaw<{ tool_id: string; score: number }[]>`
-        SELECT s.tool_id, SUM(CASE f.outcome WHEN 'helped' THEN 1 WHEN 'a_bit' THEN 0.5 WHEN 'not_really' THEN -1 ELSE 0 END)::float AS score
+      this.prisma.$queryRaw<{ tool_id: string; score: number; outcomes: number }[]>`
+        SELECT s.tool_id, SUM(CASE f.outcome WHEN 'helped' THEN 1 WHEN 'a_bit' THEN 0.5 WHEN 'not_really' THEN -1 ELSE 0 END)::float AS score,
+          COUNT(*) FILTER (WHERE f.outcome IN ('helped', 'a_bit', 'not_really'))::int AS outcomes
         FROM feedback f JOIN pathway_sessions s ON s.id = f.session_id
         WHERE f.user_id = ${userId}::uuid AND f.created_at > ${new Date(now.getTime() - OUTCOME_WINDOW_MS)}
         GROUP BY s.tool_id`,
     ]);
   }
 
+  /** ENT-3 and MD-2 signals and the stage 11 consent. */
+  private extras(userId: string, now: Date) {
+    return Promise.all([
+      this.prisma.recommendationAction.count({
+        where: {
+          userId,
+          action: 'not_now',
+          reason: ADVANCED_DISMISSED,
+          at: { gt: new Date(now.getTime() - DISMISS_WINDOW_MS) },
+        },
+      }),
+      // ENT-3 "during a session": a pathway session started recently and not yet ended.
+      this.prisma.pathwaySession.count({
+        where: {
+          userId,
+          endedAt: null,
+          startedAt: { gt: new Date(now.getTime() - SESSION_WINDOW_MS) },
+        },
+      }),
+      // MD-2 opt-in: the user chose a body scan themselves, finished it and said it helped.
+      this.prisma.feedback.count({
+        where: {
+          userId,
+          outcome: { in: ['helped', 'a_bit'] },
+          session: { toolId: 'body_scan', completed: true },
+        },
+      }),
+      this.prisma.consent.findFirst({
+        where: { userId, purpose: 'personalisation' },
+        orderBy: { at: 'desc' },
+        select: { granted: true },
+      }),
+    ]);
+  }
+
   async load(userId: string, now = new Date()): Promise<UserSignals> {
-    const [plan, user, actions, topics, practices, contacts, safety, recovery, outcomes] =
-      await this.query(userId, now);
+    const [
+      [plan, user, actions, topics, practices, contacts, safety, recovery, outcomes],
+      [dismissals, openSessions, bodyScans, consent],
+    ] = await Promise.all([this.query(userId, now), this.extras(userId, now)]);
 
     const sessionStart = now.getTime() - SESSION_WINDOW_MS;
     // Declines since the last "start" in this session (pattern 30).
     let declines = 0;
     for (const a of actions) {
       if (a.at.getTime() < sessionStart || a.action === 'start') break;
-      declines += 1;
+      if (a.reason !== ADVANCED_DISMISSED) declines += 1;
     }
     const rejected = [
       ...new Set(
@@ -105,6 +148,12 @@ export class SignalsService {
         closing: rule ? rule.minutes >= 19 * 60 : false,
       };
     });
+    // Stage 11 needs the preference, the consent purpose and enough validated outcomes.
+    const validated = outcomes.reduce((n, o) => n + o.outcomes, 0);
+    const personalised =
+      user.preferences?.personalisation !== false &&
+      consent?.granted === true &&
+      validated >= MIN_VALIDATED_OUTCOMES;
     return {
       plan,
       declinesThisSession: declines,
@@ -116,8 +165,13 @@ export class SignalsService {
       hasTrustedContact: contacts > 0,
       safetyEventRecently: safety > 0,
       recoveryActive: recovery !== null,
-      toolScores: Object.fromEntries(outcomes.map((o) => [o.tool_id, o.score])),
-      personalisation: user.preferences?.personalisation !== false,
+      ...(personalised
+        ? { toolScores: Object.fromEntries(outcomes.map((o) => [o.tool_id, o.score])) }
+        : {}),
+      personalisation: personalised,
+      inSession: openSessions > 0,
+      dismissedAdvanced: dismissals > 0,
+      bodyScanOptIn: bodyScans > 0,
       region: user.region,
     };
   }

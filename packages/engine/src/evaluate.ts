@@ -5,6 +5,7 @@ import { assessRecheck, differentRoute, recoveryPlan, type Recheck } from './rec
 import { compileSnapshot } from './snapshot.js';
 import { applyModifiers } from './stages/band.js';
 import { buildCard, rationale, type Card } from './stages/card.js';
+import { titleFor } from './stages/title.js';
 import { analyseContext } from './stages/context.js';
 import { analyseDemand, resolveNeeds } from './stages/demand.js';
 import { analyseExperience } from './stages/experience.js';
@@ -20,7 +21,7 @@ import type {
   UserSignals,
 } from './types.js';
 
-export const ENGINE_VERSION = '1.0.0';
+export const ENGINE_VERSION = '1.1.0';
 
 const LIGHT_BY_BAND: Readonly<Record<Band, Light>> = {
   available: 'green',
@@ -80,10 +81,15 @@ function analyse(
   const base = { cs, input, signals, state, exp, ctx, safety, needs: resolveNeeds(cs, input) };
   let band = applyModifiers(cs, state, exp, ctx);
   const recheck = assessRecheck(
-    { ...base, demand: analyseDemand(cs, input, band.final, base.needs) },
+    { ...base, demand: analyseDemand(cs, input, band.final, { needs: base.needs }) },
     band,
   );
   if (recheck) band = recheck.band;
+  // Mirrors lightFor: a Blue re-check, or a recovery window still open from an earlier one.
+  const recovery =
+    !safety &&
+    (recheck?.blue === true ||
+      (!recheck && signals.recoveryActive === true && band.final !== 'very_constrained'));
   trace.push({
     stage: 4,
     name: 'band',
@@ -92,21 +98,25 @@ function analyse(
       ...band.modifiers.map((m) => `${m.rule}: ${m.reason}`),
     ],
   });
-  const demand = analyseDemand(cs, input, band.final, base.needs);
+  const demand = analyseDemand(cs, input, band.final, { needs: base.needs, gentle: recovery });
   trace.push({
     stage: 6,
     name: 'demand',
     notes: [
       demand.present
-        ? `${demand.timeline?.code ?? '?'}; drivers ${listed(demand.usedDrivers)}`
+        ? `${demand.timeline?.code ?? '?'}; drivers ${listed(demand.usedDrivers)}${recovery ? ' (RC-2 gentle)' : ''}`
         : 'no demand',
     ],
   });
-  return { f: { ...base, band, demand }, recheck };
+  const trend = recheck?.outcome;
+  return { f: { ...base, band, demand, recovery, ...(trend ? { trend } : {}) }, recheck };
 }
 
 const gateNotes = (gates: readonly GateResult[]): string[] =>
   gates.map((g) => `${g.rule} ${g.effect}: ${g.detail}`);
+
+/** Full-demand task patterns that RC-2 replaces with the gentle recovery plan (pattern 31). */
+const GENTLE_SWAP = new Set([2, 14]);
 
 /** Stages 7–12: pattern, gates, tools, entitlement, card. */
 function decide(
@@ -118,8 +128,13 @@ function decide(
   const triggered = f.safety !== null || f.exp.riskOption !== undefined;
   let plan = recheck?.blue === true && !triggered ? recoveryPlan(f) : matchPattern(f);
   if (recheck?.rule === 'RC-4') plan = differentRoute(plan, f);
+  // RC-2: in the recovery window an open-band task is not started at full demand.
+  if (f.recovery && !triggered && GENTLE_SWAP.has(plan.patterns[0] ?? 0)) plan = recoveryPlan(f);
   trace.push({ stage: 7, name: 'patterns', notes: [`pattern ${plan.patterns.join(' + ')}`] });
-  const gated = applyGates(f, plan, light);
+  const applied = applyGates(f, plan, light);
+  // G-ST3 / RC-4: a worse re-check is a safety signal, so the Support pathway is visible.
+  const gated =
+    f.trend === 'worse' ? { ...applied, plan: { ...applied.plan, supportVisible: true } } : applied;
   trace.push({ stage: 8, name: 'gates', notes: gateNotes(gated.gates) });
   const notes: string[] = [];
   const card = buildCard(f, gated.plan, light, notes);
@@ -131,13 +146,6 @@ function decide(
     notes: [`primary ${card.primary.toolId ?? card.primary.kind}`],
   });
   return { plan: gated.plan, card, gates: [...gated.gates, ...card.gates] };
-}
-
-function titleFor(f: Facts, plan: Plan, card: Card): string {
-  const pattern = f.cs.patternById.get(plan.patterns[0] ?? 0);
-  return (plan.title ?? pattern?.title ?? '')
-    .replace('[task]', f.demand.title ? `“${f.demand.title}”` : 'your task')
-    .replace('[practice]', card.primary.label.toLowerCase());
 }
 
 function stateOf(f: Facts): EngineResult['state'] {
@@ -186,7 +194,7 @@ export function evaluate(
     ...(card.queued ? { queuedStep: card.queued } : {}),
     supportVisible: plan.supportVisible === true || light === 'red',
     notNow: !safety.triggered,
-    title: titleFor(f, plan, card),
+    title: titleFor(f, plan, card, light),
     rationale: {
       templateId: `P${String(plan.patterns[0] ?? 0)}`,
       text: rationale(
@@ -196,7 +204,8 @@ export function evaluate(
         card.queued,
       ),
     },
-    drivers: f.demand.usedDrivers,
+    // Demand is deferred under a safety override, as in Red.
+    drivers: safety.triggered ? [] : f.demand.usedDrivers,
     ...(timeline ? { timeline: { code: timeline.code, stepCap: timeline.stepCap } } : {}),
     gates,
     setting: {

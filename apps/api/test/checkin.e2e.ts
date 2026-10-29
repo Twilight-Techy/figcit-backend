@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ENGINE_VERSION } from '@figcit/engine';
 import { bootApi, type Api } from './helpers.js';
 
 interface Card {
@@ -167,7 +168,7 @@ describe('card actions', () => {
       { token },
     );
     expect(why.body.reasons.length).toBeGreaterThan(0);
-    expect(why.body.versions.engine).toBe('1.0.0');
+    expect(why.body.versions.engine).toBe(ENGINE_VERSION);
   });
 
   it('goes quiet after three declines', async () => {
