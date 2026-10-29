@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { breakDownByRules } from './fallbacks/break-down.js';
 import { suggestDriversByRules } from './fallbacks/drivers.js';
 import { draftByTemplate, scriptByTemplate, structureByTemplate } from './fallbacks/express.js';
+import { mapFeelingByRules } from './fallbacks/map-feeling.js';
 import { parseNeedByRules } from './fallbacks/parse-need.js';
+import { splitTasksByRules } from './fallbacks/split-tasks.js';
 import { bucketFor } from './fallbacks/sort-dump.js';
 import { breakDownTask, simplify, sortDump } from './ai.tasks.js';
 import { changes, introducesFacts, scrub, simplifyByRules, words } from './text.js';
@@ -94,6 +96,28 @@ describe('fallbacks', () => {
       text: 'Mum in hospital.',
     });
     expect(scriptByTemplate(notes).lines[0]?.text).toBe('Need extension on essay.');
+  });
+
+  it('maps feelings with a confidence, and is less sure when the words are hedged or mixed', () => {
+    expect(mapFeelingByRules('I feel anxious', snapshot).matches[0]).toEqual({
+      code: 'anxious',
+      confidence: 0.9,
+    });
+    const hedged = mapFeelingByRules('kind of worried I guess', snapshot).matches[0];
+    expect(hedged?.code).toBe('anxious');
+    expect(hedged?.confidence).toBeLessThan(0.7);
+    expect(mapFeelingByRules('the weather is nice', snapshot).matches).toEqual([]);
+  });
+
+  it('splits only where each part is its own task', () => {
+    expect(splitTasksByRules('I need to email Sam and finish the report').tasks).toEqual([
+      'Email Sam',
+      'Finish the report',
+    ]);
+    expect(splitTasksByRules('Email Sam and Jo about the trip').tasks).toEqual([
+      'Email Sam and Jo about the trip',
+    ]);
+    expect(splitTasksByRules('call the GP; book the dentist, then pay rent').tasks).toHaveLength(3);
   });
 
   it('spots support-only', () => {

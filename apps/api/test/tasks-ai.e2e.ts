@@ -201,6 +201,56 @@ describe('AI with a model server', () => {
     expect(model.requests.length).toBe(calls);
   });
 
+  it('maps feelings to chips and asks below 0.7 confidence (Tab 11 layer 3)', async () => {
+    type Mapped = {
+      source: string;
+      selected: string[];
+      ask: { options: { code: string; label: string }[] } | null;
+    };
+    model.reply(JSON.stringify({ matches: [{ code: 'anxious', confidence: 0.92 }] }));
+    const sure = await api.req<Mapped>('POST', '/ai/map-feeling', {
+      token,
+      body: { text: 'My chest is tight and I keep worrying' },
+    });
+    expect(sure.body).toMatchObject({ source: 'ai', selected: ['anxious'], ask: null });
+    model.reply(
+      JSON.stringify({
+        matches: [
+          { code: 'overwhelmed', confidence: 0.55 },
+          { code: 'tired', confidence: 0.5 },
+        ],
+      }),
+    );
+    const unsure = await api.req<Mapped>('POST', '/ai/map-feeling', {
+      token,
+      body: { text: 'just a lot today' },
+    });
+    expect(unsure.body.selected).toEqual([]);
+    expect(unsure.body.ask?.options.map((o) => o.code)).toEqual(['overwhelmed', 'tired']);
+    model.reply(JSON.stringify({ matches: [{ code: 'made_up', confidence: 0.9 }] }));
+    const invalid = await api.req<Mapped>('POST', '/ai/map-feeling', {
+      token,
+      body: { text: 'I feel anxious' },
+    });
+    expect(invalid.body).toMatchObject({ source: 'fallback', selected: ['anxious'] });
+  });
+
+  it("splits tasks only into the user's own words (Tab 11 layer 6)", async () => {
+    model.reply(JSON.stringify({ tasks: ['Email Sam', 'Finish the report'] }));
+    const ok = await api.req<{ source: string; tasks: string[] }>('POST', '/ai/split-tasks', {
+      token,
+      body: { text: 'email Sam and finish the report' },
+    });
+    expect(ok.body).toMatchObject({ source: 'ai', tasks: ['Email Sam', 'Finish the report'] });
+    model.reply(JSON.stringify({ tasks: ['Email Sam', 'Book a holiday'] }));
+    const invented = await api.req<{ source: string; tasks: string[] }>('POST', '/ai/split-tasks', {
+      token,
+      body: { text: 'email Sam and finish the report' },
+    });
+    expect(invented.body.source).toBe('fallback');
+    expect(invented.body.tasks).toEqual(['Email Sam', 'Finish the report']);
+  });
+
   it('suggests drivers in Browse mode', async () => {
     model.reply(JSON.stringify({ drivers: ['routine'], demandCharacteristics: ['done_before'] }));
     const res = await api.req<{ drivers: string[]; source: string }>(

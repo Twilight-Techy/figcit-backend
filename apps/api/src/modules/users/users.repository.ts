@@ -29,6 +29,10 @@ export type MeRow = Prisma.UserGetPayload<{ select: typeof ME_SELECT }>;
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async inInstitution(userId: string): Promise<boolean> {
+    return (await this.prisma.tenantMembership.count({ where: { userId, leftAt: null } })) > 0;
+  }
+
   findMe(userId: string): Promise<MeRow | null> {
     return this.prisma.user.findFirst({
       where: { id: userId, deletedAt: null },

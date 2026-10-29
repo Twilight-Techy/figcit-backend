@@ -101,6 +101,7 @@ model User {
   connectGroups        ConnectGroup[]
   reflections          Reflection[]
   topicCounts          UserTopicCount[]
+  struggleAnswers      StruggleConfirmation[]
   practices            Practice[]
   reminders            Reminder[]
   pushSubscriptions    PushSubscription[]

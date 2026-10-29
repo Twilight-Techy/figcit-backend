@@ -4,11 +4,15 @@ import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { dueNow, parseRule } from '../../common/time/rrule.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
+import { improvedTopics } from '../reflect/rumination.js';
+import { recurringStruggle, struggleAnswer } from '../reflect/struggle.js';
+import { RulesService } from '../rules/rules.service.js';
 
 const SESSION_WINDOW_MS = 2 * 3_600_000; // a "session" for pattern 30 declines
 const REJECTION_WINDOW_MS = 24 * 3_600_000;
 const SAFETY_WINDOW_MS = 24 * 3_600_000;
 const OUTCOME_WINDOW_MS = 90 * 86_400_000;
+const RUMINATION_COUNT = 3; // RF-2: same topic 3+ times in 7 days
 const DISMISS_WINDOW_MS = 30 * 86_400_000; // ENT-3: a dismissed Advanced offer stays dismissed
 /** Stage 11 stays off until this many validated outcomes exist (SYSTEM_DESIGN §5.2, B-38). */
 export const MIN_VALIDATED_OUTCOMES = 5;
@@ -22,7 +26,16 @@ export class SignalsService {
     private readonly prisma: PrismaService,
     private readonly crypto: CryptoService,
     private readonly entitlements: EntitlementsService,
+    private readonly rules: RulesService,
   ) {}
+
+  /** Pattern 34: a recurring struggle the user said yes to looking at. */
+  private async struggleConfirmed(userId: string, now: Date): Promise<boolean> {
+    const { snapshot } = await this.rules.current();
+    const struggle = await recurringStruggle(this.prisma, snapshot, userId, now);
+    if (!struggle) return false;
+    return (await struggleAnswer(this.prisma, userId, struggle.family, now)) === 'confirmed';
+  }
 
   private query(userId: string, now: Date) {
     return Promise.all([
@@ -45,11 +58,7 @@ export class SignalsService {
         take: 50,
         select: { action: true, toolId: true, at: true, reason: true },
       }),
-      this.prisma.userTopicCount.findMany({
-        where: { userId, count7d: { gte: 3 } },
-        select: { topicTag: true },
-        take: 20,
-      }),
+      this.ruminationTopics(userId, now),
       this.prisma.practice.findMany({
         where: { userId, deletedAt: null },
         orderBy: { position: 'asc' },
@@ -79,6 +88,21 @@ export class SignalsService {
         WHERE f.user_id = ${userId}::uuid AND f.created_at > ${new Date(now.getTime() - OUTCOME_WINDOW_MS)}
         GROUP BY s.tool_id`,
     ]);
+  }
+
+  /**
+   * RF-2: a topic reflected on 3+ times in 7 days with no improvement. A reflection improved things
+   * when its session's feedback said it helped or its re-check turned Blue (RC-1).
+   */
+  private async ruminationTopics(userId: string, now: Date): Promise<string[]> {
+    const busy = await this.prisma.userTopicCount.findMany({
+      where: { userId, count7d: { gte: RUMINATION_COUNT } },
+      select: { topicTag: true },
+      take: 20,
+    });
+    const topics = busy.map((b) => b.topicTag);
+    const better = await improvedTopics(this.prisma, userId, topics, now);
+    return topics.filter((t) => !better.has(t));
   }
 
   /** ENT-3 and MD-2 signals and the stage 11 consent. */
@@ -113,13 +137,14 @@ export class SignalsService {
         orderBy: { at: 'desc' },
         select: { granted: true },
       }),
+      this.struggleConfirmed(userId, now),
     ]);
   }
 
   async load(userId: string, now = new Date()): Promise<UserSignals> {
     const [
       [plan, user, actions, topics, practices, contacts, safety, recovery, outcomes],
-      [dismissals, openSessions, bodyScans, consent],
+      [dismissals, openSessions, bodyScans, consent, struggle],
     ] = await Promise.all([this.query(userId, now), this.extras(userId, now)]);
 
     const sessionStart = now.getTime() - SESSION_WINDOW_MS;
@@ -158,7 +183,7 @@ export class SignalsService {
       plan,
       declinesThisSession: declines,
       rejectedToolIds: rejected,
-      ruminationTopics: topics.map((t) => t.topicTag),
+      ruminationTopics: topics,
       meditationMakesWorse: practices.some((p) => p.makesMeWorse),
       patternPromptsOff: user.preferences?.patternPrompts === false,
       savedPractices: saved,
@@ -172,6 +197,7 @@ export class SignalsService {
       inSession: openSessions > 0,
       dismissedAdvanced: dismissals > 0,
       bodyScanOptIn: bodyScans > 0,
+      recurringStruggleConfirmed: struggle,
       region: user.region,
     };
   }

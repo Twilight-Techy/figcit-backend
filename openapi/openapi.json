@@ -999,6 +999,210 @@
         ]
       }
     },
+    "/v1/ai/map-feeling": {
+      "post": {
+        "operationId": "Ai_mapFeeling",
+        "summary": "Match \"in my own words\" to feeling chips, with confidence (Tab 11 layer 3)",
+        "tags": [
+          "AI"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "safety": {
+                          "type": "boolean",
+                          "const": false
+                        },
+                        "matches": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "confidence": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "confidence"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "selected": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "ask": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "options": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "code": {
+                                        "type": "string"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "code",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "options"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "ai",
+                            "fallback"
+                          ]
+                        },
+                        "limited": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "safety",
+                        "matches",
+                        "selected",
+                        "ask",
+                        "source",
+                        "limited"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "safety": {
+                          "type": "boolean",
+                          "const": true
+                        },
+                        "crisisRoutes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "detail": {
+                                "type": "string"
+                              },
+                              "href": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "call",
+                                  "text",
+                                  "link"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "detail",
+                              "href",
+                              "kind"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "safety",
+                        "crisisRoutes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "browse": []
+          }
+        ],
+        "x-access": "browse"
+      }
+    },
     "/v1/ai/parse-need": {
       "post": {
         "operationId": "Ai_parseNeed",
@@ -1115,6 +1319,150 @@
                         "heard",
                         "task",
                         "supportOnly",
+                        "source",
+                        "limited"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "safety": {
+                          "type": "boolean",
+                          "const": true
+                        },
+                        "crisisRoutes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "detail": {
+                                "type": "string"
+                              },
+                              "href": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "call",
+                                  "text",
+                                  "link"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "detail",
+                              "href",
+                              "kind"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "safety",
+                        "crisisRoutes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "browse": []
+          }
+        ],
+        "x-access": "browse"
+      }
+    },
+    "/v1/ai/split-tasks": {
+      "post": {
+        "operationId": "Ai_splitTasks",
+        "summary": "Split one sentence into separate tasks for the user to confirm (Tab 11 layer 6)",
+        "tags": [
+          "AI"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "safety": {
+                          "type": "boolean",
+                          "const": false
+                        },
+                        "tasks": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "ai",
+                            "fallback"
+                          ]
+                        },
+                        "limited": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "safety",
+                        "tasks",
                         "source",
                         "limited"
                       ],
@@ -9592,17 +9940,34 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "confirmed18": {
-                    "type": "boolean",
-                    "const": true
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed18": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "confirmed18"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "under18ViaInstitution": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "under18ViaInstitution"
+                    ],
+                    "additionalProperties": false
                   }
-                },
-                "required": [
-                  "confirmed18"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -11873,13 +12238,47 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "struggle": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "family": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "count": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "confirmed": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "family",
+                            "label",
+                            "count",
+                            "confirmed"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
                     "promptsOn",
                     "whatHelps",
                     "cards",
-                    "saved"
+                    "saved",
+                    "struggle"
                   ],
                   "additionalProperties": false
                 }
@@ -12051,6 +12450,65 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/patterns/struggle": {
+      "post": {
+        "operationId": "Reflect_answerStruggle",
+        "summary": "Answer \"this has come up a few times\" (pattern 34)",
+        "tags": [
+          "Reflect"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "family": {
+                    "type": "string",
+                    "maxLength": 32
+                  },
+                  "answer": {
+                    "type": "string",
+                    "enum": [
+                      "confirmed",
+                      "not_now",
+                      "never"
+                    ]
+                  }
+                },
+                "required": [
+                  "family",
+                  "answer"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Done"
           },
           "default": {
             "description": "Problem details (RFC 9457)",

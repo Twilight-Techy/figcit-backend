@@ -97,6 +97,37 @@ describe('reflect', () => {
     expect(patterns.body.saved[0]?.takeaway).toBe('Ask for slides early');
   });
 
+  it('RF-2: a topic that is getting better is not a loop', async () => {
+    const reflect = (sessionId?: string) =>
+      api.req('POST', '/reflections', {
+        token,
+        body: {
+          variant: 'make_sense',
+          answers,
+          topicTag: 'deadline',
+          ...(sessionId ? { sessionId } : {}),
+        },
+      });
+    for (let i = 0; i < 3; i += 1) await reflect();
+    await wait(100);
+    expect(
+      (await api.req<Gate>('GET', '/reflect/gate?topicTag=deadline', { token })).body.reason,
+    ).toBe('rumination');
+    const s = await api.req<{ id: string }>('POST', '/sessions', {
+      token,
+      body: { pathway: 'reflect', toolId: 'reflect_checkout' },
+    });
+    expect(s.status).toBe(201);
+    await reflect(s.body.id);
+    await api.req('POST', `/sessions/${s.body.id}/feedback`, {
+      token,
+      body: { outcome: 'helped' },
+    });
+    await wait(100);
+    const gate = await api.req<Gate>('GET', '/reflect/gate?topicTag=deadline', { token });
+    expect(gate.body.reason).not.toBe('rumination');
+  });
+
   it('keeps wins, saves for later and screens risk text', async () => {
     const win = await api.req<{ kind: string; winSize: string }>('POST', '/reflections', {
       token,
@@ -176,6 +207,38 @@ describe('reflect', () => {
       { token },
     );
     expect(after.body.items[0]?.movedTo).toBe('reflection');
+  });
+});
+
+describe('pattern 34: a recurring struggle', () => {
+  it('asks after three hard check-ins with the same feeling, then offers the pattern', async () => {
+    const { token: t } = await api.signIn();
+    const hard = {
+      state: { kind: 'grid', energy: 2, mood: 1 },
+      emotions: [{ code: 'frustrated', intensity: 6 }],
+    };
+    for (let i = 0; i < 3; i += 1) await api.req('POST', '/check-ins', { token: t, body: hard });
+    type Patterns = { struggle: { family: string; count: number; confirmed: boolean } | null };
+    const asked = await api.req<Patterns>('GET', '/patterns', { token: t });
+    expect(asked.body.struggle).toMatchObject({ count: 3, confirmed: false });
+    const family = asked.body.struggle?.family ?? '';
+    const yes = await api.req('POST', '/patterns/struggle', {
+      token: t,
+      body: { family, answer: 'confirmed' },
+    });
+    expect(yes.status).toBe(204);
+    const calm = await api.req<{ card: { patterns: number[] } }>('POST', '/check-ins', {
+      token: t,
+      body: { state: { kind: 'grid', energy: 3, mood: 3 } },
+    });
+    expect(calm.body.card.patterns).toContain(34);
+    await wait(200);
+    const inbox = await api.req<{ items: { kind: string; href: string }[] }>('GET', '/inbox', {
+      token: t,
+    });
+    expect(inbox.body.items.filter((i) => i.kind === 'pattern_prompt')).toHaveLength(1);
+    await api.req('POST', '/patterns/struggle', { token: t, body: { family, answer: 'never' } });
+    expect((await api.req<Patterns>('GET', '/patterns', { token: t })).body.struggle).toBeNull();
   });
 });
 

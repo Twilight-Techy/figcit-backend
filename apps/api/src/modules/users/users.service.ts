@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import { NotFound } from '../../common/errors/errors.js';
+import { Forbidden, NotFound } from '../../common/errors/errors.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
 import type { z } from 'zod';
 import type {
@@ -105,11 +105,20 @@ export class UsersService {
     return this.me(userId);
   }
 
-  async confirmAge(userId: string): Promise<MeDto> {
+  async confirmAge(userId: string, viaInstitution = false): Promise<MeDto> {
     // An institution-covered under-18 account stays one; only the institution can change that.
     const current = await this.me(userId);
     if (current.ageBand === 'minor_institution') return current;
-    await this.repo.update(userId, { ageConfirmedAt: new Date(), ageBand: 'adult' });
+    if (viaInstitution) {
+      if (!(await this.repo.inInstitution(userId)))
+        throw new Forbidden(
+          "Under 18, NUCCESS is available through an institution. Join with your institution's code first.",
+        );
+    }
+    await this.repo.update(userId, {
+      ageConfirmedAt: new Date(),
+      ageBand: viaInstitution ? 'minor_institution' : 'adult',
+    });
     return this.me(userId);
   }
 

@@ -83,7 +83,7 @@ Generated pages import each screen from the file that defines it, found through 
 
 Next now reports, with 103 KB of shared framework:
 - Welcome: 114 KB.
-- Home: 132 KB (budget 130). The gzip of Home's own chunks is 128 KB.
+- Home: 130 KB (budget 130), after the quick capture loaded on demand and install and permission copy moved out of the shared `system.json`.
 - Largest route additions: Express workspace and Tasks +40 KB (budget 40). Check-in steps +29 KB. Regulate +27 KB.
 
 `size-limit` still isn't wired.
@@ -110,3 +110,12 @@ Checkout requires `ageConfirmedAt`; the Plans screen asks "I'm 18 or over" once 
 - Text on danger and positive fills uses `on-strong` (dark on the dark theme's light fills).
 - `institution_supporter` is the role that routes sign-in to the institution dashboard (activity tables, sign-in step 14). It is a staff role, so it needs MFA. Institution membership (`support_lead` / `admin`) still decides what data is visible.
 - The content editor is a form: list items with labelled fields, add, remove and reorder. Identifiers stay read-only. There is a raw JSON switch for anything else.
+
+## B-43: Recurring struggle (pattern 34)
+A recurring struggle is the same negative feeling family leading the check-in (highest intensity) on 3+ Amber or Red check-ins in 14 days. The user is asked only when steady (a Green, Yellow or Blue card triggers one inbox message per 14 days) and on My Patterns. "Look at my pattern" confirms it for 14 days, "Not now" hides the ask for 14 days, "Don't show me this pattern" hides that family for good; the Pattern prompts switch turns all of it off.
+
+## B-44: Age at sign-up (D-02)
+Following the D-02 recommendation: self sign-up is 18+, confirmed on the consent screen (no date of birth asked). 16–17 follow "Join with your institution's code"; after joining, `POST /me/age-confirmation { under18ViaInstitution }` records an institution-covered account, which the server allows only for institution members. Browse mode doesn't ask (no account), and the Help page never needs an age.
+
+## B-45: Bounded AI for feelings and tasks (Tab 11 layers 3 and 6)
+Feelings typed in the user's own words map to chips with a confidence; 0.7 is the threshold from Tab 11. Splitting one sentence into tasks never adds a word the user didn't write, and the user chooses whether to split. Both run the safety screen first and fall back to rules when the model is off, slow or out of bounds.

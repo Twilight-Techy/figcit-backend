@@ -53,7 +53,7 @@ Status key:
 | **RC-4** | **Fixed** | A different route was already chosen. A worse re-check now also shows the Support pathway (G-ST3), not only in Red. | `rules.test.ts` "G-ST3"; invariant |
 | RC-5 | OK | no Blue after a safety override | invariant |
 | RF-1 | OK | Red/Amber/High+ block Reflect | `rules.test.ts` |
-| **RF-2** | **Fixed** | Adds "the re-check after Reflect is worse". The rumination family and the repeated-topic rule were already in. | `rules.test.ts`; invariant |
+| **RF-2** | **Fixed** | Adds "the re-check after Reflect is worse". A repeated topic (3+ in 7 days) now counts only with no improvement: a reflection whose session helped or turned Blue clears it (`reflect/rumination.ts`, used by the engine signal and the Reflect gate). | `rules.test.ts`; invariant; `reflect-connect.e2e.ts` |
 | RF-3, RF-4 | OK (product) | Reflect screens: 3 prompts, stop anytime, no streaks; reflections are private and excluded from institution views | PWA Reflect, institutions aggregates |
 | RF-5 | OK | free text goes through the safety screen | API e2e (reflect-connect) |
 | MD-1 | OK | `demoteMeditate()` | `rules.test.ts` |
@@ -80,8 +80,9 @@ All 41 are implemented (`patterns/index.ts`, `specific.ts`, `practice.ts`). Two 
   - Bug: any Routine driver let "Start small" through in Red. Random testing found Red giving an Execute primary for an imposed, multi-step task, and when the user had asked to rest.
   - Fix: now only a purely familiar task (every driver Routine, no rest need) keeps the Tab 0 E1M2.6 wording (B-40).
 - **Pattern 34.**
-  - Bug: it was offered in any light.
+  - Bug: it was offered in any light, and its "recurring struggle the user confirms" trigger was never set.
   - Fix: now Green, Yellow or Blue only, as Tab 7 says.
+  - The same hard feeling leading an Amber or Red check-in 3+ times in 14 days is a recurring struggle (`reflect/struggle.ts`). In a steady moment the inbox says "This has come up a few times"; My Patterns asks, with Look at my pattern / Not now / Don't show me this pattern. Only a "yes" sets `recurringStruggleConfirmed` (B-43).
 
 Titles:
 - Titles now follow the tool actually shown after stage 9's discreet swap (no "move" title on a breathing card).
@@ -94,9 +95,9 @@ Titles:
 |---|---|---|
 | 0 | Classifier flags risk; fixed copy | OK (rules-based screen; the model never replies) |
 | 2b | Suggest a cell; the user confirms | OK (`suggestCell`) |
-| 3 | Optional: free text → family, ask if confidence < 0.7 | **Open.** The optional free-text box goes through the safety screen and `parseNeed` ("heard" chips), but the engine doesn't map it to an emotion family with a confidence score. The user picks families from chips. |
+| 3 | Optional: free text → family, ask if confidence < 0.7 | **Built.** `mapFeeling` (`POST /ai/map-feeling`) returns chips with a confidence. At 0.7+ they are picked for the user to change; below, the feelings step asks "Is it more like X or Y?". The model can only return real chip codes. The rule fallback runs here (X-04); the model path is tested against the fake model. |
 | 5 | Optional: suggest context from the calendar | Open (no calendar integration; data minimisation) |
-| 6 | Split free text into demands | **Open.** Each demand is entered on its own. |
+| 6 | Split free text into demands | **Built.** `splitTasks` (`POST /ai/split-tasks`) splits only into the user's own words (a check rejects any invented word). The task step offers "Keep them separate" (the first is this check-in's task; the rest go to Tasks) or "Keep as one". |
 | 7, 9 | Classify demand type / propose drivers with confidence; rules decide | Partial: `suggestDrivers` proposes characteristics; the user confirms and the rules decide. There's no numeric confidence (the fallback is rule-based, X-04). |
 | 10 | May rephrase the rationale within the template | Not used: the rationale is the template itself, which the workbook allows ("may"). |
 | 11 | Task breakdown within the step cap; drafts approved before sending | OK (`breakDownTask`, `draft`, `rewrite`) |
@@ -110,12 +111,11 @@ All gaps marked "Added" are in the snapshot and covered by scenarios or rule tes
 
 - **G-ST3**: Fixed (worse → Support visible).
 - **G-ST4** (personal timing): "Proposed" in the workbook, so not built.
-- **G-SF3** (adults only, 16–17 via institutions): Fixed for purchases (ENT-8). Settings has an age and safeguarding page. Sign-up doesn't ask for age yet (the Plans screen asks before checkout).
+- **G-SF3** (adults only, 16–17 via institutions): Fixed. Sign-up asks "I'm 18 or over" on the consent screen; 16–17 join with an institution code instead, which records an institution-covered account (D-02 recommendation; B-44). No purchases under 18 (ENT-8).
 - **G-JR4** (AI confidence thresholds): Partial, see Tab 11.
 - **Needs clinical sign-off** (G-EM13, G-SF1, G-SF2, G-IN1 prompt copy, G-IN2, G-IN4; RC-5 pathway): implemented as written, flagged in the snapshot review flow (`touchesSafety`). Clinical sign-off is a human step (D-36).
 
 ## Still open
 
-1. Free-text emotion mapping with a 0.7 confidence check (Tab 11 layer 3), and demand splitting (layer 6). Both need the real model and the quality test in SYSTEM_DESIGN §4.3.8 (X-04).
-2. A "this keeps coming up, want to look at it?" confirmation screen for `recurringStruggleConfirmed` (pattern 34's second trigger).
-3. RF-2's "no improvement" condition on the repeated-topic counter. The counter is 3+ in 7 days; outcomes aren't yet linked to topics.
+1. Real-model quality for `mapFeeling` and `splitTasks`, with the other AI tasks, needs the model server and the week-1 test in SYSTEM_DESIGN §4.3.8 (X-04). Here every AI task runs on its rule fallback.
+2. Drivers (layers 7 and 9) still have no numeric confidence; the user confirms them and the rules decide.

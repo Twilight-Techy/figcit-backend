@@ -51,6 +51,11 @@ const COPY: Readonly<
     body: 'It might help to talk to someone. Your support options are here whenever you want them.',
     href: () => '/help/',
   },
+  pattern_prompt: {
+    title: 'This has come up a few times',
+    body: 'Want to look at what helps? Only if you like.',
+    href: () => '/patterns/',
+  },
   account_restored: {
     title: 'Welcome back',
     body: 'Your account will not be deleted. Everything is as you left it.',

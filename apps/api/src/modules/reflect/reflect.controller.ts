@@ -27,6 +27,7 @@ import {
   reflectionCreateSchema,
   reflectionSchema,
   reflectionUpdateSchema,
+  struggleAnswerSchema,
   variantsSchema,
   type Gate,
   type ReflectionCreate,
@@ -134,6 +135,20 @@ export class ReflectController {
   })
   myPatterns(@CurrentUser() user: RequestUser): Promise<z.infer<typeof patternsSchema>> {
     return this.patterns.patterns(user.id);
+  }
+
+  @Post('patterns/struggle')
+  @HttpCode(204)
+  @Route({
+    summary: 'Answer "this has come up a few times" (pattern 34)',
+    tags: ['Reflect'],
+    body: struggleAnswerSchema,
+  })
+  async answerStruggle(
+    @CurrentUser() user: RequestUser,
+    @Body(new ZodPipe(struggleAnswerSchema)) body: z.infer<typeof struggleAnswerSchema>,
+  ): Promise<void> {
+    await this.patterns.answerStruggle(user.id, body.family, body.answer);
   }
 
   @Get('patterns/monthly')

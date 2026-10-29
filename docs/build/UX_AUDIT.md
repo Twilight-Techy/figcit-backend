@@ -40,7 +40,7 @@ The overflow check flags only the check-in body tabs, which are a deliberate hor
 | 9 | Anyone could buy Plus with no adult check. | Under-18s | "I'm 18 or over" before checkout, enforced by the server (B-41) |
 | 10 | The Advanced alternative couldn't be dismissed (ENT-3 "dismissing it is remembered"). | Free users | Dismiss button, remembered for 30 days (B-39) |
 | 11 | The AI fallbacks (the only AI here, X-04) missed everyday words. "Can't focus, head is buzzing, exam tomorrow" found nothing, chip labels were cut mid-word ("I need someone to talk t"), and drafts pasted raw note lines. | Everyone using "in your own words" or Express | More phrases and feeling synonyms, setting cues ("too loud"), event tasks ("Exam tomorrow"), clipping on word boundaries, notes turned into sentences |
-| 12 | Each page shipped every screen of its feature: Tasks +50 KB, Express +42 KB, Home 134 KB. | Slow networks | Pages import screens directly; sheets and voice capture load on demand. Every route is now within +40 KB; Home is 132 KB (B-37). |
+| 12 | Each page shipped every screen of its feature: Tasks +50 KB, Express +42 KB, Home 134 KB. | Slow networks | Pages import screens directly; sheets and voice capture load on demand. Every route is now within +40 KB; Home is 130 KB (B-37). |
 
 ## Journeys per party
 

@@ -72,4 +72,8 @@ export const mePatchSchema = z
   .partial()
   .strict();
 
-export const ageConfirmationSchema = z.object({ confirmed18: z.literal(true) }).strict();
+/** D-02: 18+ confirm themselves; 16–17 only as a member of an institution (joined by code). */
+export const ageConfirmationSchema = z.union([
+  z.object({ confirmed18: z.literal(true) }).strict(),
+  z.object({ under18ViaInstitution: z.literal(true) }).strict(),
+]);
