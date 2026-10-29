@@ -32,7 +32,8 @@ jobs:
       - name: Engine coverage
         run: pnpm test:coverage
       - name: OpenAPI is up to date
-        run: pnpm openapi:check
+        # The generator loads the API's config; give it throwaway keys like e2e does.
+        run: node scripts/dev-env.mjs && pnpm openapi:check
       - run: pnpm build
 
   e2e:
@@ -41,17 +42,17 @@ jobs:
     services:
       postgres:
         image: postgres:16
+        # A throwaway database on the runner: trust auth, so there's no password to leak or flag.
         env:
           POSTGRES_USER: figcit
-          POSTGRES_PASSWORD: figcit
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: figcit
         ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U figcit" --health-interval 5s --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://figcit:figcit@localhost:5432/figcit
-      PGPASSWORD: figcit
+      DATABASE_URL: postgresql://figcit@localhost:5432/figcit
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -72,10 +73,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+      # No install here, so no pnpm cache to save.
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
       - run: pnpm audit --audit-level high
 
   secrets:
@@ -104,12 +105,10 @@ jobs:
           echo "Image: ${mb} MB compressed"
           test "$mb" -lt 180
       - name: Trivy (high and critical fail)
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          image-ref: figcit-api:${{ github.sha }}
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: '1'
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.76.1
+          image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress
+          figcit-api:${{ github.sha }}
 
   openapi:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

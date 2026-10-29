@@ -36,10 +36,12 @@ RUN --mount=type=secret,id=ca NODE_EXTRA_CA_CERTS=/run/secrets/ca pnpm --filter 
      /out/node_modules/.prisma/client/*.wasm
 
 FROM ${NODE_IMAGE}
-# Prisma's query engine needs OpenSSL; nothing else is installed.
+# Prisma's query engine needs OpenSSL; nothing else is installed. The image runs `node` only, so
+# the base image's npm and corepack (and their dependencies' advisories) are removed.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build --chown=node:node /out ./
