@@ -14,11 +14,11 @@ const NEED_WORDS: readonly (readonly [string, RegExp])[] = [
   ['urgent_help', /\b(can'?t cope|in crisis|emergency)\b/],
   [
     'clear_head',
-    /\b(too much in my head|so much going on|brain dump|everything at once|can'?t think|head is full|racing thoughts?)\b/,
+    /\b(too much in my head|so much going on|brain dump|everything at once|can'?t (think|focus|concentrate)|head is (full|buzzing|spinning)|racing thoughts?|brain fog|scattered|all over the place)\b/,
   ],
   [
     'feel_calmer',
-    /\b(calm(er)?|panick?(ing|y)?|anxious|overwhelmed|on edge|stressed|wound up|breathe)\b/,
+    /\b(calm(er)?|panick?(ing|y)?|anxious|overwhelmed|on edge|stressed|wound up|breathe|nervous|tense|buzzing)\b/,
   ],
   [
     'find_words',
@@ -64,31 +64,63 @@ const TYPE_WORDS: readonly (readonly [TaskType, RegExp])[] = [
   ['social', /\b(friend|party|text|call (my|him|her)|birthday|family|date)\b/],
 ];
 
+/** Everyday words for the emotion chips (the chip labels themselves also match). */
+const FEELING_WORDS: readonly (readonly [string, RegExp])[] = [
+  ['anxious', /\b(worried|nervous|scared|on edge|panick?(ing|y)?)\b/],
+  ['overwhelmed', /\b(stressed|too much|swamped|drowning)\b/],
+  ['restless', /\b(buzzing|fidgety|can'?t sit still|wired)\b/],
+  ['lonely', /\b(alone|isolated|no ?one to talk)\b/],
+  ['tired', /\b(exhausted|drained|knackered|wiped|sleepy)\b/],
+  ['sad', /\b(down|low|upset|crying|miserable)\b/],
+  ['frustrated', /\b(annoyed|fed up|irritated)\b/],
+  ['foggy', /\b(brain fog|can'?t (focus|concentrate|think straight))\b/],
+];
+/** Setting cues that point at a sensitivity (Tab 3a), shown as "setting" chips. */
+const SETTING_WORDS: readonly (readonly [string, RegExp])[] = [
+  ['Noisy here', /\b(too loud|so loud|noisy|noise)\b/],
+  ['Bright lights', /\b(too bright|bright lights?|glare)\b/],
+  ['Crowded', /\b(crowded|packed|so many people)\b/],
+];
+/** An event with a time ("exam tomorrow") is a task even without "I need to". */
+const EVENT_RE =
+  /\b(exam|test|interview|presentation|deadline|essay|report|appointment|meeting|shift)\b(\s+(today|tonight|tomorrow|this \w+|next \w+|on \w+day))?/i;
+
+/** Shortens a chip label on a word boundary. */
+function clip(label: string, max = 24): string {
+  if (label.length <= max) return label;
+  const cut = label.slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 8)).trimEnd()}…`;
+}
+
 function taskType(title: string): TaskType {
   return TYPE_WORDS.find(([, re]) => re.test(title))?.[0] ?? 'home_other';
 }
 
 function feelingAndSettingChips(t: string, snapshot: Snapshot): ParsedNeed['heard'] {
   const heard: ParsedNeed['heard'] = [];
+  const synonyms = new Map(FEELING_WORDS);
   for (const e of snapshot.emotions) {
     if (heard.length >= 3) break;
     const label = e.label.toLowerCase().replace(/[^a-z ]/g, '');
-    if (new RegExp(`\\b${label}\\b`).test(t))
-      heard.push({ label: e.label.slice(0, 24), kind: 'feeling' });
+    if (new RegExp(`\\b${label}\\b`).test(t) || synonyms.get(e.code)?.test(t))
+      heard.push({ label: clip(e.label), kind: 'feeling' });
   }
+  for (const [label, re] of SETTING_WORDS)
+    if (heard.length < 4 && re.test(t)) heard.push({ label, kind: 'setting' });
   for (const env of snapshot.environments) {
     const label = env.label.split(/[ /]/)[0]?.toLowerCase() ?? '';
     if (label.length <= 3 || heard.length >= 4) continue;
     if (new RegExp(`\\b(at|in|on) (the |my )?${label}\\b`).test(t))
-      heard.push({ label: env.label.slice(0, 24), kind: 'setting' });
+      heard.push({ label: clip(env.label), kind: 'setting' });
   }
   return heard;
 }
 
 function taskFrom(text: string): ParsedNeed['task'] {
-  const title = TASK_RE.exec(text)?.[1]
-    ?.trim()
-    .replace(/\s+(but|and|so)\s.*$/i, '');
+  const title =
+    TASK_RE.exec(text)?.[1]
+      ?.trim()
+      .replace(/\s+(but|and|so)\s.*$/i, '') ?? EVENT_RE.exec(text)?.[0];
   return title
     ? { title: title.charAt(0).toUpperCase() + title.slice(1), type: taskType(title.toLowerCase()) }
     : null;
@@ -104,9 +136,9 @@ export function parseNeedByRules(text: string, snapshot: Snapshot): ParsedNeed {
   const labels = new Map(snapshot.needs.map((n) => [n.code, n.label]));
   const heard = [
     ...feelingAndSettingChips(t, snapshot),
-    ...(task ? [{ label: task.title.slice(0, 24), kind: 'task' as const }] : []),
+    ...(task ? [{ label: clip(task.title), kind: 'task' as const }] : []),
     ...needs.map((code) => ({
-      label: (labels.get(code) ?? code).slice(0, 24),
+      label: clip(labels.get(code) ?? code),
       kind: 'need' as const,
     })),
   ].slice(0, 5);

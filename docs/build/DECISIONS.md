@@ -79,7 +79,14 @@ Cohort filters by programme and year (S32) aren't built: we collect no programme
 `scripts/sw.mjs` runs after `next build` and writes `out/sw.js`, which precaches every page, its RSC payload (`index.txt`) and assets. Pages are network-first with the cached copy as fallback (Help if nothing else); assets are cache-first. The same worker shows push reminders.
 
 ## B-37: Bundle budgets, measured
-With `"sideEffects"` declared in the PWA's package.json (so unused re-exports in feature indexes are dropped) and Advanced gates split from the Regulate tool map, Next reports (compressed): Welcome 120 KB, Home 133 KB (budget 130), card 132 KB, routes add 41–44 KB over the 103 KB shared framework (budget 40). `size-limit` isn't wired yet (the `size` script still says so); the next cut is lazy-loading TanStack Query devtools-free paths and the check-in catalogue.
+Generated pages import each screen from the file that defines it, found through the feature's index (`scripts/routes.mjs`). A client reference to a feature index shipped every screen of that feature with each page (all task screens with every task page). The inbox sheet, the dump outbox behind Home's quick capture, and Express voice capture load on demand.
+
+Next now reports, with 103 KB of shared framework:
+- Welcome: 114 KB.
+- Home: 132 KB (budget 130). The gzip of Home's own chunks is 128 KB.
+- Largest route additions: Express workspace and Tasks +40 KB (budget 40). Check-in steps +29 KB. Regulate +27 KB.
+
+`size-limit` still isn't wired.
 
 ## B-38: Personalisation gate (stage 11)
 Alternatives are re-ordered only when the Personalisation preference is on, the `personalisation` consent purpose is granted, and the user has at least 5 validated outcomes (helped / a bit / not really) in the last 90 days (`MIN_VALIDATED_OUTCOMES`). Below that, the engine gets no scores at all. The primary is never re-ordered.
@@ -95,3 +102,11 @@ Tab 10 defers demand in Red, but Tab 0 E1M2.6 keeps "Start with the smallest, mo
 
 ## B-41: Adults-only purchases (ENT-8, G-SF3)
 Checkout requires `ageConfirmedAt`; the Plans screen asks "I'm 18 or over" once and records it (`POST /me/age-confirmation`). An institution-covered under-18 account (`minor_institution`) cannot buy and can't self-confirm into an adult account. Tier changes to Regulate, Connect, communication cards or the safety floor mark a rule snapshot `touchesSafety`, so publishing it needs the safety reviewer (ENT-9).
+
+## B-42: UX audit fixes (see UX_AUDIT.md)
+- Comfort settings (theme, text size, contrast, motion, font, stimulation) follow the account: they're applied from `/me` at sign-in on every device. The device default now follows the system theme, as the account default does, and the theme changes live when the system does.
+- Grids of two (`grid-pair`) size their columns in rem, so they become one column at 200% text or A++.
+- Geometric icons are drawn as SVG (`Glyph`), because system fonts render ◔, ◍ and similar as a dot or not at all. Other symbols stay as text.
+- Text on danger and positive fills uses `on-strong` (dark on the dark theme's light fills).
+- `institution_supporter` is the role that routes sign-in to the institution dashboard (activity tables, sign-in step 14). It is a staff role, so it needs MFA. Institution membership (`support_lead` / `admin`) still decides what data is visible.
+- The content editor is a form: list items with labelled fields, add, remove and reorder. Identifiers stay read-only. There is a raw JSON switch for anything else.
