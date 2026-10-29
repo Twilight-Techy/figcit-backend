@@ -1,0 +1,17 @@
+# gitleaks (CI "secrets" job). Default rules, plus an allow-list for the deliberate demo and
+# test values documented in docs/build/SEED.md: they unlock only local seed data.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented local demo/test values, never used anywhere real"
+regexes = [
+  '''JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP''', # staff TOTP secret in the seed
+  '''Nuccess-demo-2026!''',               # demo account password in the seed
+]
+paths = [
+  '''docker/compose(\.dev)?\.ya?ml''',    # local Postgres password
+  '''apps/api/test/.*\.e2e\.ts''',        # sample keys in tests
+  '''apps/api/src/.*\.spec\.ts''',
+  '''pnpm-lock\.yaml''',
+]

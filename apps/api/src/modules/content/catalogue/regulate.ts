@@ -79,5 +79,3 @@ export const SOUNDS = [
   { code: 'hum', label: 'Hum', tier: 'advanced', file: 'sounds/hum.mp3' },
   { code: 'quiet_timer', label: 'Quiet timer', tier: 'free', file: null },
 ] as const;
-
-export const WIN_SIZES = ['small', 'medium', 'huge'] as const;

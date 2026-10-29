@@ -1,5 +1,6 @@
 # Local stack: Postgres, Mailpit (email), SeaweedFS (S3-compatible storage).
-# Start with: docker compose -f docker/compose.yaml up -d
+# Start with: docker compose -f docker/compose.dev.yml up -d
+# Each git worktree gets its own database in this one Postgres: `pnpm db:worktree`.
 name: figcit
 
 services:
@@ -31,6 +32,16 @@ services:
       - '8333:8333' # S3 API
     volumes:
       - seaweedfs:/data
+
+  # Creates the dev bucket (S3_BUCKET) once SeaweedFS is up.
+  seaweedfs-bucket:
+    image: chrislusf/seaweedfs:latest
+    depends_on: [seaweedfs]
+    restart: 'no'
+    entrypoint:
+      - sh
+      - -c
+      - sleep 5 && echo 's3.bucket.create -name figcit-private' | weed shell -master=seaweedfs:9333
 
 volumes:
   postgres:

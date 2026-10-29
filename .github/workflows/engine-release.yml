@@ -1,0 +1,44 @@
+name: Engine release
+
+# Tag `engine-vX.Y.Z` (matching packages/engine/package.json) → test → build → publish to
+# GitHub Packages. Semantic versioning: a breaking change to the input or output types is a
+# major version (packages/engine/README.md).
+on:
+  push:
+    tags: ['engine-v*']
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+      - run: pnpm install --frozen-lockfile
+      - name: Tag matches the package version
+        run: |
+          version=$(node -p "require('./packages/engine/package.json').version")
+          test "engine-v${version}" = "${GITHUB_REF_NAME}" || {
+            echo "Tag ${GITHUB_REF_NAME} does not match package version ${version}"; exit 1; }
+      - run: pnpm --filter @figcit/engine test
+      - run: pnpm --filter @figcit/engine build
+      # GitHub Packages needs the npm scope to be the repository owner. The import name stays
+      # @figcit/engine; consumers alias it (see packages/engine/README.md).
+      - name: Publish
+        working-directory: packages/engine
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          owner=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          npm pkg set name="@${owner}/engine"
+          npm pkg set repository.type=git repository.url="https://github.com/${GITHUB_REPOSITORY}.git" repository.directory=packages/engine
+          pnpm publish --no-git-checks

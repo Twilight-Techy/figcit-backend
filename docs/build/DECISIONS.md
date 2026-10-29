@@ -119,3 +119,10 @@ Following the D-02 recommendation: self sign-up is 18+, confirmed on the consent
 
 ## B-45: Bounded AI for feelings and tasks (Tab 11 layers 3 and 6)
 Feelings typed in the user's own words map to chips with a confidence; 0.7 is the threshold from Tab 11. Splitting one sentence into tasks never adds a word the user didn't write, and the user chooses whether to split. Both run the safety screen first and fall back to rules when the model is off, slow or out of bounds.
+
+## B-46: CI gates, as built
+- **Licences:** the allow-list is enforced on production dependencies. Six transitive packages (glob, lru-cache, minimatch, minipass, path-scurry, sax) are BlueOak-1.0.0, a permissive licence that isn't on the list. They are named exceptions in `licences.exceptions.json`, so any new package under an unlisted licence still fails. **Needs legal confirmation**, or BlueOak added to the list.
+- **Coverage:** gated at today's levels as a ratchet: engine 95% lines / 90% branches (now 98.8 / 94.3), API e2e 78% lines / 65% branches. The targets in ENGINEERING_RULES §13 (engine 100%, modules 85/80) are not met yet; raise the thresholds as tests are added.
+- **Image size:** the 180 MB gate is on the compressed image (registry size). The Node 22 binary alone is 120 MB on disk, so no Node image fits 180 MB uncompressed. Today: 104 MB compressed, 506 MB on disk, after dropping the Prisma CLI, TypeScript and the WebAssembly engines for other databases from the runtime image.
+- **Vulnerabilities:** `pnpm audit` found five high advisories. fastify is overridden to 5.12.7 (the Nest 11 adapter pins 5.11.3) and deepmerge-ts to 8 (pulled in by Prisma 6's config loader). The e2e suite passes on both.
+- **Engine package:** GitHub Packages requires the npm scope to match the repository owner, so the release workflow publishes `@twilight-techy/engine`. Code keeps importing `@figcit/engine` through an npm alias.

@@ -13,5 +13,12 @@ export default defineConfig({
     testTimeout: 60_000,
     hookTimeout: 120_000,
     fileParallelism: false,
+    // Module coverage comes from the e2e suite. A ratchet at today's level: raise it as tests are
+    // added; the target is 85% lines / 80% branches (ENGINEERING_RULES §13).
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      thresholds: { lines: 78, statements: 75, functions: 76, branches: 65 },
+    },
   },
 });

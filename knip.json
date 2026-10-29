@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs"],
+      "ignoreBinaries": ["psql", "prisma"]
+    },
+    "apps/api": {
+      "entry": ["prisma/seed/*.ts", "test/**/*.ts"],
+      "ignoreBinaries": ["psql"]
+    },
+    "packages/engine": {
+      "entry": ["test/**/*.ts"]
+    },
+    "packages/rules-compiler": {}
+  },
+  "ignoreExportsUsedInFile": true
+}

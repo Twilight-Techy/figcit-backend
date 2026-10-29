@@ -26,6 +26,7 @@ export default tseslint.config(
       '**/node_modules/**',
       'docs/**',
       'openapi/**',
+      '.dependency-cruiser.cjs',
       'packages/engine/fixtures/**',
       'apps/api/prisma/migrations/**',
     ],
@@ -110,5 +111,7 @@ export default tseslint.config(
     languageOptions: {
       globals: { console: 'readonly', process: 'readonly', URL: 'readonly', Buffer: 'readonly' },
     },
+    // Plain JS has no type annotations to give.
+    rules: { '@typescript-eslint/explicit-module-boundary-types': 'off' },
   },
 );

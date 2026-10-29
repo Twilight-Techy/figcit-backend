@@ -7,7 +7,6 @@ import type { ExperienceResult } from '../stages/experience.js';
 import type { StateResult } from '../stages/state.js';
 import type {
   ActionKind,
-  Band,
   EngineInput,
   Pathway,
   SavedPracticeSignal,
@@ -87,7 +86,6 @@ export const needs = (f: Facts, ...codes: readonly string[]): boolean =>
   codes.some((c) => f.needs.codes.has(c));
 export const trait = (f: Facts, ...codes: readonly string[]): boolean =>
   codes.some((c) => f.demand.traits.has(c));
-export const finalBand = (f: Facts): Band => f.band.final;
 export const isRed = (f: Facts): boolean => f.band.final === 'very_constrained';
 export const isAmberOrRed = (f: Facts): boolean =>
   f.band.final === 'very_constrained' || f.band.final === 'constrained';

@@ -11,7 +11,6 @@ import {
   needs,
   practiceDue,
   restless,
-  strongTrigger,
   timeline,
   tool,
   trait,
@@ -308,8 +307,4 @@ function practicePlan(f: Facts): Plan {
     ],
     title: due ? `It's time for your ${due.name}` : 'Want some time with what matters to you?',
   };
-}
-
-export function strongSupport(f: Facts): boolean {
-  return strongTrigger(f);
 }
