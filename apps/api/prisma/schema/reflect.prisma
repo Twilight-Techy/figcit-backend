@@ -35,3 +35,25 @@ model UserTopicCount {
   @@id([userId, topicTag])
   @@map("user_topic_counts")
 }
+
+enum StruggleAnswer {
+  confirmed // "Yes, look at my pattern" (pattern 34)
+  not_now
+  never // "Don't show me this pattern"
+
+  @@map("struggle_answer")
+}
+
+// The user's answer to "this has come up a few times" for one feeling family (pattern 34).
+model StruggleConfirmation {
+  id     String         @id @default(uuid(7)) @db.Uuid
+  userId String         @map("user_id") @db.Uuid
+  family String         @db.VarChar(32)
+  answer StruggleAnswer
+  at     DateTime       @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, at(sort: Desc)])
+  @@map("struggle_confirmations")
+}

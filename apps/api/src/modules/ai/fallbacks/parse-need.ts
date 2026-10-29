@@ -65,7 +65,7 @@ const TYPE_WORDS: readonly (readonly [TaskType, RegExp])[] = [
 ];
 
 /** Everyday words for the emotion chips (the chip labels themselves also match). */
-const FEELING_WORDS: readonly (readonly [string, RegExp])[] = [
+export const FEELING_WORDS: readonly (readonly [string, RegExp])[] = [
   ['anxious', /\b(worried|nervous|scared|on edge|panick?(ing|y)?)\b/],
   ['overwhelmed', /\b(stressed|too much|swamped|drowning)\b/],
   ['restless', /\b(buzzing|fidgety|can'?t sit still|wired)\b/],

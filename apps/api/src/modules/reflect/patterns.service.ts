@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, type OnModuleInit } from '@nestjs/common';
 import type { z } from 'zod';
 import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { NotEntitled } from '../../common/errors/errors.js';
 import { localParts } from '../../common/time/timeline.js';
+import { DomainEvents } from '../../platform/events/domain-events.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
+import { InboxService } from '../notifications/inbox.service.js';
 import { RulesService } from '../rules/rules.service.js';
 import type { monthlySchema, patternsSchema } from './reflect.schemas.js';
+import { recurringStruggle, struggleAnswer } from './struggle.js';
 
 const DAY = 86_400_000;
 const WEEKDAYS = [
@@ -87,13 +90,43 @@ function winOf(json: string): { text: string; size: string | null } {
 }
 
 @Injectable()
-export class PatternsService {
+export class PatternsService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly crypto: CryptoService,
     private readonly rules: RulesService,
     private readonly entitlements: EntitlementsService,
+    private readonly events: DomainEvents,
+    private readonly inbox: InboxService,
   ) {}
+
+  onModuleInit(): void {
+    // Pattern 34 asks only when the user is steady (Green, Yellow or Blue), once per window.
+    this.events.on('recommendation.created', async (e) => {
+      if (e.light === 'amber' || e.light === 'red') return;
+      await this.nudgeIfDue(e.userId);
+    });
+  }
+
+  /** One inbox message pointing at "this has come up a few times", if there's one to ask. */
+  async nudgeIfDue(userId: string, now = new Date()): Promise<boolean> {
+    const prefs = await this.prisma.preferences.findUnique({
+      where: { userId },
+      select: { patternPrompts: true },
+    });
+    if (prefs?.patternPrompts === false) return false;
+    if (!(await this.struggleToAsk(userId, now))) return false;
+    const recent = await this.prisma.inboxItem.count({
+      where: {
+        userId,
+        kind: 'pattern_prompt',
+        createdAt: { gt: new Date(now.getTime() - 14 * DAY) },
+      },
+    });
+    if (recent) return false;
+    await this.inbox.add(userId, 'pattern_prompt');
+    return true;
+  }
 
   private async helped(
     userId: string,
@@ -160,6 +193,7 @@ export class PatternsService {
       });
     const c = saved.length ? await this.crypto.forUser(userId) : null;
     return {
+      struggle: promptsOn ? await this.struggleToAsk(userId, now) : null,
       promptsOn,
       whatHelps,
       cards,
@@ -169,6 +203,28 @@ export class PatternsService {
           : [],
       ),
     };
+  }
+
+  /** Pattern 34: the recurring struggle to ask about, unless the user said not now or never. */
+  private async struggleToAsk(
+    userId: string,
+    now: Date,
+  ): Promise<z.infer<typeof patternsSchema>['struggle']> {
+    const { snapshot } = await this.rules.current();
+    const struggle = await recurringStruggle(this.prisma, snapshot, userId, now);
+    if (!struggle) return null;
+    const answer = await struggleAnswer(this.prisma, userId, struggle.family, now);
+    if (answer === 'never' || answer === 'not_now') return null;
+    return { ...struggle, confirmed: answer === 'confirmed' };
+  }
+
+  /** The user's answer to "this has come up a few times" (pattern 34). */
+  async answerStruggle(
+    userId: string,
+    family: string,
+    answer: 'confirmed' | 'not_now' | 'never',
+  ): Promise<void> {
+    await this.prisma.struggleConfirmation.create({ data: { userId, family, answer } });
   }
 
   /** Advanced: a gentle look back at one month (S137). */

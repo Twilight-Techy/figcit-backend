@@ -65,8 +65,8 @@ export class UsersController {
   })
   confirmAge(
     @CurrentUser() user: RequestUser,
-    @Body(new ZodPipe(ageConfirmationSchema)) _body: z.infer<typeof ageConfirmationSchema>,
+    @Body(new ZodPipe(ageConfirmationSchema)) body: z.infer<typeof ageConfirmationSchema>,
   ): Promise<MeDto> {
-    return this.users.confirmAge(user.id);
+    return this.users.confirmAge(user.id, 'under18ViaInstitution' in body);
   }
 }

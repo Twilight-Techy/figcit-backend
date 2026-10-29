@@ -39,3 +39,28 @@ export const suggestDriversResponseSchema = z.union([
   }),
   safetyBlockSchema,
 ]);
+
+export const mapFeelingRequestSchema = z
+  .object({ text: z.string().trim().min(1).max(500) })
+  .strict();
+export const mapFeelingResponseSchema = z.union([
+  z.object({
+    safety: z.literal(false),
+    matches: z.array(z.object({ code: z.string(), label: z.string(), confidence: z.number() })),
+    /** Chips matched with confidence 0.7 or more: shown selected, still the user's to change. */
+    selected: z.array(z.string()),
+    /** Below 0.7: "Is it more like X or Y?" with these chips (null when nothing to ask). */
+    ask: z
+      .object({ options: z.array(z.object({ code: z.string(), label: z.string() })) })
+      .nullable(),
+    ...meta,
+  }),
+  safetyBlockSchema,
+]);
+export const splitTasksRequestSchema = z
+  .object({ text: z.string().trim().min(1).max(300) })
+  .strict();
+export const splitTasksResponseSchema = z.union([
+  z.object({ safety: z.literal(false), tasks: z.array(z.string()), ...meta }),
+  safetyBlockSchema,
+]);

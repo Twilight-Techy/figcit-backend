@@ -9,6 +9,7 @@ import { decodeCursor, encodeCursor } from '../checkin/checkin.mapper.js';
 import type { ReflectVariant } from '../content/catalogue/reflect.js';
 import { ContentService } from '../content/content.service.js';
 import { ReflectDeps } from './reflect.deps.js';
+import { improvedTopics } from './rumination.js';
 import type {
   Gate,
   listQuerySchema,
@@ -153,7 +154,7 @@ export class ReflectService {
     const ruminating =
       state.families.includes('rumination') ||
       (q.topicTag !== undefined &&
-        (await this.topicCount(userId, q.topicTag)) >= snapshot.thresholds.ruminationTopicCount);
+        (await this.topicLoops(userId, q.topicTag, snapshot.thresholds.ruminationTopicCount)));
     if (!lightTouch && ruminating)
       return {
         allowed: false,
@@ -247,6 +248,12 @@ export class ReflectService {
     )
       throw new NotFound('session');
     return v;
+  }
+
+  /** RF-2: the same topic reflected on too often in 7 days, with no improvement. */
+  private async topicLoops(userId: string, topicTag: string, limit: number): Promise<boolean> {
+    if ((await this.topicCount(userId, topicTag)) < limit) return false;
+    return !(await improvedTopics(this.prisma, userId, [topicTag])).has(topicTag);
   }
 
   /** Keeps user_topic_counts current for the rumination gate (RF-2) and the engine's signals. */

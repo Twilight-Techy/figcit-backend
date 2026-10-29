@@ -380,6 +380,34 @@ describe('admin', () => {
   });
 });
 
+describe('age (D-02)', () => {
+  it('16–17 only through an institution, and then no purchases', async () => {
+    const teen = await api.signIn();
+    const early = await api.req('POST', '/me/age-confirmation', {
+      token: teen.token,
+      body: { under18ViaInstitution: true },
+    });
+    expect(early.status).toBe(403);
+    const tenant = await prisma.tenant.create({
+      data: { name: 'Sixth Form', slug: `sf-${randomUUID().slice(0, 8)}`, kind: 'school' },
+    });
+    const code = `S${randomUUID().slice(0, 7).toUpperCase()}`;
+    await prisma.inviteCode.create({ data: { code, tenantId: tenant.id } });
+    await api.req('POST', '/institutions/join', { token: teen.token, body: { code } });
+    const ok = await api.req<{ ageBand: string; ageConfirmed: boolean }>(
+      'POST',
+      '/me/age-confirmation',
+      { token: teen.token, body: { under18ViaInstitution: true } },
+    );
+    expect(ok.body).toMatchObject({ ageBand: 'minor_institution', ageConfirmed: true });
+    const buy = await api.req('POST', '/billing/checkout', {
+      token: teen.token,
+      body: { planCode: 'plus_monthly' },
+    });
+    expect(buy.status).toBe(403);
+  });
+});
+
 describe('institutions', () => {
   it('joins by code, shares only above the floor, and routes support requests', async () => {
     const tenant = await prisma.tenant.create({

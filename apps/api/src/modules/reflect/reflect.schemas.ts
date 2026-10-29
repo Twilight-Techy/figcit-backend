@@ -120,7 +120,22 @@ export const patternsSchema = z.object({
   ),
   cards: z.array(z.object({ code: z.string(), text: z.string(), evidence: z.string() })),
   saved: z.array(z.object({ id: z.uuid(), takeaway: z.string(), createdAt: z.iso.datetime() })),
+  /** Pattern 34: a struggle that keeps coming up, to ask about (null when there's nothing to ask). */
+  struggle: z
+    .object({
+      family: z.string(),
+      label: z.string(),
+      count: z.number().int(),
+      confirmed: z.boolean(),
+    })
+    .nullable(),
 });
+export const struggleAnswerSchema = z
+  .object({
+    family: z.string().max(32),
+    answer: z.enum(['confirmed', 'not_now', 'never']),
+  })
+  .strict();
 export const monthQuerySchema = z
   .object({
     month: z

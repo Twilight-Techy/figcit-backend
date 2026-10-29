@@ -5,7 +5,9 @@ import { z } from 'zod';
 import { breakDownByRules } from './fallbacks/break-down.js';
 import { suggestDriversByRules } from './fallbacks/drivers.js';
 import { draftByTemplate, scriptByTemplate, structureByTemplate } from './fallbacks/express.js';
+import { mapFeelingByRules } from './fallbacks/map-feeling.js';
 import { parseNeedByRules, type ParsedNeed } from './fallbacks/parse-need.js';
+import { splitTasksByRules } from './fallbacks/split-tasks.js';
 import { sortDumpByRules } from './fallbacks/sort-dump.js';
 import { hasBanned, introducesFacts, simplifyByRules, words } from './text.js';
 
@@ -77,6 +79,59 @@ export const parseNeed: JsonTask<ParseNeedInput, ParsedNeed> = {
   timeoutMs: 8000,
   check: (o) => o.heard.every((h) => !hasBanned(h.label)),
   fallback: (i) => parseNeedByRules(i.text, i.snapshot),
+};
+
+// --- mapFeeling (Tab 11 layer 3) ------------------------------------------------------------
+export interface MapFeelingInput {
+  readonly text: string;
+  readonly snapshot: Snapshot;
+}
+export type MapFeelingOutput = { matches: { code: string; confidence: number }[] };
+export const mapFeeling: JsonTask<MapFeelingInput, MapFeelingOutput> = {
+  name: 'mapFeeling',
+  promptVersion: 'map-feeling@1',
+  schema: (i) => {
+    const codes = i.snapshot.emotions.map((e) => e.code) as [string, ...string[]];
+    return z.object({
+      matches: z
+        .array(z.object({ code: z.enum(codes), confidence: z.number().min(0).max(1) }))
+        .max(3),
+    });
+  },
+  system: (i) =>
+    `Match how someone describes their feelings to the closest feeling chips. ${DATA_ONLY}\nChips:\n${i.snapshot.emotions.map((e) => `${e.code}: ${e.label}`).join('\n')}\nReturn up to 3 chips with a confidence from 0 to 1. Use a low confidence when the words are vague or could mean two things. Never add a feeling the words do not describe.`,
+  text: (i) => i.text,
+  maxChars: 500,
+  temperature: 0.1,
+  maxTokens: 120,
+  timeoutMs: 6000,
+  check: (o) => new Set(o.matches.map((m) => m.code)).size === o.matches.length,
+  fallback: (i) => mapFeelingByRules(i.text, i.snapshot),
+};
+
+const tokens = (t: string): string[] => t.toLowerCase().match(/[a-z0-9']+/g) ?? [];
+
+// --- splitTasks (Tab 11 layer 6) ------------------------------------------------------------
+export interface SplitTasksInput {
+  readonly text: string;
+}
+export const splitTasks: JsonTask<SplitTasksInput, { tasks: string[] }> = {
+  name: 'splitTasks',
+  promptVersion: 'split-tasks@1',
+  schema: () => z.object({ tasks: z.array(z.string().min(1).max(120)).min(1).max(5) }),
+  system: () =>
+    `Split what someone has to do into separate tasks. ${DATA_ONLY} Use only their words; never add, merge or invent a task. If it is one task, return it unchanged.`,
+  text: (i) => i.text,
+  maxChars: 300,
+  temperature: 0,
+  maxTokens: 160,
+  timeoutMs: 6000,
+  // Bounded: every task must be made of the user's own words.
+  check: (o, i) => {
+    const own = new Set(tokens(i.text));
+    return o.tasks.every((t) => tokens(t).every((w) => own.has(w)));
+  },
+  fallback: (i) => splitTasksByRules(i.text),
 };
 
 // --- suggestDrivers --------------------------------------------------------------------------
