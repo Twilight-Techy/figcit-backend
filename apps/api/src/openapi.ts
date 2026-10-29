@@ -11,6 +11,7 @@ import { createApp } from './app.factory.js';
 import { loadDotEnv } from './common/config/dotenv.js';
 import { loadEnv } from './common/config/env.js';
 import { ROUTE_DOC, type RouteDoc } from './common/http/route.js';
+import { exampleFor } from './common/openapi/example.js';
 
 const OUT = resolve(import.meta.dirname, '../../../openapi/openapi.json');
 const METHODS: Partial<Record<RequestMethod, string>> = {
@@ -37,21 +38,65 @@ function join(...parts: (string | string[] | undefined)[]): string {
   return p.replace(/:([A-Za-z]+)/g, '{$1}');
 }
 
-function queryParams(schema: z.ZodType | undefined): Json[] {
+// Every example is parsed by its own zod schema; the generator fails on any that doesn't fit.
+const problems: string[] = [];
+
+function checkedExample(
+  schema: z.ZodType,
+  io: 'input' | 'output',
+  given: unknown,
+  where: string,
+): unknown {
+  const example = given ?? exampleFor(schemaOf(schema, io));
+  const result = schema.safeParse(example);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    problems.push(`${where}: ${issue?.path.join('.') ?? ''} ${issue?.message ?? ''}`.trim());
+  }
+  return example;
+}
+
+function queryParams(schema: z.ZodType | undefined, given: unknown, where: string): Json[] {
   if (!schema) return [];
   const js = schemaOf(schema, 'input') as {
     properties?: Record<string, Json>;
     required?: string[];
   };
+  const example = checkedExample(schema, 'input', given, `${where} query`) as Json;
   return Object.entries(js.properties ?? {}).map(([name, s]) => ({
     name,
     in: 'query',
     required: js.required?.includes(name) ?? false,
     schema: s,
+    ...(example[name] === undefined ? {} : { example: example[name] }),
   }));
 }
 
-function operation(doc: RouteDoc, path: string): Json {
+function requestBody(schema: z.ZodType, given: unknown, where: string): Json {
+  return {
+    required: true,
+    content: {
+      'application/json': {
+        schema: schemaOf(schema, 'input'),
+        example: checkedExample(schema, 'input', given, `${where} body`),
+      },
+    },
+  };
+}
+
+function okResponse(schema: z.ZodType, given: unknown, where: string): Json {
+  return {
+    description: 'OK',
+    content: {
+      'application/json': {
+        schema: schemaOf(schema, 'output'),
+        example: checkedExample(schema, 'output', given, `${where} response`),
+      },
+    },
+  };
+}
+
+function operation(doc: RouteDoc, path: string, where: string): Json {
   const params = [...path.matchAll(/\{([A-Za-z]+)\}/g)].map((m) => ({
     name: m[1],
     in: 'path',
@@ -60,26 +105,19 @@ function operation(doc: RouteDoc, path: string): Json {
   }));
   const status = String(doc.status ?? 200);
   const access = doc.access ?? 'user';
+  const ex = doc.example ?? {};
   return {
     summary: doc.summary,
     tags: doc.tags ?? [],
-    ...(params.length || doc.query ? { parameters: [...params, ...queryParams(doc.query)] } : {}),
-    ...(doc.body
-      ? {
-          requestBody: {
-            required: true,
-            content: { 'application/json': { schema: schemaOf(doc.body, 'input') } },
-          },
-        }
+    ...(params.length || doc.query
+      ? { parameters: [...params, ...queryParams(doc.query, ex.query, where)] }
       : {}),
+    ...(doc.body ? { requestBody: requestBody(doc.body, ex.body, where) } : {}),
     responses: {
       [status]:
         status === '204' || !doc.response
           ? { description: 'Done' }
-          : {
-              description: 'OK',
-              content: { 'application/json': { schema: schemaOf(doc.response, 'output') } },
-            },
+          : okResponse(doc.response, ex.response, where),
       default: {
         description: 'Problem details (RFC 9457)',
         content: {
@@ -123,11 +161,15 @@ async function main(): Promise<void> {
           ...paths[path],
           [method]: {
             operationId: `${type.name.replace(/Controller$/, '')}_${key}`,
-            ...operation(doc, path),
+            ...operation(doc, path, `${method.toUpperCase()} ${path}`),
           },
         };
       }
     }
+  }
+  if (problems.length) {
+    await app.close();
+    throw new Error(`Examples that don't match their schema:\n  ${problems.join('\n  ')}`);
   }
   const sorted = Object.fromEntries(Object.entries(paths).sort(([a], [b]) => a.localeCompare(b)));
   const spec = {
