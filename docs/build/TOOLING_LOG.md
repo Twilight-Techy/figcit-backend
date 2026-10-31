@@ -107,16 +107,31 @@ Commits `3dcca7f`, `120ea41`, `bdf6846` and `fc1de49`. CI is green on all of the
     HTML (`src/lib/nav/query.tsx` and `scripts/routes.mjs`). `/enter/` LCP went from about 3.2 s
     to about 1.55 s.
 
+## Picked up on 2026-10-31
+
+The red CI on `e018ab6`, fixed in a later commit on the same branch:
+
+- **e2e coverage gate.**
+  - All 76 tests passed, but coverage was just under every threshold (lines 76.5% against 78%).
+  - The cause was the new `src/common/openapi/example.ts`. The e2e suite doesn't run it; unit
+    tests and `openapi:check` do.
+  - `src/openapi.ts` and `src/common/openapi/**` are now excluded from e2e coverage, as proposed
+    above, with the owner's go-ahead.
+  - Coverage is now 79.4% lines, 76.9% statements, 77.6% functions and 67.3% branches. Every
+    threshold passes, and the thresholds are unchanged.
+- **audit and image (new since the log above).**
+  - Both failed on one new high advisory: decode-uri-component 0.2.2, through minio 8 and
+    query-string 7.
+  - It's fixed with an override and a one-line `pnpm patch` of query-string, not with an ignore
+    list. The reasons are in B-47.
+  - Checked locally: `pnpm audit` exits 0, and Trivy is clean on the built image.
+  - The image is 103 MB compressed. It was built without BuildKit, because this machine has no
+    buildx.
+
 ## Left to do
 
 ### Blocking backend #99
 
-1. **e2e coverage gate (red on `d233cad`).**
-   - All 76 tests pass, but coverage fell just under the thresholds: lines 76.5% against 78%.
-   - The cause is the new `src/common/openapi/example.ts`. The e2e suite doesn't run it; unit tests
-     and `openapi:check` do.
-   - Proposed fix: exclude `src/openapi.ts` and `src/common/openapi/**` from e2e coverage in
-     `apps/api/vitest.e2e.config.ts`. This needs the owner's go-ahead.
 2. **GitGuardian (red).**
    - It flags the throwaway CI Postgres password (`figcit`) in the first commit, `9784f16`. The
      current head has no such literal, and gitleaks passes.

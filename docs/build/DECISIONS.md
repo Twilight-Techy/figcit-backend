@@ -126,3 +126,9 @@ Feelings typed in the user's own words map to chips with a confidence; 0.7 is th
 - **Image size:** the 180 MB gate is on the compressed image (registry size). The Node 22 binary alone is 120 MB on disk, so no Node image fits 180 MB uncompressed. Today: 104 MB compressed, 506 MB on disk, after dropping the Prisma CLI, TypeScript and the WebAssembly engines for other databases from the runtime image.
 - **Vulnerabilities:** `pnpm audit` found five high advisories. fastify is overridden to 5.12.7 (the Nest 11 adapter pins 5.11.3) and deepmerge-ts to 8 (pulled in by Prisma 6's config loader). The e2e suite passes on both.
 - **Engine package:** GitHub Packages requires the npm scope to match the repository owner, so the release workflow publishes `@twilight-techy/engine`. Code keeps importing `@figcit/engine` through an npm alias.
+
+## B-47: decode-uri-component through minio, patched rather than ignored
+- **Advisory:** GHSA-qr28-fpjm-wq7f / CVE-2026-118664 (high, quadratic decoding DoS), published after B-46, in decode-uri-component 0.2.2. minio 8.0.7 (the latest) pulls it in through query-string 7.1.3; it failed both `pnpm audit` and Trivy.
+- **Fix:** an override to decode-uri-component 0.5.1, plus a one-line `pnpm patch` of query-string 7.1.3 (`patches/query-string@7.1.3.patch`): 0.5.1 is ESM-only, so query-string now takes `.default` from Node 22's `require(esm)` (stable from 22.12, the `engines` floor). The Dockerfile copies `patches/` before installing.
+- **Not taken:** an audit/Trivy ignore list (security rules have no exceptions, ENGINEERING_RULES §15); query-string 10 (no named exports, so minio's `import * as qs` loses `stringify`); query-string 8 and 9 (still on vulnerable decode-uri-component).
+- **Revisit:** drop the patch and the override when minio moves off query-string 7, or if storage moves to the AWS SDK.

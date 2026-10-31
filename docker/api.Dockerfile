@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/* && corepack enable
 WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY patches/ patches/
 COPY apps/api/package.json apps/api/
 COPY packages/engine/package.json packages/engine/
 COPY packages/rules-compiler/package.json packages/rules-compiler/

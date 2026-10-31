@@ -5,8 +5,14 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  decode-uri-component: ^0.5.1
   deepmerge-ts: ^8.0.0
   fastify: 5.12.7
+
+patchedDependencies:
+  query-string@7.1.3:
+    hash: 4593e19b9de73d3ae219567b5c056c8a374932578811b0bf33f16a61395f31d5
+    path: patches/query-string@7.1.3.patch
 
 importers:
 
@@ -1400,9 +1406,9 @@ packages:
       supports-color:
         optional: true
 
-  decode-uri-component@0.2.2:
-    resolution: {integrity: sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==}
-    engines: {node: '>=0.10'}
+  decode-uri-component@0.5.1:
+    resolution: {integrity: sha512-vWHQkXgg2cE3BB4rR0c+PYw9BCQzLoNIRMI7AunIkZst74tw/vpPp7VLoYtsR/cy1f55g3XDWUslfeCZjiZJyA==}
+    engines: {node: '>=14.16'}
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
@@ -3726,7 +3732,7 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  decode-uri-component@0.2.2: {}
+  decode-uri-component@0.5.1: {}
 
   deep-is@0.1.4: {}
 
@@ -4311,7 +4317,7 @@ snapshots:
       ipaddr.js: 2.5.0
       lodash: 4.18.1
       mime-types: 2.1.35
-      query-string: 7.1.3
+      query-string: 7.1.3(patch_hash=4593e19b9de73d3ae219567b5c056c8a374932578811b0bf33f16a61395f31d5)
       stream-json: 1.9.1
       through2: 4.0.2
       xml2js: 0.6.2
@@ -4564,9 +4570,9 @@ snapshots:
 
   pure-rand@8.4.2: {}
 
-  query-string@7.1.3:
+  query-string@7.1.3(patch_hash=4593e19b9de73d3ae219567b5c056c8a374932578811b0bf33f16a61395f31d5):
     dependencies:
-      decode-uri-component: 0.2.2
+      decode-uri-component: 0.5.1
       filter-obj: 1.1.0
       split-on-first: 1.1.0
       strict-uri-encode: 2.0.0
