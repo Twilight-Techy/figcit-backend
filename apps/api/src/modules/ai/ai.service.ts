@@ -141,9 +141,10 @@ export class AiService {
         timeoutMs: Math.min(task.timeoutMs, this.env.AI_TIMEOUT_MS * 3),
       });
       const parsed = schema.safeParse(JSON.parse(res.content));
-      if (parsed.success && task.check(parsed.data, input)) {
+      const data = parsed.success ? (task.clean?.(parsed.data, input) ?? parsed.data) : null;
+      if (data !== null && task.check(data, input)) {
         this.log(task, caller, 'ok', started, res);
-        return { blocked: false, data: parsed.data, source: 'ai', limited: false };
+        return { blocked: false, data, source: 'ai', limited: false };
       }
       this.log(task, caller, 'invalid', started, res);
     } catch (error) {

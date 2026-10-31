@@ -91,28 +91,36 @@ const PLANS: Record<EvalTask, AnyPlan> = {
   }),
 };
 
-async function runCase(p: AnyPlan, c: { id: string }): Promise<CaseResult> {
-  const { task } = p;
-  const input = p.input(c);
-  if (values.rules) {
-    const out = task.fallback(input);
-    return {
-      id: c.id,
-      outcome: 'rules',
-      correct: p.score(out, c),
-      withinRule: p.rule?.(out, c) ?? true,
-      banned: anyBanned(out),
-      latencyMs: null,
-      withinTimeout: null,
-      outputTokens: null,
-      output: out,
-    };
+function runRules(p: AnyPlan, c: { id: string }): CaseResult {
+  const out = p.task.fallback(p.input(c));
+  return {
+    id: c.id,
+    outcome: 'rules',
+    correct: p.score(out, c),
+    withinRule: p.rule?.(out, c) ?? true,
+    banned: anyBanned(out),
+    latencyMs: null,
+    withinTimeout: null,
+    outputTokens: null,
+    output: out,
+  };
+}
+
+const json = (content: string): unknown => {
+  try {
+    return JSON.parse(content);
+  } catch {
+    return content;
   }
+};
+
+/** One model call, as AiService makes it: the answer (cleaned when valid) and how it went. */
+async function callModel(
+  p: AnyPlan,
+  input: unknown,
+): Promise<{ outcome: Outcome; raw: unknown; outputTokens: number | null }> {
+  const { task } = p;
   const schema = task.schema(input);
-  const started = performance.now();
-  let outcome: Outcome = 'ok';
-  let raw: unknown = null;
-  let outputTokens: number | null = null;
   try {
     const res = await new AiClient(env).chat({
       system: task.system(input),
@@ -122,17 +130,22 @@ async function runCase(p: AnyPlan, c: { id: string }): Promise<CaseResult> {
       maxTokens: task.maxTokens,
       timeoutMs: Math.max(task.timeoutMs, EVAL_TIMEOUT_MS),
     });
-    outputTokens = res.outputTokens;
-    try {
-      raw = JSON.parse(res.content);
-    } catch {
-      raw = res.content;
-    }
-    const parsed = schema.safeParse(raw);
-    if (!parsed.success || !task.check(parsed.data, input)) outcome = 'invalid';
+    const parsed = schema.safeParse(json(res.content));
+    if (!parsed.success)
+      return { outcome: 'invalid', raw: json(res.content), outputTokens: res.outputTokens };
+    const raw = task.clean?.(parsed.data, input) ?? parsed.data;
+    const outcome = task.check(raw, input) ? 'ok' : 'invalid';
+    return { outcome, raw, outputTokens: res.outputTokens };
   } catch (error) {
-    outcome = error instanceof AiUnavailable && error.reason === 'timeout' ? 'timeout' : 'error';
+    const timeout = error instanceof AiUnavailable && error.reason === 'timeout';
+    return { outcome: timeout ? 'timeout' : 'error', raw: null, outputTokens: null };
   }
+}
+
+async function runCase(p: AnyPlan, c: { id: string }): Promise<CaseResult> {
+  if (values.rules) return runRules(p, c);
+  const started = performance.now();
+  const { outcome, raw, outputTokens } = await callModel(p, p.input(c));
   const latencyMs = Math.round(performance.now() - started);
   return {
     id: c.id,
@@ -141,7 +154,7 @@ async function runCase(p: AnyPlan, c: { id: string }): Promise<CaseResult> {
     withinRule: raw === null ? true : (p.rule?.(raw, c) ?? true),
     banned: anyBanned(raw),
     latencyMs,
-    withinTimeout: outcome !== 'error' && latencyMs <= task.timeoutMs,
+    withinTimeout: outcome !== 'error' && latencyMs <= p.task.timeoutMs,
     outputTokens,
     output: raw,
   };

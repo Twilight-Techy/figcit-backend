@@ -8,7 +8,7 @@ import { mapFeelingByRules } from './fallbacks/map-feeling.js';
 import { parseNeedByRules } from './fallbacks/parse-need.js';
 import { splitTasksByRules } from './fallbacks/split-tasks.js';
 import { bucketFor } from './fallbacks/sort-dump.js';
-import { breakDownTask, simplify, sortDump } from './ai.tasks.js';
+import { breakDownTask, parseNeed, simplify, sortDump, suggestDrivers } from './ai.tasks.js';
 import { changes, introducesFacts, scrub, simplifyByRules, words } from './text.js';
 
 const snapshot = JSON.parse(
@@ -160,5 +160,30 @@ describe('fallbacks', () => {
         },
       ),
     ).toBe(false);
+  });
+
+  it('drops repeated drivers and need codes shown as heard chips', () => {
+    expect(
+      suggestDrivers.clean?.(
+        {
+          drivers: ['challenge', 'challenge', 'routine'],
+          demandCharacteristics: ['focus', 'focus'],
+        },
+        { title: 'x' },
+      ),
+    ).toEqual({ drivers: ['challenge', 'routine'], demandCharacteristics: ['focus'] });
+    const heard = parseNeed.clean?.(
+      {
+        needs: ['feel_calmer'],
+        heard: [
+          { label: 'racing heart', kind: 'feeling' },
+          { label: 'stop_switch', kind: 'need' },
+        ],
+        task: null,
+        supportOnly: false,
+      },
+      { text: 'x', snapshot },
+    ).heard;
+    expect(heard).toEqual([{ label: 'racing heart', kind: 'feeling' }]);
   });
 });
