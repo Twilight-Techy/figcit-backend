@@ -27,7 +27,8 @@
     "licences:check": "node scripts/check-licences.mjs",
     "openapi:check": "pnpm openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "test:coverage": "pnpm --filter @figcit/engine exec vitest run --coverage",
-    "db:worktree": "node scripts/db-worktree.mjs"
+    "db:worktree": "node scripts/db-worktree.mjs",
+    "eval": "pnpm --filter @figcit/api eval"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

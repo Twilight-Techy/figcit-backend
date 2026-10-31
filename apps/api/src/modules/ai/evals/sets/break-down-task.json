@@ -1,0 +1,356 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "bd-001",
+      "title": "Write the essay introduction",
+      "kind": "study",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-002",
+      "title": "Clean the kitchen",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-003",
+      "title": "Prepare for the job interview",
+      "kind": "work",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-004",
+      "title": "Do the weekly food shop",
+      "kind": "home",
+      "stepCap": 10,
+      "strained": true
+    },
+    {
+      "id": "bd-005",
+      "title": "Reply to my tutor's email",
+      "kind": "study",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-006",
+      "title": "Book a dentist appointment",
+      "kind": "health",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-007",
+      "title": "Revise for the biology exam",
+      "kind": "study",
+      "stepCap": 5,
+      "strained": true
+    },
+    {
+      "id": "bd-008",
+      "title": "Pack for the weekend away",
+      "kind": "home",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-009",
+      "title": "Write the monthly report",
+      "kind": "work",
+      "stepCap": 10,
+      "strained": false
+    },
+    {
+      "id": "bd-010",
+      "title": "Sort out the pile of post",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-011",
+      "title": "Make dinner",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-012",
+      "title": "Fill in the benefits form",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-013",
+      "title": "Plan my sister's birthday party",
+      "kind": "social",
+      "stepCap": 8,
+      "strained": true
+    },
+    {
+      "id": "bd-014",
+      "title": "Finish the presentation slides",
+      "kind": "work",
+      "stepCap": 10,
+      "strained": false
+    },
+    {
+      "id": "bd-015",
+      "title": "Do the laundry",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-016",
+      "title": "Write a cover letter",
+      "kind": "work",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-017",
+      "title": "Tidy my desk",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-018",
+      "title": "Get ready for the hospital appointment",
+      "kind": "health",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-019",
+      "title": "Read the assigned article",
+      "kind": "study",
+      "stepCap": 10,
+      "strained": true
+    },
+    {
+      "id": "bd-020",
+      "title": "Return the parcel",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-021",
+      "title": "Call the bank about my card",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-022",
+      "title": "Plan next week's meals",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": true
+    },
+    {
+      "id": "bd-023",
+      "title": "Prepare the lab write-up",
+      "kind": "study",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-024",
+      "title": "Clear my email inbox",
+      "kind": "work",
+      "stepCap": 10,
+      "strained": false
+    },
+    {
+      "id": "bd-025",
+      "title": "Organise the wardrobe",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-026",
+      "title": "Take the car for its MOT",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-027",
+      "title": "Write a thank-you card",
+      "kind": "social",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-028",
+      "title": "Set up the new laptop",
+      "kind": "work",
+      "stepCap": 8,
+      "strained": true
+    },
+    {
+      "id": "bd-029",
+      "title": "Do the physio exercises",
+      "kind": "health",
+      "stepCap": 10,
+      "strained": false
+    },
+    {
+      "id": "bd-030",
+      "title": "Apply for the summer internship",
+      "kind": "study",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-031",
+      "title": "Hoover the living room",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-032",
+      "title": "Pay the electricity bill",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-033",
+      "title": "Get ready for the team meeting",
+      "kind": "work",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-034",
+      "title": "Write the dissertation methods chapter",
+      "kind": "study",
+      "stepCap": 10,
+      "strained": true
+    },
+    {
+      "id": "bd-035",
+      "title": "Clean the bathroom",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-036",
+      "title": "Arrange a catch-up with a friend",
+      "kind": "social",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-037",
+      "title": "Renew my passport",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": true
+    },
+    {
+      "id": "bd-038",
+      "title": "Make a revision timetable",
+      "kind": "study",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-039",
+      "title": "Update my CV",
+      "kind": "work",
+      "stepCap": 10,
+      "strained": false
+    },
+    {
+      "id": "bd-040",
+      "title": "Shower and get dressed",
+      "kind": "health",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-041",
+      "title": "Empty the dishwasher",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-042",
+      "title": "Prepare questions for the parents' evening",
+      "kind": "social",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-043",
+      "title": "Fix the leaking tap",
+      "kind": "home",
+      "stepCap": 8,
+      "strained": true
+    },
+    {
+      "id": "bd-044",
+      "title": "Submit the expense claim",
+      "kind": "work",
+      "stepCap": 10,
+      "strained": false
+    },
+    {
+      "id": "bd-045",
+      "title": "Practise the speech for the wedding",
+      "kind": "social",
+      "stepCap": 3,
+      "strained": false
+    },
+    {
+      "id": "bd-046",
+      "title": "Cancel the unused gym membership",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": true
+    },
+    {
+      "id": "bd-047",
+      "title": "Back up my photos",
+      "kind": "home",
+      "stepCap": 5,
+      "strained": false
+    },
+    {
+      "id": "bd-048",
+      "title": "Order a repeat prescription",
+      "kind": "health",
+      "stepCap": 8,
+      "strained": false
+    },
+    {
+      "id": "bd-049",
+      "title": "Write the project proposal",
+      "kind": "work",
+      "stepCap": 10,
+      "strained": true
+    },
+    {
+      "id": "bd-050",
+      "title": "Get the house ready for guests",
+      "kind": "home",
+      "stepCap": 3,
+      "strained": false
+    }
+  ]
+}

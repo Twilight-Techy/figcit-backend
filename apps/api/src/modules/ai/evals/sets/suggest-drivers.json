@@ -1,0 +1,306 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "sd-001",
+      "title": "Learn to use the new accounting software",
+      "kind": "work",
+      "drivers": ["novelty", "challenge", "exploration"]
+    },
+    {
+      "id": "sd-002",
+      "title": "Weekly team stand-up",
+      "kind": "work",
+      "drivers": ["routine", "collaboration"]
+    },
+    {
+      "id": "sd-003",
+      "title": "Plan the group presentation with my coursemates",
+      "kind": "study",
+      "drivers": ["collaboration", "challenge"]
+    },
+    {
+      "id": "sd-004",
+      "title": "Practise guitar for 20 minutes",
+      "kind": "home",
+      "drivers": ["passion", "interest", "routine"]
+    },
+    {
+      "id": "sd-005",
+      "title": "Research holiday options for next summer",
+      "kind": "home",
+      "drivers": ["exploration", "interest", "novelty"]
+    },
+    {
+      "id": "sd-006",
+      "title": "Take my morning medication",
+      "kind": "health",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-007",
+      "title": "Write the first chapter of my novel",
+      "kind": "home",
+      "drivers": ["passion", "challenge"]
+    },
+    {
+      "id": "sd-008",
+      "title": "Do the weekly food shop",
+      "kind": "home",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-009",
+      "title": "Try a new climbing gym with a friend",
+      "kind": "social",
+      "drivers": ["novelty", "collaboration", "challenge"]
+    },
+    {
+      "id": "sd-010",
+      "title": "Revise for the statistics exam",
+      "kind": "study",
+      "drivers": ["challenge"]
+    },
+    {
+      "id": "sd-011",
+      "title": "Fill in my tax return",
+      "kind": "home",
+      "drivers": ["challenge", "routine"]
+    },
+    {
+      "id": "sd-012",
+      "title": "Explore a new walking route in the park",
+      "kind": "health",
+      "drivers": ["exploration", "novelty"]
+    },
+    {
+      "id": "sd-013",
+      "title": "Book a GP appointment",
+      "kind": "health",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-014",
+      "title": "Fix the bug in the payment module",
+      "kind": "work",
+      "drivers": ["challenge", "interest"]
+    },
+    {
+      "id": "sd-015",
+      "title": "Bake a cake for my nephew's birthday",
+      "kind": "social",
+      "drivers": ["passion", "interest", "novelty"]
+    },
+    {
+      "id": "sd-016",
+      "title": "Read two chapters of the set text",
+      "kind": "study",
+      "drivers": ["routine", "interest"]
+    },
+    {
+      "id": "sd-017",
+      "title": "Prepare slides for the client pitch",
+      "kind": "work",
+      "drivers": ["challenge", "collaboration"]
+    },
+    {
+      "id": "sd-018",
+      "title": "Plan a surprise party with my housemates",
+      "kind": "social",
+      "drivers": ["collaboration", "novelty", "passion"]
+    },
+    {
+      "id": "sd-019",
+      "title": "Clean the bathroom",
+      "kind": "home",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-020",
+      "title": "Learn some Japanese phrases before the trip",
+      "kind": "study",
+      "drivers": ["novelty", "interest", "exploration", "challenge"]
+    },
+    {
+      "id": "sd-021",
+      "title": "Reply to emails",
+      "kind": "work",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-022",
+      "title": "Paint the spare room a new colour",
+      "kind": "home",
+      "drivers": ["novelty", "passion", "challenge"]
+    },
+    {
+      "id": "sd-023",
+      "title": "Go to the first meeting of a book club",
+      "kind": "social",
+      "drivers": ["novelty", "collaboration", "interest"]
+    },
+    {
+      "id": "sd-024",
+      "title": "Write my dissertation literature review",
+      "kind": "study",
+      "drivers": ["challenge", "exploration", "interest"]
+    },
+    {
+      "id": "sd-025",
+      "title": "Water the plants",
+      "kind": "home",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-026",
+      "title": "Build a small website for my art",
+      "kind": "home",
+      "drivers": ["passion", "challenge", "novelty", "interest"]
+    },
+    {
+      "id": "sd-027",
+      "title": "Pair-program the new feature with Sam",
+      "kind": "work",
+      "drivers": ["collaboration", "challenge"]
+    },
+    {
+      "id": "sd-028",
+      "title": "Do the physio exercises",
+      "kind": "health",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-029",
+      "title": "Try a new recipe for dinner",
+      "kind": "home",
+      "drivers": ["novelty", "interest", "exploration"]
+    },
+    {
+      "id": "sd-030",
+      "title": "Brainstorm research questions for my project",
+      "kind": "study",
+      "drivers": ["exploration", "interest", "novelty"]
+    },
+    {
+      "id": "sd-031",
+      "title": "Sort the recycling",
+      "kind": "home",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-032",
+      "title": "Run my first 5k",
+      "kind": "health",
+      "drivers": ["challenge", "novelty"]
+    },
+    {
+      "id": "sd-033",
+      "title": "Volunteer at the community garden",
+      "kind": "social",
+      "drivers": ["collaboration", "passion"]
+    },
+    {
+      "id": "sd-034",
+      "title": "Review my coursemate's essay draft",
+      "kind": "study",
+      "drivers": ["collaboration"]
+    },
+    {
+      "id": "sd-035",
+      "title": "Update the monthly sales spreadsheet",
+      "kind": "work",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-036",
+      "title": "Look into evening classes in pottery",
+      "kind": "home",
+      "drivers": ["exploration", "interest", "novelty"]
+    },
+    {
+      "id": "sd-037",
+      "title": "Call my grandmother",
+      "kind": "social",
+      "drivers": ["routine", "collaboration"]
+    },
+    {
+      "id": "sd-038",
+      "title": "Prepare for the hardest exam of the term",
+      "kind": "study",
+      "drivers": ["challenge"]
+    },
+    {
+      "id": "sd-039",
+      "title": "Rearrange my bedroom furniture",
+      "kind": "home",
+      "drivers": ["novelty"]
+    },
+    {
+      "id": "sd-040",
+      "title": "Organise a game night",
+      "kind": "social",
+      "drivers": ["collaboration", "passion", "interest"]
+    },
+    {
+      "id": "sd-041",
+      "title": "Debug the flaky integration test",
+      "kind": "work",
+      "drivers": ["challenge"]
+    },
+    {
+      "id": "sd-042",
+      "title": "Write in my journal",
+      "kind": "health",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-043",
+      "title": "Learn how bees communicate for my zine",
+      "kind": "home",
+      "drivers": ["interest", "passion", "exploration"]
+    },
+    {
+      "id": "sd-044",
+      "title": "Draft the quarterly report with my manager",
+      "kind": "work",
+      "drivers": ["collaboration", "routine"]
+    },
+    {
+      "id": "sd-045",
+      "title": "Explore which MSc courses suit me",
+      "kind": "study",
+      "drivers": ["exploration", "interest"]
+    },
+    {
+      "id": "sd-046",
+      "title": "Change the bed sheets",
+      "kind": "home",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-047",
+      "title": "Enter a photography competition",
+      "kind": "home",
+      "drivers": ["passion", "challenge", "novelty"]
+    },
+    {
+      "id": "sd-048",
+      "title": "Lead my first team retrospective",
+      "kind": "work",
+      "drivers": ["novelty", "collaboration", "challenge"]
+    },
+    {
+      "id": "sd-049",
+      "title": "Brush my teeth",
+      "kind": "health",
+      "drivers": ["routine"]
+    },
+    {
+      "id": "sd-050",
+      "title": "Teach myself to solder a circuit board",
+      "kind": "home",
+      "drivers": ["novelty", "challenge", "interest", "exploration"]
+    }
+  ]
+}

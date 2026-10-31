@@ -1,0 +1,86 @@
+name: AI evals
+
+# Every AI eval set, nightly and on demand, never on a PR (SYSTEM_DESIGN §4.3.8, issue #39).
+# Against the AI server when the AI_EVAL_BASE_URL secret is set; until then, against a pinned
+# Qwen3.5-4B on the runner's CPU, which scores quality but is slower than the real server.
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'parseNeed, suggestDrivers, breakDownTask or all'
+        default: all
+
+concurrency:
+  group: ai-evals
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  LLAMA_CPP: b12020
+  LLAMA_CPP_SHA256: 1b69032f9ab60dc6aa909689fda941fa1b9162f6ab46b863582d5649d96ac6be
+  MODEL_URL: https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf
+  MODEL_SHA256: 00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      AI_BASE_URL: ${{ secrets.AI_EVAL_BASE_URL || 'http://127.0.0.1:8080' }}
+      AI_TOKEN: ${{ secrets.AI_EVAL_TOKEN }}
+      AI_MODEL: ${{ secrets.AI_EVAL_BASE_URL && vars.AI_EVAL_MODEL || 'qwen3.5-4b-q4_k_m-runner-cpu' }}
+      # Secrets can't be read in a step's `if`, so this says whether there's a server to use.
+      AI_SERVER: ${{ secrets.AI_EVAL_BASE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Model on the runner (no AI server configured)
+        if: env.AI_SERVER != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/models
+          key: model-${{ env.MODEL_SHA256 }}
+      - name: Start llama-server
+        if: env.AI_SERVER != 'true'
+        run: |
+          mkdir -p ~/models ~/llama
+          [ -f ~/models/model.gguf ] || curl -fsSL -o ~/models/model.gguf "$MODEL_URL"
+          echo "$MODEL_SHA256  $HOME/models/model.gguf" | sha256sum -c -
+          curl -fsSL -o llama.tgz "https://github.com/ggml-org/llama.cpp/releases/download/$LLAMA_CPP/llama-$LLAMA_CPP-bin-ubuntu-x64.tar.gz"
+          echo "$LLAMA_CPP_SHA256  llama.tgz" | sha256sum -c -
+          tar xzf llama.tgz -C ~/llama --strip-components=1
+          cd ~/llama
+          LD_LIBRARY_PATH=. nohup ./llama-server -m ~/models/model.gguf --host 127.0.0.1 --port 8080 \
+            -c 4096 --parallel 1 -t "$(nproc)" --jinja > ~/llama/server.log 2>&1 &
+          for _ in $(seq 1 90); do curl -sf http://127.0.0.1:8080/health && exit 0; sleep 2; done
+          tail -50 ~/llama/server.log; exit 1
+
+      # The last results, so each run is compared with the one before.
+      - uses: actions/cache/restore@v4
+        with:
+          path: apps/api/var/evals
+          key: ai-evals-${{ github.run_id }}
+          restore-keys: ai-evals-
+      - name: Run the evals
+        run: pnpm eval ${{ inputs.task || 'all' }}
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: apps/api/var/evals
+          key: ai-evals-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-evals
+          path: apps/api/var/evals
+          retention-days: 90

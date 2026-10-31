@@ -22,7 +22,8 @@
     "db:seed": "prisma db seed",
     "db:migrate": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
-    "db:seed:personas": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/run-personas.ts"
+    "db:seed:personas": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/run-personas.ts",
+    "eval": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/run.ts"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.5",
