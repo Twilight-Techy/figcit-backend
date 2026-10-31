@@ -23,6 +23,9 @@ export class AiUnavailable extends Error {
 }
 
 const FAILURES_TO_OPEN = 3;
+/** The schema grammar still allows indentation, which can use up max_tokens before the JSON closes. */
+export const COMPACT_JSON =
+  'Reply with compact JSON on a single line: no indentation and no line breaks.';
 const OPEN_MS = 60_000;
 
 /**
@@ -56,7 +59,7 @@ export class AiClient {
     return JSON.stringify({
       model: this.env.AI_MODEL,
       messages: [
-        { role: 'system', content: req.system },
+        { role: 'system', content: req.schema ? `${req.system}\n${COMPACT_JSON}` : req.system },
         { role: 'user', content: `<user_words>\n${req.user}\n</user_words>` },
       ],
       ...(req.schema ? { response_format: { type: 'json_schema', json_schema: req.schema } } : {}),

@@ -24,9 +24,13 @@ export interface JsonTask<I, O> {
   readonly temperature: number;
   readonly maxTokens: number;
   readonly timeoutMs: number;
+  /** Tidies a valid answer before the checks, dropping only what can go without changing it. */
+  readonly clean?: (out: O, input: I) => O;
   readonly check: (out: O, input: I) => boolean;
   readonly fallback: (input: I) => O;
 }
+
+const distinct = <T>(xs: readonly T[]): T[] => [...new Set(xs)];
 
 export interface TextTask<I> {
   readonly name: string;
@@ -48,7 +52,7 @@ export interface ParseNeedInput {
 }
 export const parseNeed: JsonTask<ParseNeedInput, ParsedNeed> = {
   name: 'parseNeed',
-  promptVersion: 'parse-need@1',
+  promptVersion: 'parse-need@3',
   schema: (i) => {
     const codes = i.snapshot.needs.map((n) => n.code) as [string, ...string[]];
     return z.object({
@@ -71,12 +75,17 @@ export const parseNeed: JsonTask<ParseNeedInput, ParsedNeed> = {
     });
   },
   system: (i) =>
-    `You read one sentence from a neurodivergent adult and pick what they need. ${DATA_ONLY}\nNeed codes:\n${i.snapshot.needs.map((n) => `${n.code}: ${n.label}`).join('\n')}\nReturn 1-2 need codes, up to 5 short "heard" chips (max 24 characters), the task if one is mentioned, and supportOnly=true if they only want to be heard.`,
+    `You read one sentence from a neurodivergent adult and pick what they need. ${DATA_ONLY}\nNeed codes:\n${i.snapshot.needs.map((n) => `${n.code}: ${n.label}`).join('\n')}\nReturn 1-2 need codes, the best fit first. urgent_help is only for someone who says they need help right now and cannot wait; feeling anxious, panicky or overwhelmed is feel_calmer. Return up to 5 short "heard" chips: 1 to 3 of their own words each, never a need code and never their whole sentence. Add the task if one is mentioned, and supportOnly=true if they only want to be heard.`,
   text: (i) => i.text,
   maxChars: 500,
   temperature: 0.2,
   maxTokens: 200,
   timeoutMs: 8000,
+  // A chip that only repeats a need code tells the user nothing; drop it, keep the answer.
+  clean: (o, i) => ({
+    ...o,
+    heard: o.heard.filter((h) => !i.snapshot.needs.some((n) => n.code === h.label.trim())),
+  }),
   check: (o) => o.heard.every((h) => !hasBanned(h.label)),
   fallback: (i) => parseNeedByRules(i.text, i.snapshot),
 };
@@ -168,25 +177,40 @@ const TRAITS = [
   'event_prep',
   'start_day',
 ] as const;
+/** The driver definitions from the PRD (NUCRIPCE table). Urgency is left out: it comes from the timeline. */
+const DRIVER_MEANING: Record<(typeof DRIVERS)[number], string> = {
+  novelty: 'the activity is new, unfamiliar, different, or offers a new experience',
+  challenge: 'requires problem-solving, sustained effort, complexity or stretch',
+  routine: 'familiar, predictable, structured or low in decision cost',
+  interest: 'naturally captures attention, curiosity or engagement',
+  passion: 'strongly connected to personal meaning, values or enthusiasm',
+  collaboration:
+    'the activity itself involves other people: social participation, interaction or shared work',
+  exploration: 'inquiry, learning, information-seeking, experimentation, research or discovery',
+};
 export type DriversOutput = {
   drivers: (typeof DRIVERS)[number][];
   demandCharacteristics: string[];
 };
 export const suggestDrivers: JsonTask<DriversInput, DriversOutput> = {
   name: 'suggestDrivers',
-  promptVersion: 'suggest-drivers@1',
+  promptVersion: 'suggest-drivers@2',
   schema: () =>
     z.object({
       drivers: z.array(z.enum(DRIVERS)).max(3),
       demandCharacteristics: z.array(z.enum(TRAITS)).max(4),
     }),
   system: () =>
-    `Tag a task with what might make it engaging (drivers) and what kind of demand it is. Never tag urgency. ${DATA_ONLY}`,
+    `Tag a task with what might make it engaging (drivers) and what kind of demand it is. Never tag urgency. ${DATA_ONLY}\nDrivers:\n${DRIVERS.map((d) => `${d}: ${DRIVER_MEANING[d]}`).join('\n')}\nGive 0 to 3 drivers that clearly fit, each at most once, the best fit first. Give none rather than guess. List each demand characteristic at most once.`,
   text: (i) => (i.kind ? `${i.title} (${i.kind})` : i.title),
   maxChars: 200,
   temperature: 0.2,
   maxTokens: 100,
   timeoutMs: 8000,
+  clean: (o) => ({
+    drivers: distinct(o.drivers),
+    demandCharacteristics: distinct(o.demandCharacteristics),
+  }),
   check: () => true,
   fallback: (i) => suggestDriversByRules(i.title),
 };
@@ -205,7 +229,7 @@ export type BreakDownOutput = {
 const BLAME = /\b(finally|should have|just do it|lazy)\b/i;
 export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
   name: 'breakDownTask',
-  promptVersion: 'break-down@1',
+  promptVersion: 'break-down@2',
   schema: (i) =>
     z.object({
       steps: z
@@ -217,7 +241,7 @@ export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
       estimatedDemand: z.enum(['low', 'moderate', 'heavy']),
     }),
   system: (i) =>
-    `Break the task into at most ${String(i.stepCap)} small, concrete steps, each a single action starting with a verb.${i.strained ? ' The person is struggling: only the smallest, most routine steps, 5 minutes or less.' : ''} ${DATA_ONLY}`,
+    `Break the task into at most ${String(i.stepCap)} small, concrete steps, each a single action starting with a verb and under 60 characters.${i.strained ? ' The person is struggling: only the smallest, most routine steps, 5 minutes or less.' : ''} ${DATA_ONLY}`,
   text: (i) => (i.kind ? `${i.title} (${i.kind})` : i.title),
   maxChars: 200,
   temperature: 0.4,
