@@ -10,3 +10,16 @@ onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
   - prisma
+
+overrides:
+  # Security (pnpm audit): fixed versions of transitive dependencies.
+  # minio 8 > query-string 7 pins decode-uri-component 0.2.2 (high DoS advisory). The fixed 0.5.1
+  # is ESM-only; patches/query-string@7.1.3.patch loads it through Node 22's require(esm).
+  decode-uri-component: ^0.5.1
+  deepmerge-ts: ^8.0.0
+  # @nestjs/platform-fastify 11 pins fastify 5.11.3; 5.12.2+ fixes four high advisories.
+  fastify: 5.12.7
+
+# Drop the query-string patch once minio moves off query-string 7.
+patchedDependencies:
+  query-string@7.1.3: patches/query-string@7.1.3.patch

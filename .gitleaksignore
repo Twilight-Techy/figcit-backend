@@ -1,0 +1,4 @@
+# Reviewed gitleaks false positives (fingerprint per finding). Both are empty placeholders or
+# reads of environment variables, not secrets.
+ef31ce5310460ce6bdeeb9bd14086f48918ec7a1:.env.example:generic-api-key:36
+ef31ce5310460ce6bdeeb9bd14086f48918ec7a1:apps/api/src/platform/storage/storage.service.ts:generic-api-key:38

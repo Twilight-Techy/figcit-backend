@@ -12,6 +12,8 @@ concurrency:
 permissions:
   contents: read
 
+# Job names are stable so they can be required in branch protection: check, e2e, audit,
+# secrets, image (ENGINEERING_RULES §16).
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -25,5 +27,97 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
+      # lint, format, types, unit tests, engine purity, knip, dependency-cruiser, licences
       - run: pnpm check
+      - name: Engine coverage
+        run: pnpm test:coverage
+      - name: OpenAPI is up to date
+        # The generator loads the API's config; give it throwaway keys like e2e does.
+        run: node scripts/dev-env.mjs && pnpm openapi:check
       - run: pnpm build
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        # A throwaway database on the runner: trust auth, so there's no password to leak or flag.
+        env:
+          POSTGRES_USER: figcit
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: figcit
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U figcit" --health-interval 5s --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://figcit@localhost:5432/figcit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      # Throwaway keys for this run only (JWT, field encryption, VAPID).
+      - run: node scripts/dev-env.mjs
+      - name: API end to end, with coverage
+        run: pnpm --filter @figcit/api exec vitest run --config vitest.e2e.config.ts --coverage
+
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      # No install here, so no pnpm cache to save.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm audit --audit-level high
+
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: >-
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.30.0
+          git /repo --config /repo/.gitleaks.toml --redact --verbose
+
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -f docker/api.Dockerfile -t figcit-api:${{ github.sha }} .
+      - name: Size gate (compressed, < 180 MB)
+        run: |
+          bytes=$(docker save figcit-api:${{ github.sha }} | gzip -1 | wc -c)
+          mb=$((bytes / 1048576))
+          echo "Image: ${mb} MB compressed"
+          test "$mb" -lt 180
+      - name: Trivy (high and critical fail)
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.76.1
+          image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress
+          figcit-api:${{ github.sha }}
+
+  openapi:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openapi
+          path: openapi/openapi.json

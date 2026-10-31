@@ -1,0 +1,26 @@
+{
+  "glob": {
+    "licence": "BlueOak-1.0.0",
+    "reason": "Permissive (like MIT); transitive. Pending legal confirmation (B-46)."
+  },
+  "lru-cache": {
+    "licence": "BlueOak-1.0.0",
+    "reason": "Permissive (like MIT); transitive. Pending legal confirmation (B-46)."
+  },
+  "minimatch": {
+    "licence": "BlueOak-1.0.0",
+    "reason": "Permissive (like MIT); transitive. Pending legal confirmation (B-46)."
+  },
+  "minipass": {
+    "licence": "BlueOak-1.0.0",
+    "reason": "Permissive (like MIT); transitive. Pending legal confirmation (B-46)."
+  },
+  "path-scurry": {
+    "licence": "BlueOak-1.0.0",
+    "reason": "Permissive (like MIT); transitive. Pending legal confirmation (B-46)."
+  },
+  "sax": {
+    "licence": "BlueOak-1.0.0",
+    "reason": "Permissive (like MIT); transitive. Pending legal confirmation (B-46)."
+  }
+}

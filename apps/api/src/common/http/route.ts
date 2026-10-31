@@ -13,6 +13,15 @@ export interface RouteDoc {
   readonly query?: z.ZodType;
   readonly response?: z.ZodType;
   readonly status?: number;
+  /**
+   * Examples for the contract (issue #6). Usually generated from the schemas; set one only when a
+   * schema is too specific to generate from (a refine, say). Checked against the schema.
+   */
+  readonly example?: {
+    readonly body?: unknown;
+    readonly query?: unknown;
+    readonly response?: unknown;
+  };
   /** Routes that only exist as a contract for now (WORKFLOW §6). */
   readonly contractOnly?: boolean;
 }

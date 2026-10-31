@@ -7,7 +7,7 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "dev": "pnpm --filter @figcit/api dev",
+    "dev": "node scripts/dev.mjs",
     "build": "pnpm -r run build",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
@@ -17,17 +17,25 @@
     "test:e2e": "pnpm --filter @figcit/api test:e2e",
     "bench": "pnpm --filter @figcit/engine bench",
     "check:engine-deps": "node scripts/check-engine-deps.mjs",
-    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run check:engine-deps",
+    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run check:engine-deps && pnpm run knip && pnpm run deps:check && pnpm run licences:check",
     "db:generate": "pnpm --filter @figcit/api db:generate",
     "db:migration": "pnpm --filter @figcit/api db:migration",
     "openapi:generate": "pnpm --filter @figcit/api openapi:generate",
-    "fixtures:generate": "pnpm --filter @figcit/rules-compiler fixtures:generate"
+    "fixtures:generate": "pnpm --filter @figcit/rules-compiler fixtures:generate",
+    "knip": "knip",
+    "deps:check": "depcruise apps/api/src packages/engine/src packages/rules-compiler/src",
+    "licences:check": "node scripts/check-licences.mjs",
+    "openapi:check": "pnpm openapi:generate && git diff --exit-code -- openapi/openapi.json",
+    "test:coverage": "pnpm --filter @figcit/engine exec vitest run --coverage",
+    "db:worktree": "node scripts/db-worktree.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@types/node": "^22.20.5",
     "@vitest/coverage-v8": "5.0.5",
+    "dependency-cruiser": "18.7.0",
     "eslint": "^9.39.5",
+    "knip": "6.43.0",
     "prettier": "^3.9.10",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.1",

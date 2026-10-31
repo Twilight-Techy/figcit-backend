@@ -122,6 +122,35 @@
                     "commCards"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "kinds": [
+                    {
+                      "kind": "Example kind",
+                      "title": "Example title",
+                      "summary": "Example summary",
+                      "options": [
+                        {
+                          "code": "Example code",
+                          "label": "Example label",
+                          "detail": "Example detail",
+                          "saved": true
+                        }
+                      ]
+                    }
+                  ],
+                  "saved": [
+                    {
+                      "kind": "Example kind",
+                      "detailCode": "Example detailCode"
+                    }
+                  ],
+                  "commCards": [
+                    {
+                      "code": "Example code",
+                      "text": "Example text"
+                    }
+                  ]
                 }
               }
             }
@@ -161,7 +190,8 @@
               "type": "string",
               "format": "date-time",
               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
-            }
+            },
+            "example": "2026-01-15T09:30:00.000Z"
           }
         ],
         "responses": {
@@ -181,6 +211,11 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    null
+                  ]
                 }
               }
             }
@@ -222,7 +257,8 @@
             "schema": {
               "type": "string",
               "maxLength": 24
-            }
+            },
+            "example": "Example kind"
           }
         ],
         "responses": {
@@ -242,6 +278,11 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    null
+                  ]
                 }
               }
             }
@@ -309,6 +350,12 @@
                   "body"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "key": "example",
+                "kind": "copy",
+                "body": null,
+                "touchesSafety": false
               }
             }
           }
@@ -318,7 +365,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -367,7 +415,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -416,7 +465,8 @@
                 "red",
                 "blue"
               ]
-            }
+            },
+            "example": "green"
           },
           {
             "name": "pattern",
@@ -425,7 +475,8 @@
             "schema": {
               "type": "string",
               "maxLength": 4
-            }
+            },
+            "example": "Exam"
           },
           {
             "name": "limit",
@@ -436,7 +487,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 200
-            }
+            },
+            "example": 50
           }
         ],
         "responses": {
@@ -456,6 +508,11 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    null
+                  ]
                 }
               }
             }
@@ -501,7 +558,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -536,7 +594,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -576,7 +635,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 90
-            }
+            },
+            "example": 14
           }
         ],
         "responses": {
@@ -584,7 +644,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -635,6 +696,11 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    null
+                  ]
                 }
               }
             }
@@ -690,6 +756,10 @@
                   "files"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "files": {},
+                "notes": "Example notes"
               }
             }
           }
@@ -699,7 +769,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -748,7 +819,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -796,7 +868,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -846,7 +919,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -896,6 +970,11 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    null
+                  ]
                 }
               }
             }
@@ -964,6 +1043,11 @@
                   "roles"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "roles": [
+                  "admin"
+                ]
               }
             }
           }
@@ -973,7 +1057,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -1023,6 +1108,9 @@
                   "text"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "text": "Example text"
               }
             }
           }
@@ -1177,6 +1265,29 @@
                       "additionalProperties": false
                     }
                   ]
+                },
+                "example": {
+                  "safety": false,
+                  "matches": [
+                    {
+                      "code": "Example code",
+                      "label": "Example label",
+                      "confidence": 1
+                    }
+                  ],
+                  "selected": [
+                    "Example selected"
+                  ],
+                  "ask": {
+                    "options": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label"
+                      }
+                    ]
+                  },
+                  "source": "ai",
+                  "limited": true
                 }
               }
             }
@@ -1227,6 +1338,9 @@
                   "text"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "text": "Example text"
               }
             }
           }
@@ -1375,6 +1489,25 @@
                       "additionalProperties": false
                     }
                   ]
+                },
+                "example": {
+                  "safety": false,
+                  "needs": [
+                    "Example needs"
+                  ],
+                  "heard": [
+                    {
+                      "label": "Example label",
+                      "kind": "feeling"
+                    }
+                  ],
+                  "task": {
+                    "title": "Example title",
+                    "type": "Example type"
+                  },
+                  "supportOnly": true,
+                  "source": "ai",
+                  "limited": true
                 }
               }
             }
@@ -1425,6 +1558,9 @@
                   "text"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "text": "Example text"
               }
             }
           }
@@ -1519,6 +1655,14 @@
                       "additionalProperties": false
                     }
                   ]
+                },
+                "example": {
+                  "safety": false,
+                  "tasks": [
+                    "Example tasks"
+                  ],
+                  "source": "ai",
+                  "limited": true
                 }
               }
             }
@@ -1579,6 +1723,10 @@
                   "title"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "title": "Example title",
+                "kind": "study"
               }
             }
           }
@@ -1680,6 +1828,17 @@
                       "additionalProperties": false
                     }
                   ]
+                },
+                "example": {
+                  "safety": false,
+                  "drivers": [
+                    "Example drivers"
+                  ],
+                  "demandCharacteristics": [
+                    "Example demandCharacteristics"
+                  ],
+                  "source": "ai",
+                  "limited": true
                 }
               }
             }
@@ -1735,6 +1894,10 @@
                     "expiresAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "browseToken": "<example-browseToken>",
+                  "expiresAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -1839,6 +2002,10 @@
                   "email"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "email": "sam@example.test",
+                "purpose": "sign_in"
               }
             }
           }
@@ -1860,6 +2027,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -1927,6 +2097,9 @@
                     "additionalProperties": false
                   }
                 ]
+              },
+              "example": {
+                "token": "<example-token>....."
               }
             }
           }
@@ -1986,6 +2159,19 @@
                     "user"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true
+                  }
                 }
               }
             }
@@ -2032,6 +2218,10 @@
                     "otpauthUri"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "secret": "<example-secret>",
+                  "otpauthUri": "Example otpauthUri"
                 }
               }
             }
@@ -2078,6 +2268,9 @@
                   "code"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "code": "123456"
               }
             }
           }
@@ -2137,6 +2330,19 @@
                     "user"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true
+                  }
                 }
               }
             }
@@ -2184,6 +2390,9 @@
                   "password"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "password": "<example-password>"
               }
             }
           }
@@ -2205,6 +2414,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -2253,6 +2465,9 @@
                   "email"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "email": "sam@example.test"
               }
             }
           }
@@ -2274,6 +2489,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -2323,6 +2541,10 @@
                   "password"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "token": "<example-token>.....",
+                "password": "<example-password>"
               }
             }
           }
@@ -2382,6 +2604,19 @@
                     "user"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true
+                  }
                 }
               }
             }
@@ -2432,6 +2667,10 @@
                   "password"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "email": "sam@example.test",
+                "password": "<example-password>"
               }
             }
           }
@@ -2491,6 +2730,19 @@
                     "user"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true
+                  }
                 }
               }
             }
@@ -2541,6 +2793,10 @@
                   "password"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "email": "sam@example.test",
+                "password": "<example-password>"
               }
             }
           }
@@ -2600,6 +2856,19 @@
                     "user"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true
+                  }
                 }
               }
             }
@@ -2640,6 +2909,9 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "refreshToken": "<example-refreshToken>"
               }
             }
           }
@@ -2699,6 +2971,19 @@
                     "user"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true
+                  }
                 }
               }
             }
@@ -2778,6 +3063,17 @@
                     "sessions"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "sessions": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "deviceLabel": "Example deviceLabel",
+                      "current": true,
+                      "createdAt": "2026-01-15T09:30:00.000Z",
+                      "lastUsedAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -2825,6 +3121,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -2872,6 +3171,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -2920,6 +3222,9 @@
                     "endsAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "endsAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -2970,6 +3275,10 @@
                   "planCode"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "planCode": "Example planCode",
+                "concessionConfirmed": false
               }
             }
           }
@@ -2996,6 +3305,10 @@
                     "sessionId"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "url": "Example url",
+                  "sessionId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -3043,6 +3356,9 @@
                   "sessionId"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "sessionId": "00000000-0000-4000-8000-000000000001"
               }
             }
           }
@@ -3064,6 +3380,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -3110,6 +3429,9 @@
                     "duplicate"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "duplicate": true
                 }
               }
             }
@@ -3469,6 +3791,45 @@
                   "state"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "createdOnDeviceAt": "2026-01-15T09:30:00.000Z",
+                "origin": "online",
+                "entry": "full",
+                "state": {
+                  "kind": "grid",
+                  "energy": 1,
+                  "mood": 1
+                },
+                "emotions": [],
+                "ownFeeling": "Example ownFeeling",
+                "sensations": [],
+                "context": {},
+                "needs": [],
+                "ownWords": "Example ownWords",
+                "parsedNeedCodes": [
+                  "Example parsedNeedCodes"
+                ],
+                "justSupport": false,
+                "demand": {
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "kind": "study",
+                  "dueAt": "2026-01-15T09:30:00.000Z",
+                  "timeline": "T0",
+                  "traits": [
+                    "Example traits"
+                  ],
+                  "puttingOff": true,
+                  "confirmedDrivers": [
+                    "novelty"
+                  ],
+                  "count": 1,
+                  "recurrenceRule": "Example recurrenceRule"
+                },
+                "intent": "regulate",
+                "recheckOfId": "00000000-0000-4000-8000-000000000001"
               }
             }
           }
@@ -3978,6 +4339,95 @@
                     "card"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "checkIn": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "cellId": "Example cellId",
+                    "energy": 1,
+                    "mood": 1,
+                    "entry": "full",
+                    "light": "green",
+                    "stateName": "Example stateName",
+                    "emotions": [
+                      {
+                        "code": "Example code",
+                        "intensity": 1
+                      }
+                    ]
+                  },
+                  "card": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "checkInId": "00000000-0000-4000-8000-000000000001",
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "light": "green",
+                    "lightLabel": "Example lightLabel",
+                    "lightHex": "Example lightHex",
+                    "lightIcon": "Example lightIcon",
+                    "state": {
+                      "cellId": "Example cellId",
+                      "name": "Example name",
+                      "icon": "Example icon",
+                      "meaning": "Example meaning",
+                      "confirmed": true
+                    },
+                    "title": "Example title",
+                    "rationale": "Example rationale",
+                    "primary": {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    },
+                    "alternatives": [
+                      {
+                        "kind": "pathway",
+                        "label": "Example label",
+                        "pathway": "regulate",
+                        "toolId": "Example toolId",
+                        "advanced": true,
+                        "minutes": 1,
+                        "practiceId": "Example practiceId",
+                        "href": "Example href"
+                      }
+                    ],
+                    "queuedStep": {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    },
+                    "supportVisible": true,
+                    "notNow": true,
+                    "safetyTriggered": true,
+                    "crisisRoutes": [
+                      {
+                        "id": "Example id",
+                        "label": "Example label",
+                        "detail": "Example detail",
+                        "href": "Example href",
+                        "kind": "call"
+                      }
+                    ],
+                    "patterns": [
+                      1
+                    ],
+                    "timeline": {
+                      "code": "Example code",
+                      "stepCap": 1
+                    },
+                    "taskId": "00000000-0000-4000-8000-000000000001",
+                    "origin": "online"
+                  }
                 }
               }
             }
@@ -4013,7 +4463,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "Example after"
           },
           {
             "name": "limit",
@@ -4024,7 +4475,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
-            }
+            },
+            "example": 30
           }
         ],
         "responses": {
@@ -4159,6 +4611,27 @@
                     "next"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "createdAt": "2026-01-15T09:30:00.000Z",
+                      "cellId": "Example cellId",
+                      "energy": 1,
+                      "mood": 1,
+                      "entry": "full",
+                      "light": "green",
+                      "stateName": "Example stateName",
+                      "emotions": [
+                        {
+                          "code": "Example code",
+                          "intensity": 1
+                        }
+                      ]
+                    }
+                  ],
+                  "next": "Example next"
                 }
               }
             }
@@ -4711,6 +5184,95 @@
                     "card"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "checkIn": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "cellId": "Example cellId",
+                    "energy": 1,
+                    "mood": 1,
+                    "entry": "full",
+                    "light": "green",
+                    "stateName": "Example stateName",
+                    "emotions": [
+                      {
+                        "code": "Example code",
+                        "intensity": 1
+                      }
+                    ]
+                  },
+                  "card": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "checkInId": "00000000-0000-4000-8000-000000000001",
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "light": "green",
+                    "lightLabel": "Example lightLabel",
+                    "lightHex": "Example lightHex",
+                    "lightIcon": "Example lightIcon",
+                    "state": {
+                      "cellId": "Example cellId",
+                      "name": "Example name",
+                      "icon": "Example icon",
+                      "meaning": "Example meaning",
+                      "confirmed": true
+                    },
+                    "title": "Example title",
+                    "rationale": "Example rationale",
+                    "primary": {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    },
+                    "alternatives": [
+                      {
+                        "kind": "pathway",
+                        "label": "Example label",
+                        "pathway": "regulate",
+                        "toolId": "Example toolId",
+                        "advanced": true,
+                        "minutes": 1,
+                        "practiceId": "Example practiceId",
+                        "href": "Example href"
+                      }
+                    ],
+                    "queuedStep": {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    },
+                    "supportVisible": true,
+                    "notNow": true,
+                    "safetyTriggered": true,
+                    "crisisRoutes": [
+                      {
+                        "id": "Example id",
+                        "label": "Example label",
+                        "detail": "Example detail",
+                        "href": "Example href",
+                        "kind": "call"
+                      }
+                    ],
+                    "patterns": [
+                      1
+                    ],
+                    "timeline": {
+                      "code": "Example code",
+                      "stepCap": 1
+                    },
+                    "taskId": "00000000-0000-4000-8000-000000000001",
+                    "origin": "online"
+                  }
                 }
               }
             }
@@ -4904,6 +5466,43 @@
                     "rooms"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "contacts": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "Example name",
+                      "phone": "Example phone",
+                      "email": "Example email",
+                      "relationship": "Example relationship",
+                      "contactWhen": [
+                        "Example contactWhen"
+                      ],
+                      "consentConfirmed": true,
+                      "position": 1
+                    }
+                  ],
+                  "starters": [
+                    {
+                      "id": "Example id",
+                      "text": "Example text",
+                      "kind": "Example kind",
+                      "own": true,
+                      "contactId": "00000000-0000-4000-8000-000000000001"
+                    }
+                  ],
+                  "groups": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "kind": "Example kind",
+                      "name": "Example name",
+                      "link": "Example link"
+                    }
+                  ],
+                  "rooms": {
+                    "available": true,
+                    "note": "Example note"
+                  }
                 }
               }
             }
@@ -4961,6 +5560,12 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "contactId": "00000000-0000-4000-8000-000000000001",
+                "starterCode": "Example starterCode",
+                "text": "Example text",
+                "save": false
               }
             }
           }
@@ -5094,6 +5699,18 @@
                       "additionalProperties": false
                     }
                   ]
+                },
+                "example": {
+                  "safety": false,
+                  "text": "Example text",
+                  "contactName": "Example contactName",
+                  "links": {
+                    "sms": "Example sms",
+                    "whatsapp": "Example whatsapp",
+                    "email": "Example email",
+                    "share": "Example share"
+                  },
+                  "savedStarterId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -5156,6 +5773,11 @@
                   "name"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "kind": "community",
+                "name": "Example name",
+                "link": "https://example.test/item"
               }
             }
           }
@@ -5193,6 +5815,12 @@
                     "link"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "kind": "Example kind",
+                  "name": "Example name",
+                  "link": "Example link"
                 }
               }
             }
@@ -5349,6 +5977,17 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "release": 1,
+                  "items": [
+                    {
+                      "key": "<example-key>",
+                      "kind": "Example kind",
+                      "version": 1,
+                      "body": null
+                    }
+                  ]
                 }
               }
             }
@@ -5415,6 +6054,16 @@
                     "mail"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "mail": [
+                    {
+                      "to": "Example to",
+                      "subject": "Example subject",
+                      "text": "Example text",
+                      "at": "Example at"
+                    }
+                  ]
                 }
               }
             }
@@ -5454,7 +6103,8 @@
                 "true",
                 "false"
               ]
-            }
+            },
+            "example": "0"
           }
         ],
         "responses": {
@@ -5560,6 +6210,23 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "title": "Example title",
+                      "purpose": "Example purpose",
+                      "audience": "Example audience",
+                      "mode": "draft",
+                      "body": "Example body",
+                      "sourceType": "Example sourceType",
+                      "sourceId": "00000000-0000-4000-8000-000000000001",
+                      "archived": true,
+                      "createdAt": "2026-01-15T09:30:00.000Z",
+                      "updatedAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -5654,6 +6321,16 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "title": "Example title",
+                "purpose": "Example purpose",
+                "audience": "manager",
+                "mode": "draft",
+                "body": "",
+                "sourceType": "dump_item",
+                "sourceId": "00000000-0000-4000-8000-000000000001"
               }
             }
           }
@@ -5834,6 +6511,34 @@
                     "versions"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "purpose": "Example purpose",
+                  "audience": "Example audience",
+                  "mode": "draft",
+                  "body": "Example body",
+                  "sourceType": "Example sourceType",
+                  "sourceId": "00000000-0000-4000-8000-000000000001",
+                  "archived": true,
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "versions": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "mode": "draft",
+                      "aiUsed": true,
+                      "aiTask": "Example aiTask",
+                      "changes": {
+                        "wordsBefore": 1,
+                        "wordsAfter": 1,
+                        "removedPhrases": 1,
+                        "summary": "Example summary"
+                      },
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -6050,6 +6755,34 @@
                     "versions"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "purpose": "Example purpose",
+                  "audience": "Example audience",
+                  "mode": "draft",
+                  "body": "Example body",
+                  "sourceType": "Example sourceType",
+                  "sourceId": "00000000-0000-4000-8000-000000000001",
+                  "archived": true,
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "versions": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "mode": "draft",
+                      "aiUsed": true,
+                      "aiTask": "Example aiTask",
+                      "changes": {
+                        "wordsBefore": 1,
+                        "wordsAfter": 1,
+                        "removedPhrases": 1,
+                        "summary": "Example summary"
+                      },
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -6163,6 +6896,15 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "title": "Example title",
+                "purpose": "Example purpose",
+                "audience": "manager",
+                "mode": "draft",
+                "body": "Example body",
+                "archived": true,
+                "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
           }
@@ -6343,6 +7085,34 @@
                     "versions"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "purpose": "Example purpose",
+                  "audience": "Example audience",
+                  "mode": "draft",
+                  "body": "Example body",
+                  "sourceType": "Example sourceType",
+                  "sourceId": "00000000-0000-4000-8000-000000000001",
+                  "archived": true,
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "versions": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "mode": "draft",
+                      "aiUsed": true,
+                      "aiTask": "Example aiTask",
+                      "changes": {
+                        "wordsBefore": 1,
+                        "wordsAfter": 1,
+                        "removedPhrases": 1,
+                        "summary": "Example summary"
+                      },
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -6457,6 +7227,11 @@
                   "mode"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "mode": "simplify",
+                "level": "clear",
+                "text": "Example text"
               }
             }
           }
@@ -6638,6 +7413,33 @@
                       "additionalProperties": false
                     }
                   ]
+                },
+                "example": {
+                  "safety": false,
+                  "mode": "Example mode",
+                  "text": "Example text",
+                  "sections": [
+                    {
+                      "role": "Example role",
+                      "text": "Example text"
+                    }
+                  ],
+                  "lines": [
+                    {
+                      "cue": "Example cue",
+                      "text": "Example text"
+                    }
+                  ],
+                  "changes": {
+                    "wordsBefore": 1,
+                    "wordsAfter": 1,
+                    "removedPhrases": 1,
+                    "summary": "Example summary"
+                  },
+                  "source": "ai",
+                  "replaced": true,
+                  "limited": true,
+                  "versionId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -6708,6 +7510,10 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "text": "Example text",
+                "bucket": "ideas"
               }
             }
           }
@@ -6803,6 +7609,15 @@
                     "movedToId"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "position": 1,
+                  "text": "Example text",
+                  "bucket": "ideas",
+                  "suggestedBucket": "ideas",
+                  "movedTo": "task",
+                  "movedToId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -6987,6 +7802,18 @@
                     "targetId"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "item": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "position": 1,
+                    "text": "Example text",
+                    "bucket": "ideas",
+                    "suggestedBucket": "ideas",
+                    "movedTo": "task",
+                    "movedToId": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "targetId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -7070,6 +7897,12 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "title": "Example title",
+                "kind": "study",
+                "dueAt": "2026-01-15T09:30:00.000Z",
+                "timeline": "T0"
               }
             }
           }
@@ -7180,6 +8013,18 @@
                     "targetId"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "item": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "position": 1,
+                    "text": "Example text",
+                    "bucket": "ideas",
+                    "suggestedBucket": "ideas",
+                    "movedTo": "task",
+                    "movedToId": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "targetId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -7276,6 +8121,19 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "source": "text",
+                "text": "Example text",
+                "items": [
+                  {
+                    "text": "Example text",
+                    "bucket": "ideas"
+                  }
+                ],
+                "transcriptionId": "00000000-0000-4000-8000-000000000001",
+                "origin": "online"
               }
             }
           }
@@ -7492,6 +8350,40 @@
                     "crisisRoutes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "source": "Example source",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "sortedAt": "2026-01-15T09:30:00.000Z",
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "position": 1,
+                      "text": "Example text",
+                      "bucket": "ideas",
+                      "suggestedBucket": "ideas",
+                      "movedTo": "task",
+                      "movedToId": "00000000-0000-4000-8000-000000000001"
+                    }
+                  ],
+                  "counts": {
+                    "ideas": 1,
+                    "notes": 1,
+                    "worries": 1,
+                    "todo": 1,
+                    "unsorted": 1
+                  },
+                  "safety": true,
+                  "crisisRoutes": [
+                    {
+                      "id": "Example id",
+                      "label": "Example label",
+                      "detail": "Example detail",
+                      "href": "Example href",
+                      "kind": "call"
+                    }
+                  ]
                 }
               }
             }
@@ -7527,7 +8419,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "Example after"
           },
           {
             "name": "limit",
@@ -7538,7 +8431,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 50
-            }
+            },
+            "example": 20
           }
         ],
         "responses": {
@@ -7731,6 +8625,35 @@
                     "next"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "source": "Example source",
+                      "createdAt": "2026-01-15T09:30:00.000Z",
+                      "sortedAt": "2026-01-15T09:30:00.000Z",
+                      "items": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "position": 1,
+                          "text": "Example text",
+                          "bucket": "ideas",
+                          "suggestedBucket": "ideas",
+                          "movedTo": "task",
+                          "movedToId": "00000000-0000-4000-8000-000000000001"
+                        }
+                      ],
+                      "counts": {
+                        "ideas": 1,
+                        "notes": 1,
+                        "worries": 1,
+                        "todo": 1,
+                        "unsorted": 1
+                      }
+                    }
+                  ],
+                  "next": "Example next"
                 }
               }
             }
@@ -7942,6 +8865,30 @@
                     "counts"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "source": "Example source",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "sortedAt": "2026-01-15T09:30:00.000Z",
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "position": 1,
+                      "text": "Example text",
+                      "bucket": "ideas",
+                      "suggestedBucket": "ideas",
+                      "movedTo": "task",
+                      "movedToId": "00000000-0000-4000-8000-000000000001"
+                    }
+                  ],
+                  "counts": {
+                    "ideas": 1,
+                    "notes": 1,
+                    "worries": 1,
+                    "todo": 1,
+                    "unsorted": 1
+                  }
                 }
               }
             }
@@ -8046,6 +8993,10 @@
                   "text"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "text": "Example text",
+                "bucket": "ideas"
               }
             }
           }
@@ -8141,6 +9092,15 @@
                     "movedToId"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "position": 1,
+                  "text": "Example text",
+                  "bucket": "ideas",
+                  "suggestedBucket": "ideas",
+                  "movedTo": "task",
+                  "movedToId": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -8231,6 +9191,16 @@
                   "events"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "consent": false,
+                "events": [
+                  {
+                    "name": "example",
+                    "props": {},
+                    "at": "2026-01-15T09:30:00.000Z"
+                  }
+                ]
               }
             }
           }
@@ -8259,6 +9229,10 @@
                     "dropped"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "accepted": 1,
+                  "dropped": 1
                 }
               }
             }
@@ -8358,6 +9332,9 @@
                     "url"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "url": "Example url"
                 }
               }
             }
@@ -8489,6 +9466,11 @@
                   "sizeBytes"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "purpose": "practice_audio",
+                "contentType": "Example contentType",
+                "sizeBytes": 1
               }
             }
           }
@@ -8545,6 +9527,15 @@
                     "upload"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "fileId": "00000000-0000-4000-8000-000000000001",
+                  "upload": {
+                    "url": "Example url",
+                    "method": "PUT",
+                    "headers": {},
+                    "expiresAt": "2026-01-15T09:30:00.000Z"
+                  }
                 }
               }
             }
@@ -8592,6 +9583,9 @@
                     "status"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "status": "ok"
                 }
               }
             }
@@ -8639,6 +9633,10 @@
                     "snapshot"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "status": "ok",
+                  "snapshot": "Example snapshot"
                 }
               }
             }
@@ -8756,6 +9754,22 @@
                     "unread"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "kind": "Example kind",
+                      "refType": "Example refType",
+                      "refId": "00000000-0000-4000-8000-000000000001",
+                      "title": "Example title",
+                      "body": "Example body",
+                      "href": "Example href",
+                      "readAt": "2026-01-15T09:30:00.000Z",
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ],
+                  "unread": 1
                 }
               }
             }
@@ -8813,6 +9827,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -8860,6 +9877,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -8905,7 +9925,8 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {},
+                "example": null
               }
             }
           },
@@ -8965,6 +9986,10 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "maxUses": 1,
+                "days": 30
               }
             }
           }
@@ -8991,6 +10016,10 @@
                     "expiresAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "code": "Example code",
+                  "expiresAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -9048,6 +10077,11 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    null
+                  ]
                 }
               }
             }
@@ -9115,6 +10149,9 @@
                   "status"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "status": "acknowledged"
               }
             }
           }
@@ -9166,6 +10203,9 @@
                   "code"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "code": "Example code"
               }
             }
           }
@@ -9192,6 +10232,10 @@
                     "name"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "tenantId": "00000000-0000-4000-8000-000000000001",
+                  "name": "Example name"
                 }
               }
             }
@@ -9491,6 +10535,54 @@
                     "preferences"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "email": "Example email",
+                  "emailVerified": true,
+                  "nickname": "Example nickname",
+                  "roles": [
+                    "Example roles"
+                  ],
+                  "ageConfirmed": true,
+                  "ageBand": "adult",
+                  "locale": "Example locale",
+                  "region": "Example region",
+                  "timezone": "Example timezone",
+                  "helpWith": [
+                    "Example helpWith"
+                  ],
+                  "journeySeen": true,
+                  "setupDone": true,
+                  "hasPassword": true,
+                  "plan": "free",
+                  "tenant": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "name": "Example name"
+                  },
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "preferences": {
+                    "textSize": 0,
+                    "theme": "fig_citrus",
+                    "followSystemTheme": true,
+                    "highContrast": true,
+                    "reduceMotion": true,
+                    "sound": true,
+                    "haptics": true,
+                    "dyslexicFont": true,
+                    "lowStimulation": true,
+                    "notificationStyle": "gentle",
+                    "quietHoursStart": 0,
+                    "quietHoursEnd": 0,
+                    "inWorship": true,
+                    "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                    "taskNudgesPerDay": 0,
+                    "notifyCategories": [
+                      "checkin"
+                    ],
+                    "patternPrompts": true,
+                    "personalisation": true
+                  }
                 }
               }
             }
@@ -9566,6 +10658,17 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "nickname": "Example nickname",
+                "locale": "Example locale",
+                "region": "Example ",
+                "timezone": "Example timezone",
+                "helpWith": [
+                  "Example helpWith"
+                ],
+                "journeySeen": true,
+                "setupDone": true
               }
             }
           }
@@ -9839,6 +10942,54 @@
                     "preferences"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "email": "Example email",
+                  "emailVerified": true,
+                  "nickname": "Example nickname",
+                  "roles": [
+                    "Example roles"
+                  ],
+                  "ageConfirmed": true,
+                  "ageBand": "adult",
+                  "locale": "Example locale",
+                  "region": "Example region",
+                  "timezone": "Example timezone",
+                  "helpWith": [
+                    "Example helpWith"
+                  ],
+                  "journeySeen": true,
+                  "setupDone": true,
+                  "hasPassword": true,
+                  "plan": "free",
+                  "tenant": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "name": "Example name"
+                  },
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "preferences": {
+                    "textSize": 0,
+                    "theme": "fig_citrus",
+                    "followSystemTheme": true,
+                    "highContrast": true,
+                    "reduceMotion": true,
+                    "sound": true,
+                    "haptics": true,
+                    "dyslexicFont": true,
+                    "lowStimulation": true,
+                    "notificationStyle": "gentle",
+                    "quietHoursStart": 0,
+                    "quietHoursEnd": 0,
+                    "inWorship": true,
+                    "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                    "taskNudgesPerDay": 0,
+                    "notifyCategories": [
+                      "checkin"
+                    ],
+                    "patternPrompts": true,
+                    "personalisation": true
+                  }
                 }
               }
             }
@@ -9883,6 +11034,9 @@
                   "confirm"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "confirm": "delete my account"
               }
             }
           }
@@ -9905,6 +11059,9 @@
                     "scheduledFor"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "scheduledFor": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -9968,6 +11125,9 @@
                     "additionalProperties": false
                   }
                 ]
+              },
+              "example": {
+                "confirmed18": true
               }
             }
           }
@@ -10241,6 +11401,54 @@
                     "preferences"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "email": "Example email",
+                  "emailVerified": true,
+                  "nickname": "Example nickname",
+                  "roles": [
+                    "Example roles"
+                  ],
+                  "ageConfirmed": true,
+                  "ageBand": "adult",
+                  "locale": "Example locale",
+                  "region": "Example region",
+                  "timezone": "Example timezone",
+                  "helpWith": [
+                    "Example helpWith"
+                  ],
+                  "journeySeen": true,
+                  "setupDone": true,
+                  "hasPassword": true,
+                  "plan": "free",
+                  "tenant": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "name": "Example name"
+                  },
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "preferences": {
+                    "textSize": 0,
+                    "theme": "fig_citrus",
+                    "followSystemTheme": true,
+                    "highContrast": true,
+                    "reduceMotion": true,
+                    "sound": true,
+                    "haptics": true,
+                    "dyslexicFont": true,
+                    "lowStimulation": true,
+                    "notificationStyle": "gentle",
+                    "quietHoursStart": 0,
+                    "quietHoursEnd": 0,
+                    "inWorship": true,
+                    "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                    "taskNudgesPerDay": 0,
+                    "notifyCategories": [
+                      "checkin"
+                    ],
+                    "patternPrompts": true,
+                    "personalisation": true
+                  }
                 }
               }
             }
@@ -10327,6 +11535,16 @@
                     "purposes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "noticeVersion": "Example noticeVersion",
+                  "purposes": [
+                    {
+                      "purpose": "wellbeing_data",
+                      "granted": true,
+                      "at": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -10404,6 +11622,15 @@
                   "choices"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "source": "settings",
+                "choices": [
+                  {
+                    "purpose": "wellbeing_data",
+                    "granted": true
+                  }
+                ]
               }
             }
           }
@@ -10464,6 +11691,16 @@
                     "purposes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "noticeVersion": "Example noticeVersion",
+                  "purposes": [
+                    {
+                      "purpose": "wellbeing_data",
+                      "granted": true,
+                      "at": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -10577,6 +11814,19 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "tier": "free",
+                  "items": [
+                    {
+                      "planCode": "Example planCode",
+                      "source": "Example source",
+                      "status": "Example status",
+                      "renewsAt": "2026-01-15T09:30:00.000Z",
+                      "endsAt": "2026-01-15T09:30:00.000Z",
+                      "graceUntil": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -10629,6 +11879,10 @@
                     "status"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "status": "Example status"
                 }
               }
             }
@@ -10732,6 +11986,18 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "status": "Example status",
+                      "requestedAt": "2026-01-15T09:30:00.000Z",
+                      "completedAt": "2026-01-15T09:30:00.000Z",
+                      "expiresAt": "2026-01-15T09:30:00.000Z",
+                      "url": "Example url"
+                    }
+                  ]
                 }
               }
             }
@@ -10815,6 +12081,15 @@
                     "sharing"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "tenant": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "name": "Example name",
+                    "kind": "Example kind"
+                  },
+                  "role": "Example role",
+                  "sharing": true
                 }
               }
             }
@@ -10899,6 +12174,10 @@
                   "message"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "message": "Example message",
+                "preferred": "email"
               }
             }
           }
@@ -10921,6 +12200,9 @@
                     "id"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001"
                 }
               }
             }
@@ -11074,6 +12356,29 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "textSize": 0,
+                "theme": "fig_citrus",
+                "followSystemTheme": true,
+                "highContrast": true,
+                "reduceMotion": true,
+                "sound": true,
+                "haptics": true,
+                "dyslexicFont": true,
+                "lowStimulation": true,
+                "notificationStyle": "gentle",
+                "quietHoursStart": 0,
+                "quietHoursEnd": 0,
+                "inWorship": true,
+                "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                "taskNudgesPerDay": 0,
+                "notifyCategories": [
+                  "checkin"
+                ],
+                "patternPrompts": true,
+                "personalisation": true,
+                "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
           }
@@ -11217,6 +12522,28 @@
                     "personalisation"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "textSize": 0,
+                  "theme": "fig_citrus",
+                  "followSystemTheme": true,
+                  "highContrast": true,
+                  "reduceMotion": true,
+                  "sound": true,
+                  "haptics": true,
+                  "dyslexicFont": true,
+                  "lowStimulation": true,
+                  "notificationStyle": "gentle",
+                  "quietHoursStart": 0,
+                  "quietHoursEnd": 0,
+                  "inWorship": true,
+                  "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                  "taskNudgesPerDay": 0,
+                  "notifyCategories": [
+                    "checkin"
+                  ],
+                  "patternPrompts": true,
+                  "personalisation": true
                 }
               }
             }
@@ -11307,6 +12634,18 @@
                     "updatedAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "preferredRoutes": [
+                    "Example preferredRoutes"
+                  ],
+                  "signs": "Example signs",
+                  "whatHelps": "Example whatHelps",
+                  "whatToAvoid": "Example whatToAvoid",
+                  "messages": [
+                    "Example messages"
+                  ],
+                  "updatedAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -11399,6 +12738,18 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "preferredRoutes": [
+                  "Example preferredRoutes"
+                ],
+                "signs": "Example signs",
+                "whatHelps": "Example whatHelps",
+                "whatToAvoid": "Example whatToAvoid",
+                "messages": [
+                  "Example messages"
+                ],
+                "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
           }
@@ -11463,6 +12814,18 @@
                     "updatedAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "preferredRoutes": [
+                    "Example preferredRoutes"
+                  ],
+                  "signs": "Example signs",
+                  "whatHelps": "Example whatHelps",
+                  "whatToAvoid": "Example whatToAvoid",
+                  "messages": [
+                    "Example messages"
+                  ],
+                  "updatedAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -11565,6 +12928,22 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "Example name",
+                      "phone": "Example phone",
+                      "email": "Example email",
+                      "relationship": "Example relationship",
+                      "contactWhen": [
+                        "Example contactWhen"
+                      ],
+                      "consentConfirmed": true,
+                      "position": 1
+                    }
+                  ]
                 }
               }
             }
@@ -11674,6 +13053,18 @@
                   "name"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "name": "Example name",
+                "phone": "123456",
+                "email": "sam@example.test",
+                "relationship": "Example relationship",
+                "contactWhen": [
+                  "connect"
+                ],
+                "consentConfirmed": false,
+                "position": 0
               }
             }
           }
@@ -11738,6 +13129,18 @@
                     "position"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "name": "Example name",
+                  "phone": "Example phone",
+                  "email": "Example email",
+                  "relationship": "Example relationship",
+                  "contactWhen": [
+                    "Example contactWhen"
+                  ],
+                  "consentConfirmed": true,
+                  "position": 1
                 }
               }
             }
@@ -11847,6 +13250,17 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "name": "Example name",
+                "phone": "123456",
+                "email": "sam@example.test",
+                "relationship": "Example relationship",
+                "contactWhen": [
+                  "connect"
+                ],
+                "consentConfirmed": true,
+                "position": 0
               }
             }
           }
@@ -11911,6 +13325,18 @@
                     "position"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "name": "Example name",
+                  "phone": "Example phone",
+                  "email": "Example email",
+                  "relationship": "Example relationship",
+                  "contactWhen": [
+                    "Example contactWhen"
+                  ],
+                  "consentConfirmed": true,
+                  "position": 1
                 }
               }
             }
@@ -12057,6 +13483,18 @@
                   "operations"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "operations": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "entity": "check_in",
+                    "op": "create",
+                    "entityId": "00000000-0000-4000-8000-000000000001",
+                    "data": {},
+                    "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
+                  }
+                ]
               }
             }
           }
@@ -12113,6 +13551,16 @@
                     "results"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "results": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "result": "applied",
+                      "entityId": "00000000-0000-4000-8000-000000000001",
+                      "error": "Example error"
+                    }
+                  ]
                 }
               }
             }
@@ -12281,6 +13729,38 @@
                     "struggle"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "promptsOn": true,
+                  "whatHelps": [
+                    {
+                      "toolId": "Example toolId",
+                      "name": "Example name",
+                      "pathway": "Example pathway",
+                      "helped": 1,
+                      "sessions": 1
+                    }
+                  ],
+                  "cards": [
+                    {
+                      "code": "Example code",
+                      "text": "Example text",
+                      "evidence": "Example evidence"
+                    }
+                  ],
+                  "saved": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "takeaway": "Example takeaway",
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ],
+                  "struggle": {
+                    "family": "Example family",
+                    "label": "Example label",
+                    "count": 1,
+                    "confirmed": true
+                  }
                 }
               }
             }
@@ -12319,7 +13799,8 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            },
+            "example": "2026-01"
           }
         ],
         "responses": {
@@ -12447,6 +13928,34 @@
                     "harderDays"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "month": "Example month",
+                  "checkIns": 1,
+                  "sessions": 1,
+                  "stepsDone": 1,
+                  "mostUsed": [
+                    {
+                      "pathway": "Example pathway",
+                      "toolId": "Example toolId",
+                      "name": "Example name",
+                      "count": 1
+                    }
+                  ],
+                  "carryForward": "Example carryForward",
+                  "wins": [
+                    {
+                      "text": "Example text",
+                      "size": "Example size"
+                    }
+                  ],
+                  "harderDays": [
+                    {
+                      "weekday": 1,
+                      "averageMood": 1,
+                      "checkIns": 1
+                    }
+                  ]
                 }
               }
             }
@@ -12502,6 +14011,10 @@
                   "answer"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "family": "Example family",
+                "answer": "confirmed"
               }
             }
           }
@@ -12599,6 +14112,20 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "code": "Example code",
+                      "name": "Example name",
+                      "priceMinor": 1,
+                      "currency": "Example currency",
+                      "interval": "Example interval",
+                      "features": [
+                        "Example features"
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -12752,6 +14279,26 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "type": "ritual",
+                      "name": "Example name",
+                      "content": "Example content",
+                      "link": "Example link",
+                      "audioFileId": "00000000-0000-4000-8000-000000000001",
+                      "scheduleRule": "Example scheduleRule",
+                      "nextAt": "2026-01-15T09:30:00.000Z",
+                      "reminderStyle": "Example reminderStyle",
+                      "minutes": 1,
+                      "helpsWhenStruggling": true,
+                      "makesMeWorse": true,
+                      "isTransitionRitual": true,
+                      "position": 1
+                    }
+                  ]
                 }
               }
             }
@@ -12858,6 +14405,20 @@
                   "name"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "type": "ritual",
+                "name": "Example name",
+                "content": "Example content",
+                "link": "https://example.test/item",
+                "audioFileId": "00000000-0000-4000-8000-000000000001",
+                "scheduleRule": "FREQ=DAILY",
+                "reminderStyle": "gentle",
+                "minutes": 1,
+                "helpsWhenStruggling": false,
+                "makesMeWorse": false,
+                "isTransitionRitual": false
               }
             }
           }
@@ -12977,6 +14538,22 @@
                     "position"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "type": "ritual",
+                  "name": "Example name",
+                  "content": "Example content",
+                  "link": "Example link",
+                  "audioFileId": "00000000-0000-4000-8000-000000000001",
+                  "scheduleRule": "Example scheduleRule",
+                  "nextAt": "2026-01-15T09:30:00.000Z",
+                  "reminderStyle": "Example reminderStyle",
+                  "minutes": 1,
+                  "helpsWhenStruggling": true,
+                  "makesMeWorse": true,
+                  "isTransitionRitual": true,
+                  "position": 1
                 }
               }
             }
@@ -13132,6 +14709,22 @@
                     "position"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "type": "ritual",
+                  "name": "Example name",
+                  "content": "Example content",
+                  "link": "Example link",
+                  "audioFileId": "00000000-0000-4000-8000-000000000001",
+                  "scheduleRule": "Example scheduleRule",
+                  "nextAt": "2026-01-15T09:30:00.000Z",
+                  "reminderStyle": "Example reminderStyle",
+                  "minutes": 1,
+                  "helpsWhenStruggling": true,
+                  "makesMeWorse": true,
+                  "isTransitionRitual": true,
+                  "position": 1
                 }
               }
             }
@@ -13280,6 +14873,21 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "type": "ritual",
+                "name": "Example name",
+                "content": "Example content",
+                "link": "https://example.test/item",
+                "audioFileId": "00000000-0000-4000-8000-000000000001",
+                "scheduleRule": "FREQ=DAILY",
+                "reminderStyle": "gentle",
+                "minutes": 1,
+                "helpsWhenStruggling": true,
+                "makesMeWorse": true,
+                "isTransitionRitual": true,
+                "position": 0,
+                "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
           }
@@ -13399,6 +15007,22 @@
                     "position"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "type": "ritual",
+                  "name": "Example name",
+                  "content": "Example content",
+                  "link": "Example link",
+                  "audioFileId": "00000000-0000-4000-8000-000000000001",
+                  "scheduleRule": "Example scheduleRule",
+                  "nextAt": "2026-01-15T09:30:00.000Z",
+                  "reminderStyle": "Example reminderStyle",
+                  "minutes": 1,
+                  "helpsWhenStruggling": true,
+                  "makesMeWorse": true,
+                  "isTransitionRitual": true,
+                  "position": 1
                 }
               }
             }
@@ -13477,7 +15101,8 @@
               "type": "integer",
               "minimum": -9007199254740991,
               "maximum": 9007199254740991
-            }
+            },
+            "example": 30
           }
         ],
         "responses": {
@@ -13742,6 +15367,58 @@
                     "notes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "rangeDays": 1,
+                  "from": "2026-01-15",
+                  "to": "2026-01-15",
+                  "checkIns": 1,
+                  "days": [
+                    {
+                      "date": "2026-01-15",
+                      "checkIns": 1,
+                      "light": "green",
+                      "averageMood": 1,
+                      "averageEnergy": 1
+                    }
+                  ],
+                  "lights": {
+                    "green": 1,
+                    "yellow": 1,
+                    "amber": 1,
+                    "red": 1,
+                    "blue": 1
+                  },
+                  "pathways": [
+                    {
+                      "pathway": "Example pathway",
+                      "sessions": 1,
+                      "minutes": 1
+                    }
+                  ],
+                  "didItHelp": [
+                    {
+                      "toolId": "Example toolId",
+                      "name": "Example name",
+                      "pathway": "Example pathway",
+                      "sessions": 1,
+                      "helped": 1,
+                      "aBit": 1,
+                      "notReally": 1
+                    }
+                  ],
+                  "tasks": {
+                    "done": 1,
+                    "stepsDone": 1,
+                    "open": 1
+                  },
+                  "reflections": {
+                    "count": 1,
+                    "wins": 1
+                  },
+                  "notes": [
+                    "Example notes"
+                  ]
                 }
               }
             }
@@ -13782,7 +15459,8 @@
               "type": "integer",
               "minimum": -9007199254740991,
               "maximum": 9007199254740991
-            }
+            },
+            "example": 30
           }
         ],
         "responses": {
@@ -13845,6 +15523,19 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "toolId": "Example toolId",
+                      "name": "Example name",
+                      "pathway": "Example pathway",
+                      "sessions": 1,
+                      "helped": 1,
+                      "aBit": 1,
+                      "notReally": 1
+                    }
+                  ]
                 }
               }
             }
@@ -13917,6 +15608,14 @@
                   "keys"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "endpoint": "https://example.test/item",
+                "keys": {
+                  "p256dh": "Example p256dh",
+                  "auth": "Example auth"
+                },
+                "userAgent": "Example userAgent"
               }
             }
           }
@@ -13945,6 +15644,10 @@
                     "createdAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -14034,6 +15737,9 @@
                     "publicKey"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "publicKey": "<example-publicKey>"
                 }
               }
             }
@@ -14456,6 +16162,77 @@
                     "origin"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "checkInId": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "light": "green",
+                  "lightLabel": "Example lightLabel",
+                  "lightHex": "Example lightHex",
+                  "lightIcon": "Example lightIcon",
+                  "state": {
+                    "cellId": "Example cellId",
+                    "name": "Example name",
+                    "icon": "Example icon",
+                    "meaning": "Example meaning",
+                    "confirmed": true
+                  },
+                  "title": "Example title",
+                  "rationale": "Example rationale",
+                  "primary": {
+                    "kind": "pathway",
+                    "label": "Example label",
+                    "pathway": "regulate",
+                    "toolId": "Example toolId",
+                    "advanced": true,
+                    "minutes": 1,
+                    "practiceId": "Example practiceId",
+                    "href": "Example href"
+                  },
+                  "alternatives": [
+                    {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    }
+                  ],
+                  "queuedStep": {
+                    "kind": "pathway",
+                    "label": "Example label",
+                    "pathway": "regulate",
+                    "toolId": "Example toolId",
+                    "advanced": true,
+                    "minutes": 1,
+                    "practiceId": "Example practiceId",
+                    "href": "Example href"
+                  },
+                  "supportVisible": true,
+                  "notNow": true,
+                  "safetyTriggered": true,
+                  "crisisRoutes": [
+                    {
+                      "id": "Example id",
+                      "label": "Example label",
+                      "detail": "Example detail",
+                      "href": "Example href",
+                      "kind": "call"
+                    }
+                  ],
+                  "patterns": [
+                    1
+                  ],
+                  "timeline": {
+                    "code": "Example code",
+                    "stepCap": 1
+                  },
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "origin": "online"
                 }
               }
             }
@@ -14527,6 +16304,11 @@
                   "action"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "action": "start",
+                "toolId": "Example toolId",
+                "reason": "Example reason"
               }
             }
           }
@@ -14951,6 +16733,81 @@
                     "quietUntil"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true,
+                  "card": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "checkInId": "00000000-0000-4000-8000-000000000001",
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "light": "green",
+                    "lightLabel": "Example lightLabel",
+                    "lightHex": "Example lightHex",
+                    "lightIcon": "Example lightIcon",
+                    "state": {
+                      "cellId": "Example cellId",
+                      "name": "Example name",
+                      "icon": "Example icon",
+                      "meaning": "Example meaning",
+                      "confirmed": true
+                    },
+                    "title": "Example title",
+                    "rationale": "Example rationale",
+                    "primary": {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    },
+                    "alternatives": [
+                      {
+                        "kind": "pathway",
+                        "label": "Example label",
+                        "pathway": "regulate",
+                        "toolId": "Example toolId",
+                        "advanced": true,
+                        "minutes": 1,
+                        "practiceId": "Example practiceId",
+                        "href": "Example href"
+                      }
+                    ],
+                    "queuedStep": {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    },
+                    "supportVisible": true,
+                    "notNow": true,
+                    "safetyTriggered": true,
+                    "crisisRoutes": [
+                      {
+                        "id": "Example id",
+                        "label": "Example label",
+                        "detail": "Example detail",
+                        "href": "Example href",
+                        "kind": "call"
+                      }
+                    ],
+                    "patterns": [
+                      1
+                    ],
+                    "timeline": {
+                      "code": "Example code",
+                      "stepCap": 1
+                    },
+                    "taskId": "00000000-0000-4000-8000-000000000001",
+                    "origin": "online"
+                  },
+                  "quietUntil": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -15038,6 +16895,15 @@
                   "adaptations"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "adaptations": [
+                  {
+                    "kind": "environment",
+                    "detailCode": "Example detailCode"
+                  }
+                ],
+                "save": false
               }
             }
           }
@@ -15428,6 +17294,77 @@
                     "origin"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "checkInId": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "light": "green",
+                  "lightLabel": "Example lightLabel",
+                  "lightHex": "Example lightHex",
+                  "lightIcon": "Example lightIcon",
+                  "state": {
+                    "cellId": "Example cellId",
+                    "name": "Example name",
+                    "icon": "Example icon",
+                    "meaning": "Example meaning",
+                    "confirmed": true
+                  },
+                  "title": "Example title",
+                  "rationale": "Example rationale",
+                  "primary": {
+                    "kind": "pathway",
+                    "label": "Example label",
+                    "pathway": "regulate",
+                    "toolId": "Example toolId",
+                    "advanced": true,
+                    "minutes": 1,
+                    "practiceId": "Example practiceId",
+                    "href": "Example href"
+                  },
+                  "alternatives": [
+                    {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    }
+                  ],
+                  "queuedStep": {
+                    "kind": "pathway",
+                    "label": "Example label",
+                    "pathway": "regulate",
+                    "toolId": "Example toolId",
+                    "advanced": true,
+                    "minutes": 1,
+                    "practiceId": "Example practiceId",
+                    "href": "Example href"
+                  },
+                  "supportVisible": true,
+                  "notNow": true,
+                  "safetyTriggered": true,
+                  "crisisRoutes": [
+                    {
+                      "id": "Example id",
+                      "label": "Example label",
+                      "detail": "Example detail",
+                      "href": "Example href",
+                      "kind": "call"
+                    }
+                  ],
+                  "patterns": [
+                    1
+                  ],
+                  "timeline": {
+                    "code": "Example code",
+                    "stepCap": 1
+                  },
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "origin": "online"
                 }
               }
             }
@@ -15561,6 +17498,31 @@
                     "versions"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "reasons": [
+                    {
+                      "code": "Example code",
+                      "text": "Example text"
+                    }
+                  ],
+                  "modifiers": [
+                    {
+                      "rule": "Example rule",
+                      "text": "Example text"
+                    }
+                  ],
+                  "gates": [
+                    {
+                      "rule": "Example rule",
+                      "effect": "Example effect",
+                      "text": "Example text"
+                    }
+                  ],
+                  "versions": {
+                    "engine": "Example engine",
+                    "snapshot": "Example snapshot"
+                  }
                 }
               }
             }
@@ -15599,7 +17561,8 @@
             "schema": {
               "type": "string",
               "maxLength": 32
-            }
+            },
+            "example": "Example variant"
           },
           {
             "name": "topicTag",
@@ -15608,7 +17571,8 @@
             "schema": {
               "type": "string",
               "pattern": "^[a-z0-9_]{1,48}$"
-            }
+            },
+            "example": "example"
           }
         ],
         "responses": {
@@ -15685,6 +17649,20 @@
                     "alternatives"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "allowed": true,
+                  "reason": "ok",
+                  "rule": "Example rule",
+                  "light": "green",
+                  "alternatives": [
+                    {
+                      "pathway": "Example pathway",
+                      "toolId": "Example toolId",
+                      "label": "Example label",
+                      "href": "Example href"
+                    }
+                  ]
                 }
               }
             }
@@ -15800,6 +17778,29 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "code": "Example code",
+                      "toolId": "Example toolId",
+                      "title": "Example title",
+                      "subtitle": "Example subtitle",
+                      "minutes": 1,
+                      "kind": "Example kind",
+                      "tier": "Example tier",
+                      "locked": true,
+                      "prompts": [
+                        {
+                          "id": "Example id",
+                          "text": "Example text",
+                          "chips": [
+                            "Example chips"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -15925,6 +17926,25 @@
                   "answers"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "variant": "Example variant",
+                "sessionId": "00000000-0000-4000-8000-000000000001",
+                "dumpItemId": "00000000-0000-4000-8000-000000000001",
+                "answers": [
+                  {
+                    "promptId": "Example promptId",
+                    "chips": [],
+                    "text": "Example text"
+                  }
+                ],
+                "takeaway": "Example takeaway",
+                "topicTag": "example",
+                "saved": true,
+                "savedForLater": false,
+                "winSize": "small",
+                "origin": "online"
               }
             }
           }
@@ -16074,6 +18094,38 @@
                     "crisisRoutes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "variant": "Example variant",
+                  "kind": "prompts",
+                  "title": "Example title",
+                  "answers": [
+                    {
+                      "promptId": "Example promptId",
+                      "prompt": "Example prompt",
+                      "chips": [
+                        "Example chips"
+                      ],
+                      "text": "Example text"
+                    }
+                  ],
+                  "takeaway": "Example takeaway",
+                  "topicTag": "Example topicTag",
+                  "winSize": "Example winSize",
+                  "saved": true,
+                  "savedForLater": true,
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "safety": true,
+                  "crisisRoutes": [
+                    {
+                      "id": "Example id",
+                      "label": "Example label",
+                      "detail": "Example detail",
+                      "href": "Example href",
+                      "kind": "call"
+                    }
+                  ]
                 }
               }
             }
@@ -16117,7 +18169,8 @@
                 "win",
                 "later"
               ]
-            }
+            },
+            "example": "all"
           },
           {
             "name": "after",
@@ -16125,7 +18178,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "Example after"
           },
           {
             "name": "limit",
@@ -16136,7 +18190,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
-            }
+            },
+            "example": 30
           }
         ],
         "responses": {
@@ -16262,6 +18317,33 @@
                     "next"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "variant": "Example variant",
+                      "kind": "prompts",
+                      "title": "Example title",
+                      "answers": [
+                        {
+                          "promptId": "Example promptId",
+                          "prompt": "Example prompt",
+                          "chips": [
+                            "Example chips"
+                          ],
+                          "text": "Example text"
+                        }
+                      ],
+                      "takeaway": "Example takeaway",
+                      "topicTag": "Example topicTag",
+                      "winSize": "Example winSize",
+                      "saved": true,
+                      "savedForLater": true,
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ],
+                  "next": "Example next"
                 }
               }
             }
@@ -16406,6 +18488,28 @@
                     "createdAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "variant": "Example variant",
+                  "kind": "prompts",
+                  "title": "Example title",
+                  "answers": [
+                    {
+                      "promptId": "Example promptId",
+                      "prompt": "Example prompt",
+                      "chips": [
+                        "Example chips"
+                      ],
+                      "text": "Example text"
+                    }
+                  ],
+                  "takeaway": "Example takeaway",
+                  "topicTag": "Example topicTag",
+                  "winSize": "Example winSize",
+                  "saved": true,
+                  "savedForLater": true,
+                  "createdAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -16470,6 +18574,11 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "saved": true,
+                "savedForLater": true,
+                "takeaway": "Example takeaway"
               }
             }
           }
@@ -16578,6 +18687,28 @@
                     "createdAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "variant": "Example variant",
+                  "kind": "prompts",
+                  "title": "Example title",
+                  "answers": [
+                    {
+                      "promptId": "Example promptId",
+                      "prompt": "Example prompt",
+                      "chips": [
+                        "Example chips"
+                      ],
+                      "text": "Example text"
+                    }
+                  ],
+                  "takeaway": "Example takeaway",
+                  "topicTag": "Example topicTag",
+                  "winSize": "Example winSize",
+                  "saved": true,
+                  "savedForLater": true,
+                  "createdAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -16761,6 +18892,22 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "subjectType": "checkin",
+                      "subjectId": "00000000-0000-4000-8000-000000000001",
+                      "label": "Example label",
+                      "at": "2026-01-15T09:30:00.000Z",
+                      "rrule": "Example rrule",
+                      "style": "Example style",
+                      "active": true,
+                      "nextRunAt": "2026-01-15T09:30:00.000Z",
+                      "lastSentAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -16849,6 +18996,16 @@
                   "subjectType"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "subjectType": "checkin",
+                "subjectId": "00000000-0000-4000-8000-000000000001",
+                "label": "Example label",
+                "at": "2026-01-15T09:30:00.000Z",
+                "inMinutes": 1,
+                "rrule": "FREQ=DAILY",
+                "style": "gentle"
               }
             }
           }
@@ -16956,6 +19113,18 @@
                     "lastSentAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "subjectType": "checkin",
+                  "subjectId": "00000000-0000-4000-8000-000000000001",
+                  "label": "Example label",
+                  "at": "2026-01-15T09:30:00.000Z",
+                  "rrule": "Example rrule",
+                  "style": "Example style",
+                  "active": true,
+                  "nextRunAt": "2026-01-15T09:30:00.000Z",
+                  "lastSentAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -17051,6 +19220,13 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "label": "Example label",
+                "at": "2026-01-15T09:30:00.000Z",
+                "rrule": "FREQ=DAILY",
+                "style": "gentle",
+                "active": true
               }
             }
           }
@@ -17158,6 +19334,18 @@
                     "lastSentAt"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "subjectType": "checkin",
+                  "subjectId": "00000000-0000-4000-8000-000000000001",
+                  "label": "Example label",
+                  "at": "2026-01-15T09:30:00.000Z",
+                  "rrule": "Example rrule",
+                  "style": "Example style",
+                  "active": true,
+                  "nextRunAt": "2026-01-15T09:30:00.000Z",
+                  "lastSentAt": "2026-01-15T09:30:00.000Z"
                 }
               }
             }
@@ -17237,7 +19425,8 @@
                     "type": "string"
                   },
                   "additionalProperties": {}
-                }
+                },
+                "example": {}
               }
             }
           },
@@ -17309,6 +19498,14 @@
                   "trigger"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "sourceModule": "Example sourceModule",
+                "trigger": "button",
+                "ruleId": "Example ruleId",
+                "category": "Example category",
+                "routeChosen": "Example routeChosen",
+                "origin": "online"
               }
             }
           }
@@ -17330,6 +19527,9 @@
                     "ok"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -17372,7 +19572,8 @@
               "type": "string",
               "minLength": 2,
               "maxLength": 2
-            }
+            },
+            "example": "Ex"
           }
         ],
         "responses": {
@@ -17428,6 +19629,18 @@
                     "routes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "region": "Example region",
+                  "routes": [
+                    {
+                      "id": "Example id",
+                      "label": "Example label",
+                      "detail": "Example detail",
+                      "href": "Example href",
+                      "kind": "call"
+                    }
+                  ]
                 }
               }
             }
@@ -17524,6 +19737,18 @@
                   "toolId"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "recommendationId": "00000000-0000-4000-8000-000000000001",
+                "pathway": "regulate",
+                "toolId": "Example toolId",
+                "taskId": "00000000-0000-4000-8000-000000000001",
+                "practiceId": "00000000-0000-4000-8000-000000000001",
+                "startedAt": "2026-01-15T09:30:00.000Z",
+                "eyesOpen": true,
+                "contextPublic": true,
+                "origin": "online"
               }
             }
           }
@@ -17777,6 +20002,32 @@
                     "feedback"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "recommendationId": "00000000-0000-4000-8000-000000000001",
+                  "pathway": "regulate",
+                  "toolId": "Example toolId",
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "practiceId": "00000000-0000-4000-8000-000000000001",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "endedAt": "2026-01-15T09:30:00.000Z",
+                  "lengthSeconds": 1,
+                  "completed": true,
+                  "stoppedEarly": true,
+                  "currentStepId": "00000000-0000-4000-8000-000000000001",
+                  "remainingSeconds": 1,
+                  "pausedAt": "2026-01-15T09:30:00.000Z",
+                  "feedback": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "outcome": "helped",
+                    "helpful": 1,
+                    "effort": 1,
+                    "recheckCheckInId": "00000000-0000-4000-8000-000000000001",
+                    "recheckRule": "Example recheckRule",
+                    "recoveryEndsAt": "2026-01-15T09:30:00.000Z",
+                    "offerRecheck": true
+                  }
                 }
               }
             }
@@ -17822,7 +20073,8 @@
                 "connect",
                 "meditate"
               ]
-            }
+            },
+            "example": "regulate"
           },
           {
             "name": "after",
@@ -17830,7 +20082,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "Example after"
           },
           {
             "name": "limit",
@@ -17841,7 +20094,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
-            }
+            },
+            "example": 30
           }
         ],
         "responses": {
@@ -18112,6 +20366,37 @@
                     "next"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "recommendationId": "00000000-0000-4000-8000-000000000001",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "taskId": "00000000-0000-4000-8000-000000000001",
+                      "practiceId": "00000000-0000-4000-8000-000000000001",
+                      "startedAt": "2026-01-15T09:30:00.000Z",
+                      "endedAt": "2026-01-15T09:30:00.000Z",
+                      "lengthSeconds": 1,
+                      "completed": true,
+                      "stoppedEarly": true,
+                      "currentStepId": "00000000-0000-4000-8000-000000000001",
+                      "remainingSeconds": 1,
+                      "pausedAt": "2026-01-15T09:30:00.000Z",
+                      "feedback": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "outcome": "helped",
+                        "helpful": 1,
+                        "effort": 1,
+                        "recheckCheckInId": "00000000-0000-4000-8000-000000000001",
+                        "recheckRule": "Example recheckRule",
+                        "recoveryEndsAt": "2026-01-15T09:30:00.000Z",
+                        "offerRecheck": true
+                      }
+                    }
+                  ],
+                  "next": "Example next"
                 }
               }
             }
@@ -18401,6 +20686,32 @@
                     "feedback"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "recommendationId": "00000000-0000-4000-8000-000000000001",
+                  "pathway": "regulate",
+                  "toolId": "Example toolId",
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "practiceId": "00000000-0000-4000-8000-000000000001",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "endedAt": "2026-01-15T09:30:00.000Z",
+                  "lengthSeconds": 1,
+                  "completed": true,
+                  "stoppedEarly": true,
+                  "currentStepId": "00000000-0000-4000-8000-000000000001",
+                  "remainingSeconds": 1,
+                  "pausedAt": "2026-01-15T09:30:00.000Z",
+                  "feedback": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "outcome": "helped",
+                    "helpful": 1,
+                    "effort": 1,
+                    "recheckCheckInId": "00000000-0000-4000-8000-000000000001",
+                    "recheckRule": "Example recheckRule",
+                    "recoveryEndsAt": "2026-01-15T09:30:00.000Z",
+                    "offerRecheck": true
+                  }
                 }
               }
             }
@@ -18491,6 +20802,15 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "endedAt": "2026-01-15T09:30:00.000Z",
+                "lengthSeconds": 0,
+                "completed": true,
+                "stoppedEarly": true,
+                "currentStepId": "00000000-0000-4000-8000-000000000001",
+                "remainingSeconds": 0,
+                "paused": true
               }
             }
           }
@@ -18744,6 +21064,32 @@
                     "feedback"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "recommendationId": "00000000-0000-4000-8000-000000000001",
+                  "pathway": "regulate",
+                  "toolId": "Example toolId",
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "practiceId": "00000000-0000-4000-8000-000000000001",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "endedAt": "2026-01-15T09:30:00.000Z",
+                  "lengthSeconds": 1,
+                  "completed": true,
+                  "stoppedEarly": true,
+                  "currentStepId": "00000000-0000-4000-8000-000000000001",
+                  "remainingSeconds": 1,
+                  "pausedAt": "2026-01-15T09:30:00.000Z",
+                  "feedback": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "outcome": "helped",
+                    "helpful": 1,
+                    "effort": 1,
+                    "recheckCheckInId": "00000000-0000-4000-8000-000000000001",
+                    "recheckRule": "Example recheckRule",
+                    "recoveryEndsAt": "2026-01-15T09:30:00.000Z",
+                    "offerRecheck": true
+                  }
                 }
               }
             }
@@ -18815,6 +21161,11 @@
                   "outcome"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "outcome": "helped",
+                "helpful": 1,
+                "effort": 1
               }
             }
           }
@@ -19068,6 +21419,32 @@
                     "feedback"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "recommendationId": "00000000-0000-4000-8000-000000000001",
+                  "pathway": "regulate",
+                  "toolId": "Example toolId",
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "practiceId": "00000000-0000-4000-8000-000000000001",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "endedAt": "2026-01-15T09:30:00.000Z",
+                  "lengthSeconds": 1,
+                  "completed": true,
+                  "stoppedEarly": true,
+                  "currentStepId": "00000000-0000-4000-8000-000000000001",
+                  "remainingSeconds": 1,
+                  "pausedAt": "2026-01-15T09:30:00.000Z",
+                  "feedback": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "outcome": "helped",
+                    "helpful": 1,
+                    "effort": 1,
+                    "recheckCheckInId": "00000000-0000-4000-8000-000000000001",
+                    "recheckRule": "Example recheckRule",
+                    "recoveryEndsAt": "2026-01-15T09:30:00.000Z",
+                    "offerRecheck": true
+                  }
                 }
               }
             }
@@ -19396,6 +21773,67 @@
                     "report"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "sharedBy": "Example sharedBy",
+                  "recipientLabel": "Example recipientLabel",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "expiresAt": "2026-01-15T09:30:00.000Z",
+                  "sections": [
+                    "Example sections"
+                  ],
+                  "report": {
+                    "rangeDays": 1,
+                    "from": "2026-01-15",
+                    "to": "2026-01-15",
+                    "checkIns": 1,
+                    "days": [
+                      {
+                        "date": "2026-01-15",
+                        "checkIns": 1,
+                        "light": "green",
+                        "averageMood": 1,
+                        "averageEnergy": 1
+                      }
+                    ],
+                    "lights": {
+                      "green": 1,
+                      "yellow": 1,
+                      "amber": 1,
+                      "red": 1,
+                      "blue": 1
+                    },
+                    "pathways": [
+                      {
+                        "pathway": "Example pathway",
+                        "sessions": 1,
+                        "minutes": 1
+                      }
+                    ],
+                    "didItHelp": [
+                      {
+                        "toolId": "Example toolId",
+                        "name": "Example name",
+                        "pathway": "Example pathway",
+                        "sessions": 1,
+                        "helped": 1,
+                        "aBit": 1,
+                        "notReally": 1
+                      }
+                    ],
+                    "tasks": {
+                      "done": 1,
+                      "stepsDone": 1,
+                      "open": 1
+                    },
+                    "reflections": {
+                      "count": 1,
+                      "wins": 1
+                    },
+                    "notes": [
+                      "Example notes"
+                    ]
+                  }
                 }
               }
             }
@@ -19477,6 +21915,14 @@
                   "sections"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "recipientLabel": "Example recipientLabel",
+                "sections": [
+                  "lights"
+                ],
+                "rangeDays": 30,
+                "expiresInDays": 7
               }
             }
           }
@@ -19562,6 +22008,21 @@
                     "url"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "recipientLabel": "Example recipientLabel",
+                  "sections": [
+                    "Example sections"
+                  ],
+                  "rangeDays": 1,
+                  "expiresAt": "2026-01-15T09:30:00.000Z",
+                  "revoked": true,
+                  "viewCount": 1,
+                  "lastViewedAt": "2026-01-15T09:30:00.000Z",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "token": "<example-token>",
+                  "url": "Example url"
                 }
               }
             }
@@ -19675,6 +22136,23 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "recipientLabel": "Example recipientLabel",
+                      "sections": [
+                        "Example sections"
+                      ],
+                      "rangeDays": 1,
+                      "expiresAt": "2026-01-15T09:30:00.000Z",
+                      "revoked": true,
+                      "viewCount": 1,
+                      "lastViewedAt": "2026-01-15T09:30:00.000Z",
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }
@@ -19773,6 +22251,10 @@
                   "purpose"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "fileId": "00000000-0000-4000-8000-000000000001",
+                "purpose": "dump"
               }
             }
           }
@@ -19823,6 +22305,13 @@
                     "safety"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "status": "pending",
+                  "text": "Example text",
+                  "errorCode": "Example errorCode",
+                  "safety": true
                 }
               }
             }
@@ -19909,6 +22398,13 @@
                     "safety"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "status": "pending",
+                  "text": "Example text",
+                  "errorCode": "Example errorCode",
+                  "safety": true
                 }
               }
             }
@@ -19961,6 +22457,10 @@
                   "sizeBytes"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "contentType": "Example contentType",
+                "sizeBytes": 1
               }
             }
           }
@@ -20021,6 +22521,16 @@
                     "serverAvailable"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "fileId": "00000000-0000-4000-8000-000000000001",
+                  "upload": {
+                    "url": "Example url",
+                    "method": "PUT",
+                    "headers": {},
+                    "expiresAt": "2026-01-15T09:30:00.000Z"
+                  },
+                  "serverAvailable": true
                 }
               }
             }
@@ -20060,7 +22570,8 @@
               "type": "string",
               "format": "date-time",
               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
-            }
+            },
+            "example": "2026-01-15T09:30:00.000Z"
           }
         ],
         "responses": {
@@ -20115,6 +22626,10 @@
                     "changes"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "cursor": "2026-01-15T09:30:00.000Z",
+                  "changes": {}
                 }
               }
             }
@@ -20223,6 +22738,18 @@
                   "operations"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "operations": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "entity": "check_in",
+                    "op": "create",
+                    "entityId": "00000000-0000-4000-8000-000000000001",
+                    "data": {},
+                    "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
+                  }
+                ]
               }
             }
           }
@@ -20279,6 +22806,16 @@
                     "results"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "results": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "result": "applied",
+                      "entityId": "00000000-0000-4000-8000-000000000001",
+                      "error": "Example error"
+                    }
+                  ]
                 }
               }
             }
@@ -20323,7 +22860,8 @@
                 "dropped",
                 "all"
               ]
-            }
+            },
+            "example": "open"
           },
           {
             "name": "includeSnoozed",
@@ -20337,7 +22875,8 @@
                 "true",
                 "false"
               ]
-            }
+            },
+            "example": "0"
           },
           {
             "name": "limit",
@@ -20348,7 +22887,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 200
-            }
+            },
+            "example": 100
           }
         ],
         "responses": {
@@ -20580,6 +23120,42 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "title": "Example title",
+                      "kind": "Example kind",
+                      "dueAt": "2026-01-15T09:30:00.000Z",
+                      "timeline": "T0",
+                      "timelineLabel": "Example timelineLabel",
+                      "stepCap": 1,
+                      "recurrenceRule": "Example recurrenceRule",
+                      "puttingOff": true,
+                      "drivers": [
+                        "Example drivers"
+                      ],
+                      "status": "open",
+                      "source": "Example source",
+                      "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                      "planSlot": "now",
+                      "planDate": "2026-01-15",
+                      "skipCount": 1,
+                      "doneAt": "2026-01-15T09:30:00.000Z",
+                      "createdAt": "2026-01-15T09:30:00.000Z",
+                      "updatedAt": "2026-01-15T09:30:00.000Z",
+                      "steps": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "position": 1,
+                          "text": "Example text",
+                          "source": "Example source",
+                          "done": true
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -20717,6 +23293,20 @@
                   "title"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "title": "Example title",
+                "kind": "study",
+                "dueAt": "2026-01-15T09:30:00.000Z",
+                "timeline": "T0",
+                "recurrenceRule": "Example recurrenceRule",
+                "puttingOff": false,
+                "drivers": [],
+                "steps": [],
+                "source": "manual",
+                "planSlot": "now",
+                "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
           }
@@ -20938,6 +23528,38 @@
                     "steps"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "kind": "Example kind",
+                  "dueAt": "2026-01-15T09:30:00.000Z",
+                  "timeline": "T0",
+                  "timelineLabel": "Example timelineLabel",
+                  "stepCap": 1,
+                  "recurrenceRule": "Example recurrenceRule",
+                  "puttingOff": true,
+                  "drivers": [
+                    "Example drivers"
+                  ],
+                  "status": "open",
+                  "source": "Example source",
+                  "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                  "planSlot": "now",
+                  "planDate": "2026-01-15",
+                  "skipCount": 1,
+                  "doneAt": "2026-01-15T09:30:00.000Z",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "steps": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "position": 1,
+                      "text": "Example text",
+                      "source": "Example source",
+                      "done": true
+                    }
+                  ]
                 }
               }
             }
@@ -21195,6 +23817,38 @@
                     "steps"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "kind": "Example kind",
+                  "dueAt": "2026-01-15T09:30:00.000Z",
+                  "timeline": "T0",
+                  "timelineLabel": "Example timelineLabel",
+                  "stepCap": 1,
+                  "recurrenceRule": "Example recurrenceRule",
+                  "puttingOff": true,
+                  "drivers": [
+                    "Example drivers"
+                  ],
+                  "status": "open",
+                  "source": "Example source",
+                  "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                  "planSlot": "now",
+                  "planDate": "2026-01-15",
+                  "skipCount": 1,
+                  "doneAt": "2026-01-15T09:30:00.000Z",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "steps": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "position": 1,
+                      "text": "Example text",
+                      "source": "Example source",
+                      "done": true
+                    }
+                  ]
                 }
               }
             }
@@ -21383,6 +24037,23 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "title": "Example title",
+                "kind": "study",
+                "dueAt": "2026-01-15T09:30:00.000Z",
+                "timeline": "T0",
+                "recurrenceRule": "Example recurrenceRule",
+                "puttingOff": true,
+                "drivers": [
+                  "novelty"
+                ],
+                "status": "open",
+                "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                "planSlot": "now",
+                "planDate": "2026-01-15",
+                "skipped": true,
+                "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
           }
@@ -21604,6 +24275,38 @@
                     "steps"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "kind": "Example kind",
+                  "dueAt": "2026-01-15T09:30:00.000Z",
+                  "timeline": "T0",
+                  "timelineLabel": "Example timelineLabel",
+                  "stepCap": 1,
+                  "recurrenceRule": "Example recurrenceRule",
+                  "puttingOff": true,
+                  "drivers": [
+                    "Example drivers"
+                  ],
+                  "status": "open",
+                  "source": "Example source",
+                  "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                  "planSlot": "now",
+                  "planDate": "2026-01-15",
+                  "skipCount": 1,
+                  "doneAt": "2026-01-15T09:30:00.000Z",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "steps": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "position": 1,
+                      "text": "Example text",
+                      "source": "Example source",
+                      "done": true
+                    }
+                  ]
                 }
               }
             }
@@ -21699,6 +24402,10 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "example": {
+                "save": true,
+                "replace": false
               }
             }
           }
@@ -21972,6 +24679,49 @@
                     "task"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "steps": [
+                    {
+                      "text": "Example text",
+                      "minutes": 1
+                    }
+                  ],
+                  "estimatedDemand": "low",
+                  "source": "ai",
+                  "saved": true,
+                  "task": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "title": "Example title",
+                    "kind": "Example kind",
+                    "dueAt": "2026-01-15T09:30:00.000Z",
+                    "timeline": "T0",
+                    "timelineLabel": "Example timelineLabel",
+                    "stepCap": 1,
+                    "recurrenceRule": "Example recurrenceRule",
+                    "puttingOff": true,
+                    "drivers": [
+                      "Example drivers"
+                    ],
+                    "status": "open",
+                    "source": "Example source",
+                    "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                    "planSlot": "now",
+                    "planDate": "2026-01-15",
+                    "skipCount": 1,
+                    "doneAt": "2026-01-15T09:30:00.000Z",
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "updatedAt": "2026-01-15T09:30:00.000Z",
+                    "steps": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "position": 1,
+                        "text": "Example text",
+                        "source": "Example source",
+                        "done": true
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -22060,6 +24810,16 @@
                   "steps"
                 ],
                 "additionalProperties": false
+              },
+              "example": {
+                "steps": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "text": "Example text",
+                    "done": false,
+                    "source": "user"
+                  }
+                ]
               }
             }
           }
@@ -22281,6 +25041,38 @@
                     "steps"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "kind": "Example kind",
+                  "dueAt": "2026-01-15T09:30:00.000Z",
+                  "timeline": "T0",
+                  "timelineLabel": "Example timelineLabel",
+                  "stepCap": 1,
+                  "recurrenceRule": "Example recurrenceRule",
+                  "puttingOff": true,
+                  "drivers": [
+                    "Example drivers"
+                  ],
+                  "status": "open",
+                  "source": "Example source",
+                  "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                  "planSlot": "now",
+                  "planDate": "2026-01-15",
+                  "skipCount": 1,
+                  "doneAt": "2026-01-15T09:30:00.000Z",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "updatedAt": "2026-01-15T09:30:00.000Z",
+                  "steps": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "position": 1,
+                      "text": "Example text",
+                      "source": "Example source",
+                      "done": true
+                    }
+                  ]
                 }
               }
             }
@@ -22567,6 +25359,47 @@
                     "items"
                   ],
                   "additionalProperties": false
+                },
+                "example": {
+                  "light": "green",
+                  "lightKnown": true,
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "title": "Example title",
+                      "kind": "Example kind",
+                      "dueAt": "2026-01-15T09:30:00.000Z",
+                      "timeline": "T0",
+                      "timelineLabel": "Example timelineLabel",
+                      "stepCap": 1,
+                      "recurrenceRule": "Example recurrenceRule",
+                      "puttingOff": true,
+                      "drivers": [
+                        "Example drivers"
+                      ],
+                      "status": "open",
+                      "source": "Example source",
+                      "snoozedUntil": "2026-01-15T09:30:00.000Z",
+                      "planSlot": "now",
+                      "planDate": "2026-01-15",
+                      "skipCount": 1,
+                      "doneAt": "2026-01-15T09:30:00.000Z",
+                      "createdAt": "2026-01-15T09:30:00.000Z",
+                      "updatedAt": "2026-01-15T09:30:00.000Z",
+                      "steps": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "position": 1,
+                          "text": "Example text",
+                          "source": "Example source",
+                          "done": true
+                        }
+                      ],
+                      "whyNow": "Example whyNow",
+                      "whyNowText": "Example whyNowText",
+                      "onlyIfMust": true
+                    }
+                  ]
                 }
               }
             }

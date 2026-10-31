@@ -124,7 +124,8 @@ Worktrees on one machine must not fight over local resources:
 6. Stop. One issue per session.
 
 ### What agents never do
-- Push to `main`, force-push someone else's branch, or merge a tier-A PR.
+- Push to `main` or force-push someone else's branch.
+- Merge any PR, tier-A included, unless Twilight-Techy or Abdurrahman (OadeO6) explicitly asks for that PR to be merged (section 11).
 - Edit the other lane's files without that being in the issue.
 - Hand-merge generated files (section 3).
 - Change `SYSTEM_DESIGN.md`, `ENGINEERING_RULES.md`, `CONFLICTS.md` or this file unless the issue says so.
@@ -231,7 +232,7 @@ We share one Claude account but each have our own GitHub account. GitHub attribu
 
 **Rules for every agent session:**
 1. **Check identity before writing to GitHub.** Call the GitHub tool's "who am I" (`get_me`, or `gh api user`). If the login isn't the person running the session, stop and ask; don't open PRs, comment or update the board.
-2. **Agents never approve or merge PRs.** Approval is a human decision: the reviewer approves in the GitHub UI, or explicitly tells their own agent to approve after reading the diff. An agent never approves a PR in the same session that wrote it.
+2. **Agents never approve PRs, and merge only when asked.** Approval is a human decision: the reviewer approves in the GitHub UI, or explicitly tells their own agent to approve after reading the diff. An agent never approves a PR in the same session that wrote it. An agent merges a PR only when Twilight-Techy or Abdurrahman explicitly asks it to merge that PR; the request is the human decision, so the agent doesn't wait for an approval the person has chosen to skip.
 3. **The PR author is the person whose agent did the work.** This matters for tier-A reviews: GitHub doesn't let anyone approve their own PR, so a PR opened under the wrong account blocks the review.
 
 **Shared Claude usage:** one account means one set of usage limits. When both of us run many agents at once, stagger the heavy sessions (large refactors, long test runs) and keep sessions to one issue each.
@@ -306,7 +307,7 @@ Swap the label when the status changes; an issue has at most one `status:` label
   - **Quiet ready PR:** one with no activity for one working day gets a status comment from its author.
   - **Old draft:** one older than two working days is split or closed.
 - **Merging:**
-  - **How:** always through auto-merge. Agents never approve or merge (section 11).
+  - **How:** through auto-merge, or by an agent when one of us explicitly asks it to merge that PR. Agents never approve (section 11).
   - **When:** a tier-A PR merges itself once the other person approves.
   - **Afterwards:** the issue closes, its `status:` label comes off, and the author removes the worktree.
 - **Reverting:** a revert PR links the original PR and reopens its issue with a comment saying what broke.
