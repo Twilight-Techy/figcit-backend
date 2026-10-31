@@ -23,8 +23,9 @@ The backend for NUCCESS, a neuro-affirming support app by Figcit Ltd. NestJS + P
 
 ## Hard rules
 - **Identity first:** before any GitHub write (PR, comment, label, board update), check which account your GitHub tool is signed in as (`get_me` or `gh api user`). If it isn't the person running this session, stop and ask. Never change git `user.name`/`user.email` (`docs/WORKFLOW.md` section 11).
-- **Never approve or merge a pull request**, including your own. Approval is a human action.
-- Never push to `main`, force-push a branch you didn't create, or merge a tier-A PR (`.github/CODEOWNERS` lists tier-A paths).
+- **Never approve a pull request**, including your own. Approval is a human action.
+- **Merge a pull request only when Twilight-Techy or OadeO6 explicitly asks you to merge that PR** in the session. Otherwise leave merging to auto-merge or a human.
+- Never push to `main` or force-push a branch you didn't create. Never merge a tier-A PR (`.github/CODEOWNERS` lists tier-A paths) unless asked as above.
 - Never hand-merge generated files: `pnpm-lock.yaml`, `openapi/openapi.json`, engine fixtures. Take one side and regenerate (`docs/WORKFLOW.md` section 3).
 - Prisma: edit only your module's file in `apps/api/prisma/schema/`; one migration per PR, regenerated after rebasing.
 - `packages/engine` stays pure and dependency-free (engineering rules 2.2).
