@@ -127,6 +127,20 @@ The red CI on `e018ab6`, fixed in a later commit on the same branch:
   - Checked locally: `pnpm audit` exits 0, and Trivy is clean on the built image.
   - The image is 103 MB compressed. It was built without BuildKit, because this machine has no
     buildx.
+- **PWA audit gate (missing).**
+  - PWA ENGINEERING_RULES §9 and §17 require `pnpm audit`, but CI had no audit job. CI now has
+    one (`505b654`), the same as the backend's.
+  - It found two high postcss advisories. Next 15 pins postcss 8.4.31; `next>postcss` is now
+    overridden to 8.5.32.
+  - postcss only runs at build time. The built CSS is byte-identical to the build with 8.4.31.
+- **PWA 200% text reflow (real bug, flaky test).**
+  - On a 390 px WebKit screen at 200% text, the Harder/Lighter feelings tabs scrolled sideways by
+    20 px. The tabs now wrap (`6453fa0`).
+  - The e2e check had measured before the screen rendered, so it passed about 9 runs in 10.
+  - It now waits for the rendered screen. Without the fix it fails every time.
+- **Gotcha:** `next build` (and so `pnpm check`) fails with "no direct app page entry found for
+  /_not-found" while `next dev` is running in the same checkout. They share `.next/`. Stop the
+  dev server before running the check.
 
 ## Left to do
 
