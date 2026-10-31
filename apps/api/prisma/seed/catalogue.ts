@@ -14,7 +14,7 @@ export const PLANS = [
   },
   {
     code: 'plus_monthly',
-    name: 'NUCCESS Plus (monthly)',
+    name: 'FigCit Plus (monthly)',
     priceMinor: 699,
     interval: 'month',
     position: 1,
@@ -22,7 +22,7 @@ export const PLANS = [
   },
   {
     code: 'plus_yearly',
-    name: 'NUCCESS Plus (yearly)',
+    name: 'FigCit Plus (yearly)',
     priceMinor: 5999,
     interval: 'year',
     position: 2,
@@ -30,7 +30,7 @@ export const PLANS = [
   },
   {
     code: 'plus_concession',
-    name: 'NUCCESS Plus concession (monthly)',
+    name: 'FigCit Plus concession (monthly)',
     priceMinor: 349,
     interval: 'month',
     position: 3,

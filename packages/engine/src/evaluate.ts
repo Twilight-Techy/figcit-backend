@@ -21,7 +21,7 @@ import type {
   UserSignals,
 } from './types.js';
 
-export const ENGINE_VERSION = '1.1.0';
+export const ENGINE_VERSION = '1.1.1';
 
 const LIGHT_BY_BAND: Readonly<Record<Band, Light>> = {
   available: 'green',

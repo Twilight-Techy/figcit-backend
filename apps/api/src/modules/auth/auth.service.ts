@@ -62,13 +62,13 @@ export class AuthService {
     const body = layout(
       'Your sign-in link',
       [
-        'Tap the button to open NUCCESS. The link works for 10 minutes.',
+        'Tap the button to open FigCit. The link works for 10 minutes.',
         `If you opened this on another device, enter this code instead: ${code}`,
         "If you didn't ask for this, you can ignore this email.",
       ],
-      { label: 'Open NUCCESS', url },
+      { label: 'Open FigCit', url },
     );
-    await this.mail.send({ to: email, subject: 'Your NUCCESS sign-in link', ...body });
+    await this.mail.send({ to: email, subject: 'Your FigCit sign-in link', ...body });
   }
 
   async verifyMagicLink(
@@ -201,7 +201,7 @@ export class AuthService {
     const url = `${this.env.APP_URL}/enter/reset/?token=${encodeURIComponent(token)}`;
     await this.mail.send({
       to: email,
-      subject: 'Reset your NUCCESS password',
+      subject: 'Reset your FigCit password',
       ...layout(
         'Reset your password',
         [

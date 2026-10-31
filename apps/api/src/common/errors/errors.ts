@@ -61,7 +61,7 @@ export class TooMany extends AppError {
 
 export class NotEntitled extends AppError {
   constructor(feature: string) {
-    super(402, 'not_entitled', 'This is an Advanced tool', `${feature} is part of NUCCESS Plus.`);
+    super(402, 'not_entitled', 'This is an Advanced tool', `${feature} is part of FigCit Plus.`);
   }
 }
 

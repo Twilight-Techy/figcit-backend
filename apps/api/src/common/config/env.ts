@@ -29,7 +29,7 @@ const envSchema = z.object({
   MASTER_KEYS: z.string().min(1),
   // Email
   DEV_MAILBOX: bool.default(false),
-  MAIL_FROM: z.string().default('NUCCESS <hello@figcit.co.uk>'),
+  MAIL_FROM: z.string().default('FigCit <hello@figcit.co.uk>'),
   SMTP_URL: z.string().optional(),
   // Storage
   S3_ACCESS_KEY: z.string().optional(),

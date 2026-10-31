@@ -112,7 +112,7 @@ export class UsersService {
     if (viaInstitution) {
       if (!(await this.repo.inInstitution(userId)))
         throw new Forbidden(
-          "Under 18, NUCCESS is available through an institution. Join with your institution's code first.",
+          "Under 18, FigCit is available through an institution. Join with your institution's code first.",
         );
     }
     await this.repo.update(userId, {

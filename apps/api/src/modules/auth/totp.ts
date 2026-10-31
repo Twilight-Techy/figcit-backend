@@ -67,5 +67,5 @@ export function verifyCode(secret: string, code: string, nowMs: number): number 
 }
 
 export function otpauthUri(secret: string, account: string): string {
-  return `otpauth://totp/NUCCESS:${encodeURIComponent(account)}?secret=${secret}&issuer=NUCCESS&algorithm=SHA1&digits=6&period=30`;
+  return `otpauth://totp/FigCit:${encodeURIComponent(account)}?secret=${secret}&issuer=FigCit&algorithm=SHA1&digits=6&period=30`;
 }
