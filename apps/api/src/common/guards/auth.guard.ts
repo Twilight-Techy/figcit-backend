@@ -57,7 +57,7 @@ export class AuthGuard implements CanActivate {
     if (access === 'public') return true;
     if (access === 'browse') {
       if (request.user || request.browseToken) return true;
-      throw new Unauthorized('Open NUCCESS in Browse mode or sign in.');
+      throw new Unauthorized('Open FigCit in Browse mode or sign in.');
     }
     if (access === 'staff') this.checkStaff(request, roles);
     if (!request.user) throw new Unauthorized();

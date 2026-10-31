@@ -61,7 +61,7 @@ const COPY: Readonly<
     body: 'Your account will not be deleted. Everything is as you left it.',
     href: () => '/settings/',
   },
-  system: { title: 'NUCCESS', body: 'Something new is here.', href: () => '/home/' },
+  system: { title: 'FigCit', body: 'Something new is here.', href: () => '/home/' },
 };
 
 @Injectable()

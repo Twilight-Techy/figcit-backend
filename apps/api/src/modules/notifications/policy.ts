@@ -61,16 +61,16 @@ export function decide(p: PolicyInput): Decision {
 /** Payloads never carry personal text (SYSTEM_DESIGN §10). */
 export const PUSH_TEXT: Readonly<Record<Category, { title: string; body: string; url: string }>> = {
   checkin: {
-    title: 'NUCCESS',
+    title: 'FigCit',
     body: 'A gentle check-in is here when you want it.',
     url: '/check-in/',
   },
-  tasks: { title: 'NUCCESS', body: 'A gentle reminder is waiting.', url: '/tasks/' },
-  practices: { title: 'NUCCESS', body: 'Your practice time is coming up.', url: '/meditate/' },
+  tasks: { title: 'FigCit', body: 'A gentle reminder is waiting.', url: '/tasks/' },
+  practices: { title: 'FigCit', body: 'Your practice time is coming up.', url: '/meditate/' },
   recheck: {
-    title: 'NUCCESS',
+    title: 'FigCit',
     body: 'Want to check how you are now?',
     url: '/check-in/?recheck=1',
   },
-  custom: { title: 'NUCCESS', body: 'A gentle reminder is waiting.', url: '/inbox/' },
+  custom: { title: 'FigCit', body: 'A gentle reminder is waiting.', url: '/inbox/' },
 };

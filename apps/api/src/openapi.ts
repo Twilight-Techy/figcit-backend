@@ -175,7 +175,7 @@ async function main(): Promise<void> {
   const spec = {
     openapi: '3.1.0',
     info: {
-      title: 'NUCCESS API',
+      title: 'FigCit API',
       version: '1.0.0',
       description: 'Figcit Ltd. Generated from the code; do not edit by hand.',
     },

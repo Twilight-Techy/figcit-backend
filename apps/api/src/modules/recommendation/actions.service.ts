@@ -125,7 +125,7 @@ export class RecommendationActionsService {
         { code: 'state', text: `You picked ${r.state.name}: ${r.state.meaning}` },
         ...r.patterns.map((p) => ({
           code: `pattern_${String(p)}`,
-          text: `NUCCESS suggests ${names.get(p) ?? 'this for your state'}.`,
+          text: `FigCit suggests ${names.get(p) ?? 'this for your state'}.`,
         })),
         ...(r.drivers.length
           ? [{ code: 'drivers', text: `What usually gets you going: ${r.drivers.join(', ')}` }]

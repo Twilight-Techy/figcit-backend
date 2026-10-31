@@ -256,7 +256,7 @@ export function rationale(
       );
     }
   }
-  const head = `Because you're ${because}${feeling ? ` and ${feeling}` : ''}, NUCCESS suggests ${suggestion}.`;
+  const head = `Because you're ${because}${feeling ? ` and ${feeling}` : ''}, FigCit suggests ${suggestion}.`;
   const next = queued
     ? ` After that: ${queued.label.charAt(0).toLowerCase()}${queued.label.slice(1)}.`
     : '';

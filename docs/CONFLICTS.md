@@ -28,7 +28,7 @@ Places where the source documents, the Figma designs and the live website disagr
 
 | ID | Topic | Priority | Decider |
 | --- | --- | --- | --- |
-| [D-01](#d-01-app-name-figcit-or-nuccess) | App name: Figcit or NUCCESS | P1 | Founder |
+| [D-01](#d-01-app-name-figcit-or-nuccess) | App name: Figcit or NUCCESS (**decided: FigCit**) | P1 | Founder |
 | [D-02](#d-02-age-rule) | Age rule: 16+ or 18+ | P1 | Founder, legal |
 | [D-03](#d-03-health-data-consent-at-sign-up) | Health-data consent at sign-up | P1 | Founder, legal |
 | [D-04](#d-04-profile-fields-dob-neurotype-religion) | Profile fields: DOB, neurotype, religion | P1 | Founder, legal |
@@ -78,7 +78,7 @@ Places where the source documents, the Figma designs and the live website disagr
 - **Website:** "the Figcit app".
 - **Why it matters:** app name, PWA manifest, page titles, all engine copy, privacy notice and store listings.
 - **Recommendation:** decide one user-facing name. Keep "nuccess" as the internal code name either way.
-- **Decision:**
+- **Decision:** **FigCit**, the website's wordmark casing, everywhere users see the name: app, manifest, emails, notifications, engine copy (owner, 31 Oct 2026). "nuccess" stays the internal code name: IndexedDB name, cache keys, class names, the `nuccess.test` seed domain. See DECISIONS B-48.
 
 ### D-02 Age rule
 - **Privacy §2, §10:** NUCCESS is for 18+; 16–17 only through a participating institution (bracketed, unconfirmed).

@@ -23,7 +23,7 @@ export class ExportBuilder {
     ]);
     return {
       about:
-        'Your NUCCESS data export. Codes (like E2M1 or anxious) are explained at https://figcit.co.uk/data-codes.',
+        'Your FigCit data export. Codes (like E2M1 or anxious) are explained at https://figcit.co.uk/data-codes.',
       exportedAt: new Date().toISOString(),
       ...(Object.assign({}, ...parts) as Section),
     };

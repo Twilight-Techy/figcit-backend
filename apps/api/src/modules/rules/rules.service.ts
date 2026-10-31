@@ -40,7 +40,7 @@ export class RulesService {
       throw new AppError(
         503,
         'no_snapshot',
-        'NUCCESS is getting ready',
+        'FigCit is getting ready',
         'No published rule snapshot yet.',
       );
     if (!this.byVersion.has(row.version)) {
@@ -49,7 +49,7 @@ export class RulesService {
     }
     this.published = { version: row.version, checkedAt: Date.now() };
     const hit = this.byVersion.get(row.version);
-    if (!hit) throw new AppError(503, 'no_snapshot', 'NUCCESS is getting ready');
+    if (!hit) throw new AppError(503, 'no_snapshot', 'FigCit is getting ready');
     return { ...hit, version: row.version };
   }
 
