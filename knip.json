@@ -6,7 +6,7 @@
       "ignoreBinaries": ["psql", "prisma"]
     },
     "apps/api": {
-      "entry": ["prisma/seed/*.ts", "test/**/*.ts"],
+      "entry": ["prisma/seed/*.ts", "test/**/*.ts", "src/modules/ai/evals/run.ts"],
       "ignoreBinaries": ["psql"]
     },
     "packages/engine": {

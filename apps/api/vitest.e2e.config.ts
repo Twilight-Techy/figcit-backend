@@ -18,8 +18,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      // OpenAPI generation is build tooling: unit tests and `openapi:check` cover it, not the API.
-      exclude: ['src/openapi.ts', 'src/common/openapi/**'],
+      // OpenAPI generation and the AI evals are tooling: unit tests, `openapi:check` and the nightly
+      // eval run cover them, not the API.
+      exclude: ['src/openapi.ts', 'src/common/openapi/**', 'src/modules/ai/evals/**'],
       thresholds: { lines: 78, statements: 75, functions: 76, branches: 65 },
     },
   },
