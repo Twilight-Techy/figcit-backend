@@ -36,7 +36,8 @@ export async function recurringStruggle(
   for (const c of strained) {
     const lead = c.emotions
       .filter((e) => negative.has(e.familyCode))
-      .sort((a, b) => b.intensity - a.intensity)[0];
+      // An unrated harder feeling counts as High (DECISION_LOG E-42).
+      .sort((a, b) => (b.intensity ?? 7) - (a.intensity ?? 7))[0];
     if (lead) counts.set(lead.familyCode, (counts.get(lead.familyCode) ?? 0) + 1);
   }
   const [family, count] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ['', 0];

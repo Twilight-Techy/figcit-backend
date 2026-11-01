@@ -3,7 +3,6 @@ export {
   catalogueOf,
   cellText,
   CODE_PATTERN,
-  INPUT_MAPPINGS_HEADER,
   readCatalogueRow,
   valuesOf,
   type Catalogue,
@@ -17,6 +16,18 @@ export {
   type FormatDescription,
 } from './format/describe.js';
 export { engineJsonSchema } from './format/json-schema.js';
+export {
+  INPUT_MAPPINGS_HEADER,
+  inputOptionsOf,
+  INPUTS,
+  parseMapsTo,
+  readInputRow,
+  type InputKind,
+  type InputOption,
+  type InputOptions,
+  type InputRow,
+  type MapsTo,
+} from './format/inputs.js';
 export { rowIssues, VALUE_TABS, type CheckedRow } from './format/rows.js';
 export {
   ACTIONS,

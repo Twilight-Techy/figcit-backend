@@ -1,6 +1,7 @@
 import type { JsonValue } from '../ruleset/canonical.js';
 import type { WorkbookCell } from '../ruleset/types.js';
 import { readCatalogueRow, type Catalogue, type Issue } from './catalogue.js';
+import { readInputRow } from './inputs.js';
 import { validateMapping } from './validate.js';
 
 /** Added tables that hold values (standard values, input mappings), never engine columns. */
@@ -38,6 +39,13 @@ export function rowIssues(row: CheckedRow, catalogue: Catalogue): Issue[] {
     const read = readCatalogueRow(row.columns);
     return [
       ...noEngine(row, VALUE_MAPPINGS, 'catalogue rows'),
+      ...('issues' in read ? read.issues : []),
+    ];
+  }
+  if (row.tab === 'input_mappings' && row.frame !== null) {
+    const read = readInputRow(row.columns);
+    return [
+      ...noEngine(row, VALUE_MAPPINGS, 'input mapping rows'),
       ...('issues' in read ? read.issues : []),
     ];
   }

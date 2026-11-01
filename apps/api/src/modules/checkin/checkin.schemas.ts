@@ -12,6 +12,8 @@ export const stateInputSchema = z.discriminatedUnion('kind', [
       mood: z.number().int().min(1).max(4),
     })
     .strict(),
+  // Quick entry with the state skipped (E-45): the engine treats it as not given (NS-1).
+  z.object({ kind: z.literal('not_given') }).strict(),
   z
     .object({
       kind: z.literal('not_sure'),
@@ -60,8 +62,9 @@ export const checkInInputSchema = z
     origin: z.enum(['online', 'offline']).default('online'),
     entry: z.enum(['full', 'quick', 'recheck']).default('full'),
     state: stateInputSchema,
+    // `null` = not rated: the slider was never moved or intensity was skipped (E-41, E-42).
     emotions: z
-      .array(z.object({ code, intensity: z.number().int().min(0).max(10) }).strict())
+      .array(z.object({ code, intensity: z.number().int().min(0).max(10).nullable() }).strict())
       .max(3)
       .default([]),
     ownFeeling: freeText.optional(),
@@ -84,6 +87,8 @@ export const checkInInputSchema = z
         social: code.optional(),
         time: code.optional(),
         support: code.optional(),
+        // Several can be true at once (E-45); replaces `support` for new clients.
+        supports: z.array(code).max(4).optional(),
         sensitivity: z.array(code).max(8).optional(),
         customTagIds: z.array(z.uuid()).max(10).optional(),
       })
@@ -111,7 +116,7 @@ export const checkInSummarySchema = z.object({
   entry: z.enum(['full', 'quick', 'recheck']),
   light: z.enum(['green', 'yellow', 'amber', 'red', 'blue']).nullable(),
   stateName: z.string().nullable(),
-  emotions: z.array(z.object({ code: z.string(), intensity: z.number().int() })),
+  emotions: z.array(z.object({ code: z.string(), intensity: z.number().int().nullable() })),
 });
 
 export const checkInResultSchema = z.object({ checkIn: checkInSummarySchema, card: cardSchema });

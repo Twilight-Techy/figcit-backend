@@ -3,8 +3,10 @@ import type { EngineInput, Snapshot, TimelineCode } from '@figcit/engine';
 import type { Prisma } from '@prisma/client';
 import type { z } from 'zod';
 import type { UserCipher } from '../../common/crypto/crypto.service.js';
+import type { InputKind, InputOption } from '@figcit/engine-v2';
 import { BadInput } from '../../common/errors/errors.js';
 import { timelineFor } from '../../common/time/timeline.js';
+import type { CheckInOptionsDto } from '../rulesets/checkin-options.service.js';
 import type { CheckInSummaryRow } from './checkin.repository.js';
 import type { CheckInInput, checkInSummarySchema } from './checkin.schemas.js';
 
@@ -55,6 +57,71 @@ export function validateCodes(input: CheckInInput, snapshot: Snapshot): void {
   if (env) unknownCodes('environment', [env], new Set(snapshot.environments.map((e) => e.code)));
 }
 
+/** The published check-in options (E-40): the lists, and the app-facing flags derived from them. */
+export interface OptionLists {
+  readonly options: Readonly<Record<InputKind, readonly InputOption[]>>;
+  readonly dto: Pick<CheckInOptionsDto, 'inputs'>;
+}
+
+function offered(kind: string, codes: readonly string[], list: readonly InputOption[]): void {
+  unknownCodes(kind, codes, new Set(list.map((o) => o.code)));
+}
+
+/** Every value against the published options; the Not-sure answers by their question. */
+function checkOffered(input: CheckInInput, o: OptionLists['options']): void {
+  const c = input.context;
+  const one = (v: string | undefined): string[] => (v ? [v] : []);
+  offered(
+    'feeling',
+    input.emotions.map((e) => e.code),
+    o.feeling,
+  );
+  offered(
+    'sensation',
+    input.sensations.map((s) => s.code),
+    o.sensation,
+  );
+  offered(
+    'body region',
+    input.sensations.flatMap((s) => s.bodyRegions ?? []),
+    o.body_region,
+  );
+  offered('place', one(c.environment), o.place);
+  offered('who is around', one(c.social), o.social);
+  offered('time', one(c.time), o.time);
+  offered('support', supportsOf(input), o.support);
+  offered('sense', c.sensitivity ?? [], o.sense);
+  offered('need', [...input.needs, ...(input.parsedNeedCodes ?? [])], o.need);
+  offered('task kind', one(input.demand?.kind), o.task_kind);
+  offered('timeline', one(input.demand?.timeline), o.timeline);
+  if (input.state.kind === 'not_sure') {
+    const [body, energy, comfort] = input.state.answers ?? [];
+    offered('Not sure body answer', one(body), o.not_sure_body);
+    offered('Not sure energy answer', one(energy), o.not_sure_energy);
+    offered('Not sure comfort answer', one(comfort), o.not_sure_comfort);
+  }
+}
+
+/** Supports picked: the list, or the single value older clients send. */
+export function supportsOf(input: CheckInInput): string[] {
+  const c = input.context;
+  return c.supports ?? (c.support ? [c.support] : []);
+}
+
+/**
+ * Checks the check-in against the published options (E-40) and the rules between answers (E-45):
+ * "Just me" and "Someone with me" exclude each other; a need that needs a task brings one.
+ */
+export function validateOptions(input: CheckInInput, lists: OptionLists): void {
+  checkOffered(input, lists.options);
+  const supports = supportsOf(input);
+  if (supports.includes('just_me') && supports.includes('someone_with_me'))
+    throw new BadInput('"Just me" and "Someone with me" can\'t both be picked.');
+  const taskNeeds = new Set(lists.dto.inputs.need.filter((n) => n.needsTask).map((n) => n.code));
+  if (input.needs.some((n) => taskNeeds.has(n)) && (input.justSupport || !input.demand))
+    throw new BadInput("This need is about a task, so the task step can't be skipped.");
+}
+
 export function demandTimeline(
   d: Demand | undefined,
   now: Date,
@@ -66,6 +133,8 @@ export function demandTimeline(
 
 function engineState(state: CheckInInput['state']): EngineInput['state'] {
   if (state.kind === 'grid') return state;
+  // A skipped state (quick entry, E-45) goes in as Not sure with no answers: NS-1 keeps it Conditional.
+  if (state.kind === 'not_given') return { kind: 'not_sure' };
   return {
     kind: 'not_sure',
     ...defined({ answers: state.answers, confirmedCell: state.confirmedCell }),
@@ -86,10 +155,37 @@ function engineDemand(d: Demand, timeline: TimelineCode): NonNullable<EngineInpu
   };
 }
 
+// TEMPORARY v2 -> v1 adapter (DECISION_LOG E-39, TODO T-17): the check-in now carries v2 standard
+// input; until the v2 engine runs, these choices feed the v1 engine as E-42 and ADR 0001 §7 say.
+const UNRATED_HARDER = 7;
+const UNRATED_LIGHTER = 2;
+const RISK = 10;
+
+/** v1 needs a number: an unrated feeling counts as High (harder) or Mild (lighter); risk is 10. */
+function engineEmotions(
+  input: CheckInInput,
+  lists: OptionLists | null,
+): NonNullable<EngineInput['emotions']> {
+  const feelings = lists?.dto.inputs.feeling ?? [];
+  return input.emotions.map((e) => {
+    const opt = feelings.find((f) => f.code === e.code);
+    if (opt?.risk) return { code: e.code, intensity: RISK };
+    if (e.intensity !== null) return { code: e.code, intensity: e.intensity };
+    return { code: e.code, intensity: opt?.group === 'lighter' ? UNRATED_LIGHTER : UNRATED_HARDER };
+  });
+}
+
+/** v1 reads one support value; headphones is the one its rules use (Tabs 3a, 3b, 6c). */
+function engineSupport(input: CheckInInput): string | undefined {
+  const supports = supportsOf(input);
+  return supports.includes('headphones') ? 'headphones' : supports[0];
+}
+
 export function toEngineInput(
   input: CheckInInput,
   timeline: TimelineCode | undefined,
   recheckOf: EngineInput['recheckOf'],
+  lists: OptionLists | null = null,
 ): EngineInput {
   const d = input.demand;
   const freeText = [
@@ -98,11 +194,12 @@ export function toEngineInput(
     input.context.environmentOther,
     d?.title,
   ].filter((t): t is string => !!t);
-  const { environment, social, time, support, sensitivity } = input.context;
+  const { environment, social, time, sensitivity } = input.context;
+  const support = engineSupport(input);
   return {
     entry: input.entry === 'quick' ? 'quick' : 'full',
     state: engineState(input.state),
-    emotions: input.emotions,
+    emotions: engineEmotions(input, lists),
     sensations: input.sensations.map((s) => ({
       code: s.code,
       ...defined({ intensity: s.intensity, bodyRegions: s.bodyRegions }),
@@ -163,6 +260,19 @@ function needData(
   };
 }
 
+function contextData(input: CheckInInput): Prisma.CheckInContextCreateWithoutCheckInInput {
+  const c = input.context;
+  return {
+    environment: c.environment ?? null,
+    people: c.social ?? null,
+    timeAvailable: c.time ?? null,
+    support: engineSupport(input) ?? null,
+    supports: supportsOf(input),
+    sensitivityFlags: c.sensitivity ?? [],
+    customTagIds: c.customTagIds ?? [],
+  };
+}
+
 /** The check-in row with its emotions, sensations, context and need, created in one write. */
 export function checkInData(
   input: CheckInInput,
@@ -179,8 +289,8 @@ export function checkInData(
     mood: grid ? state.mood : null,
     source: state.kind,
     entry: input.entry,
-    notSureAnswers: grid ? [] : (state.answers ?? []),
-    confirmed: grid || state.confirmedCell !== undefined,
+    notSureAnswers: state.kind === 'not_sure' ? (state.answers ?? []) : [],
+    confirmed: grid || (state.kind === 'not_sure' && state.confirmedCell !== undefined),
     recheckOfId: input.recheckOfId ?? null,
     snapshotVersion: ctx.snapshot.version,
     createdOnDeviceAt: input.createdOnDeviceAt ? new Date(input.createdOnDeviceAt) : ctx.now,
@@ -200,16 +310,7 @@ export function checkInData(
         bodyRegions: s.bodyRegions ?? [],
       })),
     },
-    context: {
-      create: {
-        environment: input.context.environment ?? null,
-        people: input.context.social ?? null,
-        timeAvailable: input.context.time ?? null,
-        support: input.context.support ?? null,
-        sensitivityFlags: input.context.sensitivity ?? [],
-        customTagIds: input.context.customTagIds ?? [],
-      },
-    },
+    context: { create: contextData(input) },
     need: { create: needData(input, ctx) },
   };
 }

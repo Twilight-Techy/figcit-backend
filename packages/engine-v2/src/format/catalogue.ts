@@ -15,9 +15,6 @@ export const CATALOGUE_HEADER = [
 ] as const;
 export type CatalogueColumn = (typeof CATALOGUE_HEADER)[number];
 
-/** The input mappings table's columns (E-19: chip to family, sensation to group, ...). */
-export const INPUT_MAPPINGS_HEADER = ['Mapping', 'From', 'To', 'Source', 'Note'] as const;
-
 /** One standard value. `from`/`to` are an inclusive range (intensity bands); `group` a parent. */
 export interface CatalogueValue {
   readonly code: string;

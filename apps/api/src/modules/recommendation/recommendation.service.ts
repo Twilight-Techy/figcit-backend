@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import {
@@ -113,6 +114,27 @@ export class RecommendationService {
   }
 
   /**
+   * Browse mode (DECISION_LOG E-46): runs the engine and builds the card without storing anything.
+   * The card lives on the device; E-05's server-side Browse record arrives with the v2 decision
+   * records (M5).
+   */
+  async preview(input: EngineInput, checkInId: string, signals: UserSignals): Promise<RunOutcome> {
+    const { snapshot } = await this.rules.current();
+    const result = evaluate(input, snapshot, signals);
+    const routes = await this.safety.routes(signals.region ?? 'GB');
+    const id = randomUUID();
+    const card = toCard(result, snapshot, {
+      id,
+      checkInId,
+      createdAt: new Date(),
+      taskId: null,
+      origin: 'online',
+      routes,
+    });
+    return { id, result, card };
+  }
+
+  /**
    * The user's state from their latest card in the last few hours (Yellow when unknown), with the
    * check-in's peak negative intensity and families. Used by task order and the Reflect gate.
    */
@@ -151,7 +173,8 @@ export class RecommendationService {
       known: true,
       peakNegative: Math.max(
         0,
-        ...emotions.filter((e) => negative.has(e.familyCode)).map((e) => e.intensity),
+        // An unrated harder feeling counts as High (DECISION_LOG E-42).
+        ...emotions.filter((e) => negative.has(e.familyCode)).map((e) => e.intensity ?? 7),
       ),
       families: [...new Set(emotions.map((e) => e.familyCode))],
       setting: rec.checkIn.context?.environment ?? null,

@@ -1,11 +1,8 @@
 import { fromDraft, type RulesetRecord } from '../ruleset/store.js';
 import type { ReadResult, RuleRecordDraft, TableFrame, TabKey } from '../ruleset/types.js';
-import {
-  CATALOGUE_HEADER,
-  cellText,
-  INPUT_MAPPINGS_HEADER,
-  type CatalogueColumn,
-} from './catalogue.js';
+import { CATALOGUE_HEADER, cellText, type CatalogueColumn } from './catalogue.js';
+import { INPUT_SEED } from './input-seed.js';
+import { INPUT_MAPPINGS_HEADER } from './inputs.js';
 import type { Domain } from './registry.js';
 
 export const CATALOGUE_FILE = 'x-catalogue.csv';
@@ -141,6 +138,33 @@ function drivers(records: readonly RuleRecordDraft[]): SeedRow[] {
   });
 }
 
+/** Groups the sensation-led rules read (E-40); filled from the text, so `interpreted`. */
+const SENSATION_GROUPS = [
+  'pain',
+  'shutdown',
+  'detached',
+  'racing',
+  'word_finding',
+  'restless',
+  'hyperfocus',
+  'interoception_unmet',
+  'sensory_overload',
+] as const;
+
+/** Needs, with Group `task_needed` where Tab 6b says the need doesn't work without a task. */
+function needs(records: readonly RuleRecordDraft[]): SeedRow[] {
+  return rowsOf(records, 'needs').map((r) => ({
+    domain: 'need',
+    mapping: 'exact',
+    cells: {
+      Code: slug(r.sourceRef),
+      Label: r.sourceRef,
+      Group: cellText(r.columns, 'Works with no task?').toLowerCase() === 'no' ? 'task_needed' : '',
+      Source: source(r),
+    },
+  }));
+}
+
 function pathways(records: readonly RuleRecordDraft[]): SeedRow[] {
   return rowsOf(records, 'tools_tiers')
     .filter((r) => r.section?.startsWith('A.') ?? false)
@@ -181,7 +205,7 @@ function interpreted(domain: Domain, codes: readonly string[], from: string): Se
     mapping: 'interpreted',
     cells: {
       Code: code,
-      Label: code.charAt(0).toUpperCase() + code.slice(1),
+      Label: code.charAt(0).toUpperCase() + code.slice(1).replaceAll('_', ' '),
       Source: from,
       Note: 'Read from the text; confirm (E-19)',
     },
@@ -205,7 +229,12 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
     ...asIs('timeline', records, 'timelines', 'User-facing label'),
     ...drivers(records),
     ...simple('demand_characteristic', records, 'demand_characteristics'),
-    ...simple('need', records, 'needs'),
+    ...needs(records),
+    ...interpreted(
+      'sensation_group',
+      SENSATION_GROUPS,
+      'experience_triggers (sensation-led rows); reflect_meditate · MD-2; PRD FR-M03-02',
+    ),
     ...pathways(records),
     ...asIs('pattern', records, 'patterns', 'Capacity band + trigger pattern'),
     ...interpreted(
@@ -228,9 +257,48 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
 
 const frameOf = (header: readonly string[]): TableFrame => ({ header: [...header], banner: [] });
 
+/** The check-in options as first filled (E-40), as records without an order yet. */
+function inputSeedRows(): Omit<RulesetRecord, 'order'>[] {
+  return INPUT_SEED.flatMap((seed) =>
+    seed.rows.map(([code, label, group, mapsTo, note = ''], i) => {
+      const cells: Record<string, string> = {
+        Input: seed.input,
+        Code: code,
+        Label: label,
+        Group: group,
+        Order: String(i + 1),
+        'Maps to': mapsTo,
+        Source: seed.source,
+        Note: note,
+      };
+      return {
+        tab: 'input_mappings' as const,
+        role: 'rule' as const,
+        section: null,
+        sourceRef: `${seed.input} · ${code}`,
+        columns: INPUT_MAPPINGS_HEADER.map((header, col) => ({
+          header,
+          text: cells[header] ?? '',
+          col,
+        })),
+        origin: { file: INPUT_MAPPINGS_FILE, sheetRow: 0, range: '' },
+        frame: 0,
+        engine: null,
+        mapping: 'interpreted' as const,
+        status: 'active' as const,
+        // The Hopeless chip carries the safety override (E-43): changing it is a safety change.
+        safety: mapsTo === 'family:immediate_risk_language',
+        workbookTag: null,
+      };
+    }),
+  );
+}
+
 /** What `withAdditions` adds to an import. */
 export interface AdditionsReport {
   readonly catalogue: number;
+  /** Check-in options filled from Figma (E-40). */
+  readonly inputs: number;
   readonly catalogueGiven: boolean;
   readonly inputMappingsGiven: boolean;
   readonly notes: readonly string[];
@@ -280,10 +348,18 @@ export function withAdditions(read: ReadResult): {
       });
     }
   }
-  if (!inputMappingsGiven) frames[INPUT_MAPPINGS_FILE] = [frameOf(INPUT_MAPPINGS_HEADER)];
+  let inputs = 0;
+  if (!inputMappingsGiven) {
+    frames[INPUT_MAPPINGS_FILE] = [frameOf(INPUT_MAPPINGS_HEADER)];
+    for (const row of inputSeedRows()) {
+      order += 1;
+      inputs += 1;
+      records.push({ ...row, order });
+    }
+  }
   return {
     records,
     frames,
-    additions: { catalogue: seeded, catalogueGiven, inputMappingsGiven, notes },
+    additions: { catalogue: seeded, inputs, catalogueGiven, inputMappingsGiven, notes },
   };
 }

@@ -208,7 +208,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Dropped:** E-15 (`figcit-backend/apps/admin`, rule screens only).
 - **Revert:** build the staff app in the backend repo again (E-15).
 
-### E-32 Order of work
+### E-32 Order of work (amended by E-39)
 - **Decision:** the backend carries on (M2 rule format, M3 engine columns, M4 engine, M5 API and records) while the client repo is restructured. The staff app is built after the move.
 - **Why:** the backend doesn't depend on the client repo's layout.
 
@@ -254,6 +254,78 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Why:** it is the reference JSON Schema validator; the test that the generated schema and the package's own validator agree needs an independent implementation, not ours.
 - **Cost:** none at runtime; it was already installed (fastify uses it); MIT licence.
 
+### E-39 The check-in is fixed now, against a v2 input contract (amends E-32)
+- **Decision (Owner, 1 Nov 2026):** the user app's flow from sign-in to the engine input is fixed now, before the v2 engine exists. The app sends **standard values from the v2 rule set**:
+  - the options come from a public endpoint built from the published rule set (E-40);
+  - the server checks every value against it;
+  - until M4, the server converts the input for the v1 engine (a temporary adapter, removed when v2 runs).
+- **Also decided:**
+  - Browse check-ins go to the server (E-01, E-02, E-05).
+  - Offline, the check-in is saved on the phone and the card is made when back online (E-03).
+  - The engine copy in the app is removed.
+- **Work:** `figcit-pwa`, branch `engine-v2/checkin-input`. The repo will be renamed later; it doesn't affect this.
+- **Revert:** n/a.
+
+### E-40 Check-in options are rule set data (input mappings, format 2)
+- **Decision:** what the check-in offers is a table in the rule set: feeling chips, sensations, places, who's around, time, support, senses, needs, task kinds and timelines, the Not-sure pictures and body regions. Each option has:
+  - a stable code;
+  - the label the user sees (Figma's wording);
+  - its group (tab or side);
+  - its order;
+  - what it **maps to** in the catalogue (e.g. the chip `anxious` → family `anxious_fearful`).
+- **Public endpoint:** `GET /v1/check-in/options` (public, with an ETag) serves the published version's options. The app caches it for offline use.
+- **Option codes** stay the codes v1 used where v1 had the same option, so the temporary v1 adapter (E-39) needs no translation.
+- **Filled from Figma** (S07, S09–S09e, S10, S11, S12, S150, S152), each row `interpreted` with its Figma node as the source, for the founder to confirm (E-19). The 13 feeling chips and 16 places that v1 invented are dropped.
+- **Sensation groups** the sensation-led rules read are added to the catalogue, `interpreted` from Tab 2, MD-2 and PRD FR-M03-02: pain, shutdown, detached, racing, word-finding, restless, hyperfocus, interoception unmet and sensory overload.
+- **Revert:** n/a (data; the founder edits the rows).
+
+### E-41 No value the user didn't choose
+- Both Energy and Mood must be picked; nothing is pre-set.
+- A feeling's intensity is `null` ("not rated") until the slider is moved; "Skip intensity" sends `null`, never 5.
+- Sensation strength is optional and per tab.
+- An optional question left blank is sent as "not answered"; "None right now" is its own answer.
+- "Suggested from last time" fills in only **where you are** and **who's around**.
+
+### E-42 Interim: what an unrated feeling counts as (needs Clinical Safety)
+- **Decision (made by Claude on the Owner's instruction, for review):** until the Clinical Safety lead rules, the engine treats an unrated feeling as:
+  - **High (7)** when its family lowers the band (EX-1) or touches safety;
+  - **Mild (2)** for lighter families.
+- **Assumption:** the cost of under-supporting someone who skipped is higher than the cost of a gentler card.
+- **Where:** the v1 adapter now (E-39), and an engine rule in M3.
+- **Review:** OWNER_DISCUSSION O-19.
+
+### E-43 Tapping "Hopeless" offers support at once (needs Clinical Safety)
+- **What it is:** the Hopeless chip is a "selected option" under SF-1 and maps to the family "Immediate risk language", so the safety override fires at any intensity (ADR 0001 §7).
+- **The new prompt:** as soon as the chip is tapped, the app shows a small prompt, "Want support right now?", with **Get support now** (opens Help/SOS) and **Keep going**. It doesn't block the user. The card at the end is the safety card either way.
+- **Not this:** the danger-words check on typed text belongs to the free-text team (E-14) and is unchanged.
+- **Review:** OWNER_DISCUSSION O-19.
+
+### E-44 Stand-ins for the AI steps while they are off
+- **Decision (Owner):** the AI steps (map-feeling, parse-need, suggest-drivers, split-tasks) are treated as if they work.
+- **No new stubs were needed.** With no model configured, the server already answers each step with its rule-based fallback (`apps/api/src/modules/ai/fallbacks`), and those results stand in for the model.
+- The app keeps Figma's own-words fields and the S92 "drivers detected" card as designed.
+- The fallbacks still suggest v1 codes, so the app keeps only suggestions that are on its option lists.
+- **Rejected:** extra task toggles that aren't in the flow (proposed 1 Nov 2026).
+- **Clean-up:** `TODO.md` T-16 (move the fallbacks onto the v2 options).
+
+### E-45 Smaller check-in rulings (1 Nov 2026)
+- "Support available" allows several picks; "Just me" and "Someone with me" exclude each other.
+- "Somewhere else" lets the user name a place and say what it's most like (a standard place). It is saved as their own chip; the engine sees only the standard place; the name is encrypted (S10 merged with S90).
+- Places: Figma's 10 chips come first, each linked to a workbook place; "More places" shows the remaining workbook places.
+- Needs that need a task (Tab 6b "Works with no task? No") make the task step required. "More needs" shows the Tab 6b needs Figma leaves out, except "Get urgent help", which is the Help button. "I'm grateful, I want to note it" maps to the gratitude family.
+- Quick entry ("I need help with…"): need first, then the Energy × Mood step, which can be skipped. A skipped state goes to the engine as "not given" (NS-1 keeps it Conditional).
+- Re-check: energy and mood, then the original check-in's feelings re-rated (skippable), so RC-1 can be measured.
+- Sensations: Figma's tabs and placement. "Feel detached or unreal" is added to Cognitive because MD-2 needs it (a recorded drift from Figma).
+- Not sure: answers map to a cell through the input mappings (energy → E, comfort → M, `interpreted`). The body answer is kept but not used yet. The "we'll start with your body" message is removed.
+- Onboarding follows Figma's order. Buttons with nothing behind them (institution sign-in, Apple, passkey) are hidden until built. The consent screen uses the FigCit name and a true Browse sentence.
+- Visual and design changes against Figma are listed in `figcit-pwa/docs/FIGMA_DECISIONS.md`. Anything that differs from Figma and isn't listed there is a bug.
+
+### E-46 Browse check-ins run on the server and are not stored yet
+- **Decision:** a Browse check-in (no account) is checked and run on the server like any other, and its card returned (E-01, E-02).
+- **Not stored yet:** the existing check-in tables need a user and that user's encryption key. The record E-05 asks for comes with the v2 decision records (M5).
+- **Until then:** the app keeps the Browse check-in and card on the device, as before. This also keeps PRD US-M01-03 ("Browse stores nothing on the server") true until O-02 is settled.
+- **Revert:** store Browse records once M5 exists (E-05).
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
@@ -272,6 +344,9 @@ Rule set versions also keep their table frames, import report and checks as JSON
 | Storing only changed rows per version | Claude, 1 Nov | Dropped | E-26 | E-26 |
 | Staff app at `figcit-backend/apps/admin`, rule screens only | E-15 | Replaced: one staff app in the client repo | E-31 | E-31 |
 | Rule changes by the general `admin` role | E-20 | Replaced: `clinical_admin` | E-34 | E-34 |
+| Client work only after the backend M2-M5 | E-32 | Changed: the check-in input is fixed now | E-39 | E-39 |
+| Optional task toggles when AI is off | Claude, 1 Nov | Dropped | E-44 | E-44 |
+| v1's invented feeling chips and places | v1 build (B-07, B-10) | Dropped | E-40 | E-40 |
 
 ## Open points that came out of this conversation
 

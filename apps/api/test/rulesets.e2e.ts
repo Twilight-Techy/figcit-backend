@@ -65,7 +65,7 @@ describe('rule store (engine v2)', () => {
     const res = await api.req<{
       version: Version;
       report: { totalRecords: number };
-      additions: { catalogue: number };
+      additions: { catalogue: number; inputs: number };
     }>('POST', '/rulesets/import', {
       token: admin,
       body: { files, workbookVersion: wb, notes: 'e2e' },
@@ -78,9 +78,10 @@ describe('rule store (engine v2)', () => {
 
     const v = await api.req<Version>('GET', `/rulesets/${first}`, { token: reader });
     // The workbook's rows, plus the catalogue filled from them (E-36).
-    // 193 values read exactly from rows, 8 interpreted (setting classes and plans).
-    expect(res.body.additions.catalogue).toBe(201);
-    expect(v.body.counts.records).toBe(expected.records.length + 201);
+    // 193 values read exactly from rows; 17 interpreted (setting classes, plans, sensation groups).
+    expect(res.body.additions.catalogue).toBe(210);
+    // ...plus the check-in options filled from Figma (E-40).
+    expect(v.body.counts.records).toBe(expected.records.length + 210 + res.body.additions.inputs);
     expect(v.body.counts.safety).toBeGreaterThan(5);
 
     const tab = await api.req<Items<Row>>('GET', `/rulesets/${first}/tabs/band_rules`, {
@@ -126,11 +127,13 @@ describe('rule store (engine v2)', () => {
     ];
     const exported = readWorkbook(res.body.files).records;
     // The workbook's own tabs come back as they were uploaded...
-    expect(exported.filter((r) => r.tab !== 'catalogue').map(strip)).toEqual(
+    const added = new Set(['catalogue', 'input_mappings']);
+    expect(exported.filter((r) => !added.has(r.tab)).map(strip)).toEqual(
       readWorkbook(files).records.map(strip),
     );
     // ...and the added tables travel with them, so a re-import keeps them (E-36).
-    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(201);
+    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(210);
+    expect(exported.filter((r) => r.tab === 'input_mappings').length).toBeGreaterThan(200);
     expect(Object.keys(res.body.files)).toEqual(
       expect.arrayContaining(['x-catalogue.csv', 'x-input-mappings.csv']),
     );
@@ -223,7 +226,7 @@ describe('rule store (engine v2)', () => {
           when: {
             any: [
               { fact: 'peak.negative', op: 'gte', value: { band: 'high' } },
-              { fact: 'sensation.intensity', key: 'pain', op: 'gte', value: { band: 'high' } },
+              { fact: 'sensation.intensity', key: 'body_ache', op: 'gte', value: { band: 'high' } },
               { fact: 'families', op: 'contains', value: 'shutdown_freeze_numb' },
             ],
           },
@@ -242,7 +245,7 @@ describe('rule store (engine v2)', () => {
     expect(missing.body.issues).toEqual([
       {
         path: '/engine/rules/0/when/any/1/key',
-        message: 'the catalogue has no sensation_group values yet',
+        message: '"body_ache" is not a sensation_group in the catalogue',
       },
     ]);
     expect((await edit({ mapping: 'exact' })).status).toBe(400);
@@ -256,14 +259,14 @@ describe('rule store (engine v2)', () => {
         after: catalogue.body.items[0]?.recordId,
         cells: [
           { col: 0, text: 'sensation_group' },
-          { col: 1, text: 'pain' },
-          { col: 2, text: 'Body pain' },
+          { col: 1, text: 'body_ache' },
+          { col: 2, text: 'Body ache' },
         ],
         reason: 'E-19 fill for EX-1',
       },
     });
     expect(pain.status).toBe(201);
-    expect(pain.body.sourceRef).toBe('sensation_group · pain');
+    expect(pain.body.sourceRef).toBe('sensation_group · body_ache');
     expect((await edit({ mapping: 'exact', engine })).status).toBe(200);
 
     const rename = (code: string) =>
@@ -273,12 +276,12 @@ describe('rule store (engine v2)', () => {
           cells: [
             { col: 0, text: 'sensation_group' },
             { col: 1, text: code },
-            { col: 2, text: 'Body pain' },
+            { col: 2, text: 'Body ache' },
           ],
           reason: 'e2e rename',
         },
       });
-    expect((await rename('body_pain')).status).toBe(200);
+    expect((await rename('body_aches')).status).toBe(200);
     const submitted = await api.req<Version>('POST', `/rulesets/${first}/submit`, { token: admin });
     expect(submitted.body.checks?.invalid.map((r) => r.sourceRef)).toEqual(['EX-1']);
     const refused = await api.req<{ code: string }>('POST', `/rulesets/${first}/publish`, {
@@ -287,7 +290,7 @@ describe('rule store (engine v2)', () => {
     expect(refused.status).toBe(409);
     expect(refused.body.code).toBe('ruleset_invalid');
     await api.req('POST', `/rulesets/${first}/reopen`, { token: admin });
-    expect((await rename('pain')).status).toBe(200);
+    expect((await rename('body_ache')).status).toBe(200);
   });
 
   it('blocks publishing an exempt safety row until its gap is acknowledged', async () => {

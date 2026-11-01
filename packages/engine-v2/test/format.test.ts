@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 import { describe, expect, it } from 'vitest';
 import {
@@ -14,53 +12,9 @@ import {
   validateMapping,
   withAdditions,
   writeWorkbook,
-  type Catalogue,
   type WorkbookCell,
 } from '../src/index.js';
-
-const dir = resolve(import.meta.dirname, '../../../docs/specs/rules-engine-v3.3');
-const files: Record<string, string> = {};
-for (const name of readdirSync(dir)) {
-  if (name.endsWith('.csv')) files[name] = readFileSync(resolve(dir, name), 'utf8');
-}
-const imported = withAdditions(readWorkbook(files));
-const { catalogue, issues: catalogueIssues } = catalogueOf(imported.records);
-const codes = (c: Catalogue, domain: Parameters<Catalogue['get']>[0]): string[] =>
-  (c.get(domain) ?? []).map((v) => v.code);
-
-/** EX-1 as engine columns: one rule, read straight from the Tab 10 text. */
-const ex1 = {
-  stage: 'capacity_fit',
-  rules: [
-    {
-      when: {
-        any: [
-          { fact: 'peak.negative', op: 'gte', value: { band: 'high' } },
-          { fact: 'sensation.intensity', key: 'pain', op: 'gte', value: 7 },
-          { fact: 'families', op: 'contains', value: 'shutdown_freeze_numb' },
-        ],
-      },
-      then: [{ kind: 'band.lower', steps: 1 }],
-    },
-  ],
-};
-/** A catalogue with a sensation group and a tool, as M3 will add (E-19). */
-const withExtras = catalogueOf([
-  ...imported.records,
-  ...[
-    ['sensation_group', 'pain', 'Pain'],
-    ['tool', 'breathe', 'Breathe'],
-  ].map(([domain = '', code = '', label = '']) => ({
-    tab: 'catalogue',
-    status: 'active',
-    frame: 0,
-    columns: [
-      { header: 'Domain', text: domain, col: 0 },
-      { header: 'Code', text: code, col: 1 },
-      { header: 'Label', text: label, col: 2 },
-    ],
-  })),
-]).catalogue;
+import { catalogue, catalogueIssues, codes, ex1, files, imported, withExtras } from './fixtures.js';
 
 describe('the catalogue, filled from the workbook', () => {
   it('has every standard value the workbook defines', () => {
@@ -180,12 +134,14 @@ describe('validating engine columns', () => {
   });
 
   it('says a value is missing from the catalogue rather than accepting it', () => {
-    expect(validateEngine(ex1, catalogue)).toEqual([
-      {
-        path: '/rules/0/when/any/1/key',
-        message: 'the catalogue has no sensation_group values yet',
-      },
+    const tools = {
+      stage: 'context',
+      rules: [{ when: null, then: [{ kind: 'tools.exclude', tools: ['breathe'] }] }],
+    };
+    expect(validateEngine(tools, catalogue)).toEqual([
+      { path: '/rules/0/then/0/tools/0', message: 'the catalogue has no tool values yet' },
     ]);
+    expect(validateEngine(ex1, catalogue)).toEqual([]);
   });
 
   it('finds every problem, with where it is', () => {

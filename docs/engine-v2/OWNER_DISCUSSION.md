@@ -289,3 +289,19 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
   3. For a `safety` row, block publishing until Clinical Safety has seen the exemption, because a missing safety rule weakens safety.
 - **Recommendation:** option 1 for ordinary rows. Option 3 for `safety` rows. Every exemption shows in the dashboard and in the trace ("rule X exempt").
 - **Decision:**
+
+## O-19 Check-in safety choices made for the MVP (Clinical Safety)
+
+- **Current approach:**
+  - **Unrated feelings:** a feeling the user didn't rate counts as High for harder families and Mild for lighter ones (E-42).
+  - **Hopeless prompt:** tapping Hopeless offers "Get support now" at once, without blocking (E-43).
+  - **Hopeless as a family:** the Hopeless chip maps to "Immediate risk language" (E-40).
+- **Sources:**
+  - Tab 2 ("Immediate risk language … selected option");
+  - SF-1;
+  - ADR 0001 §7;
+  - PRD ("Skip is always available");
+  - INPUT_GAPS IG-04 and IG-20.
+- **Constraints:** a skipped rating must never read as mild for a harder feeling. A prompt must not shame or alarm.
+- **Recommendation:** keep the three choices until the Clinical Safety lead rules on them, then change the data and the engine rule.
+- **Decision:** ________

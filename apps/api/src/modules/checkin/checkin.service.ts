@@ -6,7 +6,6 @@ import { NotFound } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
 import type { CardDto } from '../recommendation/recommendation.schemas.js';
 import { RecommendationService } from '../recommendation/recommendation.service.js';
-import { RulesService } from '../rules/rules.service.js';
 import {
   checkInData,
   decodeCursor,
@@ -15,9 +14,9 @@ import {
   taskData,
   toEngineInput,
   toSummary,
-  validateCodes,
   type Summary,
 } from './checkin.mapper.js';
+import { CheckInInputService } from './checkin-input.service.js';
 import { CheckInRepository } from './checkin.repository.js';
 import type { CheckInInput } from './checkin.schemas.js';
 
@@ -26,7 +25,7 @@ export class CheckInService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly repo: CheckInRepository,
-    private readonly rules: RulesService,
+    private readonly input: CheckInInputService,
     private readonly recs: RecommendationService,
     private readonly crypto: CryptoService,
     private readonly events: DomainEvents,
@@ -37,10 +36,10 @@ export class CheckInService {
     input: CheckInInput,
     now = new Date(),
   ): Promise<{ checkIn: Summary; card: CardDto }> {
-    const { snapshot } = await this.rules.current();
+    const snapshot = await this.input.snapshot();
     const replay = input.id ? await this.replay(userId, input.id) : null;
     if (replay) return replay;
-    validateCodes(input, snapshot);
+    const lists = await this.input.validate(input);
     const [user, signals, previous] = await Promise.all([
       this.prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { timezone: true } }),
       this.recs.signalsFor(userId, now),
@@ -49,7 +48,7 @@ export class CheckInService {
         : Promise.resolve(undefined),
     ]);
     const timeline = demandTimeline(input.demand, now, user.timezone);
-    const engineInput = toEngineInput(input, timeline, previous);
+    const engineInput = toEngineInput(input, timeline, previous, lists);
     const cipher = await this.crypto.forUser(userId);
     const demand = input.demand;
 
@@ -70,6 +69,12 @@ export class CheckInService {
           })
         ).id;
       }
+      const places = input.context.customTagIds ?? [];
+      if (places.length)
+        await tx.customTag.updateMany({
+          where: { id: { in: places }, userId, deletedAt: null },
+          data: { useCount: { increment: 1 }, lastUsedAt: now },
+        });
       const checkIn = await this.repo.create(
         tx,
         checkInData(input, { userId, snapshot, cipher, taskId, timeline, now }),
@@ -111,7 +116,7 @@ export class CheckInService {
     if (!existing) return null;
     const card = await this.recs.latestFor(userId, existing.id);
     if (!card) return null;
-    return { checkIn: toSummary(existing, (await this.rules.current()).snapshot), card };
+    return { checkIn: toSummary(existing, await this.input.snapshot()), card };
   }
 
   /** What the engine needs to know about the check-in being re-checked (Tab 8 step 11). */
@@ -149,7 +154,7 @@ export class CheckInService {
       cellId: rec.cellId,
       finalBand: rec.band as Band,
       light: rec.light,
-      peakIntensity: Math.max(0, ...prev.emotions.map((e) => e.intensity)),
+      peakIntensity: Math.max(0, ...prev.emotions.map((e) => e.intensity ?? 0)),
       supportCompleted: session?.completed ?? false,
       safetyTriggered: rec.safetyTriggered,
       ...(session ? { toolId: session.toolId, pathway: session.pathway } : {}),
@@ -158,7 +163,7 @@ export class CheckInService {
   }
 
   async get(userId: string, id: string): Promise<{ checkIn: Summary; card: CardDto | null }> {
-    const { snapshot } = await this.rules.current();
+    const snapshot = await this.input.snapshot();
     const row = await this.repo.summary(userId, id);
     if (!row) throw new NotFound('check-in');
     return { checkIn: toSummary(row, snapshot), card: await this.recs.latestFor(userId, id) };
@@ -169,7 +174,7 @@ export class CheckInService {
     after: string | undefined,
     limit: number,
   ): Promise<{ items: Summary[]; next: string | null }> {
-    const { snapshot } = await this.rules.current();
+    const snapshot = await this.input.snapshot();
     const rows = await this.repo.page(userId, after ? decodeCursor(after) : null, limit + 1);
     const items = rows.slice(0, limit);
     const last = items.at(-1);

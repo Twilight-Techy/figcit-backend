@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
   catalogueOf,
+  inputOptionsOf,
+  INPUTS,
   rowIssues,
   rulesetDocument,
   type JsonValue,
@@ -72,7 +74,13 @@ function invalidRows(rows: readonly RecordRow[]): {
       columns: r.columns as unknown as WorkbookCell[],
       engine: r.engine,
     }));
-  const { catalogue, issues } = catalogueOf(live);
+  const { catalogue, issues: catalogueIssues } = catalogueOf(live);
+  // The check-in options must all point at catalogue values, and every question needs options (E-40).
+  const { options, issues: optionIssues } = inputOptionsOf(live, catalogue);
+  const empty = INPUTS.filter((input) => options[input].length === 0).map((input) => ({
+    path: `/input_mappings/${input}`,
+    message: `the check-in question "${input}" has no options`,
+  }));
   const invalid: InvalidRow[] = [];
   for (const r of live) {
     if (r.tab === 'catalogue') continue; // reported once, in catalogueIssues
@@ -80,7 +88,7 @@ function invalidRows(rows: readonly RecordRow[]): {
     if (found.length > 0)
       invalid.push({ recordId: r.recordId, tab: r.tab, sourceRef: r.sourceRef, issues: found });
   }
-  return { invalid, catalogueIssues: issues };
+  return { invalid, catalogueIssues: [...catalogueIssues, ...optionIssues, ...empty] };
 }
 
 /**

@@ -52,7 +52,8 @@ export const CHECKINS = {
     state: { kind: 'grid', energy: 2, mood: 2 },
     emotions: [{ code: 'overwhelmed', intensity: 6 }],
     context: {
-      environment: 'open_plan',
+      // A formal setting with two flags, so CX-1 lowers the band (was v1's invented "open plan").
+      environment: 'meeting',
       social: 'colleagues',
       time: 'limited',
       sensitivity: ['noise', 'crowd'],
@@ -80,7 +81,7 @@ export const CHECKINS = {
   },
   racing: {
     state: { kind: 'grid', energy: 4, mood: 1 },
-    emotions: [{ code: 'racing_head', intensity: 8 }],
+    sensations: [{ code: 'racing_thoughts', intensity: 8 }],
     context: { environment: 'home', social: 'family' },
     needs: ['clear_head'],
   },
@@ -110,8 +111,8 @@ export const CHECKINS = {
   },
   sensory: {
     state: { kind: 'grid', energy: 3, mood: 2 },
-    emotions: [{ code: 'overloaded', intensity: 7 }],
     sensations: [
+      { code: 'overstimulated', intensity: 7 },
       { code: 'loud_sound', intensity: 7 },
       { code: 'bright_lights', intensity: 6 },
     ],
@@ -124,14 +125,14 @@ export const CHECKINS = {
   },
   peopled: {
     state: { kind: 'grid', energy: 1, mood: 3 },
-    emotions: [{ code: 'peopled_out', intensity: 6 }],
+    sensations: [{ code: 'masking_heavily', intensity: 6 }],
     context: { environment: 'home', social: 'alone' },
     needs: ['recover_event'],
   },
   stuck: {
     state: { kind: 'grid', energy: 2, mood: 3 },
-    emotions: [{ code: 'stuck_start', intensity: 6 }],
-    context: { environment: 'library', social: 'strangers' },
+    emotions: [{ code: 'frustrated', intensity: 6 }],
+    context: { environment: 'school', social: 'strangers' },
     needs: ['get_started'],
     demand: { title: 'Revise chapter 4', kind: 'study', timeline: 'T3', traits: ['focus'] },
   },

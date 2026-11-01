@@ -13,6 +13,8 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-05 | Retire the PWA's `/admin` screens once the staff app in the client repo covers them | Same | E-31, U-03 |
 | T-06 | `.xlsx` import and export, with the engine columns shaded to the right of the workbook's own | Needs a spreadsheet library, chosen under the dependency rules | E-28 |
 | T-07 | Store each published version as one immutable bundle in object storage, named by its hash | The database rows and hash already prove the content; the bundle is a second copy for replay and audit | `DESIGN.md` §9 |
+| T-16 | Move the AI fallbacks (map-feeling, parse-need, suggest-drivers, split-tasks) onto the v2 options, so they only suggest offered codes | They still use the v1 lists; the app filters for now | E-44 |
+| T-17 | Remove the temporary v2 → v1 check-in adapter when the v2 engine runs | The v2 engine is M4 | E-39 |
 | T-08 | Clinical Safety lead confirms or changes every row marked `safety` on import | Marked from a list to unblock the publish gate | E-25 |
 
 ## Before launch

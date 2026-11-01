@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import type { z } from 'zod';
-import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
+import { CurrentUser, MaybeUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import { cardSchema } from '../recommendation/recommendation.schemas.js';
@@ -11,27 +11,33 @@ import {
   cursorQuerySchema,
   type CheckInInput,
 } from './checkin.schemas.js';
+import { CheckInInputService } from './checkin-input.service.js';
 import { CheckInService } from './checkin.service.js';
 
 const checkInGetSchema = checkInResultSchema.extend({ card: cardSchema.nullable() });
 
 @Controller('check-ins')
 export class CheckInController {
-  constructor(private readonly checkIns: CheckInService) {}
+  constructor(
+    private readonly checkIns: CheckInService,
+    private readonly input: CheckInInputService,
+  ) {}
 
   @Post()
   @Route({
-    summary: 'Check in and get a recommendation card (S01–S30)',
+    summary:
+      'Check in and get a recommendation card (S01–S30); Browse mode runs it without storing',
     tags: ['Check-in'],
+    access: 'browse',
     body: checkInInputSchema,
     response: checkInResultSchema,
     status: 201,
   })
   create(
-    @CurrentUser() user: RequestUser,
+    @MaybeUser() user: RequestUser | undefined,
     @Body(new ZodPipe(checkInInputSchema)) body: CheckInInput,
   ): Promise<z.infer<typeof checkInResultSchema>> {
-    return this.checkIns.create(user.id, body);
+    return user ? this.checkIns.create(user.id, body) : this.input.browse(body);
   }
 
   @Get()

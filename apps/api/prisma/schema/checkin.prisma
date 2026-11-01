@@ -1,6 +1,7 @@
 enum CheckInSource {
   grid
   not_sure
+  not_given
 
   @@map("check_in_source")
 }
@@ -51,7 +52,7 @@ model CheckInEmotion {
   checkInId   String @map("check_in_id") @db.Uuid
   emotionCode String @map("emotion_code") @db.VarChar(48)
   familyCode  String @map("family_code") @db.VarChar(48)
-  intensity   Int    @db.SmallInt // 0–10
+  intensity   Int?   @db.SmallInt // 0–10; null = not rated (E-41)
 
   checkIn CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
 
@@ -79,6 +80,7 @@ model CheckInContext {
   people           String?  @db.VarChar(32)
   timeAvailable    String?  @map("time_available") @db.VarChar(16)
   support          String?  @db.VarChar(32)
+  supports         String[] @default([]) // several at once (E-45)
   sensitivityFlags String[] @default([]) @map("sensitivity_flags")
   customTagIds     String[] @default([]) @map("custom_tag_ids") @db.Uuid
 
@@ -93,6 +95,8 @@ model CustomTag {
   userId     String    @map("user_id") @db.Uuid
   type       String    @db.VarChar(16) // context | emotion | sensation
   labelEnc   Bytes     @map("label_enc")
+  // For a place: the standard place it is most like, which is what the engine gets (E-45).
+  likeCode   String?   @map("like_code") @db.VarChar(48)
   useCount   Int       @default(0) @map("use_count")
   lastUsedAt DateTime? @map("last_used_at") @db.Timestamptz(3)
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
