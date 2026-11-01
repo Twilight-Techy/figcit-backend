@@ -13,8 +13,10 @@ import type {
  * Version of the rule set's structure (DESIGN §5 "format versions"). Raised when a new kind of
  * rule, effect or column is added, with a script that upgrades older rule sets.
  * 2: engine columns, the catalogue and input mappings tables (E-36, E-37).
+ * 3: band.set, band.limit_drop, band.limit_rise, light.never, classes.add and the re-check facts
+ *    the Tab 10 rules need (E-48).
  */
-export const RULESET_FORMAT = 2;
+export const RULESET_FORMAT = 3;
 
 /**
  * How far a record's engine columns say what its workbook text says (DESIGN §3.3):

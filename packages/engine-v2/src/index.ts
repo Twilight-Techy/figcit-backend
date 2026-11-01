@@ -71,6 +71,14 @@ export type {
   Target,
 } from './format/types.js';
 export { COPY_KEY, MAPPED, opsFor, validateEngine, validateMapping } from './format/validate.js';
+export {
+  applyMappings,
+  MAPPINGS,
+  type MappingReport,
+  type RowMapping,
+  type TabCoverage,
+  type TabMapping,
+} from './mapping/index.js';
 export { canonicalJson, type JsonValue } from './ruleset/canonical.js';
 export { parseCsv } from './ruleset/csv.js';
 export { FILE_LAYOUTS, FILE_ORDER, type FileLayout, type TableSpec } from './ruleset/layout.js';

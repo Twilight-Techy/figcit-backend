@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  applyMappings,
   canonicalJson,
   describeFormat,
   readWorkbook,
@@ -12,7 +13,7 @@ import {
   type RulesetRecord,
   type SheetFrames,
 } from '@figcit/engine-v2';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { BadInput, NotFound } from '../../common/errors/errors.js';
 import { RulesetAuditService, type Actor } from './ruleset-audit.service.js';
@@ -141,7 +142,10 @@ export class RulesetsService {
         unknownFiles,
       });
     const sourceHash = sha256(canonicalJson(files));
-    const full = withAdditions(read);
+    const added = withAdditions(read);
+    // The reviewed mapping file gives each rule row its engine columns (M3).
+    const mapped = applyMappings(added.records);
+    const full = { ...added, records: mapped.records };
     const created = await this.prisma.$transaction(async (tx) => {
       await assertNoOpenVersion(tx);
       const latest = await latestIds(tx);
@@ -157,6 +161,7 @@ export class RulesetsService {
           importReport: {
             ...read.report,
             additions: full.additions,
+            mappings: mapped.report,
           } as unknown as Prisma.InputJsonValue,
           sourceHash,
           notes: notes ?? null,
@@ -206,6 +211,7 @@ export class RulesetsService {
           origin: r.origin as unknown as Prisma.InputJsonValue,
           frame: r.frame,
           mapping: r.mapping,
+          engine: r.engine === null ? Prisma.DbNull : r.engine,
           status: r.status,
           safety: r.safety,
           changedById: actor.id,

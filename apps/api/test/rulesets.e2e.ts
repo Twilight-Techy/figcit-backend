@@ -210,7 +210,7 @@ describe('rule store (engine v2)', () => {
       schema: { $defs: Record<string, unknown> };
     }>('GET', `/rulesets/${first}/format`, { token: reader });
     expect(format.status).toBe(200);
-    expect(format.body.format).toBe(2);
+    expect(format.body.format).toBe(3);
     expect(format.body.facts.map((f) => f.name)).toContain('peak.negative');
     expect(format.body.domains.find((d) => d.domain === 'band')?.values.map((v) => v.code)).toEqual(
       ['very_constrained', 'constrained', 'conditional', 'available'],
@@ -248,7 +248,8 @@ describe('rule store (engine v2)', () => {
         message: '"body_ache" is not a sensation_group in the catalogue',
       },
     ]);
-    expect((await edit({ mapping: 'exact' })).status).toBe(400);
+    // A mapped row can't lose its engine columns and stay exact.
+    expect((await edit({ mapping: 'exact', engine: null })).status).toBe(400);
 
     const catalogue = await api.req<Items<Row>>('GET', `/rulesets/${first}/tabs/catalogue`, {
       token: reader,
@@ -309,7 +310,7 @@ describe('rule store (engine v2)', () => {
       });
     await api.req('PATCH', `/rulesets/${first}/records/${sf1.recordId}`, {
       token: admin,
-      body: { mapping: 'unresolved', reason: 'e2e exemption' },
+      body: { mapping: 'unresolved', engine: null, reason: 'e2e exemption' },
     });
     const submitted = await api.req<Version>('POST', `/rulesets/${first}/submit`, { token: admin });
     expect(submitted.body.status).toBe('in_review');

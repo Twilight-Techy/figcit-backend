@@ -252,7 +252,9 @@ function checkRules(c: Checker, rules: unknown): boolean {
       c.fail(at, 'expected a rule');
       return;
     }
-    c.keys(rule, at, ['when', 'then', 'note'], ['when', 'then']);
+    c.keys(rule, at, ['stage', 'when', 'then', 'note'], ['when', 'then']);
+    if ('stage' in rule && !STAGES.some((st) => st.key === rule['stage']))
+      c.fail(`${at}/stage`, `expected one of ${STAGES.map((st) => st.key).join(', ')}`);
     c.resetCount();
     if (rule['when'] !== null && 'when' in rule) c.condition(rule['when'], `${at}/when`, 1);
     const then = rule['then'];

@@ -148,6 +148,7 @@ export function engineJsonSchema(catalogue: Catalogue): Schema {
     $defs: {
       rule: closed(
         {
+          stage: { enum: STAGES.map((st) => st.key) },
           when: { oneOf: [{ type: 'null' }, ref('condition')] },
           then: {
             type: 'array',

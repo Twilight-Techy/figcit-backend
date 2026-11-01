@@ -32,6 +32,8 @@ export interface Effect {
 
 /** One executable rule: when the condition holds (or always, when null), apply the effects. */
 export interface EngineRule {
+  /** Runs in this stage instead of the row's (a band row sets the baseline and the light). */
+  readonly stage?: StageKey;
   readonly when: Condition | null;
   readonly then: readonly Effect[];
   readonly note?: string;

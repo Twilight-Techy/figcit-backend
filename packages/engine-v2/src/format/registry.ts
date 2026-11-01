@@ -335,6 +335,31 @@ export const FACTS: readonly FactSpec[] = [
     stage: 'feedback',
     description: 'Change in peak negative intensity since the check-in (negative = better)',
   }),
+  fact({
+    name: 'recheck.previous_band',
+    type: 'enum',
+    domain: 'band',
+    stage: 'feedback',
+    description: 'Final band of the check-in being re-checked (RC-3)',
+  }),
+  fact({
+    name: 'recheck.band_improved',
+    type: 'boolean',
+    stage: 'feedback',
+    description: 'The new baseline band is above the previous final band (RC-1 "better cell")',
+  }),
+  fact({
+    name: 'recheck.support_completed',
+    type: 'boolean',
+    stage: 'feedback',
+    description: 'The support offered last time was completed (RC-1)',
+  }),
+  fact({
+    name: 'signals.safety_event_recently',
+    type: 'boolean',
+    stage: 'safety',
+    description: 'A safety override happened recently (RC-5, ENT-3)',
+  }),
 ];
 
 // ---- conditions ----
@@ -407,6 +432,38 @@ export const EFFECTS: readonly EffectSpec[] = [
     class: 'requirement',
     params: {},
     description: 'Keep the band as it is (no further change in this stage)',
+  }),
+  effect({
+    kind: 'band.set',
+    class: 'requirement',
+    params: { to: { type: 'enum', domain: 'band' } },
+    description: 'Set the baseline band (State stage: Tab 10 band rows, E4M1, NS-1)',
+  }),
+  effect({
+    kind: 'band.limit_drop',
+    class: 'requirement',
+    params: { steps: { type: 'int', min: 0, max: 3 } },
+    description:
+      'The band falls at most this many steps below the baseline in one check-in (CAP-1)',
+  }),
+  effect({
+    kind: 'band.limit_rise',
+    class: 'requirement',
+    params: { steps: { type: 'int', min: 0, max: 3 } },
+    description:
+      'On a re-check the band rises at most this many steps above the previous final band (RC-3, RC-4)',
+  }),
+  effect({
+    kind: 'light.never',
+    class: 'requirement',
+    params: { light: { type: 'enum', domain: 'light' } },
+    description: 'This light is not shown (RC-5: no automatic Blue after a safety override)',
+  }),
+  effect({
+    kind: 'classes.add',
+    class: 'modifier',
+    params: { classes: { type: 'enum_list', domain: 'setting_class', min: 1 } },
+    description: 'The setting counts as these classes (Tab 3b; read by CX-1 and MD-4)',
   }),
   effect({
     kind: 'light.set',

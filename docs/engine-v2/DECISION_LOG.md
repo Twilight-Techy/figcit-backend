@@ -332,6 +332,27 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **v2:** the card wording in M4 uses the same words.
 - **Revert:** n/a (wording fix; was TODO T-18).
 
+### E-48 How rows get their engine columns (M3), and format 3
+- **The mapping file** (`packages/engine-v2/src/mapping/`, one file per group of tabs) gives each rule row, by its reference, a status (`exact`, `interpreted`, `unresolved` or `reference`), its engine columns and a reason. An interpreted row stores its reason as the interpretation the author confirms.
+- **On import:** the mapping file is applied, and the import report shows coverage per tab, mapping entries that found no row, and rows whose mapping failed the format check. Those rows stay `pending`, never stored half-right.
+- **Notes, examples and reference tables** become `reference` automatically; they never run.
+- **Mapped so far:**
+  - Tab 10: band rows and all 14 modifier rules.
+  - Tab 1: E2M1, E3M1, E4M1 and E4M2 lean "regulate first" (ADR 0001 §6). The other cells are reference: their band comes from Tab 10.
+  - Tabs 5, 8, 11 and 12 are reference: definitions and descriptions.
+- **Format 3 adds:**
+  - effects `band.set` (the baseline), `band.limit_drop` (CAP-1), `band.limit_rise` (RC-3, RC-4), `light.never` (RC-5) and `classes.add` (Tab 3b's setting classes);
+  - facts `recheck.previous_band`, `recheck.band_improved`, `recheck.support_completed` and `signals.safety_event_recently`;
+  - a rule may name its own stage (a band row sets the baseline in State and its light after the modifiers).
+- **Interpretations for the author to confirm** are in the mapping file's reasons and in the dashboard:
+  - CX-1: "negative experience family" read as the harder Tab 2 families.
+  - RC-1: "better cell" read as a higher baseline band.
+  - RC-2: Routine and at most 3 steps.
+  - RC-5: support visible while the clinical pathway is undefined.
+  - SF-2: either clause.
+  - Amber: Urgency kept (ADR 0001 §9).
+- **Revert:** n/a (method); each row's mapping can be changed in the file or the editor.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

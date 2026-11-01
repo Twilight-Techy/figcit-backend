@@ -30,7 +30,8 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Test server redeployed from the branches; deep links fixed
 
 ## M3 Engine columns for every rule tab
-- [ ] States, bands and band rules (Tabs 1, 10)
+- [x] Mapping file mechanism, applied on import with a coverage report (E-48)
+- [x] States, bands and band rules (Tabs 1, 10); reference tabs 5, 8, 11, 12
 - [ ] Experience, context, timelines, drivers, demand (Tabs 2, 3, 4, 5, 6)
 - [ ] Needs, patterns 1 to 41, footer rules (Tabs 6b, 7)
 - [ ] Reflect and Meditate gates, tools and entitlements (Tabs 6c, 6d)
