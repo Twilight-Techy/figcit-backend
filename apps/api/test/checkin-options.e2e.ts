@@ -1,15 +1,8 @@
 // The check-in's standard input (DECISION_LOG E-39 to E-46): options from the published rule set,
 // every value checked against them, nothing the user didn't choose, Browse on the server, and the
 // user's own places. Runs before checkin.e2e.ts, so later files see a v2 rule set with options.
-import { readdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { bootApi, type Api } from './helpers.js';
-
-const dir = resolve(import.meta.dirname, '../../../docs/specs/rules-engine-v3.3');
-const files: Record<string, string> = {};
-for (const name of readdirSync(dir))
-  if (name.endsWith('.csv')) files[name] = readFileSync(resolve(dir, name), 'utf8');
+import { bootApi, publishV2, type Api } from './helpers.js';
 
 interface Option {
   code: string;
@@ -35,30 +28,6 @@ let api: Api;
 let user: string;
 let admin: string;
 
-/** Publishes a fresh v2 rule set (with its check-in options), like an admin would. */
-async function publishV2(): Promise<void> {
-  const list = await api.req<{ items: { label: string; status: string }[] }>('GET', '/rulesets', {
-    token: admin,
-  });
-  for (const v of list.body.items.filter((x) => x.status === 'draft' || x.status === 'in_review'))
-    await api.req('POST', `/rulesets/${v.label}/discard`, {
-      token: admin,
-      body: { reason: 'e2e' },
-    });
-  const wb = `c${String(Date.now()).slice(-9)}`;
-  const imp = await api.req<{ version: { label: string } }>('POST', '/rulesets/import', {
-    token: admin,
-    body: { files, workbookVersion: wb },
-  });
-  const label = imp.body.version.label;
-  await api.req('POST', `/rulesets/${label}/submit`, { token: admin });
-  const pub = await api.req<{ status: string }>('POST', `/rulesets/${label}/publish`, {
-    token: admin,
-  });
-  if (pub.body.status !== 'published')
-    throw new Error(`publish failed: ${JSON.stringify(pub.body)}`);
-}
-
 const checkIn = (body: object, token?: string, headers?: Record<string, string>) =>
   api.req<Result>('POST', '/check-ins', {
     ...(token ? { token } : {}),
@@ -70,7 +39,7 @@ beforeAll(async () => {
   api = await bootApi();
   admin = (await api.staff(['clinical_admin'])).token;
   user = (await api.signIn()).token;
-  await publishV2();
+  await publishV2(api, admin);
   // The options service caches for 30 s; a fresh app reads the new version straight away.
   await api.close();
   api = await bootApi();

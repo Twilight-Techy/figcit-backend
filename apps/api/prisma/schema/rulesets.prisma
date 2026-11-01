@@ -82,9 +82,10 @@ model RulesetVersion {
   retiredAt       DateTime?     @map("retired_at") @db.Timestamptz(3)
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  basedOn RulesetVersion?  @relation("RulesetLineage", fields: [basedOnId], references: [id], onDelete: SetNull)
-  derived RulesetVersion[] @relation("RulesetLineage")
-  records RulesetRecord[]
+  basedOn   RulesetVersion?  @relation("RulesetLineage", fields: [basedOnId], references: [id], onDelete: SetNull)
+  derived   RulesetVersion[] @relation("RulesetLineage")
+  records   RulesetRecord[]
+  decisions DecisionRecord[]
 
   @@unique([workbookVersion, revision])
   @@index([status, createdAt(sort: Desc)])

@@ -487,6 +487,47 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - a Blue card with no task, or a Yellow one with nothing to do, has no primary, only options.
 - **Revert:** n/a (new engine); the band-row and pattern changes are rule edits.
 
+### E-52 Engine v2 decisions: the API, the records, replay and the staff tools (M5)
+- **Routes** (E-27 left them to M5):
+  - `POST /v1/decisions`: a check-in (the app's v2 contract, E-39) becomes a card, signed in or Browse (`X-Browse-Token`). The response carries the card, the version label and hash, and the engine version.
+  - `GET /v1/decisions/{id}`: the user it was made for sees the card; staff also see the input facts, the full trace and the last replay.
+  - `POST /v1/decisions/{id}/replay`: staff.
+  - `POST /v1/rulesets/{label}/simulate`: staff; input facts in, card and trace out, nothing stored (the Simulator, E-18).
+  - `POST /v1/rulesets/{label}/explore`: staff; many inputs, or the publish sweep. Returns cards by light and by primary, plus the fixed-rule checks.
+  - **Why "decisions":** a decision is the record of one card the engine made, and `/v1/recommendations` is v1's.
+- **From check-in to input** (`factsFromCheckIn`, in the package):
+  - Each answer goes through its option's "Maps to" (E-40).
+  - Who's around, time, body regions and task kind carry no fact yet (IG-06, IG-08, IG-09, IG-14).
+  - Several chips of one family keep the strongest rating.
+  - The Not-sure path counts only a confirmed cell.
+  - "Just support" leaves the task out.
+  - Task characteristics are the codes the app sends that are catalogue values, plus "putting it off" as a long-avoided task (IG-17).
+- **Server facts:**
+  - The v1 signal loader's answers become `signals.*` and `prefs.*`: plan, declines, recent safety event, in session, dismissed Advanced, recovery window, practice due, the meditation settings, and rejected tools as their pathways.
+  - SF-2's days in a row at Red are counted from the user's own decision records.
+  - The re-check reads the earlier decision of the same user: its light, band, primary pathway and harder-feelings peak.
+  - "Band improved" and "intensity change" are now worked out by the engine, from the new baseline and `recheck.previous_peak`.
+  - Browse gets the free plan and the UK time zone.
+- **Records** (`decision_records`, DESIGN §7). Each holds:
+  - the input facts (standard values only, E-13);
+  - the version and its hash, and the engine version;
+  - the card and the full trace;
+  - band, light, support screen, and what it re-checks.
+- **Rules for records:**
+  - Browse records carry no account (E-05).
+  - **Append-only:** a database trigger refuses any change except the replay outcome, or clearing the account link.
+  - **Account deletion:** the records stay, unlinked like a Browse record (as safety events already are). O-06 decides retention.
+- **Replay:**
+  - It re-runs a record on its own version and compares the card and trace as canonical JSON (RFC 8785). Postgres reorders JSON keys, so comparing the stored text would report false differences; the test caught this.
+  - A new engine version is reported as a mismatch, never hidden.
+  - **Daily job** (`decisions.replay-sample`, 04:50 UK time): the newest 50 records of the last day; any difference is logged as an error for alerting.
+- **Runtime:** a published or retired version is compiled once and kept, and the published one is re-looked-up every 30 s. Drafts and versions in review compile on each call, so the Simulator can be used on work in progress.
+- **Known gaps (recorded, not filled):**
+  - **"Support completed" (RC-1) needs v2 cards to open session records (M8).** Until then RC-1's Blue can't show on a v2 re-check.
+  - **"I'm grateful" maps to the gratitude family with no rating,** so the gratitude rows (Mild/Moderate) don't fire for it (IG-04).
+  - **Only the running engine can replay.** Keeping older engine releases runnable (DESIGN §7) is T-24.
+- **Revert:** drop the module and the migration; nothing else depends on it until the app moves to v2 (M8).
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

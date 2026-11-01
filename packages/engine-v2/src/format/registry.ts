@@ -363,7 +363,15 @@ export const FACTS: readonly FactSpec[] = [
     min: -10,
     max: 10,
     stage: 'feedback',
-    description: 'Change in peak negative intensity since the check-in (negative = better)',
+    computed: true,
+    description:
+      "Change in the harder feelings' peak since the check-in re-checked (negative = better); worked out from recheck.previous_peak",
+  }),
+  fact({
+    name: 'recheck.previous_peak',
+    type: 'intensity',
+    stage: 'feedback',
+    description: 'peak.negative of the check-in being re-checked, from its decision record',
   }),
   fact({
     name: 'recheck.previous_band',
@@ -376,7 +384,9 @@ export const FACTS: readonly FactSpec[] = [
     name: 'recheck.band_improved',
     type: 'boolean',
     stage: 'feedback',
-    description: 'The new baseline band is above the previous final band (RC-1 "better cell")',
+    computed: true,
+    description:
+      'The new baseline band is above the previous final band (RC-1 "better cell"); worked out from recheck.previous_band',
   }),
   fact({
     name: 'recheck.support_completed',

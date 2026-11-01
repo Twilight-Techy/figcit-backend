@@ -1,0 +1,40 @@
+// Engine v2 decision records (docs/engine-v2/DESIGN.md §7, DECISION_LOG E-13, E-52): one per card
+// the engine made, holding everything needed to replay it. Append-only: a trigger in the migration
+// refuses changes to anything but the replay outcome. Not encrypted at this stage (E-13).
+
+enum DecisionMode {
+  signed_in
+  browse
+
+  @@map("decision_mode")
+}
+
+model DecisionRecord {
+  id            String         @id @default(uuid(7)) @db.Uuid
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  mode          DecisionMode
+  // The account; null for Browse (E-05). Plain ID, as in the rule store (no cross-module relation).
+  userId        String?        @map("user_id") @db.Uuid
+  versionId     String         @map("version_id") @db.Uuid
+  version       RulesetVersion @relation(fields: [versionId], references: [id], onDelete: Restrict)
+  // The published version's hash and the engine's version: what replay must reproduce.
+  rulesetHash   String         @map("ruleset_hash") @db.Char(64)
+  engineVersion String         @map("engine_version") @db.VarChar(20)
+  // The engine's input facts: standard values only, never free text (E-04, E-13).
+  input         Json
+  card          Json
+  // The full trace (every rule checked, facts per stage, each proposal's fate).
+  trace         Json
+  band          String?        @db.VarChar(32)
+  light         String?        @db.VarChar(16)
+  supportScreen Boolean        @map("support_screen")
+  // The decision this one re-checks (Tab 8 step 11).
+  recheckOfId   String?        @map("recheck_of_id") @db.Uuid
+  replayedAt    DateTime?      @map("replayed_at") @db.Timestamptz(3)
+  replayMatches Boolean?       @map("replay_matches")
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@index([versionId])
+  @@map("decision_records")
+}

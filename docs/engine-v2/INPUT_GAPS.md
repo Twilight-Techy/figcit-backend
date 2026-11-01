@@ -96,6 +96,7 @@ Energy: Very Low, Low, Moderate, High (1–4). Mood: Very Bad, Bad, Neutral, Goo
 - **Gaps:**
   1. **Skipped intensity.** PRD says "Skip is always available", and Figma S08 has "Skip intensity", but no source says what value the engine uses. This matters for safety: a skipped "Overwhelmed" or "Hopeless" must not read as mild. (Clinical Safety.)
   2. Tab 2 says "use the HIGHEST intensity among them" (one peak). Several rules read the intensity per family. Confirm both are intended.
+  3. **A need that stands for a feeling** ("I'm grateful", E-45) has no rating, so rows that need Mild or Moderate (the gratitude row, pattern 38) don't fire for it. Either the need carries a default rating, or those rows also accept an unrated feeling (E-52).
 
 ### IG-05 Sensations and the flags they set: Not standard
 
@@ -234,6 +235,7 @@ Values the system already holds, used by the rules:
 | Saved practices: due now, type, opening/closing | Patterns 37, 39 | Fields not defined in the workbook |
 | "Meditation makes me feel worse"; body scan opt-in | MD-2 | Where the user sets these isn't defined |
 | Advanced alternative dismissed | ENT-3 ("remembered") | Where it's kept and for how long (E-50: `signals.advanced_dismissed`) |
+| Days in a row at Red | SF-2 | Counted from the user's v2 decision records (E-52); "days without improvement" has no measure yet |
 | Plan (Free, Plus, institution) | Tab 6d | Standard |
 | Trusted contact saved | Pattern 28 | Standard |
 | Region | Pattern 28 crisis routes | UK only today; confirm for the MVP |

@@ -169,6 +169,8 @@ export class PrivacyService {
       // Deleting the user row cascades every table and destroys the wrapped data key.
       await this.prisma.purge(async (tx) => {
         await tx.safetyEvent.updateMany({ where: { userId }, data: { userId: null } });
+        // Engine v2 decisions stay, unlinked like a Browse record (E-05, E-52; O-06 decides retention).
+        await tx.decisionRecord.updateMany({ where: { userId }, data: { userId: null } });
         await tx.user.delete({ where: { id: userId } });
       });
     }

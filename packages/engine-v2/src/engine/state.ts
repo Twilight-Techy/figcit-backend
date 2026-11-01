@@ -87,6 +87,10 @@ export class RunState {
         return [...this.classes];
       case 'drivers':
         return [...this.drivers.keys()];
+      case 'recheck.band_improved':
+        return this.bandImproved();
+      case 'recheck.intensity_change':
+        return this.intensityChange();
       default:
         return NOT_COMPUTED;
     }
@@ -102,6 +106,21 @@ export class RunState {
     if (felt.length === 0) return undefined;
     const rated = felt.map(([, v]) => v).filter((v): v is number => v !== null);
     return rated.length > 0 ? Math.max(...rated) : null;
+  }
+
+  /** RC-1 "better cell": the new baseline is above the band the re-checked card had. */
+  private bandImproved(): boolean | undefined {
+    const previous = this.input['recheck.previous_band'];
+    if (this.baseline === undefined || typeof previous !== 'string') return undefined;
+    return this.bandOrder(this.baseline) > this.bandOrder(previous);
+  }
+
+  /** Now minus then, on the harder feelings only (ADR 0004 §8); none felt now counts as 0. */
+  private intensityChange(): number | undefined {
+    const before = this.input['recheck.previous_peak'];
+    const now = this.peakNegative();
+    if (typeof before !== 'number' || now === null) return undefined;
+    return (now ?? 0) - before;
   }
 
   // ---- the band (Tab 10) ----

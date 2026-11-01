@@ -5,6 +5,7 @@ import { ENV, type Env } from '../../common/config/env.js';
 /** Every background job type. Handlers live with their module and register in the worker. */
 export const QUEUES = [
   'checkin.sustained-red', // SF-2 daily check
+  'decisions.replay-sample', // engine v2: replay yesterday's records (DESIGN §7)
   'reminders.tick', // sends due reminders
   'speech.transcribe',
   'dump.sort', // sortDump (Advanced)

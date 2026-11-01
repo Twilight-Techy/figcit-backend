@@ -48,9 +48,9 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Checks before publish: 8 fixed rules on a 3,468-input sweep; breaks recorded as gaps, publish blocked until acknowledged (E-51)
 
 ## M5 API and records
-- [ ] `POST /v2/recommendations` (signed in and Browse)
-- [ ] Decision records, replay, daily replay job
-- [ ] Staff API for rule sets, simulate, explore, registers
+- [x] `POST /v1/decisions` (signed in and Browse): check-in to input facts, the published engine, the card (E-52)
+- [x] Decision records (append-only), replay, daily replay job; unlinked on account deletion
+- [x] Staff API: simulate and explore on any version; registers were M1 (E-52)
 
 ## M6 Staff app (client repo, after the restructure; E-31, E-33)
 - [ ] Viewer in the workbook layout, filters, row history

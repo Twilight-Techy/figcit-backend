@@ -1,6 +1,8 @@
 // Shared e2e helpers: one app per test file, booted in-process and driven with fastify.inject.
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { randomUUID } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { loadDotEnv } from '../src/common/config/dotenv.js';
 import { loadEnv } from '../src/common/config/env.js';
 
@@ -93,4 +95,41 @@ export async function bootApi(overrides: Record<string, string> = {}): Promise<A
   };
 
   return { app, req, signIn, grantPlus, staff, close: () => app.close() };
+}
+
+/** The workbook's CSV tabs, as an upload sends them. */
+export function workbookFiles(): Record<string, string> {
+  const dir = resolve(import.meta.dirname, '../../../docs/specs/rules-engine-v3.3');
+  const files: Record<string, string> = {};
+  for (const name of readdirSync(dir))
+    if (name.endsWith('.csv')) files[name] = readFileSync(resolve(dir, name), 'utf8');
+  return files;
+}
+
+/**
+ * Publishes a fresh engine v2 rule set from the workbook, as an admin would, discarding any open
+ * draft first. Later file runs see this version (fileParallelism is off). Returns its label.
+ */
+export async function publishV2(api: Api, admin: string): Promise<string> {
+  const list = await api.req<{ items: { label: string; status: string }[] }>('GET', '/rulesets', {
+    token: admin,
+  });
+  for (const v of list.body.items.filter((x) => x.status === 'draft' || x.status === 'in_review'))
+    await api.req('POST', `/rulesets/${v.label}/discard`, {
+      token: admin,
+      body: { reason: 'e2e' },
+    });
+  const wb = `c${String(Date.now()).slice(-9)}`;
+  const imp = await api.req<{ version: { label: string } }>('POST', '/rulesets/import', {
+    token: admin,
+    body: { files: workbookFiles(), workbookVersion: wb },
+  });
+  const label = imp.body.version.label;
+  await api.req('POST', `/rulesets/${label}/submit`, { token: admin });
+  const pub = await api.req<{ status: string }>('POST', `/rulesets/${label}/publish`, {
+    token: admin,
+  });
+  if (pub.body.status !== 'published')
+    throw new Error(`publish failed: ${JSON.stringify(pub.body)}`);
+  return label;
 }

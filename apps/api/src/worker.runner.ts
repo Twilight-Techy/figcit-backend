@@ -3,6 +3,7 @@ import { ModuleRef } from '@nestjs/core';
 import { PrismaService } from './common/db/prisma.service.js';
 import { JobsService } from './platform/jobs/jobs.service.js';
 import { AnalyticsService } from './modules/analytics/analytics.service.js';
+import { DecisionsService } from './modules/decisions/decisions.service.js';
 import { InstitutionsService } from './modules/institutions/institutions.service.js';
 import { DispatcherService } from './modules/notifications/dispatcher.service.js';
 import { PrivacyService } from './modules/privacy/privacy.service.js';
@@ -61,6 +62,9 @@ export class WorkerRunner implements OnApplicationBootstrap {
         'checkin.sustained-red': async () => {
           await this.svc(SustainedService).run();
         },
+        'decisions.replay-sample': async () => {
+          this.logger.log(await this.svc(DecisionsService).replaySample(), 'decision replay');
+        },
         'privacy.export': async (data) => {
           if (typeof data['jobId'] === 'string') await this.privacy.runExport(data['jobId']);
         },
@@ -84,6 +88,7 @@ export class WorkerRunner implements OnApplicationBootstrap {
       {
         'reminders.tick': '* * * * *',
         'checkin.sustained-red': '15 6 * * *',
+        'decisions.replay-sample': '50 4 * * *',
         'privacy.purge': '30 3 * * *',
         'retention.nightly': '0 3 * * *',
         'reflect.topic-counts': '45 2 * * *',

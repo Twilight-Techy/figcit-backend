@@ -124,24 +124,63 @@ function broken(card: Card, input: EngineInput): { check: PublishCheckId; rows: 
 /** Keeps the first few examples of each check, so a report stays readable. */
 const EXAMPLES_PER_CHECK = 5;
 
+/** What a set of inputs gives: how many cards of each light and primary, and the checks. */
+export interface ExploreReport extends PublishCheckReport {
+  /** Inputs the engine refused (not standard values). */
+  readonly refused: number;
+  readonly byLight: Readonly<Record<string, number>>;
+  /** By the primary's tool, action or pathway; `support_screen`, or `none` for no primary. */
+  readonly byPrimary: Readonly<Record<string, number>>;
+}
+
+const primaryKey = (card: Card): string => {
+  if (card.kind === 'support_screen') return 'support_screen';
+  const p = card.primary;
+  if (!p) return 'none';
+  return p.tool ?? ('action' in p.target ? p.target.action : (p.pathway ?? 'none'));
+};
+const bump = (into: Record<string, number>, key: string): void => {
+  into[key] = (into[key] ?? 0) + 1;
+};
+
 /**
- * Runs the sweep through a compiled version and checks every card (DESIGN §5 "checks before
- * publish"). A version with any violation must not be published. O(inputs × run).
+ * Runs inputs through a compiled version and summarises the cards (the staff explorer, DESIGN §8),
+ * checking every card against the fixed rules on the way. O(inputs × run).
  */
-export function publishChecks(
+export function explore(
   ruleset: CompiledRuleset,
-  inputs = sweepInputs(ruleset.catalogue),
-): PublishCheckReport {
+  inputs: readonly EngineInput[] = sweepInputs(ruleset.catalogue),
+): ExploreReport {
   const violations: Violation[] = [];
   const counts: Partial<Record<PublishCheckId, number>> = {};
+  const byLight: Record<string, number> = {};
+  const byPrimary: Record<string, number> = {};
+  let refused = 0;
   for (const input of inputs) {
     const result = run(ruleset, input);
-    if (!result.ok) continue; // the sweep is built from the catalogue, so this is not expected
+    if (!result.ok) {
+      refused += 1;
+      continue;
+    }
+    bump(byLight, result.card.light ?? 'none');
+    bump(byPrimary, primaryKey(result.card));
     for (const v of broken(result.card, input)) {
       counts[v.check] = (counts[v.check] ?? 0) + 1;
       if ((counts[v.check] ?? 0) <= EXAMPLES_PER_CHECK)
         violations.push({ check: v.check, input, rows: [...new Set(v.rows)] });
     }
   }
-  return { ran: inputs.length, violations, counts };
+  return { ran: inputs.length, refused, byLight, byPrimary, violations, counts };
+}
+
+/**
+ * The checks before publish (DESIGN §5): the sweep through a compiled version, every card checked.
+ * A version with any violation must not be published (unless its gap is acknowledged, E-51).
+ */
+export function publishChecks(
+  ruleset: CompiledRuleset,
+  inputs: readonly EngineInput[] = sweepInputs(ruleset.catalogue),
+): PublishCheckReport {
+  const { ran, violations, counts } = explore(ruleset, inputs);
+  return { ran, violations, counts };
 }

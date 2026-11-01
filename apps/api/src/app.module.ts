@@ -11,6 +11,7 @@ import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { BillingModule } from './modules/billing/billing.module.js';
 import { CheckInModule } from './modules/checkin/checkin.module.js';
+import { DecisionsModule } from './modules/decisions/decisions.module.js';
 import { ConnectModule } from './modules/connect/connect.module.js';
 import { ConsentModule } from './modules/consent/consent.module.js';
 import { ContentModule } from './modules/content/content.module.js';
@@ -60,6 +61,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     AuthModule,
     BillingModule,
     CheckInModule,
+    DecisionsModule,
     ConnectModule,
     ConsentModule,
     DevModule,

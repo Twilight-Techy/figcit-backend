@@ -6461,6 +6461,2724 @@
         "x-access": "user"
       }
     },
+    "/v1/decisions": {
+      "post": {
+        "operationId": "Decisions_decide",
+        "summary": "Run the engine v2 on a check-in and record the decision; Browse mode works too",
+        "tags": [
+          "Engine v2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "createdOnDeviceAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "origin": {
+                    "default": "online",
+                    "type": "string",
+                    "enum": [
+                      "online",
+                      "offline"
+                    ]
+                  },
+                  "entry": {
+                    "default": "full",
+                    "type": "string",
+                    "enum": [
+                      "full",
+                      "quick",
+                      "recheck"
+                    ]
+                  },
+                  "state": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "grid"
+                          },
+                          "energy": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          },
+                          "mood": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "energy",
+                          "mood"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "not_given"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "not_sure"
+                          },
+                          "answers": {
+                            "maxItems": 3,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 48
+                            }
+                          },
+                          "confirmedCell": {
+                            "type": "string",
+                            "pattern": "^E[1-4]M[1-4]$"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "emotions": {
+                    "default": [],
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        },
+                        "intensity": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "intensity"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "ownFeeling": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "sensations": {
+                    "default": [],
+                    "maxItems": 30,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        },
+                        "intensity": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 10
+                        },
+                        "bodyRegions": {
+                          "maxItems": 12,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 48
+                          }
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "context": {
+                    "default": {},
+                    "type": "object",
+                    "properties": {
+                      "environment": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 48
+                      },
+                      "environmentOther": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "social": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 48
+                      },
+                      "time": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 48
+                      },
+                      "support": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 48
+                      },
+                      "supports": {
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        }
+                      },
+                      "sensitivity": {
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        }
+                      },
+                      "customTagIds": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "needs": {
+                    "default": [],
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 48
+                    }
+                  },
+                  "ownWords": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "parsedNeedCodes": {
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 48
+                    }
+                  },
+                  "justSupport": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "demand": {
+                    "type": "object",
+                    "properties": {
+                      "taskId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "study",
+                          "work",
+                          "health",
+                          "social",
+                          "home"
+                        ]
+                      },
+                      "dueAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                      },
+                      "timeline": {
+                        "type": "string",
+                        "enum": [
+                          "T0",
+                          "T1",
+                          "T2",
+                          "T3",
+                          "T4",
+                          "T5",
+                          "T6",
+                          "TX",
+                          "TR"
+                        ]
+                      },
+                      "traits": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        }
+                      },
+                      "puttingOff": {
+                        "type": "boolean"
+                      },
+                      "confirmedDrivers": {
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "novelty",
+                            "urgency",
+                            "challenge",
+                            "routine",
+                            "interest",
+                            "passion",
+                            "collaboration",
+                            "exploration"
+                          ]
+                        }
+                      },
+                      "count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                      },
+                      "recurrenceRule": {
+                        "type": "string",
+                        "maxLength": 200
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "intent": {
+                    "type": "string",
+                    "enum": [
+                      "regulate",
+                      "dump",
+                      "express",
+                      "execute",
+                      "adapt",
+                      "reflect",
+                      "connect",
+                      "meditate"
+                    ]
+                  },
+                  "recheckOfId": {
+                    "description": "The decision this check-in re-checks",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "state"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "createdOnDeviceAt": "2026-01-15T09:30:00.000Z",
+                "origin": "online",
+                "entry": "full",
+                "state": {
+                  "kind": "grid",
+                  "energy": 1,
+                  "mood": 1
+                },
+                "emotions": [],
+                "ownFeeling": "Example ownFeeling",
+                "sensations": [],
+                "context": {},
+                "needs": [],
+                "ownWords": "Example ownWords",
+                "parsedNeedCodes": [
+                  "Example parsedNeedCodes"
+                ],
+                "justSupport": false,
+                "demand": {
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "title": "Example title",
+                  "kind": "study",
+                  "dueAt": "2026-01-15T09:30:00.000Z",
+                  "timeline": "T0",
+                  "traits": [
+                    "Example traits"
+                  ],
+                  "puttingOff": true,
+                  "confirmedDrivers": [
+                    "novelty"
+                  ],
+                  "count": 1,
+                  "recurrenceRule": "Example recurrenceRule"
+                },
+                "intent": "regulate",
+                "recheckOfId": "00000000-0000-4000-8000-000000000001"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "signed_in",
+                        "browse"
+                      ]
+                    },
+                    "ruleset": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "hash": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "hash"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "engineVersion": {
+                      "type": "string"
+                    },
+                    "card": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "card",
+                            "support_screen"
+                          ]
+                        },
+                        "band": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "light": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "primary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "target": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "pathway": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "pathway"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "tool": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "tool"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "action": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "action"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                },
+                                "pathway": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "tool": {
+                                  "description": "The tool the button opens",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "advanced": {
+                                  "type": "boolean",
+                                  "description": "An Advanced (paid) tool; the app labels it"
+                                },
+                                "copy": {
+                                  "description": "Wording key of the CTA or option",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "tone": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Further wording keys, e.g. no blame"
+                                },
+                                "from": {
+                                  "type": "string",
+                                  "description": "The rule that put it on the card"
+                                }
+                              },
+                              "required": [
+                                "target",
+                                "pathway",
+                                "tool",
+                                "advanced",
+                                "copy",
+                                "tone",
+                                "from"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "alternatives": {
+                          "maxItems": 2,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "pathway": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "pathway"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "tool": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "tool"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "action": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "action"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "pathway": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "tool": {
+                                "description": "The tool the button opens",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "advanced": {
+                                "type": "boolean",
+                                "description": "An Advanced (paid) tool; the app labels it"
+                              },
+                              "copy": {
+                                "description": "Wording key of the CTA or option",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "tone": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Further wording keys, e.g. no blame"
+                              },
+                              "from": {
+                                "type": "string",
+                                "description": "The rule that put it on the card"
+                              }
+                            },
+                            "required": [
+                              "target",
+                              "pathway",
+                              "tool",
+                              "advanced",
+                              "copy",
+                              "tone",
+                              "from"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "queued": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "pathway": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "pathway"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "tool": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "tool"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "action": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "action"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "pathway": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "tool": {
+                                "description": "The tool the button opens",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "advanced": {
+                                "type": "boolean",
+                                "description": "An Advanced (paid) tool; the app labels it"
+                              },
+                              "copy": {
+                                "description": "Wording key of the CTA or option",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "tone": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Further wording keys, e.g. no blame"
+                              },
+                              "from": {
+                                "type": "string",
+                                "description": "The rule that put it on the card"
+                              }
+                            },
+                            "required": [
+                              "target",
+                              "pathway",
+                              "tool",
+                              "advanced",
+                              "copy",
+                              "tone",
+                              "from"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "visible": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "pathway": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "pathway"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "tool": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "tool"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "action": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "action"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "pathway": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "tool": {
+                                "description": "The tool the button opens",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "advanced": {
+                                "type": "boolean",
+                                "description": "An Advanced (paid) tool; the app labels it"
+                              },
+                              "copy": {
+                                "description": "Wording key of the CTA or option",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "tone": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Further wording keys, e.g. no blame"
+                              },
+                              "from": {
+                                "type": "string",
+                                "description": "The rule that put it on the card"
+                              }
+                            },
+                            "required": [
+                              "target",
+                              "pathway",
+                              "tool",
+                              "advanced",
+                              "copy",
+                              "tone",
+                              "from"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "\"Get support now\" first, then actions such as \"Skip to task\""
+                        },
+                        "prompts": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "reminder": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "minutes": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "copy": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "minutes",
+                                "copy"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "supportVisible": {
+                          "type": "boolean"
+                        },
+                        "drivers": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "weight": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "weight"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "stepCap": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "minutesCap": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "practice": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "modes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "maxMinutes": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "tools": {
+                                "anyOf": [
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "modes",
+                              "maxMinutes",
+                              "tools"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "because": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "fact": {
+                                "type": "string"
+                              },
+                              "key": {
+                                "type": "string"
+                              },
+                              "value": {}
+                            },
+                            "required": [
+                              "fact",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "The input the primary's rule matched: \"Because you said X\""
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "band",
+                        "light",
+                        "primary",
+                        "alternatives",
+                        "queued",
+                        "visible",
+                        "prompts",
+                        "reminder",
+                        "supportVisible",
+                        "drivers",
+                        "stepCap",
+                        "minutesCap",
+                        "practice",
+                        "because"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "createdAt",
+                    "mode",
+                    "ruleset",
+                    "engineVersion",
+                    "card"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "mode": "signed_in",
+                  "ruleset": {
+                    "label": "Example label",
+                    "hash": "Example hash"
+                  },
+                  "engineVersion": "Example engineVersion",
+                  "card": {
+                    "kind": "card",
+                    "band": "Example band",
+                    "light": "Example light",
+                    "primary": {
+                      "target": {
+                        "pathway": "Example pathway"
+                      },
+                      "pathway": "Example pathway",
+                      "tool": "Example tool",
+                      "advanced": true,
+                      "copy": "Example copy",
+                      "tone": [
+                        "Example tone"
+                      ],
+                      "from": "Example from"
+                    },
+                    "alternatives": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "queued": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "visible": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "prompts": [
+                      "Example prompts"
+                    ],
+                    "reminder": {
+                      "minutes": 1,
+                      "copy": "Example copy"
+                    },
+                    "supportVisible": true,
+                    "drivers": [
+                      {
+                        "code": "Example code",
+                        "weight": 1
+                      }
+                    ],
+                    "stepCap": 1,
+                    "minutesCap": 1,
+                    "practice": [
+                      {
+                        "modes": [
+                          "Example modes"
+                        ],
+                        "maxMinutes": 1,
+                        "tools": [
+                          "Example tools"
+                        ]
+                      }
+                    ],
+                    "because": [
+                      {
+                        "fact": "Example fact",
+                        "key": "<example-key>",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "browse": []
+          }
+        ],
+        "x-access": "browse"
+      }
+    },
+    "/v1/decisions/{id}": {
+      "get": {
+        "operationId": "Decisions_get",
+        "summary": "One decision: its card for the user it was made for; input and trace for staff",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "signed_in",
+                            "browse"
+                          ]
+                        },
+                        "ruleset": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string"
+                            },
+                            "hash": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "hash"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "engineVersion": {
+                          "type": "string"
+                        },
+                        "card": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "card",
+                                "support_screen"
+                              ]
+                            },
+                            "band": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "light": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "primary": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "target": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "pathway": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "pathway"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "tool": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "tool"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "action": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "action"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "pathway": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "tool": {
+                                      "description": "The tool the button opens",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "advanced": {
+                                      "type": "boolean",
+                                      "description": "An Advanced (paid) tool; the app labels it"
+                                    },
+                                    "copy": {
+                                      "description": "Wording key of the CTA or option",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "tone": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      },
+                                      "description": "Further wording keys, e.g. no blame"
+                                    },
+                                    "from": {
+                                      "type": "string",
+                                      "description": "The rule that put it on the card"
+                                    }
+                                  },
+                                  "required": [
+                                    "target",
+                                    "pathway",
+                                    "tool",
+                                    "advanced",
+                                    "copy",
+                                    "tone",
+                                    "from"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "alternatives": {
+                              "maxItems": 2,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "queued": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "visible": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "\"Get support now\" first, then actions such as \"Skip to task\""
+                            },
+                            "prompts": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "reminder": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "minutes": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "copy": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "minutes",
+                                    "copy"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "supportVisible": {
+                              "type": "boolean"
+                            },
+                            "drivers": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "weight": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "code",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "stepCap": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "minutesCap": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "practice": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "modes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "maxMinutes": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tools": {
+                                    "anyOf": [
+                                      {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "modes",
+                                  "maxMinutes",
+                                  "tools"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "because": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "fact": {
+                                    "type": "string"
+                                  },
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "value": {}
+                                },
+                                "required": [
+                                  "fact",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "The input the primary's rule matched: \"Because you said X\""
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "band",
+                            "light",
+                            "primary",
+                            "alternatives",
+                            "queued",
+                            "visible",
+                            "prompts",
+                            "reminder",
+                            "supportVisible",
+                            "drivers",
+                            "stepCap",
+                            "minutesCap",
+                            "practice",
+                            "because"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "createdAt",
+                        "mode",
+                        "ruleset",
+                        "engineVersion",
+                        "card"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "signed_in",
+                            "browse"
+                          ]
+                        },
+                        "ruleset": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string"
+                            },
+                            "hash": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "hash"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "engineVersion": {
+                          "type": "string"
+                        },
+                        "card": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "card",
+                                "support_screen"
+                              ]
+                            },
+                            "band": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "light": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "primary": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "target": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "pathway": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "pathway"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "tool": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "tool"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "action": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "action"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "pathway": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "tool": {
+                                      "description": "The tool the button opens",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "advanced": {
+                                      "type": "boolean",
+                                      "description": "An Advanced (paid) tool; the app labels it"
+                                    },
+                                    "copy": {
+                                      "description": "Wording key of the CTA or option",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "tone": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      },
+                                      "description": "Further wording keys, e.g. no blame"
+                                    },
+                                    "from": {
+                                      "type": "string",
+                                      "description": "The rule that put it on the card"
+                                    }
+                                  },
+                                  "required": [
+                                    "target",
+                                    "pathway",
+                                    "tool",
+                                    "advanced",
+                                    "copy",
+                                    "tone",
+                                    "from"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "alternatives": {
+                              "maxItems": 2,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "queued": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "visible": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "\"Get support now\" first, then actions such as \"Skip to task\""
+                            },
+                            "prompts": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "reminder": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "minutes": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "copy": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "minutes",
+                                    "copy"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "supportVisible": {
+                              "type": "boolean"
+                            },
+                            "drivers": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "weight": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "code",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "stepCap": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "minutesCap": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "practice": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "modes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "maxMinutes": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tools": {
+                                    "anyOf": [
+                                      {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "modes",
+                                  "maxMinutes",
+                                  "tools"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "because": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "fact": {
+                                    "type": "string"
+                                  },
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "value": {}
+                                },
+                                "required": [
+                                  "fact",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "The input the primary's rule matched: \"Because you said X\""
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "band",
+                            "light",
+                            "primary",
+                            "alternatives",
+                            "queued",
+                            "visible",
+                            "prompts",
+                            "reminder",
+                            "supportVisible",
+                            "drivers",
+                            "stepCap",
+                            "minutesCap",
+                            "practice",
+                            "because"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "userId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "input": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        },
+                        "trace": {},
+                        "recheckOfId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "replay": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                },
+                                "matches": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "at",
+                                "matches"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "The last replay of this record"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "createdAt",
+                        "mode",
+                        "ruleset",
+                        "engineVersion",
+                        "card",
+                        "userId",
+                        "input",
+                        "trace",
+                        "recheckOfId",
+                        "replay"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "mode": "signed_in",
+                  "ruleset": {
+                    "label": "Example label",
+                    "hash": "Example hash"
+                  },
+                  "engineVersion": "Example engineVersion",
+                  "card": {
+                    "kind": "card",
+                    "band": "Example band",
+                    "light": "Example light",
+                    "primary": {
+                      "target": {
+                        "pathway": "Example pathway"
+                      },
+                      "pathway": "Example pathway",
+                      "tool": "Example tool",
+                      "advanced": true,
+                      "copy": "Example copy",
+                      "tone": [
+                        "Example tone"
+                      ],
+                      "from": "Example from"
+                    },
+                    "alternatives": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "queued": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "visible": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "prompts": [
+                      "Example prompts"
+                    ],
+                    "reminder": {
+                      "minutes": 1,
+                      "copy": "Example copy"
+                    },
+                    "supportVisible": true,
+                    "drivers": [
+                      {
+                        "code": "Example code",
+                        "weight": 1
+                      }
+                    ],
+                    "stepCap": 1,
+                    "minutesCap": 1,
+                    "practice": [
+                      {
+                        "modes": [
+                          "Example modes"
+                        ],
+                        "maxMinutes": 1,
+                        "tools": [
+                          "Example tools"
+                        ]
+                      }
+                    ],
+                    "because": [
+                      {
+                        "fact": "Example fact",
+                        "key": "<example-key>",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/decisions/{id}/replay": {
+      "post": {
+        "operationId": "Decisions_replay",
+        "summary": "Re-run a decision on its own rule set and engine version and compare",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "matches": {
+                      "type": "boolean"
+                    },
+                    "sameCard": {
+                      "type": "boolean"
+                    },
+                    "sameTrace": {
+                      "type": "boolean"
+                    },
+                    "engineVersion": {
+                      "type": "object",
+                      "properties": {
+                        "recorded": {
+                          "type": "string"
+                        },
+                        "running": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "recorded",
+                        "running"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "matches",
+                    "sameCard",
+                    "sameTrace",
+                    "engineVersion"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "matches": true,
+                  "sameCard": true,
+                  "sameTrace": true,
+                  "engineVersion": {
+                    "recorded": "Example recorded",
+                    "running": "Example running"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "clinical_admin",
+          "admin",
+          "safety_reviewer",
+          "content_editor"
+        ]
+      }
+    },
     "/v1/dev/mailbox": {
       "get": {
         "operationId": "Dev_mailbox",
@@ -20082,6 +22800,200 @@
         ]
       }
     },
+    "/v1/rulesets/{label}/explore": {
+      "post": {
+        "operationId": "EngineTools_explore",
+        "summary": "Run many inputs (or the publish sweep) through a version: cards by light and primary, and the fixed-rule checks",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "label",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inputs": {
+                    "description": "Inputs to run; leave out for the publish sweep",
+                    "maxItems": 5000,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "inputs": [
+                  {}
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ran": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "refused": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "byLight": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "byPrimary": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "counts": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "violations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "check": {
+                                "type": "string"
+                              },
+                              "input": {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {}
+                              },
+                              "rows": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "check",
+                              "input",
+                              "rows"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "counts",
+                        "violations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "ran",
+                    "refused",
+                    "byLight",
+                    "byPrimary",
+                    "checks"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "ran": 1,
+                  "refused": 1,
+                  "byLight": {},
+                  "byPrimary": {},
+                  "checks": {
+                    "counts": {},
+                    "violations": [
+                      {
+                        "check": "Example check",
+                        "input": {},
+                        "rows": [
+                          "Example rows"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "clinical_admin",
+          "admin",
+          "safety_reviewer",
+          "content_editor"
+        ]
+      }
+    },
     "/v1/rulesets/{label}/export": {
       "get": {
         "operationId": "Rulesets_export",
@@ -20763,6 +23675,814 @@
         "x-access": "staff",
         "x-roles": [
           "clinical_admin"
+        ]
+      }
+    },
+    "/v1/rulesets/{label}/simulate": {
+      "post": {
+        "operationId": "EngineTools_simulate",
+        "summary": "Run one input through a version, stage by stage; nothing is stored",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "label",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {},
+                    "description": "Input facts by name, in standard values (the format endpoint lists them)"
+                  },
+                  "trace": {
+                    "default": "full",
+                    "type": "string",
+                    "enum": [
+                      "light",
+                      "full"
+                    ]
+                  }
+                },
+                "required": [
+                  "input"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "input": {},
+                "trace": "full"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "ok": {
+                          "type": "boolean",
+                          "const": true
+                        },
+                        "card": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "card",
+                                "support_screen"
+                              ]
+                            },
+                            "band": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "light": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "primary": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "target": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "pathway": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "pathway"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "tool": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "tool"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "action": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "action"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "pathway": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "tool": {
+                                      "description": "The tool the button opens",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "advanced": {
+                                      "type": "boolean",
+                                      "description": "An Advanced (paid) tool; the app labels it"
+                                    },
+                                    "copy": {
+                                      "description": "Wording key of the CTA or option",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "tone": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      },
+                                      "description": "Further wording keys, e.g. no blame"
+                                    },
+                                    "from": {
+                                      "type": "string",
+                                      "description": "The rule that put it on the card"
+                                    }
+                                  },
+                                  "required": [
+                                    "target",
+                                    "pathway",
+                                    "tool",
+                                    "advanced",
+                                    "copy",
+                                    "tone",
+                                    "from"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "alternatives": {
+                              "maxItems": 2,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "queued": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "visible": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "pathway": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "pathway"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "tool": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "tool"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "action": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "action"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tool": {
+                                    "description": "The tool the button opens",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "advanced": {
+                                    "type": "boolean",
+                                    "description": "An Advanced (paid) tool; the app labels it"
+                                  },
+                                  "copy": {
+                                    "description": "Wording key of the CTA or option",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tone": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Further wording keys, e.g. no blame"
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The rule that put it on the card"
+                                  }
+                                },
+                                "required": [
+                                  "target",
+                                  "pathway",
+                                  "tool",
+                                  "advanced",
+                                  "copy",
+                                  "tone",
+                                  "from"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "\"Get support now\" first, then actions such as \"Skip to task\""
+                            },
+                            "prompts": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "reminder": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "minutes": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "copy": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "minutes",
+                                    "copy"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "supportVisible": {
+                              "type": "boolean"
+                            },
+                            "drivers": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "weight": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "code",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "stepCap": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "minutesCap": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "practice": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "modes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "maxMinutes": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tools": {
+                                    "anyOf": [
+                                      {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "modes",
+                                  "maxMinutes",
+                                  "tools"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "because": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "fact": {
+                                    "type": "string"
+                                  },
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "value": {}
+                                },
+                                "required": [
+                                  "fact",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "The input the primary's rule matched: \"Because you said X\""
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "band",
+                            "light",
+                            "primary",
+                            "alternatives",
+                            "queued",
+                            "visible",
+                            "prompts",
+                            "reminder",
+                            "supportVisible",
+                            "drivers",
+                            "stepCap",
+                            "minutesCap",
+                            "practice",
+                            "because"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "trace": {}
+                      },
+                      "required": [
+                        "ok",
+                        "card",
+                        "trace"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "ok": {
+                          "type": "boolean",
+                          "const": false
+                        },
+                        "issues": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "path",
+                              "message"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "ok",
+                        "issues"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "example": {
+                  "ok": true,
+                  "card": {
+                    "kind": "card",
+                    "band": "Example band",
+                    "light": "Example light",
+                    "primary": {
+                      "target": {
+                        "pathway": "Example pathway"
+                      },
+                      "pathway": "Example pathway",
+                      "tool": "Example tool",
+                      "advanced": true,
+                      "copy": "Example copy",
+                      "tone": [
+                        "Example tone"
+                      ],
+                      "from": "Example from"
+                    },
+                    "alternatives": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "queued": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "visible": [
+                      {
+                        "target": {
+                          "pathway": "Example pathway"
+                        },
+                        "pathway": "Example pathway",
+                        "tool": "Example tool",
+                        "advanced": true,
+                        "copy": "Example copy",
+                        "tone": [
+                          "Example tone"
+                        ],
+                        "from": "Example from"
+                      }
+                    ],
+                    "prompts": [
+                      "Example prompts"
+                    ],
+                    "reminder": {
+                      "minutes": 1,
+                      "copy": "Example copy"
+                    },
+                    "supportVisible": true,
+                    "drivers": [
+                      {
+                        "code": "Example code",
+                        "weight": 1
+                      }
+                    ],
+                    "stepCap": 1,
+                    "minutesCap": 1,
+                    "practice": [
+                      {
+                        "modes": [
+                          "Example modes"
+                        ],
+                        "maxMinutes": 1,
+                        "tools": [
+                          "Example tools"
+                        ]
+                      }
+                    ],
+                    "because": [
+                      {
+                        "fact": "Example fact",
+                        "key": "<example-key>",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "trace": null
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "clinical_admin",
+          "admin",
+          "safety_reviewer",
+          "content_editor"
         ]
       }
     },

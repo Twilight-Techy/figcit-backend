@@ -156,7 +156,6 @@ describe('the engine on the v3.3 rule set', () => {
       'recheck.previous_light': 'amber',
       'recheck.previous_band': 'constrained',
       'recheck.support_completed': true,
-      'recheck.band_improved': true,
     });
     expect(card.light).toBe('blue');
     expect(card.band).toBe('conditional');
@@ -170,7 +169,6 @@ describe('the engine on the v3.3 rule set', () => {
       'recheck.previous_light': 'amber',
       'recheck.previous_band': 'constrained',
       'recheck.support_completed': true,
-      'recheck.band_improved': true,
       'signals.safety_event_recently': true,
     });
     expect(card.light).toBe('yellow');

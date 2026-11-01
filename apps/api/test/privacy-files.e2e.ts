@@ -114,6 +114,11 @@ describe('privacy', () => {
     });
     expect(inbox.body.items[0]?.kind).toBe('account_restored');
 
+    const decided = await api.req<{ id: string }>('POST', '/decisions', {
+      token: back.token,
+      body: { state: { kind: 'grid', energy: 3, mood: 3 } },
+    });
+    expect(decided.status).toBe(201);
     await api.req('DELETE', '/me', { token: back.token, body: { confirm: 'delete my account' } });
     await api.req('POST', '/check-ins', {
       token: back.token,
@@ -126,6 +131,9 @@ describe('privacy', () => {
     const purged = await privacy.purgeDue();
     expect(purged).toBeGreaterThanOrEqual(1);
     expect(await prisma.user.count({ where: { id: me.userId } })).toBe(0);
+    // The engine v2 decision stays for the compliance trail, with no account link (E-52).
+    const kept = await prisma.decisionRecord.findUniqueOrThrow({ where: { id: decided.body.id } });
+    expect(kept.userId).toBeNull();
   });
 
   it('runs retention without error', async () => {
