@@ -6,8 +6,8 @@
       "ignoreBinaries": ["psql", "prisma"]
     },
     "apps/api": {
-      "entry": ["prisma/seed/*.ts", "test/**/*.ts", "src/modules/ai/evals/run.ts"],
-      "ignoreBinaries": ["psql"]
+      "entry": ["prisma/seed/*.ts", "test/**/*.ts"],
+      "ignoreBinaries": ["ffmpeg", "psql"]
     },
     "packages/engine": {
       "entry": ["test/**/*.ts"]

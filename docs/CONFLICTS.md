@@ -383,4 +383,4 @@ Each of these is a paid (Advanced) feature in PRD 1.9 / Workbook Tab 6d but show
 - **Still open:** which open model per task. It depends on speed on the real AI server and on the eval sets (4.3.8).
 - **Options:** Qwen3.5-4B or Gemma 4 E4B for everything (tested head-to-head); Qwen3.5-2B for the classification tasks if those are too slow; Ministral 3 3B (Mistral AI, European) if neither runs reliably on llama.cpp; a GPU server with vLLM later if CPU speed holds back the Express tasks.
 - **Speech:** Whisper small.en (default), or Gemma 4 E4B's built-in speech recognition if it matches Whisper on the speech test, which would mean one model instead of two.
-- **Decision:**
+- **Decision:** Qwen3.5-4B on llama.cpp for every language task. Ministral 3 3B is the lighter option if speed requires it, replacing Qwen3.5-2B. Whisper small.en with VAD stays for speech: Gemma 4 E4B was less accurate and wrote text on every clip with no speech, so it isn't adopted (tech lead, 1 Nov 2026, from the eval runs). Timeouts are set on the AI server (#32). See ADR 0001 and ADR 0002.

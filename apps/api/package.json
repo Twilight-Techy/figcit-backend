@@ -23,7 +23,9 @@
     "db:migrate": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
     "db:seed:personas": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/run-personas.ts",
-    "eval": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/run.ts"
+    "eval": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/run.ts",
+    "eval:speech": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/run.ts",
+    "eval:speech:generate": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/generate.ts"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.5",

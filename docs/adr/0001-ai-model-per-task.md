@@ -1,95 +1,108 @@
 # 0001: AI model per task
 
-**Status:** Proposed. Waiting for the founder's agreement (D-38), and for speed numbers from the AI
-server (#32). Issue #40.
+**Status:** Accepted, 1 November 2026, by Twilight-Techy (tech lead; D-38's owner), from the
+eval runs below. Issue #40. The timeouts are still to be set on the AI server (#32). Speech is in
+ADR 0002.
 
 ## Context
 
-SYSTEM_DESIGN §4.3.1 names Qwen3.5-4B as the default model, Gemma 4 E4B as an equal candidate, and
-Qwen3.5-2B as a lighter option. §4.3.8 says the eval sets pick the model per task and set the final
-timeouts. D-38 leaves the choice open until then.
+SYSTEM_DESIGN §4.3.1 names three models:
+- Qwen3.5-4B as the default;
+- Gemma 4 E4B as an equal candidate;
+- Qwen3.5-2B as a lighter option.
 
-The AI server (#32) doesn't exist yet. So these runs used the `pnpm eval` harness (#39) on a
-development machine: a 2-core ARM VM with 7.8 GB of RAM, llama.cpp `b12020` (`llama-server`, one
-slot, 4096-token context), and Q4_K_M files pinned by SHA-256. The quality numbers carry over to
-the server. The speed numbers don't: on this machine the 4B models ran short of memory and went
-into swap.
+D-38 adds Ministral 3 3B (Mistral AI, European) in case neither runs reliably. §4.3.8 says the eval
+sets choose the model per task.
 
-The sets are version 1 and still `draft` (not yet reviewed by the founder). The prompts are
-`parse-need@3`, `suggest-drivers@2` and `break-down@2`.
+The AI server (#32) doesn't exist yet. Every model therefore ran the `pnpm eval` harness (#39) on
+the same development machine:
+- a 2-core ARM VM with 7.8 GB of RAM;
+- llama.cpp `b12020` (`llama-server`, one slot, 4096-token context);
+- Q4_K_M files pinned by SHA-256;
+- the same sets (version 1, `draft`) and prompts (`parse-need@3`, `suggest-drivers@2`,
+  `break-down@2`).
+
+The quality numbers carry over to the server. The speed numbers don't: the 4B models ran short of
+memory and swapped.
 
 ## Results
 
-Accuracy as defined in `apps/api/src/modules/ai/evals/README.md`. "Fallback" means calls whose
-answer the user would not see. Latency and speed are from the development machine only.
+Accuracy is as defined in `apps/api/src/modules/ai/evals/README.md`. No model needed a fallback or
+produced a banned phrase in the runs below.
 
-**parseNeed** (87 sentences; pass bar 85%)
-
-| Model | Accuracy | Fallback | `urgent_help` first | p50 / p95 | Tokens/s |
-| --- | --- | --- | --- | --- | --- |
-| Rules (fallback) | 54.0% | — | 0 | — | — |
-| Qwen3.5-2B | 67.8% | 0% | 4 | 11.2 s / 15.7 s | 7.5 |
-| Gemma 4 E2B | 83.9% | 0% | 1 | 11.3 s / 13.8 s | 5.8 |
-| **Qwen3.5-4B** | **88.5%** | 0% | 0 | 9.6 s / 22.5 s | 2.9 |
-| Gemma 4 E4B | 50.6% (93.6% of the 47 it answered) | 46% | 0 | 41.2 s / 53.1 s | 3.5 |
-
-**suggestDrivers** (50 tasks; no accuracy bar yet)
-
-| Model | Accuracy | Fallback | p50 / p95 |
-| --- | --- | --- | --- |
-| Rules (fallback) | 48.0% | — | — |
-| Qwen3.5-2B | 52.0% | 0% | 4.9 s / 6.0 s |
-| Gemma 4 E2B | 42.0% | 0% | 5.7 s / 6.7 s |
-| **Qwen3.5-4B** | **58.0%** | 0% | 7.5 s / 8.8 s |
-| Gemma 4 E4B | 52.0% | 0% | 10.7 s / 12.1 s |
-
-**breakDownTask** (50 tasks; pass bar 100% within the step cap)
-
-| Model | Accuracy | Within cap | Fallback | p50 / p95 |
+| Model | parseNeed (bar 85%) | suggestDrivers | breakDownTask (bar 100% within cap) | Peak memory |
 | --- | --- | --- | --- | --- |
-| Rules (fallback) | 100% | 100% | — | — |
-| Qwen3.5-2B | 98.0% | 100% | 2% | 15.3 s / 30.2 s |
-| Gemma 4 E2B | 96.0% | 100% | 0% | 14.5 s / 26.7 s |
-| **Qwen3.5-4B** | **100%** | 100% | 0% | 29.2 s / 48.6 s |
-| Gemma 4 E4B | 94.0% | 100% | 0% | 33.2 s / 61.7 s |
+| Rules (fallback) | 54.0% | 48.0% | 100% | — |
+| Qwen3.5-2B | 67.8% | 52.0% | 98.0% | not measured |
+| Gemma 4 E2B | 83.9% | 42.0% | 96.0% | 4.8 GB |
+| Ministral 3 3B | 87.4% | 44.0% | 98.0% | 5.0 GB |
+| **Qwen3.5-4B** | **88.5%** | **58.0%** | **100%** | 6.4 GB |
+| Gemma 4 E4B | **90.8%** | 56.0% | 96.0% | 6.2 GB |
 
-No model produced a banned phrase. Peak resident memory of `llama-server`: Gemma 4 E2B 4.8 GB,
-Gemma 4 E4B 6.1 GB, Qwen3.5-4B 6.4 GB. These include the memory-mapped model file, and the
-machine was swapping during the 4B runs, so treat them as upper bounds.
+- Every model kept 100% of its steps within the step cap.
+- Every breakDownTask miss had the same cause: a step over 5 minutes for someone who is strained
+  (Amber).
+- The peak-memory figures include the memory-mapped model file, measured while the machine was
+  swapping, so treat them as upper bounds.
+- `urgent_help` came first for ordinary anxiety 4 times with Qwen3.5-2B and once with Gemma 4
+  E2B. The other models never did it.
+
+Latency on this machine, p50 for parseNeed: Qwen3.5-4B 9.6 s, Gemma 4 E4B 13.5 s, Ministral 3 3B
+18.5 s. These can only be compared with each other; the AI server sets the real figures.
 
 ### Gemma 4 and thinking
 
-Gemma 4 thinks before answering unless told not to. Our client's `enable_thinking: false` is
-Qwen's setting; Gemma's template ignores it.
+Gemma 4 starts thinking before it answers, even with thinking switched off. With our system
+prompt it used up `max_tokens` before writing any answer. Its first runs (an earlier draft of this
+ADR) lost 46% to 82% of parseNeed answers to this.
+- `--reasoning off` didn't stop it.
+- `--reasoning-budget 0` fixed it for E2B but not for E4B. E4B then closed its thinking with a
+  malformed tag, and the JSON grammar never applied.
 
-- **E2B:** with no server flags, 82% of parseNeed calls came back empty: the whole 200-token
-  budget went on thinking. `--reasoning off` didn't stop it. `--reasoning-budget 0` did, and those
-  are the numbers above.
-- **E4B:** with `--reasoning-budget 0`, it still starts thinking in 46% of parseNeed calls. It then
-  closes the block with a malformed tag (`s</channel>`), so llama.cpp never sees the thinking end
-  and never applies the JSON grammar. On the cases it answered, it was the most accurate model
-  (93.6%). Its parseNeed result measures this llama.cpp and template problem, not the model.
+The fix is a chat template that starts the model's turn with an empty thought block when thinking
+is off. That's the Gemma 4 template plus one condition after the generation prompt
+`<|turn>model\n`:
 
-## Decision (proposed)
+```jinja
+{%- if not enable_thinking -%}{{- '<|channel>thought\n<channel|>' -}}{%- endif -%}
+```
 
-- **Every task uses Qwen3.5-4B**, the design's default. It is the only model that meets the
-  parseNeed bar, it is the best or equal best on every set, and it never needed a fallback.
-- **Gemma 4 E4B stays a candidate.** Re-test it on the AI server's pinned llama.cpp once its
-  thinking can be switched off reliably. Its answered parseNeed cases suggest it could beat
-  Qwen3.5-4B.
-- **Lighter option: Gemma 4 E2B, not Qwen3.5-2B**, if the 4B is too slow on the server for
-  the classification tasks. It scored 83.9% against 67.8% on parseNeed. It is not one of the
-  design's listed candidates, so adopting it needs the founder's agreement too.
-- **suggestDrivers:** no model is far above the rules (best 58% against 48%). Before choosing a
-  model for it, decide whether its AI call earns its cost, and set an accuracy bar.
-- **Final timeouts: not proposed here.** They need latency from the AI server (#32). Run
-  `pnpm eval all` there, and set each timeout to cover at least the p95.
+The server loads it with `--chat-template-file`. With it, E4B answered every case, and the
+numbers above are from that run.
+
+## Decision
+
+- **Every language task uses Qwen3.5-4B**: parseNeed, suggestDrivers, breakDownTask, sortDump,
+  the Express tasks and the Tab 11 tasks. This is the design's default.
+  - It meets the parseNeed bar.
+  - It is the best on suggestDrivers and breakDownTask.
+  - It runs on stock llama.cpp with no template changes.
+  - Gemma 4 E4B's 2.3-point lead on parseNeed is 2 of 87 sentences. That doesn't outweigh 4
+    points worse on breakDownTask, slower output, and a custom template the server would depend
+    on.
+- **The lighter option is Ministral 3 3B, replacing Qwen3.5-2B.** Use it if Qwen3.5-4B turns out
+  too slow on the server for the classification tasks. It meets the parseNeed bar (87.4%) with
+  less memory. Qwen3.5-2B (67.8%) and Gemma 4 E2B (83.9%) don't meet it.
+- **Gemma 4 E4B is the runner-up.** It isn't needed for speech either (ADR 0002), so nothing
+  requires a second model family.
+- **suggestDrivers keeps Qwen3.5-4B**, but its lead over the rules is small (58% against 48%).
+  Give it an accuracy bar once the founder has reviewed the set.
 
 ## Consequences
 
-- Whatever model runs, the AI server's `llama-server` must start with `--reasoning-budget 0`, so a
-  model's thinking can never use up `max_tokens` and leave the answer empty (#32).
-- D-38 in `docs/CONFLICTS.md` is updated only after the founder agrees.
-- Still to run: Ministral 3 3B (in #40's list, not run here); all models on the AI server; and
-  every set again once the founder has reviewed it, because results only compare within a set
-  version.
+- AI server (#32):
+  - Serves Qwen3.5-4B Q4_K_M (`sha256 00fe7986…a11a4`), with Ministral 3 3B Q4_K_M
+    (`sha256 9ed150d4…5f8`) loadable for the speed test.
+  - Starts `llama-server` with `--reasoning-budget 0`, so no model's thinking can use up
+    `max_tokens`.
+  - Keeps the Gemma template change above in `docker/ai/` in case Gemma is ever served.
+- **Final timeouts:** run `pnpm eval all` on the AI server and set each task's timeout to cover
+  at least its p95 there.
+- **Timeout fallback:** if Qwen3.5-4B can't meet those timeouts for the classification tasks,
+  switch only those tasks to Ministral 3 3B. That's an AI config change, not a code change.
+- **Strained steps:** `breakDownTask`'s check doesn't yet reject steps over 5 minutes for a
+  strained person, and every model sometimes writes them. Tracked in #105.
+- SYSTEM_DESIGN §4.3.1 still lists Qwen3.5-2B as the lighter option. This ADR replaces that line
+  until the design is next edited.
+- **Re-run every set** once the founder has reviewed the drafts, because results only compare
+  within a set version.
