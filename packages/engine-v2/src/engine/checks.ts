@@ -131,6 +131,8 @@ export interface ExploreReport extends PublishCheckReport {
   readonly byLight: Readonly<Record<string, number>>;
   /** By the primary's tool, action or pathway; `support_screen`, or `none` for no primary. */
   readonly byPrimary: Readonly<Record<string, number>>;
+  /** How many inputs each rule fired on; a rule that never fires is listed with 0. */
+  readonly fired: Readonly<Record<string, number>>;
 }
 
 const primaryKey = (card: Card): string => {
@@ -155,6 +157,7 @@ export function explore(
   const counts: Partial<Record<PublishCheckId, number>> = {};
   const byLight: Record<string, number> = {};
   const byPrimary: Record<string, number> = {};
+  const fired: Record<string, number> = Object.fromEntries(ruleset.rules.map((r) => [r.id, 0]));
   let refused = 0;
   for (const input of inputs) {
     const result = run(ruleset, input);
@@ -162,6 +165,7 @@ export function explore(
       refused += 1;
       continue;
     }
+    for (const id of result.trace.fired) fired[id] = (fired[id] ?? 0) + 1;
     bump(byLight, result.card.light ?? 'none');
     bump(byPrimary, primaryKey(result.card));
     for (const v of broken(result.card, input)) {
@@ -170,7 +174,7 @@ export function explore(
         violations.push({ check: v.check, input, rows: [...new Set(v.rows)] });
     }
   }
-  return { ran: inputs.length, refused, byLight, byPrimary, violations, counts };
+  return { ran: inputs.length, refused, byLight, byPrimary, fired, violations, counts };
 }
 
 /**
@@ -183,4 +187,44 @@ export function publishChecks(
 ): PublishCheckReport {
   const { ran, violations, counts } = explore(ruleset, inputs);
   return { ran, violations, counts };
+}
+
+/** One input whose card differs between two versions. */
+export interface CardChange {
+  readonly input: EngineInput;
+  readonly before: { readonly light: string | null; readonly primary: string };
+  readonly after: { readonly light: string | null; readonly primary: string };
+}
+
+export interface CompareReport {
+  readonly ran: number;
+  /** Inputs whose light or primary differs. */
+  readonly changed: number;
+  readonly examples: readonly CardChange[];
+}
+
+const COMPARE_EXAMPLES = 25;
+
+/**
+ * The impact of a change (M7, DESIGN §8): the same inputs through two versions, and where the
+ * card's light or primary differs. Inputs either version refuses are skipped. O(inputs × run).
+ */
+export function compare(
+  before: CompiledRuleset,
+  after: CompiledRuleset,
+  inputs: readonly EngineInput[] = sweepInputs(after.catalogue),
+): CompareReport {
+  let changed = 0;
+  const examples: CardChange[] = [];
+  for (const input of inputs) {
+    const a = run(before, input);
+    const b = run(after, input);
+    if (!a.ok || !b.ok) continue;
+    const was = { light: a.card.light, primary: primaryKey(a.card) };
+    const now = { light: b.card.light, primary: primaryKey(b.card) };
+    if (was.light === now.light && was.primary === now.primary) continue;
+    changed += 1;
+    if (examples.length < COMPARE_EXAMPLES) examples.push({ input, before: was, after: now });
+  }
+  return { ran: inputs.length, changed, examples };
 }

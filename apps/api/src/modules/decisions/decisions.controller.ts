@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import type { RunResult } from '@figcit/engine-v2';
 import type { z } from 'zod';
 import { CurrentUser, MaybeUser, type RequestUser } from '../../common/guards/request-user.js';
@@ -9,6 +9,12 @@ import { labelParam } from '../rulesets/rulesets.schemas.js';
 import { CardBridgeService } from './card-bridge.service.js';
 import {
   anotherBodySchema,
+  compareBodySchema,
+  compareResultSchema,
+  decisionListQuerySchema,
+  decisionListSchema,
+  type CompareResult,
+  type DecisionList,
   decideBodySchema,
   decisionRecordSchema,
   decisionSchema,
@@ -50,6 +56,21 @@ export class DecisionsController {
     @Body(new ZodPipe(decideBodySchema)) body: DecideBody,
   ): Promise<z.infer<typeof decisionSchema>> {
     return this.decisions.decide(body, user?.id);
+  }
+
+  @Get()
+  @Route({
+    summary: 'Decision records, newest first (staff): filter by light, mode or support screen',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    query: decisionListQuerySchema,
+    response: decisionListSchema,
+  })
+  list(
+    @Query(new ZodPipe(decisionListQuerySchema)) q: z.infer<typeof decisionListQuerySchema>,
+  ): Promise<DecisionList> {
+    return this.decisions.list(q);
   }
 
   @Get(':id')
@@ -115,6 +136,22 @@ export class EngineToolsController {
     @Body(new ZodPipe(simulateBodySchema)) body: z.infer<typeof simulateBodySchema>,
   ): Promise<RunResult> {
     return this.decisions.simulate(label, body.input, body.trace);
+  }
+
+  @Post(':label/compare')
+  @Route({
+    summary: 'The impact of a version: the same inputs against another version, and what changes',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    body: compareBodySchema,
+    response: compareResultSchema,
+  })
+  compare(
+    @Param('label', new ZodPipe(labelParam)) label: string,
+    @Body(new ZodPipe(compareBodySchema)) body: z.infer<typeof compareBodySchema>,
+  ): Promise<CompareResult> {
+    return this.decisions.compare(label, body.against, body.inputs);
   }
 
   @Post(':label/explore')

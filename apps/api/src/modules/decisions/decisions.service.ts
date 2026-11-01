@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   canonicalJson,
+  compare,
   ENGINE_VERSION,
   explore,
   factsFromCheckIn,
@@ -31,6 +32,8 @@ import { daysInRed, lastFact, recheckFacts, signalFacts } from './decision-facts
 import type {
   DecideBody,
   DecisionDto,
+  CompareResult,
+  DecisionList,
   DecisionRecordDto,
   ExploreResult,
   ReplayResult,
@@ -277,6 +280,73 @@ export class DecisionsService {
     return { replayed: records.length, mismatched };
   }
 
+  /** The impact of a version against another on the same inputs (M7). */
+  async compare(
+    label: string,
+    against: string,
+    inputs: readonly EngineInput[] | undefined,
+  ): Promise<CompareResult> {
+    const [after, before] = await Promise.all([
+      this.runtime.byLabel(label),
+      this.runtime.byLabel(against),
+    ]);
+    const r = compare(before.ruleset, after.ruleset, inputs);
+    return {
+      ran: r.ran,
+      changed: r.changed,
+      examples: r.examples.map((e) => ({ ...e, input: { ...e.input } })),
+    };
+  }
+
+  /** Decision records, newest first, for staff (filters by light, mode, support screen). */
+  async list(q: {
+    limit: number;
+    before?: string | undefined;
+    light?: string | undefined;
+    mode?: 'signed_in' | 'browse' | undefined;
+    supportScreen?: 'true' | 'false' | undefined;
+  }): Promise<DecisionList> {
+    const rows = await this.prisma.decisionRecord.findMany({
+      where: {
+        ...(q.before ? { createdAt: { lt: new Date(q.before) } } : {}),
+        ...(q.light ? { light: q.light } : {}),
+        ...(q.mode ? { mode: q.mode } : {}),
+        ...(q.supportScreen ? { supportScreen: q.supportScreen === 'true' } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: q.limit + 1,
+      select: {
+        id: true,
+        createdAt: true,
+        mode: true,
+        light: true,
+        band: true,
+        supportScreen: true,
+        card: true,
+        replayMatches: true,
+        version: { select: { label: true } },
+      },
+    });
+    const page = rows.slice(0, q.limit);
+    return {
+      items: page.map((r) => {
+        const p = (r.card as unknown as Card).primary;
+        return {
+          id: r.id,
+          createdAt: r.createdAt.toISOString(),
+          mode: r.mode,
+          light: r.light,
+          band: r.band,
+          supportScreen: r.supportScreen,
+          ruleset: r.version.label,
+          primary: p ? (p.tool ?? ('action' in p.target ? p.target.action : p.pathway)) : null,
+          replayMatches: r.replayMatches,
+        };
+      }),
+      next: rows.length > q.limit ? (page.at(-1)?.createdAt.toISOString() ?? null) : null,
+    };
+  }
+
   /** The compiled version a record was made with. */
   engineFor(versionId: string): Promise<Runnable> {
     return this.runtime.byId(versionId);
@@ -293,9 +363,13 @@ export class DecisionsService {
     const engine = await this.runtime.byLabel(label);
     if (inputs?.length === 0) throw new BadInput('Give at least one input, or none for the sweep.');
     const r = explore(engine.ruleset, inputs);
+    const neverFired = engine.ruleset.rules
+      .filter((rule) => (r.fired[rule.id] ?? 0) === 0)
+      .map((rule) => `${rule.ref} #${rule.id.split('#')[1] ?? '0'}`);
     return {
       ran: r.ran,
       refused: r.refused,
+      rules: { total: engine.ruleset.rules.length, neverFired },
       byLight: r.byLight,
       byPrimary: r.byPrimary,
       checks: {

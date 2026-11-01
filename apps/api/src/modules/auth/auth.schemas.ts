@@ -7,7 +7,12 @@ const email = z
 const password = z.string().min(10, 'Use at least 10 characters').max(200);
 
 export const magicLinkRequestSchema = z
-  .object({ email, purpose: z.enum(['sign_in', 'upgrade_from_browse']).default('sign_in') })
+  .object({
+    email,
+    purpose: z.enum(['sign_in', 'upgrade_from_browse']).default('sign_in'),
+    // Which app the link opens: the user app, or the staff app (E-31; STAFF_APP_URL).
+    app: z.enum(['user', 'staff']).default('user'),
+  })
   .strict();
 export const magicLinkVerifySchema = z.union([
   z.object({ token: z.string().min(20).max(200) }).strict(),

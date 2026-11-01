@@ -229,6 +229,34 @@ describe('decisions (engine v2)', () => {
     expect(bad.body).toMatchObject({ ok: false, issues: [{ path: '/light' }] });
   });
 
+  it('lists decisions for staff, newest first, with filters', async () => {
+    expect((await api.req('GET', '/decisions', { token: user })).status).toBe(403);
+    const all = await api.req<{
+      items: { light: string | null; supportScreen: boolean }[];
+      next: string | null;
+    }>('GET', '/decisions?limit=5', { token: admin });
+    expect(all.status).toBe(200);
+    expect(all.body.items.length).toBeGreaterThan(0);
+    const support = await api.req<{ items: { supportScreen: boolean }[] }>(
+      'GET',
+      '/decisions?supportScreen=true&limit=10',
+      { token: admin },
+    );
+    expect(support.body.items.every((i) => i.supportScreen)).toBe(true);
+  });
+
+  it('compares two versions on the same inputs (impact)', async () => {
+    const res = await api.req<{ ran: number; changed: number }>(
+      'POST',
+      `/rulesets/${label}/compare`,
+      {
+        token: admin,
+        body: { against: label, inputs: [{ 'state.energy': 2, 'state.mood': 2 }] },
+      },
+    );
+    expect(res.body).toEqual({ ran: 1, changed: 0, examples: [] });
+  });
+
   it('explores many inputs on a version, with the fixed-rule checks', async () => {
     const inputs = [
       { 'state.energy': 1, 'state.mood': 1 },
@@ -240,8 +268,24 @@ describe('decisions (engine v2)', () => {
       refused: number;
       byLight: Record<string, number>;
       checks: { counts: object };
+      rules: { total: number; neverFired: string[] };
     }>('POST', `/rulesets/${label}/explore`, { token: admin, body: { inputs } });
     expect(res.body).toMatchObject({ ran: 3, refused: 1, byLight: { red: 1, green: 1 } });
     expect(res.body.checks.counts).toEqual({});
+    expect(res.body.rules.total).toBeGreaterThan(250);
+    expect(res.body.rules.neverFired.length).toBeGreaterThan(0);
+  });
+
+  it('sends staff sign-in links to the staff app only when its address is set (E-31)', async () => {
+    const off = await api.req('POST', '/auth/magic-link', {
+      body: { email: 'staff-e2e@example.com', app: 'staff' },
+    });
+    expect(off.status).toBe(501);
+    const on = await bootApi({ STAFF_APP_URL: 'http://staff.example' });
+    const res = await on.req('POST', '/auth/magic-link', {
+      body: { email: 'staff-e2e@example.com', app: 'staff' },
+    });
+    expect(res.status).toBe(202);
+    await on.close();
   });
 });

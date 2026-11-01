@@ -116,6 +116,10 @@ export const exploreBodySchema = z
 export const exploreResultSchema = z.object({
   ran: z.number().int(),
   refused: z.number().int(),
+  rules: z.object({
+    total: z.number().int(),
+    neverFired: z.array(z.string()).describe('Rules ("tab · reference #n") no input fired'),
+  }),
   byLight: z.record(z.string(), z.number().int()),
   byPrimary: z.record(z.string(), z.number().int()),
   checks: z.object({
@@ -133,3 +137,54 @@ export const anotherBodySchema = z
     declinedToolId: z.string().max(48).optional().describe('The tool the user just declined'),
   })
   .strict();
+
+export const decisionListQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+    before: z.iso
+      .datetime()
+      .optional()
+      .describe("Older than this time (the last item's createdAt)"),
+    light: z.enum(['green', 'yellow', 'amber', 'red', 'blue']).optional(),
+    mode: z.enum(['signed_in', 'browse']).optional(),
+    supportScreen: z.enum(['true', 'false']).optional(),
+  })
+  .strict();
+
+export const decisionListSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.uuid(),
+      createdAt: z.iso.datetime(),
+      mode: z.enum(['signed_in', 'browse']),
+      light: z.string().nullable(),
+      band: z.string().nullable(),
+      supportScreen: z.boolean(),
+      ruleset: z.string(),
+      primary: z.string().nullable().describe("The primary's tool, action or pathway"),
+      replayMatches: z.boolean().nullable(),
+    }),
+  ),
+  next: z.string().nullable(),
+});
+export type DecisionList = z.infer<typeof decisionListSchema>;
+
+export const compareBodySchema = z
+  .object({
+    against: z.string().describe('The version to compare with (usually the published one)'),
+    inputs: z.array(inputFacts).max(5000).optional().describe('Leave out for the publish sweep'),
+  })
+  .strict();
+
+export const compareResultSchema = z.object({
+  ran: z.number().int(),
+  changed: z.number().int(),
+  examples: z.array(
+    z.object({
+      input: inputFacts,
+      before: z.object({ light: z.string().nullable(), primary: z.string() }),
+      after: z.object({ light: z.string().nullable(), primary: z.string() }),
+    }),
+  ),
+});
+export type CompareResult = z.infer<typeof compareResultSchema>;

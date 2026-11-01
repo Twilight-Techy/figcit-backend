@@ -118,7 +118,7 @@ export class AuthController {
   async magicLink(
     @Body(new ZodPipe(magicLinkRequestSchema)) body: z.infer<typeof magicLinkRequestSchema>,
   ): Promise<{ ok: true }> {
-    await this.auth.requestMagicLink(body.email, body.purpose);
+    await this.auth.requestMagicLink(body.email, body.purpose, body.app);
     return { ok: true };
   }
 

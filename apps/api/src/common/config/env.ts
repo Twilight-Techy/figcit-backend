@@ -13,6 +13,8 @@ const envSchema = z.object({
   // URLs
   API_URL: z.url().default('http://localhost:3001'),
   APP_URL: z.url().default('http://localhost:3000'),
+  // The staff app's address (E-31, E-35): staff sign-in links open there. Unset: no staff links.
+  STAFF_APP_URL: z.url().optional(),
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
   // Database
   DATABASE_URL: z.url(),

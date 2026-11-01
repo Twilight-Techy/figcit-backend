@@ -1,5 +1,8 @@
 export {
+  compare,
   explore,
+  type CardChange,
+  type CompareReport,
   publishChecks,
   type ExploreReport,
   PUBLISH_CHECKS,

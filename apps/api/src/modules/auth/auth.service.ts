@@ -5,7 +5,14 @@ import { ENV, type Env } from '../../common/config/env.js';
 import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { randomToken, safeEqual, sha256 } from '../../common/crypto/envelope.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
-import { BadInput, Conflict, Gone, TooMany, Unauthorized } from '../../common/errors/errors.js';
+import {
+  BadInput,
+  Conflict,
+  Gone,
+  TooMany,
+  Unauthorized,
+  NotConfigured,
+} from '../../common/errors/errors.js';
 import { layout, MailService } from '../../platform/mail/mail.service.js';
 import { UsersRepository } from '../users/users.repository.js';
 import { COMMON_PASSWORDS } from './common-passwords.js';
@@ -40,7 +47,14 @@ export class AuthService {
   // --- Magic link (D-11: the main sign-in) -------------------------------------------------
 
   /** Always answers the same way, whether or not the email has an account (§9.1). */
-  async requestMagicLink(email: string, purpose: 'sign_in' | 'upgrade_from_browse'): Promise<void> {
+  async requestMagicLink(
+    email: string,
+    purpose: 'sign_in' | 'upgrade_from_browse',
+    app: 'user' | 'staff' = 'user',
+  ): Promise<void> {
+    // A staff link opens the staff app; it needs that app's address configured (E-31, E-35).
+    const base = app === 'staff' ? this.env.STAFF_APP_URL : this.env.APP_URL;
+    if (!base) throw new NotConfigured('The staff app address (STAFF_APP_URL) is not set.');
     const recent = await this.prisma.magicLink.count({
       where: { email, createdAt: { gt: new Date(Date.now() - 15 * 60_000) } },
     });
@@ -58,7 +72,7 @@ export class AuthService {
         expiresAt: new Date(Date.now() + MAGIC_TTL_MS),
       },
     });
-    const url = `${this.env.APP_URL}/enter/link/?token=${encodeURIComponent(token)}`;
+    const url = `${base}/enter/link/?token=${encodeURIComponent(token)}`;
     const body = layout(
       'Your sign-in link',
       [

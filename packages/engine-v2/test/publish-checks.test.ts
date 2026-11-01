@@ -1,6 +1,13 @@
 // Checks before publish (M4, DESIGN §5): the workbook's fixed rules hold on every card of a sweep.
 import { describe, expect, it } from 'vitest';
-import { compile, publishChecks, sweepInputs, type EngineRow } from '../src/index.js';
+import {
+  compare,
+  compile,
+  explore,
+  publishChecks,
+  sweepInputs,
+  type EngineRow,
+} from '../src/index.js';
 import { withExtras as catalogue } from './fixtures.js';
 import { ruleset } from './support/engine.js';
 
@@ -63,5 +70,33 @@ describe('checks before publish', () => {
       catalogue,
     );
     expect(publishChecks(red, [{}]).counts).toEqual({ red_support: 1 });
+  });
+
+  it('counts how often each rule fires, so rules that never fire show up', () => {
+    const report = explore(ruleset, sweepInputs(catalogue).slice(0, 200));
+    expect(Object.keys(report.fired)).toHaveLength(ruleset.rules.length);
+    expect(Object.values(report.fired).some((n) => n === 0)).toBe(true);
+    expect(Object.values(report.fired).some((n) => n > 0)).toBe(true);
+  });
+
+  it('compares two versions on the same inputs: what a change would do', () => {
+    const inputs = [
+      { 'state.energy': 1, 'state.mood': 1 },
+      { 'state.energy': 4, 'state.mood': 4 },
+    ];
+    expect(compare(ruleset, ruleset, inputs)).toEqual({ ran: 2, changed: 0, examples: [] });
+    const allRed = compile(
+      [
+        row('red', {
+          stage: 'capacity_fit',
+          rules: [{ when: null, then: [{ kind: 'light.set', light: 'red' }] }],
+        }),
+      ],
+      catalogue,
+    );
+    const report = compare(ruleset, allRed, inputs);
+    expect(report.changed).toBe(2);
+    expect(report.examples[1]?.before.light).toBe('green');
+    expect(report.examples[1]?.after.light).toBe('red');
   });
 });
