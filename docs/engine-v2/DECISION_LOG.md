@@ -184,7 +184,7 @@ Recorded so a reviewer can see what the reader does with the spreadsheet (`packa
 - **Not yet:** `.xlsx` import and export with the engine columns shaded to the right, which needs a spreadsheet library under the dependency rules (`TODO.md` T-06). Uploading a workbook today means uploading its tabs as CSV, as the existing snapshot upload does.
 - **Revert:** n/a.
 
-### E-29 The engine columns can't be edited yet
+### E-29 The engine columns can't be edited yet (lifted by E-36)
 - **Decision:** until the rule format exists (M2), the editor accepts the workbook cells, `safety`, the workbook version tag and the mapping status `pending` or `unresolved` (exempt). It does not accept engine columns or `exact` / `interpreted`.
 - **Why:** an engine column saved before its format exists could not be validated, and would be wrong data the day the format lands.
 - **Revert:** n/a (lifted by M2).
@@ -226,6 +226,33 @@ Rule set versions also keep their table frames, import report and checks as JSON
 
 ### E-35 Where the staff app is hosted
 - **Working assumption:** its own subdomain (e.g. `admin.<domain>`). Not decided; it doesn't affect the work until the staff app is deployed. Its own origin keeps staff sessions and cookies apart from the user app.
+
+### E-36 The rule format is served by the API, per version
+- **Decision:** `GET /v1/rulesets/{label}/format` returns everything a client needs to show, edit and check engine columns for that version: the stages (tied to Tab 8), the precedence layers (ADR 0001 §2), the card slots and actions, every fact with its type, domain and allowed operators, every effect with its parameters and class (requirement, proposal, modifier), the size limits, the catalogue's values per domain, and the JSON Schema (2020-12) of engine columns with those values filled in. The staff app builds its editor from this response, not from code.
+- **One source:** a declarative registry in `@figcit/engine-v2` (`src/format/registry.ts`) produces the validator, the JSON Schema and the description. A test runs the same sample rules through the validator and through a standard JSON Schema validator (Ajv) and requires the same verdict.
+- **Checked twice:** on save (the editor refuses a row the engine couldn't run, listing every problem with its location) and on submit (every live row against the version's own catalogue; a renamed or removed value that a rule still uses blocks publishing, code `ruleset_invalid`).
+- **Two rules the schema can't state** are checked on save only: a row that proposes needs a `layer`; conditions stay within the size limits (6 deep, 64 parts).
+- **Why:** the Owner's suggestion (1 Nov 2026); a new fact value or threshold then needs no staff app release, and an old version shows the format it was written in.
+- **Lifts E-29:** engine columns and the `exact` / `interpreted` statuses can now be set in the editor.
+
+### E-37 Format 2: engine columns, the catalogue, input mappings
+- **Format number** raised to 2. Versions stored at format 1 exist only in development databases; they have no catalogue and are not upgraded (nothing outside development used them).
+- **Engine columns** of a rule row: `stage`, optional `layer`, 1-16 `rules` (each a condition or `null` for "always", and 1-12 effects), optional `interpretation` (required when the mapping is `interpreted`). A row may need several rules (a pattern's primary, alternatives and conditions).
+- **Conditions:** `all`, `any`, `not` and comparisons on a fact. Operators by fact type: enum `eq ne in not_in present absent` (plus `gte gt lte lt` on ordered domains); set `contains not_contains contains_any contains_all empty not_empty`; number `eq ne gte gt lte lt present absent`; intensity `gte gt lte lt present absent`; boolean `is`. An intensity can be compared with a number (0-10) or with an intensity band (`{ "band": "high" }` stands for its lower bound, 7). A comparison on a fact that is absent is false.
+- **Thresholds are data:** the intensity bands and their ranges (Mild 0-3, Moderate 4-6, High 7-8, Very High 9-10, from the Tab 2 note) are catalogue rows, so no number sits in code (workbook README).
+- **Order:** comparisons on an ordered domain use the catalogue `Order`. For bands that is the workbook's own Tab 10 `Order` column: 0 = Very Constrained up to 3 = Available. `band.lower` moves to a lower Order; `band.cap` sets how low the band may go (e.g. E4M1 stops at Constrained).
+- **Mechanics stay in code** (E-09): the facts the engine computes, the operators, the effect kinds, the card slots (`primary`, `alternative`, `queued`, `visible`) and the card actions (`get_support_now`, `try_anyway`, `skip_to_task`, `start_small`, `save_for_later`), because each has fixed behaviour in the engine or the app. Adding one raises the format number.
+- **The catalogue** (`x-catalogue.csv`, an added table: Domain, Code, Label, Order, From, To, Group, Source, Note) holds every standard value. On import it is filled from the workbook rows that define each value: 193 values marked `exact` (16 cells, 4 bands, 5 lights, 33 families, 4 intensity bands, 8 flags, 19 contexts, 9 timelines, 8 drivers, 17 demand characteristics, 21 needs, 8 pathways, 41 patterns) and 8 marked `interpreted` (setting classes public, formal, observed, unfamiliar, caring, from CX-1 and Tab 3b; plans free, plus, institution, from Tab 6d). Each row names its source row. Tab 3b's last row ("ALL public, formal, observed or caring settings") is a rule about settings, not a setting, and is left out (named in the import report). Codes are made from the labels (`Anxious / fearful` → `anxious_fearful`); cells, timelines and patterns keep the author's references (`E1M1`, `T0`, `28`).
+- **Not filled yet (M3, E-19):** sensation groups, tools and the four input mappings (chip to family, sensation to group, environment to setting class, picture answers to cell). A rule that names a value the catalogue doesn't have is refused with "the catalogue has no … values yet".
+- **Input mappings** (`x-input-mappings.csv`: Mapping, From, To, Source, Note) start empty.
+- **Export and re-import** carry both added tables; an upload that includes them keeps them as given instead of filling them again.
+- **New mapping status `reference`:** the row states nothing the engine runs (a definition whose values are in the catalogue, or a description). Notes, examples and reference tables may only be `pending` or `reference`; catalogue and mapping rows record provenance (`pending`, `exact`, `interpreted`) and never carry engine columns.
+- **Revert:** n/a (format); later changes raise the format number.
+
+### E-38 Ajv as a test-only dependency of `@figcit/engine-v2`
+- **What:** `ajv` 8.20.0 in `devDependencies` only; the package still has no runtime dependencies (CI check).
+- **Why:** it is the reference JSON Schema validator; the test that the generated schema and the package's own validator agree needs an independent implementation, not ours.
+- **Cost:** none at runtime; it was already installed (fastify uses it); MIT licence.
 
 ## Dropped or changed from earlier proposals (one list)
 

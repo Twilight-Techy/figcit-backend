@@ -17,8 +17,10 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [ ] Published version bundle in object storage, named by hash (T-07)
 
 ## M2 Rule format
-- [ ] Facts, conditions, effects (`DESIGN.md` §4) as types and zod schemas, with validation on save
-- [ ] Input catalogue (standard values) and the four input mapping tables (E-19)
+- [x] Facts, conditions, effects as a declarative registry; validator and JSON Schema generated from it, checked to agree (E-36, E-37, E-38)
+- [x] Catalogue of standard values, filled from the workbook on import (193 exact, 8 interpreted); input mappings table (empty until M3)
+- [x] Editor accepts and checks engine columns; submit re-checks every live row; publish refused while any row or catalogue value is invalid
+- [x] `GET /v1/rulesets/{label}/format` for the staff app (E-36)
 
 ## M3 Engine columns for every rule tab
 - [ ] States, bands and band rules (Tabs 1, 10)
@@ -26,7 +28,8 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [ ] Needs, patterns 1 to 41, footer rules (Tabs 6b, 7)
 - [ ] Reflect and Meditate gates, tools and entitlements (Tabs 6c, 6d)
 - [ ] Decision sequence and journey layers (Tabs 8, 11)
-- [ ] Each row marked exact, interpreted or unresolved; gaps recorded
+- [ ] Each row marked exact, interpreted, unresolved or reference; gaps recorded
+- [ ] Catalogue fills for sensation groups and tools; the four input mappings (E-19)
 
 ## M4 Engine
 - [ ] Stages 0 to 12 on the rule set; requirements and proposals; exempt rules skipped

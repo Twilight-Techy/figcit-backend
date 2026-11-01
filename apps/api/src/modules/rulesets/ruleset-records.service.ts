@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import {
+  canonicalJson,
   initialSafety,
   referenceOf,
+  rowIssues,
   type JsonValue,
   type RecordOrigin,
   type SheetFrames,
   type TabKey,
   type WorkbookCell,
 } from '@figcit/engine-v2';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { BadInput, Conflict } from '../../common/errors/errors.js';
 import { RulesetAuditService, type Actor } from './ruleset-audit.service.js';
@@ -24,9 +26,13 @@ import {
   type RecordRow,
   type VersionRow,
 } from './rulesets.dto.js';
-import { draftOr409, recordOr404 } from './rulesets.repository.js';
+import { catalogueFor, draftOr409, recordOr404 } from './rulesets.repository.js';
 
 type Changes = Record<string, { before: JsonValue; after: JsonValue }>;
+
+/** Equal as JSON values (key order ignored, as JSONB stores them). */
+const sameJson = (a: unknown, b: unknown): boolean =>
+  canonicalJson((a ?? null) as JsonValue) === canonicalJson((b ?? null) as JsonValue);
 
 const plain = (cells: readonly WorkbookCell[]): JsonValue =>
   cells.map((c) => ({ col: c.col, text: c.text }));
@@ -53,6 +59,46 @@ function refFor(row: Pick<RecordRow, 'frame' | 'origin'>, cells: readonly Workbo
   const ref = referenceOf(file, row.frame, cells);
   if (ref === null) throw new BadInput('The reference column of the row is empty.');
   return ref;
+}
+
+/** Fields an edit sets as they are; their old and new values go into the audit entry. */
+const SCALAR_FIELDS = ['mapping', 'safety', 'workbookTag'] as const;
+
+/** New cells (and the reference they give) for an edit; records what changed. */
+function cellChanges(
+  v: VersionRow,
+  before: RecordRow,
+  input: readonly CellInput[],
+  data: Prisma.RulesetRecordUpdateInput,
+  changes: Changes,
+): WorkbookCell[] {
+  const cells = cellsFor(v, before, input);
+  const old = before.columns as unknown as WorkbookCell[];
+  if (JSON.stringify(plain(cells)) !== JSON.stringify(plain(old))) {
+    data.columns = cells as unknown as Prisma.InputJsonValue;
+    changes['cells'] = { before: plain(old), after: plain(cells) };
+  }
+  const sourceRef = before.frame === null ? before.sourceRef : refFor(before, cells);
+  if (sourceRef !== before.sourceRef) {
+    data.sourceRef = sourceRef;
+    changes['sourceRef'] = { before: before.sourceRef, after: sourceRef };
+  }
+  return cells;
+}
+
+/** Refuses a row the engine could not run as written, listing every problem (E-36). */
+async function assertRowValid(
+  tx: Tx,
+  versionId: string,
+  row: Pick<RecordRow, 'tab' | 'role' | 'frame' | 'mapping'> & {
+    readonly engine: JsonValue | undefined;
+    readonly columns: readonly WorkbookCell[];
+  },
+): Promise<void> {
+  const { catalogue } = await catalogueFor(tx, versionId);
+  const issues = rowIssues(row, catalogue);
+  if (issues.length > 0)
+    throw new BadInput('This row has problems; nothing was saved.', { issues });
 }
 
 /**
@@ -104,6 +150,12 @@ export class RulesetRecordsService {
           section: after.section,
           sourceRef,
         });
+      await assertRowValid(tx, v.id, {
+        ...after,
+        mapping: 'pending',
+        engine: null,
+        columns: cells,
+      });
       await tx.rulesetRecord.updateMany({
         where: { versionId: v.id, order: { gt: after.order } },
         data: { order: { increment: 1 } },
@@ -148,8 +200,9 @@ export class RulesetRecordsService {
     return this.inTx(async (tx) => {
       const v = await draftOr409(tx, label);
       const before = await recordOr404(tx, v.id, recordId);
-      const { data, changes } = this.changesFor(v, before, input);
+      const { data, changes, after } = this.changesFor(v, before, input);
       if (Object.keys(changes).length === 0) throw new BadInput('Nothing to change.');
+      await assertRowValid(tx, v.id, { ...before, ...after });
       const updated = await tx.rulesetRecord.update({
         where: { id: before.id },
         data: { ...data, changedById: actor.id, changedAt: new Date(), changeReason: input.reason },
@@ -175,35 +228,36 @@ export class RulesetRecordsService {
     v: VersionRow,
     before: RecordRow,
     input: EditRecordInput,
-  ): { data: Prisma.RulesetRecordUpdateInput; changes: Changes } {
+  ): {
+    data: Prisma.RulesetRecordUpdateInput;
+    changes: Changes;
+    after: {
+      mapping: RecordRow['mapping'];
+      engine: JsonValue | undefined;
+      columns: WorkbookCell[];
+    };
+  } {
     const data: Prisma.RulesetRecordUpdateInput = {};
     const changes: Changes = {};
-    if (input.cells) {
-      const cells = cellsFor(v, before, input.cells);
-      const sourceRef = before.frame === null ? before.sourceRef : refFor(before, cells);
-      const old = before.columns as unknown as WorkbookCell[];
-      if (JSON.stringify(plain(cells)) !== JSON.stringify(plain(old))) {
-        data.columns = cells as unknown as Prisma.InputJsonValue;
-        changes['cells'] = { before: plain(old), after: plain(cells) };
-      }
-      if (sourceRef !== before.sourceRef) {
-        data.sourceRef = sourceRef;
-        changes['sourceRef'] = { before: before.sourceRef, after: sourceRef };
-      }
+    const columns = input.cells
+      ? cellChanges(v, before, input.cells, data, changes)
+      : (before.columns as unknown as WorkbookCell[]);
+    for (const key of SCALAR_FIELDS) {
+      const next = input[key];
+      if (next === undefined || next === before[key]) continue;
+      Object.assign(data, { [key]: next });
+      changes[key] = { before: before[key], after: next };
     }
-    if (input.mapping !== undefined && input.mapping !== before.mapping) {
-      data.mapping = input.mapping;
-      changes['mapping'] = { before: before.mapping, after: input.mapping };
+    if (input.engine !== undefined && !sameJson(input.engine, before.engine)) {
+      data.engine = input.engine === null ? Prisma.DbNull : input.engine;
+      changes['engine'] = { before: before.engine ?? null, after: input.engine };
     }
-    if (input.safety !== undefined && input.safety !== before.safety) {
-      data.safety = input.safety;
-      changes['safety'] = { before: before.safety, after: input.safety };
-    }
-    if (input.workbookTag !== undefined && input.workbookTag !== before.workbookTag) {
-      data.workbookTag = input.workbookTag;
-      changes['workbookTag'] = { before: before.workbookTag, after: input.workbookTag };
-    }
-    return { data, changes };
+    const engine = input.engine === undefined ? before.engine : input.engine;
+    return {
+      data,
+      changes,
+      after: { mapping: input.mapping ?? before.mapping, engine: engine, columns },
+    };
   }
 
   setStatus(

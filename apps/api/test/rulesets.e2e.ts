@@ -17,7 +17,7 @@ interface Version {
   hash: string | null;
   basedOn: string | null;
   counts: { records: number; rules: number; safety: number; retired: number };
-  checks: { blocking: unknown[] } | null;
+  checks: { blocking: unknown[]; invalid: { sourceRef: string }[] } | null;
 }
 interface Row {
   recordId: string;
@@ -62,11 +62,14 @@ describe('rule store (engine v2)', () => {
   let rules: Row[];
 
   it('imports the workbook word for word into a draft', async () => {
-    const res = await api.req<{ version: Version; report: { totalRecords: number } }>(
-      'POST',
-      '/rulesets/import',
-      { token: admin, body: { files, workbookVersion: wb, notes: 'e2e' } },
-    );
+    const res = await api.req<{
+      version: Version;
+      report: { totalRecords: number };
+      additions: { catalogue: number };
+    }>('POST', '/rulesets/import', {
+      token: admin,
+      body: { files, workbookVersion: wb, notes: 'e2e' },
+    });
     expect(res.status).toBe(201);
     expect(res.body.version.label).toBe(first);
     expect(res.body.version.status).toBe('draft');
@@ -74,7 +77,10 @@ describe('rule store (engine v2)', () => {
     expect(res.body.report.totalRecords).toBe(expected.records.length);
 
     const v = await api.req<Version>('GET', `/rulesets/${first}`, { token: reader });
-    expect(v.body.counts.records).toBe(expected.records.length);
+    // The workbook's rows, plus the catalogue filled from them (E-36).
+    // 193 values read exactly from rows, 8 interpreted (setting classes and plans).
+    expect(res.body.additions.catalogue).toBe(201);
+    expect(v.body.counts.records).toBe(expected.records.length + 201);
     expect(v.body.counts.safety).toBeGreaterThan(5);
 
     const tab = await api.req<Items<Row>>('GET', `/rulesets/${first}/tabs/band_rules`, {
@@ -118,8 +124,15 @@ describe('rule store (engine v2)', () => {
       r.sourceRef,
       r.columns,
     ];
-    expect(readWorkbook(res.body.files).records.map(strip)).toEqual(
+    const exported = readWorkbook(res.body.files).records;
+    // The workbook's own tabs come back as they were uploaded...
+    expect(exported.filter((r) => r.tab !== 'catalogue').map(strip)).toEqual(
       readWorkbook(files).records.map(strip),
+    );
+    // ...and the added tables travel with them, so a re-import keeps them (E-36).
+    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(201);
+    expect(Object.keys(res.body.files)).toEqual(
+      expect.arrayContaining(['x-catalogue.csv', 'x-input-mappings.csv']),
     );
   });
 
@@ -184,6 +197,97 @@ describe('rule store (engine v2)', () => {
       body: { safety: false, reason: 'no change' },
     });
     expect(nothing.status).toBe(400);
+  });
+
+  it('checks engine columns on save and again before publishing', async () => {
+    const format = await api.req<{
+      format: number;
+      facts: { name: string }[];
+      domains: { domain: string; values: { code: string }[] }[];
+      schema: { $defs: Record<string, unknown> };
+    }>('GET', `/rulesets/${first}/format`, { token: reader });
+    expect(format.status).toBe(200);
+    expect(format.body.format).toBe(2);
+    expect(format.body.facts.map((f) => f.name)).toContain('peak.negative');
+    expect(format.body.domains.find((d) => d.domain === 'band')?.values.map((v) => v.code)).toEqual(
+      ['very_constrained', 'constrained', 'conditional', 'available'],
+    );
+    expect(format.body.schema.$defs['effect:band.lower']).toBeDefined();
+
+    const ex1 = rules.find((r) => r.sourceRef === 'EX-1');
+    if (!ex1) throw new Error('EX-1 missing');
+    const engine = {
+      stage: 'capacity_fit',
+      rules: [
+        {
+          when: {
+            any: [
+              { fact: 'peak.negative', op: 'gte', value: { band: 'high' } },
+              { fact: 'sensation.intensity', key: 'pain', op: 'gte', value: { band: 'high' } },
+              { fact: 'families', op: 'contains', value: 'shutdown_freeze_numb' },
+            ],
+          },
+          then: [{ kind: 'band.lower', steps: 1 }],
+        },
+      ],
+    };
+    const edit = (body: object) =>
+      api.req<{ issues?: { path: string; message: string }[] }>(
+        'PATCH',
+        `/rulesets/${first}/records/${ex1.recordId}`,
+        { token: admin, body: { reason: 'e2e engine columns', ...body } },
+      );
+    const missing = await edit({ mapping: 'exact', engine });
+    expect(missing.status).toBe(400);
+    expect(missing.body.issues).toEqual([
+      {
+        path: '/engine/rules/0/when/any/1/key',
+        message: 'the catalogue has no sensation_group values yet',
+      },
+    ]);
+    expect((await edit({ mapping: 'exact' })).status).toBe(400);
+
+    const catalogue = await api.req<Items<Row>>('GET', `/rulesets/${first}/tabs/catalogue`, {
+      token: reader,
+    });
+    const pain = await api.req<Row>('POST', `/rulesets/${first}/records`, {
+      token: admin,
+      body: {
+        after: catalogue.body.items[0]?.recordId,
+        cells: [
+          { col: 0, text: 'sensation_group' },
+          { col: 1, text: 'pain' },
+          { col: 2, text: 'Body pain' },
+        ],
+        reason: 'E-19 fill for EX-1',
+      },
+    });
+    expect(pain.status).toBe(201);
+    expect(pain.body.sourceRef).toBe('sensation_group · pain');
+    expect((await edit({ mapping: 'exact', engine })).status).toBe(200);
+
+    const rename = (code: string) =>
+      api.req('PATCH', `/rulesets/${first}/records/${pain.body.recordId}`, {
+        token: admin,
+        body: {
+          cells: [
+            { col: 0, text: 'sensation_group' },
+            { col: 1, text: code },
+            { col: 2, text: 'Body pain' },
+          ],
+          reason: 'e2e rename',
+        },
+      });
+    expect((await rename('body_pain')).status).toBe(200);
+    const submitted = await api.req<Version>('POST', `/rulesets/${first}/submit`, { token: admin });
+    expect(submitted.body.checks?.invalid.map((r) => r.sourceRef)).toEqual(['EX-1']);
+    const refused = await api.req<{ code: string }>('POST', `/rulesets/${first}/publish`, {
+      token: admin,
+    });
+    expect(refused.status).toBe(409);
+    expect(refused.body.code).toBe('ruleset_invalid');
+    await api.req('POST', `/rulesets/${first}/reopen`, { token: admin });
+    expect((await rename('pain')).status).toBe(200);
   });
 
   it('blocks publishing an exempt safety row until its gap is acknowledged', async () => {

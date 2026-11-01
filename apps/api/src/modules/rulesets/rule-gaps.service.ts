@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { JsonValue } from '@figcit/engine-v2';
 import { Prisma, type RuleDecision, type RuleGap } from '@prisma/client';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { BadInput, Conflict, NotFound } from '../../common/errors/errors.js';
@@ -22,7 +21,8 @@ export interface GapInput {
   readonly kind: GapKind;
   readonly detail: string;
   readonly recordIds: readonly string[];
-  readonly exampleInput?: JsonValue | undefined;
+  /** Standard input values that show the problem; stored as given (bounded at the boundary). */
+  readonly exampleInput?: unknown;
   readonly whileExempt?: string | undefined;
   readonly recommendation?: string | undefined;
   readonly decides: 'founder' | 'clinical_safety' | 'owner';

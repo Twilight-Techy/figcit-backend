@@ -1,3 +1,58 @@
+export {
+  CATALOGUE_HEADER,
+  catalogueOf,
+  cellText,
+  CODE_PATTERN,
+  INPUT_MAPPINGS_HEADER,
+  readCatalogueRow,
+  valuesOf,
+  type Catalogue,
+  type CatalogueRow,
+  type CatalogueValue,
+  type Issue,
+} from './format/catalogue.js';
+export {
+  describeFormat,
+  type DomainDescription,
+  type FormatDescription,
+} from './format/describe.js';
+export { engineJsonSchema } from './format/json-schema.js';
+export { rowIssues, VALUE_TABS, type CheckedRow } from './format/rows.js';
+export {
+  ACTIONS,
+  DOMAINS,
+  EFFECTS,
+  FACTS,
+  LAYERS,
+  LIMITS,
+  SLOTS,
+  STAGES,
+  type Action,
+  type Domain,
+  type EffectSpec,
+  type FactSpec,
+  type FactType,
+  type LayerKey,
+  type ParamSpec,
+  type StageKey,
+} from './format/registry.js';
+export {
+  CATALOGUE_FILE,
+  INPUT_MAPPINGS_FILE,
+  slug,
+  withAdditions,
+  type AdditionsReport,
+} from './format/seed.js';
+export type {
+  Comparison,
+  Condition,
+  ConditionValue,
+  Effect,
+  EngineColumns,
+  EngineRule,
+  Target,
+} from './format/types.js';
+export { COPY_KEY, MAPPED, opsFor, validateEngine, validateMapping } from './format/validate.js';
 export { canonicalJson, type JsonValue } from './ruleset/canonical.js';
 export { parseCsv } from './ruleset/csv.js';
 export { FILE_LAYOUTS, FILE_ORDER, type FileLayout, type TableSpec } from './ruleset/layout.js';

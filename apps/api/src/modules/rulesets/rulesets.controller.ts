@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import type { JsonValue } from '@figcit/engine-v2';
 import { z } from 'zod';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
@@ -261,6 +262,19 @@ export class RulesetsController {
     return this.rulesets.export(label);
   }
 
+  @Get(':label/format')
+  @Route({
+    summary:
+      'The rule format for this version: facts, effects, catalogue values and the JSON Schema of engine columns',
+    tags: TAGS,
+    access: 'staff',
+    roles: READ,
+    response: any,
+  })
+  format(@Param('label', new ZodPipe(labelParam)) label: string): Promise<unknown> {
+    return this.rulesets.format(label);
+  }
+
   @Post(':label/records')
   @Route({
     summary: 'Add a row to a draft, after an existing row of the same table',
@@ -297,7 +311,11 @@ export class RulesetsController {
     @Param('recordId', ParseUUIDPipe) recordId: string,
     @Body(new ZodPipe(editRecordBody)) body: z.infer<typeof editRecordBody>,
   ): Promise<RecordDto> {
-    return this.records.edit(actorOf(user), label, recordId, body);
+    // The package validates the engine columns in full (E-36); the boundary only bounds depth.
+    return this.records.edit(actorOf(user), label, recordId, {
+      ...body,
+      engine: body.engine as JsonValue | undefined,
+    });
   }
 
   @Post(':label/records/:recordId/retire')

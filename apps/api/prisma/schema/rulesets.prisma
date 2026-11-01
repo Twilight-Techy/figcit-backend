@@ -27,6 +27,7 @@ enum RuleMapping {
   exact
   interpreted
   unresolved
+  reference
 
   @@map("rule_mapping")
 }

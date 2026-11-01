@@ -1,4 +1,4 @@
-import { TAB_KEYS, type JsonValue } from '@figcit/engine-v2';
+import { MAPPING_STATUSES, TAB_KEYS } from '@figcit/engine-v2';
 import { z } from 'zod';
 import { GAP_KINDS } from './rule-gaps.service.js';
 
@@ -8,6 +8,27 @@ const reason = z.string().trim().min(3).max(500);
 const cell = z
   .object({ col: z.number().int().min(0).max(60), text: z.string().max(20_000) })
   .strict();
+
+/**
+ * Nesting depth of a JSON value, counted without recursion so a hostile body can't exhaust the
+ * stack. Stops counting at `max + 1`. O(n) in the value's size.
+ */
+export function withinDepth(value: unknown, max: number): boolean {
+  const stack: [unknown, number][] = [[value, 0]];
+  while (stack.length > 0) {
+    const [item, depth] = stack.pop() ?? [null, 0];
+    if (typeof item !== 'object' || item === null) continue;
+    if (depth >= max) return false;
+    for (const child of Object.values(item)) stack.push([child, depth + 1]);
+  }
+  return true;
+}
+
+// Engine columns are checked in full by @figcit/engine-v2 (E-36); here only their nesting is
+// bounded. Conditions nest at most 6 deep, so 32 leaves room for the wrapping objects.
+const engineValue = z
+  .unknown()
+  .refine((v) => withinDepth(v, 32), 'The engine columns are nested too deep.');
 
 export const importBody = z
   .object({
@@ -36,7 +57,8 @@ export const addRecordBody = z
 export const editRecordBody = z
   .object({
     cells: z.array(cell).min(1).max(60).optional(),
-    mapping: z.enum(['pending', 'unresolved']).optional(),
+    mapping: z.enum(MAPPING_STATUSES).optional(),
+    engine: engineValue.optional(),
     safety: z.boolean().optional(),
     workbookTag: z
       .string()
@@ -49,16 +71,8 @@ export const editRecordBody = z
 
 export const reasonBody = z.object({ reason }).strict();
 
-const json: z.ZodType<JsonValue> = z.lazy(() =>
-  z.union([
-    z.null(),
-    z.boolean(),
-    z.number(),
-    z.string().max(2_000),
-    z.array(json).max(50),
-    z.record(z.string().max(80), json),
-  ]),
-);
+// Kept as data; bounded so a hostile body can't exhaust the stack.
+const json = z.unknown().refine((v) => withinDepth(v, 16), 'Nested too deep.');
 
 export const gapBody = z
   .object({

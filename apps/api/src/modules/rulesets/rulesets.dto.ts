@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import type {
+  Issue,
+  JsonValue,
   MappingStatus,
   RecordOrigin,
   RulesetRecord,
@@ -77,10 +79,20 @@ export interface BlockingExemption {
   readonly reason: string;
 }
 
+/** A live row the engine could not run as written (E-36). */
+export interface InvalidRow {
+  readonly recordId: string;
+  readonly tab: string;
+  readonly sourceRef: string;
+  readonly issues: readonly Issue[];
+}
+
 export interface VersionChecks {
   readonly hash: string;
   readonly counts: VersionCounts;
   readonly blocking: readonly BlockingExemption[];
+  readonly invalid: readonly InvalidRow[];
+  readonly catalogueIssues: readonly Issue[];
 }
 
 export interface CellInput {
@@ -98,8 +110,9 @@ export interface AddRecordInput {
 
 export interface EditRecordInput {
   readonly cells?: readonly CellInput[] | undefined;
-  /** Only `pending` and `unresolved` (exempt) until the engine columns exist (M2). */
-  readonly mapping?: 'pending' | 'unresolved' | undefined;
+  readonly mapping?: MappingStatus | undefined;
+  /** Engine columns (DESIGN §4); null clears them. Checked against the version's catalogue. */
+  readonly engine?: JsonValue | undefined;
   readonly safety?: boolean | undefined;
   readonly workbookTag?: string | null | undefined;
   readonly reason: string;
@@ -178,6 +191,7 @@ export function countsOf(rows: readonly RecordRow[]): VersionCounts {
     exact: 0,
     interpreted: 0,
     unresolved: 0,
+    reference: 0,
   };
   let rules = 0;
   let safety = 0;

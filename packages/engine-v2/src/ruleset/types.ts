@@ -20,6 +20,9 @@ export const TAB_KEYS = [
   'journey_layers',
   'coverage_gaps',
   'examples',
+  // Added tables, not in the workbook (DESIGN §3.4): standard values and input mappings (E-19).
+  'catalogue',
+  'input_mappings',
 ] as const;
 export type TabKey = (typeof TAB_KEYS)[number];
 

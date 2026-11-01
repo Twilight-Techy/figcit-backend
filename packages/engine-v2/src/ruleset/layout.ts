@@ -18,6 +18,8 @@ export interface FileLayout {
   readonly noteTab: TabKey;
   /** Notes after the last table are rules that apply across all rows (Tab 7). */
   readonly footerTab?: TabKey;
+  /** An added table, not a workbook tab: optional in an upload (DESIGN §3.4). */
+  readonly addition?: true;
 }
 
 const rule = (tab: TabKey, refCols: readonly number[] = [0]): TableSpec => ({
@@ -104,6 +106,13 @@ export const FILE_LAYOUTS: Readonly<Record<string, FileLayout>> = {
   },
   '11-journey-inputs-outputs.csv': { tables: [rule('journey_layers')], noteTab: 'journey_layers' },
   '12-coverage-gaps-additions.csv': { tables: [rule('coverage_gaps')], noteTab: 'coverage_gaps' },
+  // Added tables (engine-v2 format); written by an export, read back on re-import.
+  'x-catalogue.csv': { tables: [rule('catalogue', [0, 1])], noteTab: 'catalogue', addition: true },
+  'x-input-mappings.csv': {
+    tables: [rule('input_mappings', [0, 1])],
+    noteTab: 'input_mappings',
+    addition: true,
+  },
 };
 
 export const FILE_ORDER: readonly string[] = Object.keys(FILE_LAYOUTS);

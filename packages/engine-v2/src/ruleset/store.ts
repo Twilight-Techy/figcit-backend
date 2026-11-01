@@ -12,15 +12,24 @@ import type {
 /**
  * Version of the rule set's structure (DESIGN §5 "format versions"). Raised when a new kind of
  * rule, effect or column is added, with a script that upgrades older rule sets.
+ * 2: engine columns, the catalogue and input mappings tables (E-36, E-37).
  */
-export const RULESET_FORMAT = 1;
+export const RULESET_FORMAT = 2;
 
 /**
  * How far a record's engine columns say what its workbook text says (DESIGN §3.3):
  * `pending` the engine columns are not written yet; `exact`; `interpreted` (the author must
- * confirm); `unresolved` (exempt: the engine does not run it and a gap records why, E-11).
+ * confirm); `unresolved` (exempt: the engine does not run it and a gap records why, E-11);
+ * `reference` the row states nothing the engine runs: a definition (its values are in the
+ * catalogue) or a description (E-37).
  */
-export const MAPPING_STATUSES = ['pending', 'exact', 'interpreted', 'unresolved'] as const;
+export const MAPPING_STATUSES = [
+  'pending',
+  'exact',
+  'interpreted',
+  'unresolved',
+  'reference',
+] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
 
 /** A retired record stays in the version (and its history) but is not run or exported. */

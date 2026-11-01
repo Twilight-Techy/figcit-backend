@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { rulesetDocument, type JsonValue, type SheetFrames } from '@figcit/engine-v2';
+import {
+  catalogueOf,
+  rowIssues,
+  rulesetDocument,
+  type JsonValue,
+  type SheetFrames,
+  type WorkbookCell,
+} from '@figcit/engine-v2';
 import { Prisma, type RulesetVersion } from '@prisma/client';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { AppError, BadInput, Conflict } from '../../common/errors/errors.js';
@@ -9,6 +16,7 @@ import {
   sha256,
   toRecord,
   type BlockingExemption,
+  type InvalidRow,
   type RecordRow,
   type VersionChecks,
   type VersionDetail,
@@ -52,6 +60,29 @@ async function blockingExemptions(
   return blocking;
 }
 
+/** Live rows the engine could not run as written, against the version's own catalogue (E-36). */
+function invalidRows(rows: readonly RecordRow[]): {
+  invalid: InvalidRow[];
+  catalogueIssues: VersionChecks['catalogueIssues'];
+} {
+  const live = rows
+    .filter((r) => r.status === 'active')
+    .map((r) => ({
+      ...r,
+      columns: r.columns as unknown as WorkbookCell[],
+      engine: r.engine,
+    }));
+  const { catalogue, issues } = catalogueOf(live);
+  const invalid: InvalidRow[] = [];
+  for (const r of live) {
+    if (r.tab === 'catalogue') continue; // reported once, in catalogueIssues
+    const found = rowIssues(r, catalogue);
+    if (found.length > 0)
+      invalid.push({ recordId: r.recordId, tab: r.tab, sourceRef: r.sourceRef, issues: found });
+  }
+  return { invalid, catalogueIssues: issues };
+}
+
 /**
  * Moves versions through draft → in review → published → retired (DESIGN §3.5). Submitting
  * freezes the hash of the canonical document; publishing re-checks it and refuses while an exempt
@@ -75,7 +106,12 @@ export class RulesetLifecycleService {
         records: rows.map(toRecord),
       }),
     );
-    return { hash, counts: countsOf(rows), blocking: await blockingExemptions(tx, rows) };
+    return {
+      hash,
+      counts: countsOf(rows),
+      blocking: await blockingExemptions(tx, rows),
+      ...invalidRows(rows),
+    };
   }
 
   async submit(actor: Actor, label: string): Promise<VersionDetail> {
@@ -155,6 +191,11 @@ export class RulesetLifecycleService {
         'The version changed after it was submitted. Reopen and submit it again.',
         'ruleset_hash_mismatch',
       );
+    if (checks.invalid.length > 0 || checks.catalogueIssues.length > 0)
+      throw new AppError(409, 'ruleset_invalid', 'Some rules cannot run as written', {
+        detail: `${String(checks.invalid.length)} row(s) and ${String(checks.catalogueIssues.length)} catalogue problem(s) must be fixed before this version can be published.`,
+        extra: { invalid: checks.invalid, catalogueIssues: checks.catalogueIssues },
+      });
     if (checks.blocking.length > 0)
       throw new AppError(409, 'safety_exemptions_open', 'Some safety rules still need sign-off', {
         detail: `${String(checks.blocking.length)} exempt safety row(s) need an acknowledged gap before this version can be published.`,

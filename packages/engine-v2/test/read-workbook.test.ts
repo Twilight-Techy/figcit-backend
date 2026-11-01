@@ -25,7 +25,7 @@ describe('reading the v3.3 workbook', () => {
   it('finds every tab file and nothing unexpected', () => {
     expect(result.report.missingFiles).toEqual([]);
     expect(result.report.unknownFiles).toEqual([]);
-    expect(result.report.files).toEqual(FILE_ORDER);
+    expect(result.report.files).toEqual(FILE_ORDER.filter((f) => !f.startsWith('x-')));
   });
 
   it('reads the rows of each rule tab', () => {
@@ -162,7 +162,9 @@ describe('reader pieces', () => {
       'extra.csv': 'x',
     });
     expect(odd.report.unknownFiles).toEqual(['extra.csv']);
-    expect(odd.report.missingFiles.length).toBe(FILE_ORDER.length - 1);
+    expect(odd.report.missingFiles.length).toBe(
+      FILE_ORDER.filter((f) => !f.startsWith('x-')).length - 1,
+    );
     expect(odd.records.map((r) => r.columns[0]?.text)).toEqual(['one', 'two, "quoted"\nline']);
   });
 

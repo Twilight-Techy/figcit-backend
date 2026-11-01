@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import {
   canonicalJson,
-  fromDraft,
+  describeFormat,
   readWorkbook,
   RULESET_FORMAT,
+  withAdditions,
   writeWorkbook,
+  type AdditionsReport,
+  type FormatDescription,
   type ImportReport,
-  type ReadResult,
+  type RulesetRecord,
   type SheetFrames,
 } from '@figcit/engine-v2';
 import type { Prisma } from '@prisma/client';
@@ -27,6 +30,7 @@ import {
 } from './rulesets.dto.js';
 import {
   assertNoOpenVersion,
+  catalogueFor,
   copyVersion,
   latestIds,
   nextRevision,
@@ -110,6 +114,16 @@ export class RulesetsService {
   }
 
   /**
+   * The rule format for this version (E-36): facts, effects, the catalogue's values and the JSON
+   * Schema of engine columns, so the staff app builds its editor from data, not code.
+   */
+  async format(label: string): Promise<FormatDescription & { label: string }> {
+    const v = await versionOr404(this.prisma, label);
+    const { catalogue, issues } = await catalogueFor(this.prisma, v.id);
+    return { label: v.label, ...describeFormat(catalogue, issues) };
+  }
+
+  /**
    * Reads the workbook tabs (CSV per file) into a new draft. A row keeps the database ID it had in
    * the latest version when its tab, section and reference match, so its history carries on.
    */
@@ -118,7 +132,7 @@ export class RulesetsService {
     files: Readonly<Record<string, string>>,
     workbookVersion: string,
     notes: string | undefined,
-  ): Promise<{ version: VersionSummary; report: ImportReport }> {
+  ): Promise<{ version: VersionSummary; report: ImportReport; additions: AdditionsReport }> {
     const read = readWorkbook(files);
     const { missingFiles, unknownFiles } = read.report;
     if (missingFiles.length > 0 || unknownFiles.length > 0)
@@ -127,6 +141,7 @@ export class RulesetsService {
         unknownFiles,
       });
     const sourceHash = sha256(canonicalJson(files));
+    const full = withAdditions(read);
     const created = await this.prisma.$transaction(async (tx) => {
       await assertNoOpenVersion(tx);
       const latest = await latestIds(tx);
@@ -138,37 +153,45 @@ export class RulesetsService {
           revision,
           format: RULESET_FORMAT,
           basedOnId: latest.id,
-          frames: read.frames as unknown as Prisma.InputJsonValue,
-          importReport: read.report as unknown as Prisma.InputJsonValue,
+          frames: full.frames as unknown as Prisma.InputJsonValue,
+          importReport: {
+            ...read.report,
+            additions: full.additions,
+          } as unknown as Prisma.InputJsonValue,
           sourceHash,
           notes: notes ?? null,
           createdById: actor.id,
         },
         include: { basedOn: { select: { label: true } } },
       });
-      const keptIds = await this.insertRead(tx, actor, version.id, read, latest.ids);
+      const keptIds = await this.insertRecords(tx, actor, version.id, full.records, latest.ids);
       await this.audit.append(tx, actor, {
         action: 'ruleset.import',
         versionId: version.id,
-        detail: { label: version.label, sourceHash, records: read.records.length, keptIds },
+        detail: {
+          label: version.label,
+          sourceHash,
+          records: full.records.length,
+          seeded: full.additions.catalogue,
+          keptIds,
+        },
       });
       return version;
     }, LONG);
-    return { version: toSummary(created), report: read.report };
+    return { version: toSummary(created), report: read.report, additions: full.additions };
   }
 
-  /** Inserts what the reader found; returns how many rows kept an earlier rule ID. */
-  private async insertRead(
+  /** Inserts the imported rows; returns how many kept an earlier rule ID. */
+  private async insertRecords(
     tx: Tx,
     actor: Actor,
     versionId: string,
-    read: ReadResult,
+    records: readonly RulesetRecord[],
     known: ReadonlyMap<string, string>,
   ): Promise<number> {
     let kept = 0;
     await tx.rulesetRecord.createMany({
-      data: read.records.map((draft) => {
-        const r = fromDraft(draft);
+      data: records.map((r) => {
         const recordId = known.get(refKey(r));
         if (recordId) kept += 1;
         return {

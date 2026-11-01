@@ -19681,6 +19681,58 @@
         ]
       }
     },
+    "/v1/rulesets/{label}/format": {
+      "get": {
+        "operationId": "Rulesets_format",
+        "summary": "The rule format for this version: facts, effects, catalogue values and the JSON Schema of engine columns",
+        "tags": [
+          "Rule store (engine v2)"
+        ],
+        "parameters": [
+          {
+            "name": "label",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": null
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "clinical_admin",
+          "admin",
+          "safety_reviewer",
+          "content_editor"
+        ]
+      }
+    },
     "/v1/rulesets/{label}/publish": {
       "post": {
         "operationId": "Rulesets_publish",
@@ -19905,9 +19957,13 @@
                     "type": "string",
                     "enum": [
                       "pending",
-                      "unresolved"
+                      "exact",
+                      "interpreted",
+                      "unresolved",
+                      "reference"
                     ]
                   },
+                  "engine": {},
                   "safety": {
                     "type": "boolean"
                   },
@@ -20876,9 +20932,7 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
                   },
-                  "exampleInput": {
-                    "$ref": "#/$defs/__schema0"
-                  },
+                  "exampleInput": {},
                   "whileExempt": {
                     "type": "string",
                     "maxLength": 2000
@@ -20907,43 +20961,7 @@
                   "recordIds",
                   "decides"
                 ],
-                "additionalProperties": false,
-                "$defs": {
-                  "__schema0": {
-                    "anyOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "string",
-                        "maxLength": 2000
-                      },
-                      {
-                        "maxItems": 50,
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/$defs/__schema0"
-                        }
-                      },
-                      {
-                        "type": "object",
-                        "propertyNames": {
-                          "type": "string",
-                          "maxLength": 80
-                        },
-                        "additionalProperties": {
-                          "$ref": "#/$defs/__schema0"
-                        }
-                      }
-                    ]
-                  }
-                }
+                "additionalProperties": false
               },
               "example": {
                 "title": "Example title",

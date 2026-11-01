@@ -118,6 +118,8 @@ The engine needs some things the workbook doesn't state, such as the order betwe
 
 ## 4. How the rules are written for the engine
 
+- **Built (M2):** the exact format, operators, effects and the catalogue are in `DECISION_LOG.md` E-36 and E-37; the code is `packages/engine-v2/src/format`. Thresholds are the catalogue's intensity bands. Where this section and those entries differ, the entries win.
+
 The structured columns use one small, strict format so the dashboard can validate, display and edit them. It follows the workbook's own vocabulary: cell, band, light, family, intensity band, sensation, context, sensitivity flag, need, demand characteristic, timeline code, driver, pathway, tool. The author should recognise every word.
 
 ### 4.1 Facts

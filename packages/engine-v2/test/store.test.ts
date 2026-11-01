@@ -7,6 +7,7 @@ import {
   initialSafety,
   readWorkbook,
   referenceOf,
+  RULESET_FORMAT,
   rulesetDocument,
   tableSpec,
   toCsv,
@@ -101,7 +102,7 @@ describe('rule set versions', () => {
   it('hashes the same content the same way, whatever the record order given', () => {
     const doc = rulesetDocument(content);
     expect(rulesetDocument({ ...content, records: [...records].reverse() })).toBe(doc);
-    expect(doc.startsWith('{"format":1,')).toBe(true);
+    expect(doc.startsWith(`{"format":${String(RULESET_FORMAT)},`)).toBe(true);
   });
 
   it('changes when any cell changes', () => {

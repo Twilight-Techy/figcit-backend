@@ -228,7 +228,7 @@ function buildReport(out: Collector, given: readonly string[]): ImportReport {
   const expected = new Set(FILE_ORDER);
   return {
     files: FILE_ORDER.filter((f) => given.includes(f)),
-    missingFiles: FILE_ORDER.filter((f) => !given.includes(f)),
+    missingFiles: FILE_ORDER.filter((f) => !given.includes(f) && !FILE_LAYOUTS[f]?.addition),
     unknownFiles: given.filter((f) => !expected.has(f)),
     totalRecords: out.records.length,
     byTab,

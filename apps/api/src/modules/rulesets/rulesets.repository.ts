@@ -1,3 +1,4 @@
+import { catalogueOf, type Catalogue, type Issue, type WorkbookCell } from '@figcit/engine-v2';
 import { Prisma, type RulesetVersion } from '@prisma/client';
 import type { Tx } from '../../common/db/prisma.service.js';
 import { Conflict, NotFound } from '../../common/errors/errors.js';
@@ -124,4 +125,17 @@ export async function copyVersion(
     })),
   });
   return version;
+}
+
+/** A version's catalogue, read from its live catalogue rows (E-36). */
+export async function catalogueFor(
+  tx: Tx,
+  versionId: string,
+): Promise<{ catalogue: Catalogue; issues: Issue[] }> {
+  const rows = await tx.rulesetRecord.findMany({
+    where: { versionId, tab: 'catalogue' },
+    orderBy: { order: 'asc' },
+    select: { tab: true, status: true, frame: true, columns: true },
+  });
+  return catalogueOf(rows.map((r) => ({ ...r, columns: r.columns as unknown as WorkbookCell[] })));
 }
