@@ -20,8 +20,17 @@ const { values, positionals } = parseArgs({
 });
 const engine = positionals[0];
 const TIMEOUT_MS = Number(process.env['EVAL_TIMEOUT_MS'] ?? 300_000);
+// Google's recommended speech-to-text prompt for Gemma's audio input, plus the no-speech case.
 const PROMPT =
-  'Transcribe the speech in this audio word for word, in English. Reply with the transcript only. If there is no speech, reply with nothing.';
+  'Transcribe the following speech segment in English into English text. Only output the transcription. If there is no speech, the transcript is empty.';
+// Without a schema Gemma 4 wraps the words in commentary ("The user wants me to transcribe…"), so
+// the transcript is asked for as JSON, like every other AI task.
+const TRANSCRIPT = {
+  type: 'object',
+  properties: { transcript: { type: 'string' } },
+  required: ['transcript'],
+  additionalProperties: false,
+};
 
 async function whisper(wav: Buffer): Promise<string> {
   const base = (process.env['WHISPER_URL'] ?? '').replace(/\/$/, '');
@@ -57,6 +66,10 @@ async function gemma(wav: Buffer): Promise<string> {
       ],
       temperature: 0,
       max_tokens: 200,
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: 'transcript', schema: TRANSCRIPT },
+      },
       chat_template_kwargs: { enable_thinking: false },
     }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -64,7 +77,12 @@ async function gemma(wav: Buffer): Promise<string> {
   if (!res.ok)
     throw new Error(`model server ${String(res.status)}: ${(await res.text()).slice(0, 200)}`);
   const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  return json.choices?.[0]?.message?.content ?? '';
+  const content = json.choices?.[0]?.message?.content ?? '';
+  try {
+    return (JSON.parse(content) as { transcript?: string }).transcript ?? '';
+  } catch {
+    return content;
+  }
 }
 
 async function transcribe(clip: Clip): Promise<ClipResult> {
