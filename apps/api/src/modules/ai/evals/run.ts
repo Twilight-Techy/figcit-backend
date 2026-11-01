@@ -39,7 +39,7 @@ const { values, positionals } = parseArgs({
 const env = {
   AI_BASE_URL: process.env['AI_BASE_URL'] || undefined,
   AI_TOKEN: process.env['AI_TOKEN'] || undefined,
-  AI_MODEL: process.env['AI_MODEL'] || 'qwen3.5-4b-instruct-q4_k_m',
+  AI_MODEL: process.env['AI_MODEL'] || 'ministral-3-3b-instruct-q4_k_m',
 } as Env;
 /** A slow CPU still gets an answer to score; speed is judged against the task's own timeout. */
 const EVAL_TIMEOUT_MS = Number(process.env['EVAL_TIMEOUT_MS'] ?? 120_000);

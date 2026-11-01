@@ -1,6 +1,6 @@
 # 0001: AI model per task
 
-**Status:** Accepted, 1 November 2026, by Twilight-Techy (tech lead; D-38's owner), from the
+**Status:** Superseded in part by ADR 0003, which replaces the language model with Ministral 3 3B after runs on server-sized hardware. The evaluation below stands. Accepted 1 November 2026, by Twilight-Techy (tech lead; D-38's owner), from the
 eval runs below. Issue #40. The timeouts are still to be set on the AI server (#32). Speech is in
 ADR 0002.
 

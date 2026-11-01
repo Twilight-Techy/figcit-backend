@@ -206,7 +206,7 @@ export const suggestDrivers: JsonTask<DriversInput, DriversOutput> = {
   maxChars: 200,
   temperature: 0.2,
   maxTokens: 100,
-  timeoutMs: 8000,
+  timeoutMs: 4000,
   clean: (o) => ({
     drivers: distinct(o.drivers),
     demandCharacteristics: distinct(o.demandCharacteristics),
@@ -246,7 +246,7 @@ export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
   maxChars: 200,
   temperature: 0.4,
   maxTokens: 300,
-  timeoutMs: 20_000,
+  timeoutMs: 16_000,
   check: (o) =>
     o.steps.every(
       (s) => !BLAME.test(s.text) && !hasBanned(s.text) && !/\band then\b/i.test(s.text),
