@@ -41,10 +41,10 @@ export async function createApp(
   });
   const fastify = app.getHttpAdapter().getInstance();
 
-  // The workbook upload is the one JSON body allowed to be large (staff only).
+  // The workbook uploads are the JSON bodies allowed to be large (staff only).
+  const workbookRoutes = new Set(['/v1/admin/snapshots', '/v1/rulesets/import']);
   fastify.addHook('onRoute', (route) => {
-    if (route.url === '/v1/admin/snapshots' && route.method === 'POST')
-      route.bodyLimit = WORKBOOK_LIMIT;
+    if (workbookRoutes.has(route.url) && route.method === 'POST') route.bodyLimit = WORKBOOK_LIMIT;
   });
 
   // Raw bodies for local-storage uploads (any content type), with their own size limit.

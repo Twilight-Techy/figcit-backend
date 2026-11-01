@@ -72,6 +72,9 @@ importers:
       '@figcit/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@figcit/engine-v2':
+        specifier: workspace:*
+        version: link:../../packages/engine-v2
       '@figcit/rules-compiler':
         specifier: workspace:*
         version: link:../../packages/rules-compiler

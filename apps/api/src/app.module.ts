@@ -27,6 +27,7 @@ import { ProgressModule } from './modules/progress/progress.module.js';
 import { RecommendationModule } from './modules/recommendation/recommendation.module.js';
 import { ReflectModule } from './modules/reflect/reflect.module.js';
 import { RulesModule } from './modules/rules/rules.module.js';
+import { RulesetsModule } from './modules/rulesets/rulesets.module.js';
 import { SafetyModule } from './modules/safety/safety.module.js';
 import { SessionsModule } from './modules/sessions/sessions.module.js';
 import { SharesModule } from './modules/shares/shares.module.js';
@@ -76,6 +77,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     RecommendationModule,
     ReflectModule,
     RulesModule,
+    RulesetsModule,
     SafetyModule,
     SessionsModule,
     SharesModule,

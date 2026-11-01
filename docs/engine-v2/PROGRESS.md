@@ -3,12 +3,17 @@
 The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick items as they land. Branch: `engine-v2/rules-redesign`. Ships as one piece and merges to `main` after final testing and refinement (E-08).
 
 ## M1 Rule store
-- [x] Workbook reader: every tab read word for word into records with references, sheet rows and cell ranges; import report (`packages/engine-v2/src/ruleset`, 15 tests against the real workbook)
-- [ ] Prisma models and migration: rule set versions, records, gaps, decisions, audit
-- [ ] Import into a draft version (CSV tabs now, `.xlsx` later); canonical JSON and SHA-256 hash
-- [ ] Version lifecycle: draft, in review, published, retired; rollback by publishing an older one
-- [ ] Record add, edit and retire in a draft; history per record; audit log
-- [ ] Gap and exemption register; export back to a workbook layout
+- [x] Workbook reader: every tab read word for word into records with references, sheet rows and cell ranges; import report (`packages/engine-v2/src/ruleset`, tests against the real workbook)
+- [x] Reader keeps cell columns and table frames; writer puts a version back into the workbook's tabs; round trip tested on the real workbook (E-28)
+- [x] Canonical JSON (RFC 8785) and the version document that is hashed (E-26)
+- [x] Prisma models and migration: versions, rows, gaps, decisions, hash-chained audit log; database guards (`apps/api/prisma/schema/rulesets.prisma`)
+- [x] Import into a draft version (CSV tabs), keeping rule IDs across re-imports; SHA-256 hash on submit (`apps/api/src/modules/rulesets`)
+- [x] Version lifecycle: draft, in review, published, retired, discarded; rollback by publishing a copy
+- [x] Row add, edit, retire and restore in a draft; history per rule; audit log with chain check
+- [x] Gap and decision registers; exempt safety rows block publishing until their gap is acknowledged (E-21)
+- [x] Export back to the workbook layout (CSV per tab)
+- [ ] `.xlsx` import and export with shaded engine columns (T-06)
+- [ ] Published version bundle in object storage, named by hash (T-07)
 
 ## M2 Rule format
 - [ ] Facts, conditions, effects (`DESIGN.md` §4) as types and zod schemas, with validation on save

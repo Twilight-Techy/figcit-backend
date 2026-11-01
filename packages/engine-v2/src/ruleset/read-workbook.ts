@@ -7,6 +7,7 @@ import type {
   RuleRecordDraft,
   TabCount,
   TabKey,
+  TableFrame,
   WorkbookCell,
 } from './types.js';
 
@@ -31,9 +32,16 @@ export function cellsOf(header: readonly string[], row: readonly string[]): Work
   for (let i = 0; i < width; i += 1) {
     const head = header[i] ?? '';
     const text = row[i] ?? '';
-    if (head !== '' || text !== '') out.push({ header: head, text });
+    if (head !== '' || text !== '') out.push({ header: head, text, col: i });
   }
   return out;
+}
+
+/** The cells up to the last filled one; the sheet export pads every row to the widest. */
+export function trimEnd(cells: readonly string[]): string[] {
+  let last = cells.length - 1;
+  while (last >= 0 && (cells[last] ?? '') === '') last -= 1;
+  return cells.slice(0, last + 1);
 }
 
 function rangeOf(row: SheetRow): string {
@@ -73,6 +81,7 @@ class Collector {
   readonly unmapped: string[] = [];
   readonly duplicates: string[] = [];
   readonly refNotes: string[] = [];
+  readonly frames = new Map<string, TableFrame[]>();
   private readonly seen = new Map<string, number>();
   private order = 0;
 
@@ -91,8 +100,22 @@ class Collector {
     return `${ref} #${String(n)}`;
   }
 
-  addRow(args: { file: string; spec: TableSpec; table: TableBlock; row: SheetRow }): void {
-    const { file, spec, table, row } = args;
+  /** Registers a table's frame and returns its index within the file. */
+  addFrame(file: string, table: TableBlock): number {
+    const list = this.frames.get(file) ?? [];
+    list.push({ header: trimEnd(table.header), banner: table.banner.map((b) => trimEnd(b.cells)) });
+    this.frames.set(file, list);
+    return list.length - 1;
+  }
+
+  addRow(args: {
+    file: string;
+    spec: TableSpec;
+    table: TableBlock;
+    row: SheetRow;
+    frame: number;
+  }): void {
+    const { file, spec, table, row, frame } = args;
     const section = table.heading === null ? null : table.heading.slice(0, MAX_TITLE);
     const { ref, note } = referenceFor(spec, row, file);
     if (note !== undefined) this.refNotes.push(note);
@@ -107,17 +130,13 @@ class Collector {
       order: this.order,
       columns: cellsOf(table.header, row.cells),
       origin: { file, sheetRow: row.sheetRow, range: rangeOf(row) },
+      frame,
     });
   }
 
-  addNote(args: {
-    file: string;
-    tab: TabKey;
-    text: string;
-    sheetRow: number;
-    role: 'note' | 'rule';
-  }): void {
-    const { file, tab, text, sheetRow, role } = args;
+  addNote(args: { file: string; tab: TabKey; note: NoteBlock; role: 'note' | 'rule' }): void {
+    const { file, tab, note, role } = args;
+    const { text, sheetRow, col } = note;
     const n = (this.counts.get(tab)?.notes ?? 0) + 1;
     this.count(tab, 'notes');
     this.order += 1;
@@ -127,8 +146,13 @@ class Collector {
       section: null,
       sourceRef: `${tab} · note ${String(n)}`,
       order: this.order,
-      columns: [{ header: 'note', text }],
-      origin: { file, sheetRow, range: `A${String(sheetRow)}:A${String(sheetRow)}` },
+      columns: [{ header: 'note', text, col }],
+      origin: {
+        file,
+        sheetRow,
+        range: `${columnLetter(col)}${String(sheetRow)}:${columnLetter(col)}${String(sheetRow)}`,
+      },
+      frame: null,
     });
   }
 }
@@ -171,7 +195,8 @@ function readTable(state: FileState, table: TableBlock, tab: TabKey): void {
     state.out.unmapped.push(`${state.file} table ${String(state.tableIndex + 1)}: ${heading}`);
   }
   state.tableIndex += 1;
-  for (const row of table.rows) state.out.addRow({ file: state.file, spec, table, row });
+  const frame = state.out.addFrame(state.file, table);
+  for (const row of table.rows) state.out.addRow({ file: state.file, spec, table, row, frame });
 }
 
 function readNote(state: FileState, note: NoteBlock, tab: TabKey, isFooter: boolean): void {
@@ -179,10 +204,10 @@ function readNote(state: FileState, note: NoteBlock, tab: TabKey, isFooter: bool
   if (isFooter && layout.footerTab) {
     state.footer += 1;
     const role = state.footer === 1 ? 'note' : 'rule';
-    out.addNote({ file, tab: layout.footerTab, text: note.text, sheetRow: note.sheetRow, role });
+    out.addNote({ file, tab: layout.footerTab, note, role });
     return;
   }
-  out.addNote({ file, tab, text: note.text, sheetRow: note.sheetRow, role: 'note' });
+  out.addNote({ file, tab, note, role: 'note' });
 }
 
 function readFile(file: string, layout: FileLayout, text: string, out: Collector): void {
@@ -225,5 +250,7 @@ export function readWorkbook(files: Readonly<Record<string, string>>): ReadResul
     const layout = FILE_LAYOUTS[file];
     if (text !== undefined && layout) readFile(file, layout, text, out);
   }
-  return { records: out.records, report: buildReport(out, given) };
+  const frames: Record<string, readonly TableFrame[]> = {};
+  for (const [file, list] of out.frames) frames[file] = list;
+  return { records: out.records, frames, report: buildReport(out, given) };
 }

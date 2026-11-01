@@ -154,6 +154,49 @@ Recorded so a reviewer can see what the reader does with the spreadsheet (`packa
 - **Not imported:** the workbook's "Sheet1" scratch tab (ADR 0001). It isn't in the CSV set.
 - **Revert:** n/a (it is how the reader works; the layout table is `layout.ts`).
 
+### E-25 Which rows start as `safety` on import (interpreted)
+- **Decision:** on first import these rule rows are marked `safety`: Tab 2 "Immediate risk language"; Tab 7 pattern 28; Tab 10 SF-1, SF-2 and RC-5; the Tab 10 "Very Constrained" (Red) band row; Tab 8 step "0. Safety screen"; every row of Tab 6d section A (it holds the safety floor column); every Tab 7 non-negotiable. Nothing else, and never an example or note row.
+- **Why:** the workbook marks no rows as safety. These are the rows that decide risk handling, the Red band, the safety floor or the rules that hold across every pattern. Marking them makes the publish gate (E-21) and later Clinical Safety approval (T-01) apply to them.
+- **Who confirms:** the Clinical Safety lead, row by row; the flag can be changed in the editor (audited, with a reason). Listed with O-11.
+- **Where:** `initialSafety` in `packages/engine-v2/src/ruleset/store.ts`.
+- **Revert:** change the list; existing versions keep their flags.
+
+### E-26 How versions are stored
+- **Decision:**
+  - Each version holds **its own copy of every row**. A rule's database ID (`recordId`, E-07) is the same in every version; the row's own ID differs per version. History of a rule is the rows with its `recordId`.
+  - **Re-import keeps IDs:** a row keeps the ID it had in the latest version when its tab, section and reference match. A renamed reference gets a new ID (the history link is lost for that row; the audit log still shows both).
+  - **Hash:** SHA-256 of the canonical JSON (RFC 8785) of the format number, workbook version, table frames and every row's content (cells, engine columns, mapping, status, safety, tag, origin). Database IDs, labels, who and when are left out, so equal rules give an equal hash.
+  - **One open version at a time** (a draft or a version in review), and one published.
+  - **Rollback** publishes a **copy** of the older version under a new label (e.g. `3.3-r3`); its hash must equal the original's. The history of what was live when stays a straight line.
+  - **Database guards:** triggers refuse any change to rows of a version that is not a draft, any change to a published version other than retiring it, any change to retired or discarded versions, and deleting anything but a draft. The rule store audit log is append-only.
+  - **Audit log:** its own table (`ruleset_audit_events`), hash-chained: each entry's hash covers the previous hash and the entry. `GET /v1/rulesets/audit/verify` re-checks the chain.
+- **Why:** DESIGN §3.5 and §7; single-row edits (E-12) need rows, not one big document; copying a few hundred rows per version is cheap.
+- **Dropped:** storing only changed rows per version (saves space, but makes every read a merge across versions).
+- **Revert:** n/a (storage design); the hash does not depend on it.
+
+### E-27 API paths are `/v1/rulesets/...`
+- **Decision:** the staff rule store API is at `/v1/rulesets` (`DESIGN.md` §10 wrote `/v2/rulesets`). The app has one global prefix, `v1`, which is the **API** version; "v2" is the **engine** version. The public recommendation route for engine v2 will be named when M5 is built.
+- **Why:** `/v1/v2/...` would be confusing; the API itself has not changed version.
+- **Revert:** add a second global prefix or a route alias.
+
+### E-28 Export is CSV per tab for now; `.xlsx` later
+- **Decision:** `GET /v1/rulesets/{label}/export` writes a version's live rows back into the workbook's tabs as CSV, one file per tab, laid out like the sheet (the same tables, headers, grouping rows and notes, in the same order). Reading the export gives the same records again (tested on the real workbook). For this the reader now keeps each cell's column and each table's header and grouping rows (`TableFrame`).
+- **Not yet:** `.xlsx` import and export with the engine columns shaded to the right, which needs a spreadsheet library under the dependency rules (`TODO.md` T-06). Uploading a workbook today means uploading its tabs as CSV, as the existing snapshot upload does.
+- **Revert:** n/a.
+
+### E-29 The engine columns can't be edited yet
+- **Decision:** until the rule format exists (M2), the editor accepts the workbook cells, `safety`, the workbook version tag and the mapping status `pending` or `unresolved` (exempt). It does not accept engine columns or `exact` / `interpreted`.
+- **Why:** an engine column saved before its format exists could not be validated, and would be wrong data the day the format lands.
+- **Revert:** n/a (lifted by M2).
+
+### E-30 Gaps are acknowledged by the clinical admin for now
+- **Decision:** with one clinical admin role (E-20), that role acknowledges and resolves gaps, including safety gaps. A resolved gap stays resolved; a new gap is recorded instead. An acknowledged gap can be reopened.
+- **Why:** E-20.
+- **Pre-merge:** safety gaps acknowledged only by the Clinical Safety lead (`TODO.md` T-01).
+
+### E-23 addition (1 Nov 2026)
+Rule set versions also keep their table frames, import report and checks as JSONB. Same reason as the rows: they are part of the version, read whole, never filtered on.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
@@ -168,6 +211,8 @@ Recorded so a reviewer can see what the reader does with the spreadsheet (`packa
 | Shadow run on live check-ins; v1-against-v2 comparison as the merge test | Claude, 1 Nov | Dropped | E-18 | E-18 |
 | Editor role, Product Owner approval, Clinical Safety co-approval, no self-approval | `OWNER_DISCUSSION.md` O-07 | Deferred (one clinical admin for now) | E-20 | E-20, `TODO.md` |
 | Waiting for the founder's input-gap session before building | `DESIGN.md` §12 step 1 | Dropped | E-19 | E-19 |
+| `/v2/...` API paths | `DESIGN.md` §10 | Changed to `/v1/rulesets/...` | E-27 | E-27 |
+| Storing only changed rows per version | Claude, 1 Nov | Dropped | E-26 | E-26 |
 
 ## Open points that came out of this conversation
 

@@ -265,6 +265,7 @@ A separate staff app, with the existing staff sign-in, roles and MFA. Every acti
 
 ## 10. API (outline)
 
+- **Paths changed (E-27):** the staff routes below are built at `/v1/rulesets/...`; the recommendation route is named in M5.
 - `POST /v2/recommendations`: input values → card + trace summary + versions. Works with or without an account (E-02).
 - `POST /v2/recommendations/{id}/replay`: staff only; re-runs and compares.
 - `GET /v2/rulesets`, `GET /v2/rulesets/{version}`, `GET /v2/rulesets/{version}/tabs/{tab}`: staff only.

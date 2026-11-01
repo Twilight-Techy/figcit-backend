@@ -151,8 +151,8 @@ describe('reader pieces', () => {
 
   it('keeps unlabelled cells only when they hold text', () => {
     expect(cellsOf(['A', '', ''], ['1', '', 'x'])).toEqual([
-      { header: 'A', text: '1' },
-      { header: '', text: 'x' },
+      { header: 'A', text: '1', col: 0 },
+      { header: '', text: 'x', col: 2 },
     ]);
   });
 

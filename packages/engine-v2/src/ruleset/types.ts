@@ -35,6 +35,8 @@ export type RecordRole = (typeof RECORD_ROLES)[number];
 export interface WorkbookCell {
   readonly header: string;
   readonly text: string;
+  /** 0-based column in the sheet (A = 0), so an export puts the cell back where it was. */
+  readonly col: number;
 }
 
 /** Where a record came from, so it can be traced back to the sheet. */
@@ -58,7 +60,24 @@ export interface RuleRecordDraft {
   readonly order: number;
   readonly columns: readonly WorkbookCell[];
   readonly origin: RecordOrigin;
+  /**
+   * Which table of the sheet file the row belongs to (0-based, the index into `frames[file]`),
+   * or null for a note.
+   */
+  readonly frame: number | null;
 }
+
+/**
+ * A table's frame: the rows that give it shape but are not records (the header, and the grouping
+ * rows above it on Tabs 0 and 0b). Kept so an export reproduces the sheet.
+ */
+export interface TableFrame {
+  readonly header: readonly string[];
+  readonly banner: readonly (readonly string[])[];
+}
+
+/** Table frames per sheet file, in the order the tables appear. */
+export type SheetFrames = Readonly<Record<string, readonly TableFrame[]>>;
 
 export interface TabCount {
   readonly rows: number;
@@ -82,5 +101,6 @@ export interface ImportReport {
 
 export interface ReadResult {
   readonly records: readonly RuleRecordDraft[];
+  readonly frames: SheetFrames;
   readonly report: ImportReport;
 }

@@ -1,0 +1,194 @@
+// Engine v2 rule store (docs/engine-v2/DESIGN.md §3, DECISION_LOG E-06, E-07, E-12, E-25).
+// The rule set mirrors the workbook: one record per sheet row, word for word, plus the engine's
+// columns. A version is a frozen copy of every record; published versions can't change
+// (triggers in the migration). Rolling back publishes a copy of an older version.
+
+enum RulesetStatus {
+  draft
+  in_review
+  published
+  retired
+  discarded
+
+  @@map("ruleset_status")
+}
+
+enum RuleRole {
+  rule
+  example
+  reference
+  note
+
+  @@map("rule_role")
+}
+
+enum RuleMapping {
+  pending
+  exact
+  interpreted
+  unresolved
+
+  @@map("rule_mapping")
+}
+
+enum RuleRecordStatus {
+  active
+  retired
+
+  @@map("rule_record_status")
+}
+
+enum RuleGapStatus {
+  open
+  acknowledged
+  resolved
+
+  @@map("rule_gap_status")
+}
+
+enum RuleGapOwner {
+  founder
+  clinical_safety
+  owner
+
+  @@map("rule_gap_owner")
+}
+
+// One version of the whole rule set. Label: workbook version + revision, e.g. 3.3-r2.
+model RulesetVersion {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  label           String        @unique @db.VarChar(32)
+  workbookVersion String        @map("workbook_version") @db.VarChar(16)
+  revision        Int
+  format          Int // RULESET_FORMAT of @figcit/engine-v2
+  status          RulesetStatus @default(draft)
+  basedOnId       String?       @map("based_on_id") @db.Uuid
+  // SHA-256 of the canonical document (RFC 8785); set on submit, fixed once published.
+  hash            String?       @db.Char(64)
+  // Table frames (headers, grouping rows) so an export reproduces the sheets.
+  frames          Json
+  importReport    Json?         @map("import_report")
+  // SHA-256 of the canonical JSON of the uploaded files, when the version came from an import.
+  sourceHash      String?       @map("source_hash") @db.Char(64)
+  // Checks run on submit: counts, blocking safety exemptions.
+  checks          Json?
+  notes           String?       @db.VarChar(500)
+  createdById     String?       @map("created_by_id") @db.Uuid
+  submittedById   String?       @map("submitted_by_id") @db.Uuid
+  submittedAt     DateTime?     @map("submitted_at") @db.Timestamptz(3)
+  publishedById   String?       @map("published_by_id") @db.Uuid
+  publishedAt     DateTime?     @map("published_at") @db.Timestamptz(3)
+  retiredAt       DateTime?     @map("retired_at") @db.Timestamptz(3)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  basedOn RulesetVersion?  @relation("RulesetLineage", fields: [basedOnId], references: [id], onDelete: SetNull)
+  derived RulesetVersion[] @relation("RulesetLineage")
+  records RulesetRecord[]
+
+  @@unique([workbookVersion, revision])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("ruleset_versions")
+}
+
+// One workbook row in one version. `recordId` is the rule's database ID (E-07): it stays the same
+// across versions and renames; `sourceRef` is the author's own reference (EX-1, E1M1, 28).
+model RulesetRecord {
+  id           String           @id @default(uuid(7)) @db.Uuid
+  versionId    String           @map("version_id") @db.Uuid
+  recordId     String           @default(uuid(7)) @map("record_id") @db.Uuid
+  tab          String           @db.VarChar(32)
+  role         RuleRole
+  section      String?          @db.VarChar(120)
+  sourceRef    String           @map("source_ref") @db.VarChar(200)
+  order        Int              @map("sort_order")
+  // Workbook cells word for word: [{ header, text, col }] (E-23: JSONB, loaded whole).
+  columns      Json
+  // { file, sheetRow, range }
+  origin       Json
+  frame        Int?
+  // Engine columns (DESIGN §4); null until written.
+  engine       Json?
+  mapping      RuleMapping      @default(pending)
+  status       RuleRecordStatus @default(active)
+  safety       Boolean          @default(false)
+  workbookTag  String?          @map("workbook_tag") @db.VarChar(16)
+  changedById  String?          @map("changed_by_id") @db.Uuid
+  changedAt    DateTime         @default(now()) @map("changed_at") @db.Timestamptz(3)
+  changeReason String?          @map("change_reason") @db.VarChar(500)
+
+  version RulesetVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@unique([versionId, recordId])
+  @@index([versionId, tab, order])
+  @@index([recordId])
+  @@map("ruleset_records")
+}
+
+// Gap register (DESIGN §3.6, E-11): rules that can't be represented, contradictions, missing
+// numbers, unstandardised inputs. Kept across versions; linked by stable record IDs.
+model RuleGap {
+  id               String        @id @default(uuid(7)) @db.Uuid
+  number           Int           @unique @default(autoincrement())
+  title            String        @db.VarChar(200)
+  kind             String        @db.VarChar(32)
+  detail           String
+  recordIds        String[]      @map("record_ids") @db.Uuid
+  // Display copies of the references, e.g. "band_rules · EX-1".
+  sourceRefs       String[]      @map("source_refs")
+  exampleInput     Json?         @map("example_input")
+  whileExempt      String?       @map("while_exempt")
+  recommendation   String?
+  decides          RuleGapOwner
+  // Involves a safety row: a version that exempts one can't be published until acknowledged (E-21).
+  safety           Boolean       @default(false)
+  // Where the gap is also written up, e.g. "INPUT_GAPS IG-02", "OWNER_DISCUSSION O-18".
+  docRef           String?       @map("doc_ref") @db.VarChar(120)
+  status           RuleGapStatus @default(open)
+  resolution       String?
+  createdById      String?       @map("created_by_id") @db.Uuid
+  acknowledgedById String?       @map("acknowledged_by_id") @db.Uuid
+  acknowledgedAt   DateTime?     @map("acknowledged_at") @db.Timestamptz(3)
+  resolvedById     String?       @map("resolved_by_id") @db.Uuid
+  resolvedAt       DateTime?     @map("resolved_at") @db.Timestamptz(3)
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([status])
+  @@index([recordIds], type: Gin)
+  @@map("rule_gaps")
+}
+
+// Decision register (DESIGN §3.6): rulings that fill gaps, e.g. "ADR 0001 §3", "E-19".
+model RuleDecision {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  code      String   @unique @db.VarChar(40)
+  title     String   @db.VarChar(200)
+  detail    String
+  source    String   @db.VarChar(200)
+  decidedBy String   @map("decided_by") @db.VarChar(120)
+  decidedAt DateTime @map("decided_at") @db.Date
+  gapIds    String[] @map("gap_ids") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("rule_decisions")
+}
+
+// Append-only, hash-chained log of every rule store action (DESIGN §7). hash =
+// SHA-256(prevHash + canonical JSON of the entry). A trigger rejects UPDATE and DELETE.
+model RulesetAuditEvent {
+  seq       BigInt   @id @default(autoincrement())
+  at        DateTime @db.Timestamptz(3)
+  actorId   String?  @map("actor_id") @db.Uuid
+  actorRole String   @map("actor_role") @db.VarChar(32)
+  action    String   @db.VarChar(48)
+  versionId String?  @map("version_id") @db.Uuid
+  recordId  String?  @map("record_id") @db.Uuid
+  gapId     String?  @map("gap_id") @db.Uuid
+  detail    Json
+  prevHash  String   @map("prev_hash") @db.Char(64)
+  hash      String   @unique @db.Char(64)
+
+  @@index([versionId, seq])
+  @@index([recordId, seq])
+  @@map("ruleset_audit_events")
+}

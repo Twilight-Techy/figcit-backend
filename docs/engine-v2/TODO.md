@@ -11,6 +11,9 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-03 | Resolve every exempt rule or have the Clinical Safety lead acknowledge it | Exemptions are working defaults | E-11, E-21; O-18 |
 | T-04 | Remove the engine from the PWA (`vendor/engine`, `scripts/sync-engine.mjs`); change Figma S81 wording; point the app at the server-only engine | The app keeps working on the old engine until v2 is live | E-01, U-01, U-02 |
 | T-05 | Retire the PWA's `/admin` screens once `apps/admin` covers them | Same | E-15, U-03 |
+| T-06 | `.xlsx` import and export, with the engine columns shaded to the right of the workbook's own | Needs a spreadsheet library, chosen under the dependency rules | E-28 |
+| T-07 | Store each published version as one immutable bundle in object storage, named by its hash | The database rows and hash already prove the content; the bundle is a second copy for replay and audit | `DESIGN.md` §9 |
+| T-08 | Clinical Safety lead confirms or changes every row marked `safety` on import | Marked from a list to unblock the publish gate | E-25 |
 
 ## Before launch
 

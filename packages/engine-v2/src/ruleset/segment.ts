@@ -15,6 +15,8 @@ export interface NoteBlock {
   readonly type: 'note';
   readonly text: string;
   readonly sheetRow: number;
+  /** 0-based column of the filled cell. */
+  readonly col: number;
 }
 
 export interface TableBlock {
@@ -99,7 +101,8 @@ export function segment(
       close(open, out);
       open = undefined;
       lastNote = firstFilled(cells);
-      out.push({ type: 'note', text: cells.find((c) => c.trim() !== '') ?? '', sheetRow });
+      const col = cells.findIndex((c) => c.trim() !== '');
+      out.push({ type: 'note', text: cells[col] ?? '', sheetRow, col });
     } else {
       open ??= { header: undefined, headerRow: 0, rows: [], banner: [], heading: lastNote };
       addRow(open, { cells, sheetRow }, headerFirstCell);
