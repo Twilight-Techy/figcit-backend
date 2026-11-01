@@ -113,6 +113,7 @@ export {
   type WorkbookCell,
 } from './ruleset/types.js';
 export { toCsv, writeWorkbook, type WritableRecord } from './ruleset/write-workbook.js';
+export { COPY_FILE, COPY_HEADER, copyOf, readCopyRow } from './format/copy.js';
 export {
   checkInput,
   compile,

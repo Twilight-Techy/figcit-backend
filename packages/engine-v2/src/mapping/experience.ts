@@ -245,8 +245,8 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
   }),
   'Hyperfocus lock / time blindness · Any': trigger({
     when: felt('hyperfocus_lock_time_blindness', 'hyperfocus'),
-    rules: [rule(null, [propose('primary', tool('stop_points')), propose('queued', tool('rest'))])],
-    reason: `Adapt (set a stop point), then a short rest for body basics. Nothing removes the task: "a reminder, never a lock-out", resuming is the user's choice. ${SENSATION}`,
+    rules: [rule(null, [propose('primary', tool('rest')), propose('queued', tool('stop_points'))])],
+    reason: `A short rest for body basics, then Adapt's stop point; pattern 20's button is the break, so the break leads. Nothing removes the task: "a reminder, never a lock-out", resuming is the user's choice. ${SENSATION}`,
   }),
   'Boredom / under-stimulation · Any': trigger({
     when: all(felt('boredom_under_stimulation'), withTask),
@@ -289,17 +289,14 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
   'Grief / loss · Any (Support pathway visible at High+)': trigger({
     when: felt('grief_loss'),
     rules: [
-      rule(null, [
-        propose('primary', path('connect')),
-        propose('alternative', path('regulate')),
-        propose('alternative', path('adapt')),
-        propose('alternative', tool('own_practice')),
-      ]),
+      rule(null, [propose('primary', path('connect')), propose('alternative', path('regulate'))]),
+      rule(is('signals.practice_helps', true), [propose('alternative', tool('own_practice'))]),
+      rule(null, [propose('alternative', path('adapt'))]),
       ...MINIMUM_DEMAND,
       rule(high('grief_loss'), [set('support.show'), forbid(path('reflect'))]),
     ],
     reason:
-      '"Co-primary" read as Connect primary, Regulate the first alternative; then Adapt and the user\'s own saved practice, in that order (the engine keeps two). Demand reduced to its smallest step, never leading. At High+: "Get support now" and no Reflect.',
+      '"Co-primary" read as Connect primary, Regulate the first alternative. The Meditate offer is "from the user\'s own saved practices", so only when they have one they marked as helping when struggling, and then before Adapt (the engine keeps two; E-53). Demand reduced to its smallest step, never leading. At High+: "Get support now" and no Reflect.',
   }),
   'Pain / illness flare (SENSATION-LED: Body) · Any (lowers band at High+)': trigger({
     when: felt('pain_illness_flare', 'pain'),

@@ -173,13 +173,15 @@ export const PATTERNS_TRIGGER: NonNullable<TabMapping['rows']> = {
     layer: 'trigger',
     rules: [
       rule(null, [
-        propose('primary', tool('stop_points'), copyOf(20)),
-        propose('queued', tool('rest')),
+        propose('primary', tool('rest'), copyOf(20)),
+        set('minutes.cap', { max: 5 }),
+        propose('queued', tool('stop_points')),
         remind(20, copyOf(20, 'alt.remind')),
         propose('visible', action('skip_to_task'), copyOf(20, 'alt.keep_going')),
       ]),
     ],
-    reason: 'A stop point and a break, never a lock-out: "Keep going" is skip to task.',
+    reason:
+      'The button is the 5-minute break, so the break leads and setting the stop point follows (a card\'s label matches the tool it opens, ADR 0004). Never a lock-out: "Keep going" is skip to task.',
   }),
   '21': pattern({
     when: all(felt('boredom_under_stimulation'), withTask),

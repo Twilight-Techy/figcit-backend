@@ -228,7 +228,7 @@ Values the system already holds, used by the rules:
 | Declines this session | Pattern 30 (3+) | "Session" isn't defined (time? leaving the card?) |
 | Recently rejected suggestions | Tab 7 non-negotiable | "Immediately" isn't defined (this card? this session?) |
 | Same topic reflected 3+ times in 7 days | RF-2 | "Topic" has no value list |
-| Recurring struggle (3+ in 14 days) | Pattern 34 | "Same emotion family, context or avoided task": which counts? |
+| Recurring struggle (3+ in 14 days) | Pattern 34, Tab 2 | The check-in records' signal is used (E-53); which of family, setting or task counts is the founder's to confirm |
 | Safety event recently | ENT-3 | No time window given |
 | During a session | ENT-3 | Not defined |
 | Recovery window open | RC-1/RC-2 (45 min) | Standard |

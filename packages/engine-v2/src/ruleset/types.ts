@@ -23,6 +23,8 @@ export const TAB_KEYS = [
   // Added tables, not in the workbook (DESIGN §3.4): standard values and input mappings (E-19).
   'catalogue',
   'input_mappings',
+  // The card's wording (E-53).
+  'copy',
 ] as const;
 export type TabKey = (typeof TAB_KEYS)[number];
 

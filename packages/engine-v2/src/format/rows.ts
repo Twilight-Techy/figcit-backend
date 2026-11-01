@@ -1,11 +1,12 @@
 import type { JsonValue } from '../ruleset/canonical.js';
 import type { WorkbookCell } from '../ruleset/types.js';
 import { readCatalogueRow, type Catalogue, type Issue } from './catalogue.js';
+import { readCopyRow } from './copy.js';
 import { readInputRow } from './inputs.js';
 import { validateMapping } from './validate.js';
 
 /** Added tables that hold values (standard values, input mappings), never engine columns. */
-export const VALUE_TABS: readonly string[] = ['catalogue', 'input_mappings'];
+export const VALUE_TABS: readonly string[] = ['catalogue', 'input_mappings', 'copy'];
 
 /** On a value row, the mapping says where the value came from, not how a rule was read. */
 const VALUE_MAPPINGS: readonly string[] = ['pending', 'exact', 'interpreted'];
@@ -46,6 +47,13 @@ export function rowIssues(row: CheckedRow, catalogue: Catalogue): Issue[] {
     const read = readInputRow(row.columns);
     return [
       ...noEngine(row, VALUE_MAPPINGS, 'input mapping rows'),
+      ...('issues' in read ? read.issues : []),
+    ];
+  }
+  if (row.tab === 'copy' && row.frame !== null) {
+    const read = readCopyRow(row.columns);
+    return [
+      ...noEngine(row, VALUE_MAPPINGS, 'wording rows'),
       ...('issues' in read ? read.issues : []),
     ];
   }

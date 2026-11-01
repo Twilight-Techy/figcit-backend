@@ -2,6 +2,9 @@ import type { Condition } from '../format/types.js';
 import {
   action,
   all,
+  is,
+  lights,
+  mapped,
   belowHigh,
   containsAny,
   felt,
@@ -67,12 +70,20 @@ export const EXPERIENCE_REFLECT: NonNullable<TabMapping['rows']> = {
     ],
     reason: `Nothing forced: Reflect offered, saving what helped to My Patterns. Energy Very Low or Low (1-2): rest first and Reflect saved for later (ADR 0004: relief at low energy rests first). ${OFFER}`,
   }),
-  'Recurring struggle noticed (SYSTEM-LED + user confirms) · n/a (pattern)': {
-    mapping: 'unresolved',
-    decides: 'founder',
+  'Recurring struggle noticed (SYSTEM-LED + user confirms) · n/a (pattern)': mapped({
+    stage: 'orchestration',
+    layer: 'offer',
+    rules: [
+      rule(all(is('signals.recurring_struggle', true), lights('green', 'yellow', 'blue')), [
+        propose('primary', path('reflect')),
+        set('tools.prefer', { tools: ['pattern_review', 'my_patterns'] }),
+        propose('alternative', path('adapt')),
+        propose('alternative', path('express')),
+      ]),
+    ],
     reason:
-      'Needs a system signal no input carries: the same family, setting or avoided task logged 3+ times in 14 days, confirmed by the user, with pattern prompts on. It comes with the check-in records (M5) and IG-21 (which counts: family, setting or task?); the 3 and the 14 are tunable thresholds for the rule set, not code.',
-  },
+      'The pattern review (Reflect) in Green, Yellow or Blue, handing off to Adapt or Express. The signal comes from the check-in records: the same feeling, setting or avoided task 3+ times in 14 days, confirmed by the user (E-53). Earlier left unresolved for want of it (E-50).',
+  }),
   'Anticipatory unease / dread · Mild or Moderate (0-6)': trigger({
     when: felt('anticipatory_unease_dread'),
     layer: 'offer',

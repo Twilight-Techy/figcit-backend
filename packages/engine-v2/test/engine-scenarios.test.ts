@@ -10,9 +10,9 @@ const green = { 'state.energy': 3, 'state.mood': 4 } as const;
 const task = (timeline: string) => ({ 'demand.present': true, 'demand.timeline': timeline });
 
 describe('the engine on the v3.3 rule set', () => {
-  it('compiles every mapped row, with the 2 unresolved rows exempt', () => {
+  it('compiles every mapped row; none is exempt', () => {
     expect(ruleset.issues).toEqual([]);
-    expect(ruleset.exempt).toBe(2);
+    expect(ruleset.exempt).toBe(0);
     expect(ruleset.rules.length).toBeGreaterThan(250);
   });
 
@@ -155,10 +155,26 @@ describe('the engine on the v3.3 rule set', () => {
       'recheck.present': true,
       'recheck.previous_light': 'amber',
       'recheck.previous_band': 'constrained',
+      'recheck.previous_baseline': 'constrained',
       'recheck.support_completed': true,
     });
     expect(card.light).toBe('blue');
     expect(card.band).toBe('conditional');
+  });
+
+  it('does not count a band lowered by a feeling as a worse cell: same cell, no Blue (RC-1)', () => {
+    const { card } = cardFor({
+      'state.energy': 3,
+      'state.mood': 1,
+      'family.intensity': { anger_frustration: 7 },
+      'recheck.present': true,
+      'recheck.previous_light': 'amber',
+      'recheck.previous_band': 'constrained',
+      'recheck.previous_baseline': 'conditional',
+      'recheck.previous_peak': 7,
+      'recheck.support_completed': true,
+    });
+    expect(card.light).not.toBe('blue');
   });
 
   it('never shows Blue after a recent safety event (RC-5)', () => {
@@ -168,6 +184,7 @@ describe('the engine on the v3.3 rule set', () => {
       'recheck.present': true,
       'recheck.previous_light': 'amber',
       'recheck.previous_band': 'constrained',
+      'recheck.previous_baseline': 'constrained',
       'recheck.support_completed': true,
       'signals.safety_event_recently': true,
     });
@@ -185,6 +202,24 @@ describe('the engine on the v3.3 rule set', () => {
     expect(card.primary?.pathway).toBe('regulate');
     expect(card.primary?.tone).toContain('card.regulate.self_compassion');
     expect(card.queued.map((i) => i.pathway).slice(0, 2)).toEqual(['express', 'execute']);
+  });
+
+  it('offers the pattern review for a confirmed recurring struggle, not in Amber (pattern 34)', () => {
+    const calm = cardFor({ ...green, 'signals.recurring_struggle': true }).card;
+    expect(calm.primary?.copy).toBe('card.p34.cta');
+    expect(calm.primary?.pathway).toBe('reflect');
+    const amber = cardFor({
+      'state.energy': 1,
+      'state.mood': 3,
+      'signals.recurring_struggle': true,
+    }).card;
+    expect(amber.primary?.pathway).not.toBe('reflect');
+  });
+
+  it('offers the body check first when the user is not sure (pattern 27)', () => {
+    const { card } = cardFor({ 'state.not_sure': true });
+    expect(card.primary?.target).toEqual({ action: 'check_in' });
+    expect(card.primary?.copy).toBe('card.p27.cta');
   });
 
   it("says why: the primary's rule and the input it matched", () => {

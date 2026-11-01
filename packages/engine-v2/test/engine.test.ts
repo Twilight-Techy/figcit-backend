@@ -355,6 +355,14 @@ describe('a run', () => {
     expect(safety?.facts['state.cell']).toBe('E2M3');
   });
 
+  it('lists in the trace only the facts that have a value, never defaults', () => {
+    const r = go([stop, later], { 'state.energy': 2, 'state.mood': 3 }, 'full');
+    const facts = r.trace.stages?.at(-1)?.facts ?? {};
+    expect(facts['state.energy']).toBe(2);
+    expect('signals.in_session' in facts).toBe(false);
+    expect('sensitivity.flags' in facts).toBe(false);
+  });
+
   it('skips rows that are not exact or interpreted, and reports rows that fail the format', () => {
     const bad = row({ stage: 'orchestration', rules: [] });
     const exempt = row(null, 'patterns', 'unresolved');

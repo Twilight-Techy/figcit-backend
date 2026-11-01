@@ -269,7 +269,7 @@ export const BAND_RULES: TabMapping = {
     'RC-1': {
       mapping: 'interpreted',
       reason:
-        'Runs at capacity fit, so on a re-check Blue applies to this card; Blue is an overlay on the band\'s light (E-51). "Better cell" read as a higher baseline band than the last final band; "intensity down by 2+" on the harder feelings only (ADR 0004 §8); "intervention completed" as the support session being finished.',
+        'Runs at capacity fit, so on a re-check Blue applies to this card; Blue is an overlay on the band\'s light (E-51). "Better cell" read as a higher baseline band than the re-checked one\'s baseline (cell against cell, before modifiers; E-53); "intensity down by 2+" on the harder feelings only (ADR 0004 §8); "intervention completed" as the support session being finished.',
       engine: {
         stage: 'capacity_fit',
         rules: [

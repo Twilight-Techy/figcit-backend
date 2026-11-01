@@ -381,12 +381,20 @@ export const FACTS: readonly FactSpec[] = [
     description: 'Final band of the check-in being re-checked (RC-3)',
   }),
   fact({
+    name: 'recheck.previous_baseline',
+    type: 'enum',
+    domain: 'band',
+    stage: 'feedback',
+    description:
+      "Baseline band of the check-in being re-checked (its cell's band, before modifiers)",
+  }),
+  fact({
     name: 'recheck.band_improved',
     type: 'boolean',
     stage: 'feedback',
     computed: true,
     description:
-      'The new baseline band is above the previous final band (RC-1 "better cell"); worked out from recheck.previous_band',
+      'The new baseline band is above the re-checked one\'s baseline (RC-1 "better cell": the cell, before modifiers); worked out from recheck.previous_baseline',
   }),
   fact({
     name: 'recheck.support_completed',
@@ -447,6 +455,20 @@ export const FACTS: readonly FactSpec[] = [
     stage: 'orchestration',
     description:
       'Pathways the user just said "Not now" to (Tab 7: not repeated immediately; "immediately" is IG-21)',
+  }),
+  fact({
+    name: 'signals.recurring_struggle',
+    type: 'boolean',
+    stage: 'orchestration',
+    description:
+      'The same feeling, setting or avoided task 3+ times in 14 days, and the user confirmed the pattern (Tab 2, pattern 34); from the check-in records',
+  }),
+  fact({
+    name: 'signals.practice_helps',
+    type: 'boolean',
+    stage: 'orchestration',
+    description:
+      'The user has a saved practice they marked as helping when struggling (Tab 2 grief: "from the user\'s own saved practices")',
   }),
 ];
 

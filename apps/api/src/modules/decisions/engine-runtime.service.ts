@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { catalogueOf, compile, type CompiledRuleset, type WorkbookCell } from '@figcit/engine-v2';
+import {
+  catalogueOf,
+  compile,
+  copyOf,
+  type CompiledRuleset,
+  type WorkbookCell,
+} from '@figcit/engine-v2';
 import type { RulesetVersion } from '@prisma/client';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { NotConfigured, NotFound } from '../../common/errors/errors.js';
@@ -11,6 +17,12 @@ export interface Runnable {
   readonly hash: string | null;
   readonly status: RulesetVersion['status'];
   readonly ruleset: CompiledRuleset;
+  /** The version's card wording (x-copy, E-53). */
+  readonly copy: ReadonlyMap<string, string>;
+  /** Rule ID → Tab 7 pattern number, for the card's `patterns`. */
+  readonly patternOf: ReadonlyMap<string, number>;
+  /** Rule ID → "tab · reference", to name the rules that fired. */
+  readonly refOf: ReadonlyMap<string, string>;
 }
 
 /** Versions that can no longer change, so their compiled form is kept. */
@@ -78,14 +90,20 @@ export class EngineRuntimeService {
         columns: true,
       },
     });
-    const { catalogue } = catalogueOf(
-      rows.map((r) => ({ ...r, columns: r.columns as unknown as WorkbookCell[] })),
-    );
+    const live = rows.map((r) => ({ ...r, columns: r.columns as unknown as WorkbookCell[] }));
+    const { catalogue } = catalogueOf(live);
     const ruleset = compile(
       rows.map((r) => ({ ...r, id: r.recordId })),
       catalogue,
     );
-    const runnable: Runnable = { ...v, ruleset };
+    const patternOf = new Map(
+      ruleset.rules.flatMap((r) => {
+        const n = /^patterns · (\d+)$/.exec(r.ref)?.[1];
+        return n ? [[r.id, Number(n)] as const] : [];
+      }),
+    );
+    const refOf = new Map(ruleset.rules.map((r) => [r.id, r.ref]));
+    const runnable: Runnable = { ...v, ruleset, copy: copyOf(live), patternOf, refOf };
     // A draft or a version in review can still change; a frozen one is kept (its hash proves it).
     if (FROZEN.includes(v.status)) this.compiled.set(id, runnable);
     return runnable;

@@ -16,11 +16,15 @@ export interface RunOptions {
   readonly trace?: 'light' | 'full';
 }
 
-/** Every fact with a value, for the full trace. */
+/**
+ * The facts that have a value of their own, for the full trace. Defaults (a left-out boolean or
+ * set) are not listed, so adding a fact to the registry doesn't change existing traces (replay).
+ */
 function snapshot(state: RunState): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const f of FACTS) {
-    const value = f.keyedBy ? undefined : state.fact(f.name);
+    if (f.keyedBy || !state.has(f.name)) continue;
+    const value = state.fact(f.name);
     if (value !== undefined) out[f.name] = value;
   }
   return out;

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { z } from 'zod';
 import { PrismaService } from '../../common/db/prisma.service.js';
+import { CardBridgeService, isV2Trace } from '../decisions/card-bridge.service.js';
 import { RulesService } from '../rules/rules.service.js';
 import { SafetyService } from '../safety/safety.service.js';
 import type {
@@ -23,6 +24,12 @@ const GATE_TEXT: Readonly<Record<string, string>> = {
   blocked: 'Left this out for now',
 };
 
+/** The tool the card's primary opens, for the action log. */
+function primaryToolOf(trace: unknown): string | null {
+  if (isV2Trace(trace)) return trace.card.primary.toolId ?? null;
+  return (trace as { result: { primary: { toolId?: string } } }).result.primary.toolId ?? null;
+}
+
 /** What the user does with a card: start, try another, not now, get support, adapt, why (S30–S35). */
 @Injectable()
 export class RecommendationActionsService {
@@ -32,11 +39,13 @@ export class RecommendationActionsService {
     private readonly signals: SignalsService,
     private readonly rules: RulesService,
     private readonly safety: SafetyService,
+    private readonly bridge: CardBridgeService,
   ) {}
 
   async act(userId: string, id: string, req: ActionRequest): Promise<ActionResult> {
     const rec = await this.recs.stored(userId, id);
-    const primaryTool = rec.trace.result.primary.toolId ?? null;
+    const v2 = isV2Trace(rec.trace);
+    const primaryTool = primaryToolOf(rec.trace);
     await this.prisma.recommendationAction.create({
       data: {
         recommendationId: id,
@@ -50,6 +59,7 @@ export class RecommendationActionsService {
       case 'try_another': {
         // Avoid the suggestion just declined; the engine falls back to it only if nothing else fits here.
         const declined = req.toolId ?? primaryTool;
+        if (v2) return this.anotherV2(userId, id, declined);
         const avoid = declined ? [declined] : [];
         const next = await this.recs.run(rec.trace.input, {
           userId,
@@ -77,6 +87,15 @@ export class RecommendationActionsService {
       case 'why':
         return { ok: true, card: null, quietUntil: null };
     }
+  }
+
+  /** "Try another" on a v2 card: made again with the declined pathway just rejected (E-53). */
+  private async anotherV2(
+    userId: string,
+    id: string,
+    declined: string | null,
+  ): Promise<ActionResult> {
+    return { ok: true, card: await this.bridge.rerun(userId, id, declined), quietUntil: null };
   }
 
   /** After enough declines in a session, the app goes quiet for a while (pattern 30). */
@@ -107,6 +126,8 @@ export class RecommendationActionsService {
           skipDuplicates: true,
         });
     });
+    // A v2 card is made again from its decision; adaptations have no v2 fact yet (T-26).
+    if (isV2Trace(rec.trace)) return this.bridge.rerun(userId, id, null);
     const kinds = [...new Set(req.adaptations.map((a) => a.kind))];
     const next = await this.recs.run(
       { ...rec.trace.input, adaptations: kinds },
@@ -117,6 +138,7 @@ export class RecommendationActionsService {
 
   async why(userId: string, id: string): Promise<Why> {
     const rec = await this.recs.stored(userId, id);
+    if (isV2Trace(rec.trace)) return rec.trace.why;
     const snapshot = await this.rules.byVersionOrCurrent(rec.trace.result.snapshotVersion);
     const r = rec.trace.result;
     const names = new Map(snapshot.patterns.map((p) => [p.id, p.suggestion]));

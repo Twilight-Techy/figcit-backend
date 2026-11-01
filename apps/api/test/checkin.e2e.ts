@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ENGINE_VERSION } from '@figcit/engine';
-import { bootApi, type Api } from './helpers.js';
+import { ENGINE_VERSION } from '@figcit/engine-v2';
+import { bootApi, publishV2, type Api } from './helpers.js';
 
 interface Card {
   id: string;
   light: string;
   title: string;
-  primary: { kind: string; toolId?: string; href: string };
+  primary: { kind: string; pathway?: string; toolId?: string; href: string };
   alternatives: { toolId?: string }[];
   safetyTriggered: boolean;
   crisisRoutes: unknown[];
@@ -23,6 +23,11 @@ let api: Api;
 let token: string;
 
 beforeAll(async () => {
+  // Cards come from the published engine v2 rule set (E-53); publish a clean one, as another file
+  // may have left an exemption published. A fresh app reads it at once (caches are 30 s).
+  api = await bootApi();
+  await publishV2(api, (await api.staff(['clinical_admin'])).token);
+  await api.close();
   api = await bootApi();
   ({ token } = await api.signIn());
 });
@@ -62,8 +67,16 @@ describe('check-in → card', () => {
     expect(res.status).toBe(201);
     expect(res.body.card.light).toBe('red');
     expect(res.body.card.taskId).toBeTruthy();
-    expect(res.body.card.primary.href).toContain(`id=${String(res.body.card.taskId)}`);
+    // Red defers the task (Tab 10; ADR 0004 §3): care first, never the task.
+    expect(res.body.card.primary.pathway).not.toBe('execute');
     expect(res.body.card.crisisRoutes.length).toBeGreaterThan(0);
+    // When the task can lead, its step opens that task.
+    const green = await checkIn({
+      state: { kind: 'grid', energy: 3, mood: 4 },
+      demand: { title: 'Send the invoice', kind: 'work', timeline: 'T3' },
+    });
+    expect(green.body.card.primary.pathway).toBe('execute');
+    expect(green.body.card.primary.href).toContain(`id=${String(green.body.card.taskId)}`);
   });
 
   it('rejects unknown catalogue codes', async () => {

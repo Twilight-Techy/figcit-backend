@@ -80,12 +80,20 @@ export const PATTERNS_OFFER: NonNullable<TabMapping['rows']> = {
     reason:
       'Relief in Green or Yellow. "The end of a demanding session or day" and "a task just completed" need signals no input carries (IG-21): not mapped.',
   }),
-  '34': {
-    mapping: 'unresolved',
-    decides: 'founder',
+  '34': pattern({
+    when: all(is('signals.recurring_struggle', true), lights('green', 'yellow', 'blue')),
+    layer: 'offer',
+    rules: [
+      rule(null, [
+        propose('primary', path('reflect'), copyOf(34)),
+        set('tools.prefer', { tools: ['pattern_review', 'my_patterns'] }),
+        propose('alternative', path('adapt')),
+        propose('alternative', path('express')),
+      ]),
+    ],
     reason:
-      'The recurring-struggle signal (3+ in 14 days, confirmed by the user) has no input yet, as for the Tab 2 row: records (M5) and IG-21.',
-  },
+      'The pattern review in plain words, then Adapt or Express (an adjustment request). The signal is the records\' (3+ in 14 days, confirmed; E-53). "Don\'t show me this pattern" is the user switching pattern prompts off, which the signal already honours.',
+  }),
   '35': pattern({
     when: all(
       lights('green', 'yellow'),

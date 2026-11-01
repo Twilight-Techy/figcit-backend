@@ -528,6 +528,36 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - **Only the running engine can replay.** Keeping older engine releases runnable (DESIGN §7) is T-24.
 - **Revert:** drop the module and the migration; nothing else depends on it until the app moves to v2 (M8).
 
+### E-53 The app's check-in runs on engine v2; the card's wording is rule-set data (M8, server side)
+- **The switch:** once a v2 rule set with check-in options is published, `POST /v1/check-ins` makes its card with engine v2. Signed in, Browse and re-checks alike.
+  - **Signed in:** the decision record and the recommendation row that sessions, actions and re-checks hang off are written in the check-in's transaction.
+  - **Browse:** the decision is recorded without an account (E-05).
+  - **v1** still runs when no such version is published (the transition; T-17).
+- **The app's card contract is unchanged.** A presenter fills it from the v2 card, so the Figma-matched card screen, links and sessions keep working, and the OpenAPI file doesn't change.
+  - The always-visible buttons ("I'll try the task anyway", "Skip to task") take the two alternative places first.
+  - A card with no primary offers its first option as the primary, never one from a pathway the user just declined, or else Home.
+  - Prompts (e.g. headphones) become a sentence after the rationale.
+  - The stored card re-renders exactly. "Why" is kept with it.
+  - "Try another" re-runs the stored input with the declined pathway as just rejected.
+- **Wording:** a new added table, `x-copy.csv` (Key, Text, Source, Note), seeded on import. It holds 234 keys: every key a rule uses has text, and every CTA has a headline (tested).
+  - **Tab 7 patterns:** the headline (`.title`) and button (`.cta`) are taken word for word from each pattern's CTA cell, and options from its alternatives cell. Where a cell gives only a headline, the button label is `interpreted`, with a note.
+  - **Fixed buttons:** "Get support now", "Start small" and the rest, from the patterns that name them.
+  - **The rationale** is the workbook's "Because you said X, … suggests Y.", with the app's name, FigCit, and the user's own chip words with a strength word (E-47).
+  - **Tool labels:** Tab 6d's names, shortened.
+  - **Unconfirmed state:** "Not sure yet", the app's existing wording.
+  - The state names, light labels and colours still come from the app's existing content (T-25).
+- **Safety:** free text never reaches the engine. The server's phrase screen (ADR 0004 §7) reads the texts v1 read and gives the engine `safety.risk`. The safety event records whether a phrase (with the rule and category) or the Hopeless chip triggered it.
+- **Rule fixes the switch exposed:**
+  - **RC-1's "better cell" compared the new baseline with the previous *final* band,** so a re-check with the same cell and feeling counted as improved when the first card had been lowered by EX-1. It now compares baseline with baseline (`recheck.previous_baseline`, from the earlier decision's trace).
+  - **The recurring struggle (Tab 2 and pattern 34) is mapped,** no longer unresolved. The check-in records already give the signal: the same feeling, setting or task 3+ times in 14 days, confirmed by the user (`signals.recurring_struggle`). The workbook now has no unresolved row.
+  - **Grief offers the user's own practice** only when they have one marked as helping when struggling (`signals.practice_helps`), and then before Adapt.
+  - **Pattern 27:** [Quick body check] is the primary (the Not-sure flow).
+  - **Pattern 20:** the button is the 5-minute break, so the break leads and the stop point follows. A card's label must match the tool it opens (ADR 0004).
+  - **CTA wording** comes from the patterns, not from Tab 2 rows (Tab 2 routes, Tab 7 words).
+- **Engine fix:** the full trace lists only facts that have a value, never defaults. Before, adding a fact changed every older trace, and replay reported records as changed when nothing about them had (found by the daily replay).
+- **Re-check:** "support completed" now comes from the re-checked card's session (closing T-23 for check-ins). The re-check rule that applied is reported to the session's feedback, as v1 did, so recovery windows open.
+- **Revert:** unpublish v2 (publish a v1-era version) and the check-in falls back to v1; the code paths stay.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

@@ -34,6 +34,7 @@ let admin: string;
 let user: string;
 let other: string;
 let label: string;
+const started = new Date();
 
 let device: string;
 /** A check-in: as the signed-in user given, or as a Browse device (X-Browse-Token). */
@@ -148,6 +149,11 @@ describe('decisions (engine v2)', () => {
   });
 
   it("replays the day's records in the daily job", async () => {
+    // Only this run's records: older ones were made by earlier builds of the engine.
+    await api.app.get(PrismaService).decisionRecord.updateMany({
+      where: { replayedAt: null, createdAt: { lt: started } },
+      data: { replayedAt: new Date() },
+    });
     await decide({ emotions: [{ code: 'restless', intensity: 4 }] });
     const result = await api.app.get(DecisionsService).replaySample();
     expect(result.replayed).toBeGreaterThan(0);

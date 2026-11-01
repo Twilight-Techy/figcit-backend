@@ -3,8 +3,8 @@ import { valuesOf, type Card, type Catalogue, type EngineInput } from '@figcit/e
 
 /**
  * The v1 signal loader's answers as engine v2 facts (M5, E-52). What v2 has no fact for is left
- * out: per-topic rumination (deferred, ADR 0004), the recurring-struggle signal (unresolved,
- * E-50), trusted contacts and tool scores (no rule reads them).
+ * out: per-topic rumination (deferred, ADR 0004), trusted contacts and tool scores (no rule reads
+ * them).
  */
 export function signalFacts(s: UserSignals, catalogue: Catalogue): EngineInput {
   const pathwayOf = new Map(valuesOf(catalogue, 'tool').map((t) => [t.code, t.group]));
@@ -24,6 +24,8 @@ export function signalFacts(s: UserSignals, catalogue: Catalogue): EngineInput {
     'signals.advanced_dismissed': s.dismissedAdvanced ?? false,
     'signals.recovery_window_open': s.recoveryActive ?? false,
     'signals.practice_due': (s.savedPractices ?? []).some((p) => p.dueNow),
+    'signals.recurring_struggle': s.recurringStruggleConfirmed ?? false,
+    'signals.practice_helps': (s.savedPractices ?? []).some((p) => p.helpsWhenStruggling),
     'prefs.meditation_worse': s.meditationMakesWorse ?? false,
     'prefs.body_scan_opt_in': s.bodyScanOptIn ?? false,
     ...(rejected.length > 0 ? { 'signals.rejected': rejected } : {}),
@@ -37,6 +39,8 @@ export interface PreviousDecision {
   readonly card: Card;
   /** `peak.negative` as the engine worked it out (from the full trace). */
   readonly peak: number | null | undefined;
+  /** Its cell's band before modifiers (from the full trace), for RC-1's "better cell". */
+  readonly baseline: string | undefined;
 }
 
 /**
@@ -49,6 +53,7 @@ export function recheckFacts(p: PreviousDecision): EngineInput {
     'recheck.present': true,
     ...(p.light ? { 'recheck.previous_light': p.light } : {}),
     ...(p.band ? { 'recheck.previous_band': p.band } : {}),
+    ...(p.baseline ? { 'recheck.previous_baseline': p.baseline } : {}),
     ...(pathway ? { 'recheck.previous_pathway': pathway } : {}),
     ...(typeof p.peak === 'number' ? { 'recheck.previous_peak': p.peak } : {}),
   };

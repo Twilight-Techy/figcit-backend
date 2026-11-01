@@ -18,14 +18,14 @@ pnpm eval all --rules      # the rule-based fallbacks, no model: the baseline to
 
 ## What is measured
 
-| Measure | Meaning |
-| --- | --- |
-| Accuracy | `parseNeed`: the first need is one the case accepts. `suggestDrivers`: every driver is accepted, and none only when none fit. `breakDownTask`: within the step cap, steps of 5 minutes or less when strained, one action per step |
-| Within the hard rule | `breakDownTask`: the model's steps fit the step cap, judged even when another check failed |
-| Banned-phrase hits | Any banned phrase (`text.ts`) anywhere in the output |
-| Fallback rate | Calls whose answer the user would not see: invalid, timed out or failed |
-| Within the task timeout | Calls answered inside the task's production timeout |
-| Latency p50 / p95, tokens per second | From the model calls |
+| Measure                              | Meaning                                                                                                                                                                                                                           |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accuracy                             | `parseNeed`: the first need is one the case accepts. `suggestDrivers`: every driver is accepted, and none only when none fit. `breakDownTask`: within the step cap, steps of 5 minutes or less when strained, one action per step |
+| Within the hard rule                 | `breakDownTask`: the model's steps fit the step cap, judged even when another check failed                                                                                                                                        |
+| Banned-phrase hits                   | Any banned phrase (`text.ts`) anywhere in the output                                                                                                                                                                              |
+| Fallback rate                        | Calls whose answer the user would not see: invalid, timed out or failed                                                                                                                                                           |
+| Within the task timeout              | Calls answered inside the task's production timeout                                                                                                                                                                               |
+| Latency p50 / p95, tokens per second | From the model calls                                                                                                                                                                                                              |
 
 Pass bars (SYSTEM_DESIGN §4.3.8): `parseNeed` accuracy ≥ 85%; `breakDownTask` 100% within the
 step cap; no banned phrases; 95% of calls inside the timeout. `suggestDrivers` has no accuracy bar

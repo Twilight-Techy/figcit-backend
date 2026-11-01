@@ -7,12 +7,14 @@ import {
   run,
   type Card,
   type Catalogue,
+  type CheckInValues,
   type EngineInput,
+  type Trace,
   type JsonValue,
   type RunResult,
 } from '@figcit/engine-v2';
 import { Prisma, type DecisionRecord } from '@prisma/client';
-import { PrismaService } from '../../common/db/prisma.service.js';
+import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import {
   AppError,
   BadInput,
@@ -21,8 +23,10 @@ import {
   NotFound,
 } from '../../common/errors/errors.js';
 import { demandTimeline, validateOptions } from '../checkin/checkin.mapper.js';
+import type { CheckInInput } from '../checkin/checkin.schemas.js';
 import { SignalsService } from '../recommendation/signals.service.js';
-import { CheckInOptionsService } from '../rulesets/checkin-options.service.js';
+import { SafetyService, type SafetyMatch } from '../safety/safety.service.js';
+import { CheckInOptionsService, type CheckInOptions } from '../rulesets/checkin-options.service.js';
 import { daysInRed, lastFact, recheckFacts, signalFacts } from './decision-facts.js';
 import type {
   DecideBody,
@@ -31,7 +35,16 @@ import type {
   ExploreResult,
   ReplayResult,
 } from './decisions.schemas.js';
-import { EngineRuntimeService } from './engine-runtime.service.js';
+import { EngineRuntimeService, type Runnable } from './engine-runtime.service.js';
+
+/** A check-in turned into the published engine's input. */
+export interface Prepared {
+  readonly engine: Runnable;
+  readonly offered: CheckInOptions;
+  readonly input: EngineInput;
+  /** The free-text safety screen's match, if any (SF-1's flag, E-04). */
+  readonly risk: SafetyMatch | null;
+}
 
 /** Browse has no profile, so no time zone: the UK, where the service runs (E-46). */
 const BROWSE_ZONE = 'Europe/London';
@@ -56,6 +69,7 @@ export class DecisionsService {
     private readonly runtime: EngineRuntimeService,
     private readonly options: CheckInOptionsService,
     private readonly signals: SignalsService,
+    private readonly safety: SafetyService,
   ) {}
 
   async decide(
@@ -63,19 +77,57 @@ export class DecisionsService {
     userId: string | undefined,
     now = new Date(),
   ): Promise<DecisionDto> {
+    const recheck =
+      userId && body.recheckOfId ? await this.previousFacts(userId, body.recheckOfId) : undefined;
+    const prepared = await this.prepare(body, userId, now, recheck);
+    const { record } = await this.record(this.prisma, prepared, {
+      userId,
+      recheckOfId: recheck ? (body.recheckOfId ?? null) : null,
+      now,
+    });
+    return this.dto(record, prepared.engine.label);
+  }
+
+  /**
+   * A check-in as the published engine's input: checked against the published options, then
+   * every answer through its "Maps to", with what the server knows about the account.
+   */
+  async prepare(
+    body: CheckInValues & { demand?: CheckInInput['demand'] } & CheckInInput,
+    userId: string | undefined,
+    now: Date,
+    recheck?: EngineInput,
+  ): Promise<Prepared> {
     const offered = await this.options.current();
     if (!offered)
       throw new NotConfigured('No engine v2 rule set with check-in options is published yet.');
     validateOptions(body, offered);
     const engine = await this.runtime.current();
     const server = userId
-      ? await this.serverFacts(userId, body, engine.ruleset.catalogue, now)
+      ? await this.serverFacts(userId, engine.ruleset.catalogue, now)
       : { zone: BROWSE_ZONE, facts: { 'signals.plan': 'free' } };
+    // Free text never reaches the engine; the server's safety screen reads it and the engine gets
+    // its answer as safety.risk (E-04, SF-1). The same texts as v1 screened.
+    const risk = await this.safety.check([
+      body.ownWords,
+      body.ownFeeling,
+      body.context.environmentOther,
+      body.demand?.title,
+    ]);
     const input = factsFromCheckIn(body, offered.options, engine.ruleset.catalogue, {
       timeline: demandTimeline(body.demand, now, server.zone),
-      facts: server.facts,
+      facts: { ...server.facts, ...recheck, 'safety.risk': risk !== null },
     });
-    const result = run(engine.ruleset, input, { trace: 'full' });
+    return { engine, offered, input, risk };
+  }
+
+  /** Runs a prepared input and stores the decision, in the caller's transaction when given. */
+  async record(
+    db: Tx | PrismaService,
+    p: Pick<Prepared, 'engine' | 'input'>,
+    meta: { userId: string | undefined; recheckOfId: string | null; now: Date },
+  ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
+    const result = run(p.engine.ruleset, p.input, { trace: 'full' });
     // The check-in was checked against the options, so a refusal here is a mapping fault.
     if (!result.ok)
       throw new AppError(
@@ -86,34 +138,33 @@ export class DecisionsService {
           extra: { issues: result.issues },
         },
       );
-    const record = await this.prisma.decisionRecord.create({
+    const record = await db.decisionRecord.create({
       data: {
-        mode: userId ? 'signed_in' : 'browse',
-        userId: userId ?? null,
-        versionId: engine.id,
-        rulesetHash: engine.hash ?? '',
+        mode: meta.userId ? 'signed_in' : 'browse',
+        userId: meta.userId ?? null,
+        versionId: p.engine.id,
+        rulesetHash: p.engine.hash ?? '',
         engineVersion: ENGINE_VERSION,
-        input: input as Prisma.InputJsonValue,
+        input: p.input as Prisma.InputJsonValue,
         card: result.card as unknown as Prisma.InputJsonValue,
         trace: result.trace as unknown as Prisma.InputJsonValue,
         band: result.card.band,
         light: result.card.light,
         supportScreen: result.card.kind === 'support_screen',
-        recheckOfId: userId ? (body.recheckOfId ?? null) : null,
-        createdAt: now,
+        recheckOfId: meta.recheckOfId,
+        createdAt: meta.now,
       },
     });
-    return this.dto(record, engine.label);
+    return { record, card: result.card, trace: result.trace };
   }
 
-  /** The account's signals, SF-2's run of Red days, and the re-check of an earlier decision. */
+  /** The account's signals and SF-2's run of Red days. */
   private async serverFacts(
     userId: string,
-    body: DecideBody,
     catalogue: Catalogue,
     now: Date,
   ): Promise<{ zone: string; facts: EngineInput }> {
-    const [user, signals, reds, previous] = await Promise.all([
+    const [user, signals, reds] = await Promise.all([
       this.prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { timezone: true } }),
       this.signals.load(userId, now),
       this.prisma.decisionRecord.findMany({
@@ -124,11 +175,7 @@ export class DecisionsService {
         },
         select: { createdAt: true },
       }),
-      body.recheckOfId
-        ? this.prisma.decisionRecord.findFirst({ where: { id: body.recheckOfId, userId } })
-        : Promise.resolve(null),
     ]);
-    if (body.recheckOfId && !previous) throw new NotFound('decision to re-check');
     return {
       zone: user.timezone,
       facts: {
@@ -138,15 +185,32 @@ export class DecisionsService {
           now,
           user.timezone,
         ),
-        ...(previous
-          ? recheckFacts({
-              band: previous.band,
-              light: previous.light,
-              card: previous.card as unknown as Card,
-              peak: lastFact(previous.trace, 'peak.negative') as number | null | undefined,
-            })
-          : {}),
       },
+    };
+  }
+
+  /**
+   * The re-check facts from an earlier decision of the same user (Tab 8 step 11). `completed` is
+   * whether the support offered was finished, from its session (T-23), when the caller knows it.
+   */
+  async previousFacts(
+    userId: string,
+    decisionId: string,
+    completed?: boolean,
+  ): Promise<EngineInput> {
+    const previous = await this.prisma.decisionRecord.findFirst({
+      where: { id: decisionId, userId },
+    });
+    if (!previous) throw new NotFound('decision to re-check');
+    return {
+      ...recheckFacts({
+        band: previous.band,
+        light: previous.light,
+        card: previous.card as unknown as Card,
+        peak: lastFact(previous.trace, 'peak.negative') as number | null | undefined,
+        baseline: lastFact(previous.trace, 'band.baseline') as string | undefined,
+      }),
+      ...(completed === undefined ? {} : { 'recheck.support_completed': completed }),
     };
   }
 
@@ -211,6 +275,11 @@ export class DecisionsService {
         `decision replay: ${String(mismatched.length)} record(s) no longer give the same card`,
       );
     return { replayed: records.length, mismatched };
+  }
+
+  /** The compiled version a record was made with. */
+  engineFor(versionId: string): Promise<Runnable> {
+    return this.runtime.byId(versionId);
   }
 
   /** A version's engine on given input facts, nothing stored (the staff Simulator, E-18). */

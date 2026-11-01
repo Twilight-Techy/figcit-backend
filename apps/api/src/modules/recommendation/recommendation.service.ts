@@ -13,6 +13,7 @@ import { NotFound } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
 import { RulesService } from '../rules/rules.service.js';
 import { SafetyService } from '../safety/safety.service.js';
+import { isV2Trace } from '../decisions/card-bridge.service.js';
 import { toCard } from './card.js';
 import type { CardDto } from './recommendation.schemas.js';
 import { SignalsService } from './signals.service.js';
@@ -231,6 +232,8 @@ export class RecommendationService {
 
   async card(userId: string, id: string): Promise<CardDto> {
     const row = await this.stored(userId, id);
+    // A v2 card is kept as shown (M8, E-53): it re-renders exactly, without running anything.
+    if (isV2Trace(row.trace)) return row.trace.card;
     const snapshot = await this.rules.byVersionOrCurrent(row.trace.result.snapshotVersion);
     const region =
       (await this.prisma.user.findUnique({ where: { id: userId }, select: { region: true } }))

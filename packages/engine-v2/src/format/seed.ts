@@ -1,6 +1,7 @@
 import { fromDraft, type RulesetRecord } from '../ruleset/store.js';
 import type { ReadResult, RuleRecordDraft, TableFrame, TabKey } from '../ruleset/types.js';
 import { CATALOGUE_HEADER, cellText, type CatalogueColumn } from './catalogue.js';
+import { COPY_FILE, COPY_HEADER, copySeedRows } from './copy.js';
 import { INPUT_SEED } from './input-seed.js';
 import { SUPPORT_SEED, TOOL_SEED } from './tool-seed.js';
 import { INPUT_MAPPINGS_HEADER } from './inputs.js';
@@ -375,8 +376,11 @@ export interface AdditionsReport {
   readonly catalogue: number;
   /** Check-in options filled from Figma (E-40). */
   readonly inputs: number;
+  /** Wording keys filled from the workbook (E-53). */
+  readonly copy: number;
   readonly catalogueGiven: boolean;
   readonly inputMappingsGiven: boolean;
+  readonly copyGiven: boolean;
   readonly notes: readonly string[];
 }
 
@@ -433,9 +437,27 @@ export function withAdditions(read: ReadResult): {
       records.push({ ...row, order });
     }
   }
+  let copy = 0;
+  const copyGiven = COPY_FILE in read.frames;
+  if (!copyGiven) {
+    frames[COPY_FILE] = [frameOf(COPY_HEADER)];
+    for (const row of copySeedRows()) {
+      order += 1;
+      copy += 1;
+      records.push({ ...row, order });
+    }
+  }
   return {
     records,
     frames,
-    additions: { catalogue: seeded, inputs, catalogueGiven, inputMappingsGiven, notes },
+    additions: {
+      catalogue: seeded,
+      inputs,
+      copy,
+      catalogueGiven,
+      inputMappingsGiven,
+      copyGiven,
+      notes,
+    },
   };
 }

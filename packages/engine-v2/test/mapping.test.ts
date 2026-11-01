@@ -63,18 +63,12 @@ describe('the mapping file', () => {
     expect(report.byTab.experience_triggers).toMatchObject({
       rules: 34,
       exact: 5,
-      interpreted: 25,
-      unresolved: 1,
+      interpreted: 26,
+      unresolved: 0,
       reference: 3,
       pending: 0,
     });
-    expect(report.unresolved).toContainEqual(
-      expect.objectContaining({
-        tab: 'experience_triggers',
-        ref: 'Recurring struggle noticed (SYSTEM-LED + user confirms) · n/a (pattern)',
-        decides: 'founder',
-      }),
-    );
+    expect(report.unresolved).toEqual([]);
   });
 
   it('never fires a Tab 2 rule without its trigger', () => {

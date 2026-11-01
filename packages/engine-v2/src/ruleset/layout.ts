@@ -113,6 +113,7 @@ export const FILE_LAYOUTS: Readonly<Record<string, FileLayout>> = {
     noteTab: 'input_mappings',
     addition: true,
   },
+  'x-copy.csv': { tables: [rule('copy', [0])], noteTab: 'copy', addition: true },
 };
 
 export const FILE_ORDER: readonly string[] = Object.keys(FILE_LAYOUTS);

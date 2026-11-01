@@ -178,9 +178,14 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
   '27': pattern({
     when: is('state.not_sure', true),
     layer: 'default',
-    rules: [rule(null, [propose('alternative', path('regulate'), copyOf(27))])],
+    rules: [
+      rule(null, [
+        propose('primary', action('check_in'), copyOf(27)),
+        propose('alternative', path('regulate'), copyOf(27, 'alt.regulate')),
+      ]),
+    ],
     reason:
-      'The body check is the app\'s Not-sure flow; "treat as Conditional" is NS-1. The gentle Regulate offer is the alternative here. "Pick a state anyway" is that flow\'s own button.',
+      '[Quick body check] is the primary: it opens the app\'s Not-sure flow (the check-in again, from the body). "Treat as Conditional" is NS-1; the gentle Regulate offer is the alternative. "Pick a state anyway" is that flow\'s own button.',
   }),
   '30': pattern({
     when: { fact: 'signals.declines_session', op: 'gte', value: 3 },

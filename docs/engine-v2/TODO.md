@@ -19,8 +19,11 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-08 | Clinical Safety lead confirms or changes every row marked `safety` on import | Marked from a list to unblock the publish gate | E-25 |
 | T-20 | Founder confirms the interpreted readings of Tabs 2, 6c, 6d and 7 (the list in E-50), the 2 unresolved rows (recurring struggle), and the engine's card choices to review in E-51 | Read from the text to unblock the engine | E-50, E-51 |
 | T-21 | Write the text of the 95 card wording keys (`copyKeysOf()`); Clinical Safety and Partnership sign-off for the support-screen, prompt and faith-related wording (Tab 6c owner note) | Keys only until the engine builds cards (M4) | E-50 |
-| T-23 | Link v2 cards to session records, so "support completed" (RC-1) and the rejected suggestions come from v2 (M8) | v2 cards don't open sessions until the app moves to them | E-52 |
+| T-23 | ~~Link v2 cards to session records~~ Done for check-ins (E-53): a v2 card is a recommendation row, sessions link to it, and the re-check reads "support completed" from it. `POST /v1/decisions` (no row) still has none | — | E-52, E-53 |
 | T-24 | Keep older engine releases runnable for replay (DESIGN §7); today a record from another engine version is reported as a mismatch | One engine version exists so far | E-52 |
+| T-25 | Move the card's remaining presentation content (state names, meanings and icons; light labels, icons and colours) from the v1 content snapshot into the v2 rule set, then retire the v1 snapshot | The app's existing wording kept so nothing is invented during the switch | E-53 |
+| T-26 | Give Adapt's adaptations (environment, scope, pace …) a v2 fact, so "Adapt" re-runs with the adapted conditions (pattern 12); today it re-runs the same input | No rule reads adaptations yet | E-53 |
+| T-27 | Raise `ENGINE_VERSION` on any change to the engine's behaviour or trace once records exist outside development, and add a check that fails when the output changes without it | One unreleased engine version so far | E-52, E-53 |
 | T-22 | v1's timing budgets (`packages/engine/test/budget.test.ts`, p95 < 2 ms and < 1 ms) fail when `pnpm check` runs the suites in parallel on a loaded 2-core host; they pass run alone | Environment, not code; CI runs on its own runner | E-50 |
 
 ## Before launch

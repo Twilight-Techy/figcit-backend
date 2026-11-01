@@ -64,7 +64,8 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [ ] Query, impact report, exhaustive check for safety rows (E-21)
 
 ## M8 App
-- [ ] Rewire the PWA to the server-only engine; remove `vendor/engine`; Figma S81 wording (U-01, U-02)
+- [x] The check-in runs on engine v2 on the server; the card contract is unchanged; the wording is rule-set data (E-53)
+- [ ] Remove the engine copy from the PWA (`vendor/engine`); Figma S81 wording (U-01, U-02)
 - [ ] Retire the PWA `/admin` screens (U-03)
 - [ ] Squash the branch's migrations into one before the PR (E-34)
 

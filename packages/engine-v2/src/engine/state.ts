@@ -62,6 +62,16 @@ export class RunState {
     return undefined;
   }
 
+  /**
+   * The fact has a value of its own: sent, worked out, or set by a rule. A left-out boolean or set
+   * reads as false or empty but has none, so the trace doesn't change when a fact is added.
+   */
+  has(name: string): boolean {
+    const own = this.computed(name);
+    if (own !== NOT_COMPUTED) return own !== undefined;
+    return this.input[name] !== undefined;
+  }
+
   private computed(name: string): unknown {
     switch (name) {
       case 'state.cell': {
@@ -108,9 +118,9 @@ export class RunState {
     return rated.length > 0 ? Math.max(...rated) : null;
   }
 
-  /** RC-1 "better cell": the new baseline is above the band the re-checked card had. */
+  /** RC-1 "better cell": the new cell's band is above the re-checked cell's (both baselines). */
   private bandImproved(): boolean | undefined {
-    const previous = this.input['recheck.previous_band'];
+    const previous = this.input['recheck.previous_baseline'];
     if (this.baseline === undefined || typeof previous !== 'string') return undefined;
     return this.bandOrder(this.baseline) > this.bandOrder(previous);
   }
