@@ -28,6 +28,13 @@ export {
   type InputRow,
   type MapsTo,
 } from './format/inputs.js';
+export {
+  checkInOptionsOf,
+  type CheckInOptionsView,
+  type OptionsRow,
+  type PublicCell,
+  type PublicOption,
+} from './format/public-options.js';
 export { rowIssues, VALUE_TABS, type CheckedRow } from './format/rows.js';
 export {
   ACTIONS,
