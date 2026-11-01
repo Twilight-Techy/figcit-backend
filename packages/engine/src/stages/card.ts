@@ -1,7 +1,14 @@
 // Stages 9–12: context tool filter, entitlement filter (ENT-1–ENT-3), personalisation re-rank and
 // the card itself (one primary, up to two alternatives, rationale, queued step).
 import type { Facts, Plan, StepSpec } from '../patterns/index.js';
-import type { Action, ActionKind, GateResult, Light, SnapshotTool } from '../types.js';
+import type {
+  Action,
+  ActionKind,
+  GateResult,
+  IntensityBand,
+  Light,
+  SnapshotTool,
+} from '../types.js';
 import { intensityBand } from './experience.js';
 
 const DEFAULT_LABELS: Readonly<Record<ActionKind, string>> = {
@@ -232,6 +239,17 @@ function rerank(f: Facts, alternatives: Action[]): void {
   alternatives.sort((a, b) => (scores[b.toolId ?? ''] ?? 0) - (scores[a.toolId ?? ''] ?? 0));
 }
 
+/**
+ * Intensity as a word that reads before a feeling ("strong anxiety"). The band names themselves
+ * ("very high") don't: they produced "you're feeling very high low" (backend TODO T-18).
+ */
+const FEELING_WORD: Readonly<Record<IntensityBand, string>> = {
+  mild: 'mild',
+  moderate: 'moderate',
+  high: 'strong',
+  very_high: 'very strong',
+};
+
 export function rationale(
   f: Facts,
   plan: Plan,
@@ -252,7 +270,7 @@ export function rationale(
       top = weight;
       feeling = family.feeling.replace(
         '{intensity}',
-        intensityBand(intensity, t.high, t.veryHigh, t.moderate).replace('_', ' '),
+        FEELING_WORD[intensityBand(intensity, t.high, t.veryHigh, t.moderate)],
       );
     }
   }

@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0+7c6bace7",
+  "version": "3.3.0+31e08959",
   "workbookVersion": "3.3",
   "cells": [
     {
@@ -245,7 +245,7 @@
       "valence": "negative",
       "ex1": "high",
       "cx1": true,
-      "feeling": "you're feeling {intensity} low"
+      "feeling": "you're feeling {intensity} sadness"
     },
     {
       "code": "restlessness",

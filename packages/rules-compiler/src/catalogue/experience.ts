@@ -62,7 +62,7 @@ export const FAMILIES: readonly SnapshotFamily[] = [
     valence: 'negative',
     ex1: 'high',
     cx1: true,
-    feeling: "you're feeling {intensity} low",
+    feeling: "you're feeling {intensity} sadness",
   },
   {
     code: 'restlessness',

@@ -326,6 +326,12 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Until then:** the app keeps the Browse check-in and card on the device, as before. This also keeps PRD US-M01-03 ("Browse stores nothing on the server") true until O-02 is settled.
 - **Revert:** store Browse records once M5 exists (E-05).
 
+### E-47 Card sentences use intensity words that read as English
+- **Decision:** the card's "because" sentence names intensity as **mild, moderate, strong, very strong**. It no longer uses the band names: "very high" produced "you're feeling very high low". The sadness phrase ends in a noun ("you're feeling very strong sadness"), like the others.
+- **v1 now:** engine 1.1.2, with a test that every intensity reads correctly.
+- **v2:** the card wording in M4 uses the same words.
+- **Revert:** n/a (wording fix; was TODO T-18).
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
