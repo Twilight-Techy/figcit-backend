@@ -2,7 +2,7 @@ name: AI evals
 
 # Every AI eval set, nightly and on demand, never on a PR (SYSTEM_DESIGN §4.3.8, issue #39).
 # Against the AI server when the AI_EVAL_BASE_URL secret is set; until then, against a pinned
-# Qwen3.5-4B on the runner's CPU, which scores quality but is slower than the real server.
+# Ministral 3 3B (ADR 0003) on the runner's CPU, which scores quality but is slower than the real server.
 on:
   schedule:
     - cron: '0 2 * * *'
@@ -22,8 +22,8 @@ permissions:
 env:
   LLAMA_CPP: b12020
   LLAMA_CPP_SHA256: 1b69032f9ab60dc6aa909689fda941fa1b9162f6ab46b863582d5649d96ac6be
-  MODEL_URL: https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf
-  MODEL_SHA256: 00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4
+  MODEL_URL: https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512-GGUF/resolve/eb599d408350ea2bb60452cb86be7c7b2fc28227/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf
+  MODEL_SHA256: 9ed150d4367e68df0ac8e1540f6ddc65b42d0ee26378329d1ecbca60f93fc5f8
 
 jobs:
   evals:
@@ -32,7 +32,7 @@ jobs:
     env:
       AI_BASE_URL: ${{ secrets.AI_EVAL_BASE_URL || 'http://127.0.0.1:8080' }}
       AI_TOKEN: ${{ secrets.AI_EVAL_TOKEN }}
-      AI_MODEL: ${{ secrets.AI_EVAL_BASE_URL && vars.AI_EVAL_MODEL || 'qwen3.5-4b-q4_k_m-runner-cpu' }}
+      AI_MODEL: ${{ secrets.AI_EVAL_BASE_URL && vars.AI_EVAL_MODEL || 'ministral-3-3b-q4_k_m-runner-cpu' }}
       # Secrets can't be read in a step's `if`, so this says whether there's a server to use.
       AI_SERVER: ${{ secrets.AI_EVAL_BASE_URL != '' }}
     steps:

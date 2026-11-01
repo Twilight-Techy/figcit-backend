@@ -41,7 +41,7 @@ const envSchema = z.object({
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
   // AI and speech (self-hosted; optional: every call has a fallback)
   AI_BASE_URL: z.url().optional(),
-  AI_MODEL: z.string().default('qwen3.5-4b-instruct-q4_k_m'),
+  AI_MODEL: z.string().default('ministral-3-3b-instruct-q4_k_m'),
   AI_TOKEN: z.string().optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(100).default(8000),
   ASSIST_DAILY_ALLOWANCE: z.coerce.number().int().min(0).default(10),
