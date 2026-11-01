@@ -14,7 +14,10 @@ import type {
  * rule, effect or column is added, with a script that upgrades older rule sets.
  * 2: engine columns, the catalogue and input mappings tables (E-36, E-37).
  * 3: band.set, band.limit_drop, band.limit_rise, light.never, classes.add and the re-check facts
- *    the Tab 10 rules need (E-48).
+ *    the Tab 10 rules need (E-48); while M3 is open its additions join format 3, as no format 3
+ *    rule set has left the dev database: minutes.cap and driver weights (E-49); practice.limit,
+ *    tools.tier, tier.limit, tier.require, reminder.offer, two card actions, the default layer,
+ *    the practice_mode and tier values, six input facts and the derived-fact stage check (E-50).
  */
 export const RULESET_FORMAT = 3;
 

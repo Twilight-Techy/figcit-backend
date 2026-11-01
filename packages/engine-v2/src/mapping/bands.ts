@@ -149,13 +149,15 @@ const ex1: Condition = any(
   })),
   { fact: 'sensation.intensity', key: 'pain', op: 'gte', value: { band: 'high' } },
   { fact: 'families', op: 'contains', value: 'shutdown_freeze_numb' },
+  { fact: 'sensation.intensity', key: 'shutdown', op: 'present' },
 );
 
 export const BAND_RULES: TabMapping = {
   rows: {
     'EX-1': {
-      mapping: 'exact',
-      reason: 'The trigger as written; "Body PAIN" is the pain sensation group.',
+      mapping: 'interpreted',
+      reason:
+        'The trigger as written; "Body PAIN" is the pain sensation group, and "shutdown/freeze" includes the shutdown sensations (frozen, can\'t speak aloud, selective mutism), as the Tab 2 shutdown row reads it (E-50).',
       engine: {
         stage: 'capacity_fit',
         rules: [{ when: ex1, then: [set('band.lower', { steps: 1 })] }],

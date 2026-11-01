@@ -10,12 +10,14 @@ import {
   type AdditionsReport,
   type FormatDescription,
   type ImportReport,
+  type MappingReport,
   type RulesetRecord,
   type SheetFrames,
 } from '@figcit/engine-v2';
 import { Prisma } from '@prisma/client';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { BadInput, NotFound } from '../../common/errors/errors.js';
+import { RuleGapsService, type UnresolvedRow } from './rule-gaps.service.js';
 import { RulesetAuditService, type Actor } from './ruleset-audit.service.js';
 import {
   countsOf,
@@ -42,6 +44,33 @@ import {
 
 const LONG = { timeout: 60_000 } as const;
 
+/** The new version's unresolved rows, with the mapping file's reason and who decides. */
+async function unresolvedRows(
+  tx: Tx,
+  versionId: string,
+  reported: MappingReport['unresolved'],
+): Promise<UnresolvedRow[]> {
+  if (reported.length === 0) return [];
+  const rows = await tx.rulesetRecord.findMany({
+    where: { versionId, mapping: 'unresolved' },
+    select: { recordId: true, tab: true, sourceRef: true, safety: true },
+  });
+  return reported.flatMap((u) => {
+    const row = rows.find((r) => r.tab === u.tab && r.sourceRef === u.ref);
+    return row
+      ? [
+          {
+            recordId: row.recordId,
+            ref: `${u.tab} · ${u.ref}`,
+            reason: u.reason,
+            decides: u.decides,
+            safety: row.safety,
+          },
+        ]
+      : [];
+  });
+}
+
 /**
  * The engine v2 rule store (docs/engine-v2/DESIGN.md §3, §6): reads versions, imports the
  * workbook into a draft word for word, starts drafts from a version, and exports a version back
@@ -53,6 +82,7 @@ export class RulesetsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: RulesetAuditService,
+    private readonly gaps: RuleGapsService,
   ) {}
 
   async list(): Promise<VersionSummary[]> {
@@ -170,6 +200,8 @@ export class RulesetsService {
         include: { basedOn: { select: { label: true } } },
       });
       const keptIds = await this.insertRecords(tx, actor, version.id, full.records, latest.ids);
+      const unresolved = await unresolvedRows(tx, version.id, mapped.report.unresolved);
+      const gapsOpened = await this.gaps.openForUnresolved(tx, actor, unresolved);
       await this.audit.append(tx, actor, {
         action: 'ruleset.import',
         versionId: version.id,
@@ -179,6 +211,7 @@ export class RulesetsService {
           records: full.records.length,
           seeded: full.additions.catalogue,
           keptIds,
+          gapsOpened,
         },
       });
       return version;

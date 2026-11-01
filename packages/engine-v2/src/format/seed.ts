@@ -269,6 +269,16 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
       },
     })),
     ...interpreted(
+      'practice_mode',
+      ['eyes_open', 'silent', 'headphones', 'short_chips'],
+      'reflect_meditate · MD-2, MD-4 and D. (eyes-open, silent, headphones, short chips)',
+    ),
+    ...interpreted(
+      'tier',
+      ['advanced', 'floor'],
+      'tools_tiers · A. (Advanced tools column; Safety floor column)',
+    ),
+    ...interpreted(
       'plan',
       ['free', 'plus', 'institution'],
       'tools_tiers · A. heading (NUCCESS Plus or institution licence)',

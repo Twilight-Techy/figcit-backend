@@ -28,6 +28,8 @@ export const DOMAINS = [
   'pattern',
   'plan',
   'support',
+  'practice_mode',
+  'tier',
 ] as const;
 export type Domain = (typeof DOMAINS)[number];
 
@@ -54,6 +56,9 @@ export const DOMAIN_INFO: Readonly<Record<Domain, string>> = {
   pattern: 'Recommendation pattern (Tab 7)',
   plan: 'Plan the user is on (Tab 6d, interpreted)',
   support: 'Support available right now (Figma S10; Tabs 3a, 3b and 6c read headphones)',
+  practice_mode:
+    'How an offered Reflect or Meditate practice may run (Tab 6c MD-2, MD-4, section D)',
+  tier: 'Tool tier the Tab 6d rows mark: Advanced (paid) or the safety floor; other tools are free',
 };
 
 /** The engine's stages, in run order, each tied to its Tab 8 step. */
@@ -83,6 +88,10 @@ export const LAYERS = [
   { key: 'trigger', label: 'Feeling, sensation or need' },
   { key: 'task_due', label: 'A task due now (T0)' },
   { key: 'offer', label: 'Optional Reflect and Meditate offers' },
+  {
+    key: 'default',
+    label: "The band's default card, when nothing above proposes (patterns 1-8, 31)",
+  },
 ] as const;
 export type LayerKey = (typeof LAYERS)[number]['key'];
 
@@ -96,6 +105,8 @@ export const ACTIONS = [
   'skip_to_task',
   'start_small',
   'save_for_later',
+  'open_home',
+  'check_in',
 ] as const;
 export type Action = (typeof ACTIONS)[number];
 
@@ -115,6 +126,11 @@ export interface FactSpec {
   readonly max?: number;
   /** The stage that sets it. */
   readonly stage: StageKey;
+  /**
+   * Set by rules during the run (the band, the light, setting classes, drivers), so a rule can
+   * read it only at or after that stage; input facts are known from the start.
+   */
+  readonly derived?: true;
   readonly description: string;
 }
 
@@ -167,6 +183,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'enum',
     domain: 'band',
     stage: 'state',
+    derived: true,
     description: 'Band set by the cell (Tab 1, Tab 10)',
   }),
   fact({
@@ -174,6 +191,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'enum',
     domain: 'band',
     stage: 'capacity_fit',
+    derived: true,
     description: 'Band after the modifiers (Tab 10)',
   }),
   fact({
@@ -181,6 +199,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'enum',
     domain: 'light',
     stage: 'capacity_fit',
+    derived: true,
     description: 'Light shown on the card',
   }),
   fact({
@@ -237,6 +256,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'set',
     domain: 'setting_class',
     stage: 'context',
+    derived: true,
     description: 'Classes of that setting (public, formal ...)',
   }),
   fact({
@@ -271,6 +291,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'set',
     domain: 'driver',
     stage: 'drivers',
+    derived: true,
     description: 'NUCRIPCE drivers tagged',
   }),
   fact({
@@ -368,6 +389,47 @@ export const FACTS: readonly FactSpec[] = [
     domain: 'support',
     stage: 'context',
     description: 'Support available right now (headphones, someone with me ...)',
+  }),
+  fact({
+    name: 'recheck.previous_pathway',
+    type: 'enum',
+    domain: 'pathway',
+    stage: 'feedback',
+    description:
+      'Pathway of the primary on the card being re-checked (RF-2 "the re-check after Reflect")',
+  }),
+  fact({
+    name: 'prefs.meditation_worse',
+    type: 'boolean',
+    stage: 'entry',
+    description: 'The user has said meditation makes them feel worse (MD-2); a saved setting',
+  }),
+  fact({
+    name: 'prefs.body_scan_opt_in',
+    type: 'boolean',
+    stage: 'entry',
+    description: 'The user has opted in to body-scan practice (Tab 6c B); a saved setting',
+  }),
+  fact({
+    name: 'signals.advanced_dismissed',
+    type: 'boolean',
+    stage: 'entitlements',
+    description: 'The user dismissed the Advanced alternative, which ENT-3 says is remembered',
+  }),
+  fact({
+    name: 'signals.in_session',
+    type: 'boolean',
+    stage: 'entitlements',
+    description:
+      'The user is in a support session (ENT-3 "during a session"; not defined yet, IG-21)',
+  }),
+  fact({
+    name: 'signals.rejected',
+    type: 'set',
+    domain: 'pathway',
+    stage: 'orchestration',
+    description:
+      'Pathways the user just said "Not now" to (Tab 7: not repeated immediately; "immediately" is IG-21)',
   }),
 ];
 

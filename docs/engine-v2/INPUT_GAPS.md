@@ -233,6 +233,7 @@ Values the system already holds, used by the rules:
 | Recovery window open | RC-1/RC-2 (45 min) | Standard |
 | Saved practices: due now, type, opening/closing | Patterns 37, 39 | Fields not defined in the workbook |
 | "Meditation makes me feel worse"; body scan opt-in | MD-2 | Where the user sets these isn't defined |
+| Advanced alternative dismissed | ENT-3 ("remembered") | Where it's kept and for how long (E-50: `signals.advanced_dismissed`) |
 | Plan (Free, Plus, institution) | Tab 6d | Standard |
 | Trusted contact saved | Pattern 28 | Standard |
 | Region | Pattern 28 crisis routes | UK only today; confirm for the MVP |
@@ -245,3 +246,4 @@ Values the system already holds, used by the rules:
   1. Which scales are standard? (Related: CONFLICTS D-26.)
   2. **The Figma re-check doesn't ask about feelings,** so RC-1's "intensity down by 2+" can't be measured. Either the re-check also asks feelings, or RC-1 uses the cell only.
   3. **"Support completed"** (RC-1) isn't defined: finished the session? a minimum time? the user said it helped?
+  4. **The re-checked card's pathway** (RF-2, pattern 40: "the re-check after Reflect is worse") comes from the stored recommendation once records exist (M5); the engine reads it as `recheck.previous_pathway` (E-50).

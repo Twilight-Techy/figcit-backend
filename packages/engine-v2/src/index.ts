@@ -71,6 +71,8 @@ export type {
 export { COPY_KEY, MAPPED, opsFor, validateEngine, validateMapping } from './format/validate.js';
 export {
   applyMappings,
+  copyKeysOf,
+  mappedRules,
   MAPPINGS,
   type MappingReport,
   type RowMapping,

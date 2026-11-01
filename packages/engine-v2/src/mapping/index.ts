@@ -6,13 +6,23 @@ import type { TabKey } from '../ruleset/types.js';
 import { BAND_RULES, BANDS, STATE_GRID } from './bands.js';
 import { CONTEXTS, SENSITIVITY_FLAGS } from './context.js';
 import { DEMAND_CHARACTERISTICS, TIMELINES } from './demand.js';
+import { EXPERIENCE_CORE } from './experience.js';
+import { EXPERIENCE_REFLECT } from './experience-reflect.js';
 import { NEEDS } from './needs.js';
+import { NON_NEGOTIABLES } from './non-negotiables.js';
+import { PATTERNS_BAND } from './patterns-band.js';
+import { PATTERNS_OFFER } from './patterns-offer.js';
+import { PATTERNS_TRIGGER } from './patterns-trigger.js';
+import { REFLECT_MEDITATE } from './reflect-meditate.js';
+import { TOOLS_TIERS } from './tools-tiers.js';
 import { COVERAGE_GAPS, DECISION_SEQUENCE, DRIVERS, JOURNEY_LAYERS } from './reference-tabs.js';
+import type { EngineColumns, EngineRule } from '../format/types.js';
 import type { RowMapping, TabMapping } from './types.js';
 
 /** The reviewed mapping file, by tab (M3). Tabs not listed stay `pending`. */
 export const MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   journey_layers: JOURNEY_LAYERS,
+  experience_triggers: { rows: { ...EXPERIENCE_CORE, ...EXPERIENCE_REFLECT } },
   decision_sequence: DECISION_SEQUENCE,
   coverage_gaps: COVERAGE_GAPS,
   drivers: DRIVERS,
@@ -24,6 +34,10 @@ export const MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   timelines: TIMELINES,
   demand_characteristics: DEMAND_CHARACTERISTICS,
   needs: NEEDS,
+  reflect_meditate: REFLECT_MEDITATE,
+  tools_tiers: TOOLS_TIERS,
+  patterns: { rows: { ...PATTERNS_BAND, ...PATTERNS_TRIGGER, ...PATTERNS_OFFER } },
+  non_negotiables: NON_NEGOTIABLES,
 };
 
 const NOT_A_RULE: RowMapping = {
@@ -51,7 +65,7 @@ export interface MappingReport {
     readonly tab: TabKey;
     readonly ref: string;
     readonly reason: string;
-    readonly decides: string;
+    readonly decides: Extract<RowMapping, { mapping: 'unresolved' }>['decides'];
   }[];
 }
 
@@ -117,6 +131,43 @@ export function applyMappings(
       .filter((key) => !used.has(key)),
   );
   return { records: out, report: { byTab: coverageOf(out), unmatched, invalid, unresolved } };
+}
+
+/** One rule of a mapped row, with where it comes from. */
+export interface MappedRule {
+  readonly tab: TabKey;
+  readonly ref: string;
+  readonly layer: EngineColumns['layer'];
+  readonly rule: EngineRule;
+}
+
+/** Every rule of every `exact` or `interpreted` row in the mapping file, in file order. */
+export function* mappedRules(
+  mappings: Readonly<Partial<Record<TabKey, TabMapping>>> = MAPPINGS,
+): Generator<MappedRule> {
+  for (const [tab, m] of Object.entries(mappings) as [TabKey, TabMapping][]) {
+    for (const [ref, row] of Object.entries(m.rows ?? {})) {
+      if (row.mapping !== 'exact' && row.mapping !== 'interpreted') continue;
+      for (const rule of row.engine.rules) yield { tab, ref, layer: row.engine.layer, rule };
+    }
+  }
+}
+
+/**
+ * Every wording key the mapping file uses, sorted: the copy table M4 must fill. Read from the
+ * engine columns, so a key can't be used without appearing here.
+ */
+export function copyKeysOf(
+  mappings: Readonly<Partial<Record<TabKey, TabMapping>>> = MAPPINGS,
+): string[] {
+  const keys = new Set<string>();
+  for (const { rule } of mappedRules(mappings)) {
+    for (const e of rule.then) {
+      const key = e.kind === 'copy.use' ? e['key'] : e['copy'];
+      if (typeof key === 'string') keys.add(key);
+    }
+  }
+  return [...keys].sort();
 }
 
 export type { RowMapping, TabMapping } from './types.js';

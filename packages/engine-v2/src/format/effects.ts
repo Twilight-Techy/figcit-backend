@@ -162,6 +162,53 @@ export const EFFECTS: readonly EffectSpec[] = [
     description: 'Keep only these drivers (none: drop all)',
   }),
   effect({
+    kind: 'practice.limit',
+    class: 'requirement',
+    params: {
+      modes: { type: 'enum_list', domain: 'practice_mode', min: 1 },
+      max_minutes: { type: 'int', min: 1, max: 60 },
+      tools: { type: 'enum_list', domain: 'tool', min: 1 },
+    },
+    optional: ['max_minutes', 'tools'],
+    description:
+      'A practice offered here (these tools, or every Reflect and Meditate tool) runs only in these modes, and for at most this long (MD-2, MD-4, Tab 6c D)',
+  }),
+  effect({
+    kind: 'reminder.offer',
+    class: 'proposal',
+    params: { minutes: { type: 'int', min: 1, max: 1440 }, copy: { type: 'key' } },
+    optional: ['copy'],
+    description: 'Offer "Remind me in N minutes" on the card (patterns 20, 29, 30, 37)',
+  }),
+  effect({
+    kind: 'tools.tier',
+    class: 'modifier',
+    params: {
+      tier: { type: 'enum', domain: 'tier' },
+      tools: { type: 'enum_list', domain: 'tool', min: 1 },
+    },
+    description:
+      'These tools are of this tier (the Tab 6d section A rows; ENT-9 changes are rule edits)',
+  }),
+  effect({
+    kind: 'tier.limit',
+    class: 'requirement',
+    params: {
+      tier: { type: 'enum', domain: 'tier' },
+      max: { type: 'int', min: 0, max: 3 },
+      slot: { type: 'slot' },
+    },
+    optional: ['slot'],
+    description: 'At most this many tools of this tier on the card, or in that slot (ENT-1, ENT-3)',
+  }),
+  effect({
+    kind: 'tier.require',
+    class: 'requirement',
+    params: { tier: { type: 'enum', domain: 'tier' }, slot: { type: 'slot' } },
+    description:
+      "The slot's tool must be of this tier (Tab 6d D: a safety-floor tool in Amber and Red)",
+  }),
+  effect({
     kind: 'copy.use',
     class: 'modifier',
     params: { slot: { type: 'slot' }, key: { type: 'key' } },

@@ -28,8 +28,8 @@ describe('the mapping file', () => {
     }
     expect(report.byTab.band_rules).toMatchObject({
       rules: 14,
-      exact: 5,
-      interpreted: 7,
+      exact: 4,
+      interpreted: 8,
       reference: 2,
     });
     expect(report.byTab.bands).toMatchObject({ rules: 5, exact: 1, interpreted: 3, reference: 1 });
@@ -59,6 +59,45 @@ describe('the mapping file', () => {
     expect(report.byTab.needs).toMatchObject({ rules: 21, exact: 3, interpreted: 18, pending: 0 });
   });
 
+  it('covers Tab 2 row by row', () => {
+    expect(report.byTab.experience_triggers).toMatchObject({
+      rules: 34,
+      exact: 5,
+      interpreted: 25,
+      unresolved: 1,
+      reference: 3,
+      pending: 0,
+    });
+    expect(report.unresolved).toContainEqual(
+      expect.objectContaining({
+        tab: 'experience_triggers',
+        ref: 'Recurring struggle noticed (SYSTEM-LED + user confirms) · n/a (pattern)',
+        decides: 'founder',
+      }),
+    );
+  });
+
+  it('never fires a Tab 2 rule without its trigger', () => {
+    const rows = records.filter((r) => r.tab === 'experience_triggers' && r.engine !== null);
+    for (const r of rows) {
+      const engine = r.engine as { rules: { when: unknown }[] };
+      for (const rule of engine.rules) expect(rule.when, r.sourceRef).not.toBeNull();
+    }
+  });
+
+  it('runs shutdown, sensory overload and rumination as guards (ADR 0001 §2)', () => {
+    const layerOf = (prefix: string) =>
+      (
+        records.find((r) => r.tab === 'experience_triggers' && r.sourceRef.startsWith(prefix))
+          ?.engine as { layer?: string }
+      ).layer;
+    expect(layerOf('Shutdown')).toBe('guard');
+    expect(layerOf('Sensory overload')).toBe('guard');
+    expect(layerOf('Rumination')).toBe('guard');
+    expect(layerOf('Wanting to make sense')).toBe('offer');
+    expect(layerOf('Distress')).toBe('trigger');
+  });
+
   it('marks deferred characteristics as reference, with the reason', () => {
     const imposed = records.find(
       (r) => r.tab === 'demand_characteristics' && r.sourceRef === 'Imposed by someone else',
@@ -75,8 +114,9 @@ describe('the mapping file', () => {
     expect((cx1?.engine as { interpretation?: string }).interpretation).toMatch(
       /negative experience family/,
     );
-    const ex1 = records.find((r) => r.tab === 'band_rules' && r.sourceRef === 'EX-1');
-    expect((ex1?.engine as { interpretation?: string }).interpretation).toBeUndefined();
+    const cap1 = records.find((r) => r.tab === 'band_rules' && r.sourceRef === 'CAP-1');
+    expect(cap1?.mapping).toBe('exact');
+    expect((cap1?.engine as { interpretation?: string }).interpretation).toBeUndefined();
   });
 
   it('reports a bad mapping and leaves the row pending', () => {

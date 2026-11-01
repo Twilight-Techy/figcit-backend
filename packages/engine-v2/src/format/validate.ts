@@ -19,6 +19,37 @@ import { EFFECTS, type ParamSpec } from './effects.js';
 export const COPY_KEY = /^[a-z0-9_.]{3,120}$/;
 const PROPOSING = new Set(EFFECTS.filter((e) => e.class === 'proposal').map((e) => e.kind));
 const FACT_BY_NAME = new Map(FACTS.map((f) => [f.name, f]));
+const STAGE_INDEX = new Map<unknown, number>(STAGES.map((s, i) => [s.key, i]));
+
+/** The facts a condition reads, in tree order. */
+function factsIn(cond: unknown, out: string[] = []): string[] {
+  if (!isObj(cond)) return out;
+  for (const key of ['all', 'any'] as const) {
+    const children = cond[key];
+    if (Array.isArray(children)) for (const child of children) factsIn(child, out);
+  }
+  if ('not' in cond) factsIn(cond['not'], out);
+  if (typeof cond['fact'] === 'string') out.push(cond['fact']);
+  return out;
+}
+
+/**
+ * A rule that reads a derived fact before the stage that sets it would see nothing: the engine
+ * runs the stages in order (Tab 8). Reported on the rule, naming the stage to run it at.
+ */
+function checkStageOrder(c: Checker, when: unknown, stage: unknown, at: string): void {
+  const runs = STAGE_INDEX.get(stage);
+  if (runs === undefined) return;
+  for (const name of new Set(factsIn(when))) {
+    const spec = FACT_BY_NAME.get(name);
+    const ready = spec?.derived ? STAGE_INDEX.get(spec.stage) : undefined;
+    if (ready !== undefined && runs < ready)
+      c.fail(
+        `${at}/when`,
+        `${name} is set at the ${spec?.stage ?? ''} stage; run the rule there or later`,
+      );
+  }
+}
 const EFFECT_BY_KIND = new Map(EFFECTS.map((e) => [e.kind, e]));
 
 type Obj = Readonly<Record<string, unknown>>;
@@ -239,7 +270,7 @@ export function opsFor(spec: FactSpec): readonly string[] {
     : base;
 }
 
-function checkRules(c: Checker, rules: unknown): boolean {
+function checkRules(c: Checker, rules: unknown, rowStage: unknown): boolean {
   if (!Array.isArray(rules) || rules.length === 0 || rules.length > LIMITS.rulesPerRow) {
     c.fail('/rules', `expected 1-${String(LIMITS.rulesPerRow)} rules`);
     return false;
@@ -256,6 +287,7 @@ function checkRules(c: Checker, rules: unknown): boolean {
       c.fail(`${at}/stage`, `expected one of ${STAGES.map((st) => st.key).join(', ')}`);
     c.resetCount();
     if (rule['when'] !== null && 'when' in rule) c.condition(rule['when'], `${at}/when`, 1);
+    checkStageOrder(c, rule['when'], 'stage' in rule ? rule['stage'] : rowStage, at);
     const then = rule['then'];
     if (!Array.isArray(then) || then.length === 0 || then.length > LIMITS.effectsPerRule)
       c.fail(`${at}/then`, `expected 1-${String(LIMITS.effectsPerRule)} effects`);
@@ -281,7 +313,7 @@ export function validateEngine(engine: unknown, catalogue: Catalogue): Issue[] {
     c.fail('/stage', `expected one of ${STAGES.map((s) => s.key).join(', ')}`);
   if ('layer' in engine && !LAYERS.some((l) => l.key === engine['layer']))
     c.fail('/layer', `expected one of ${LAYERS.map((l) => l.key).join(', ')}`);
-  const proposes = checkRules(c, engine['rules']);
+  const proposes = checkRules(c, engine['rules'], engine['stage']);
   if (proposes && !('layer' in engine)) c.fail('/layer', 'a row that proposes needs a layer');
   if ('interpretation' in engine) c.text(engine['interpretation'], '/interpretation');
   return c.issues;

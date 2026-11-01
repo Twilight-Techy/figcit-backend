@@ -6,6 +6,9 @@ import { readWorkbook } from '@figcit/engine-v2';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { bootApi, type Api } from './helpers.js';
 
+/** Catalogue rows seeded from the workbook and the additions (E-49, E-50). */
+const CATALOGUE_ROWS = 299;
+
 const dir = resolve(import.meta.dirname, '../../../docs/specs/rules-engine-v3.3');
 const files: Record<string, string> = {};
 for (const name of readdirSync(dir))
@@ -29,6 +32,21 @@ interface Row {
   columns: { header: string; text: string; col: number }[];
 }
 type Items<T> = { items: T[] };
+
+/** Rows the mapping file marks unresolved; each must have exactly one open gap (E-50). */
+const UNRESOLVED = [
+  'experience_triggers · Recurring struggle noticed (SYSTEM-LED + user confirms) · n/a (pattern)',
+  'patterns · 34',
+];
+const openGapsFor = async (ref: string): Promise<number> => {
+  const res = await api.req<Items<{ kind: string; sourceRefs: string[] }>>(
+    'GET',
+    '/rulesets/gaps?status=open',
+    { token: admin },
+  );
+  return res.body.items.filter((g) => g.kind === 'unrepresentable' && g.sourceRefs.includes(ref))
+    .length;
+};
 
 let api: Api;
 let admin: string;
@@ -78,11 +96,13 @@ describe('rule store (engine v2)', () => {
 
     const v = await api.req<Version>('GET', `/rulesets/${first}`, { token: reader });
     // The workbook's rows, plus the catalogue filled from them (E-36).
-    // 193 values read exactly from rows; 100 interpreted (setting classes, plans, sensation groups,
-    // 79 tools and 4 supports: E-49).
-    expect(res.body.additions.catalogue).toBe(293);
+    // 193 values read exactly from rows; 106 interpreted (setting classes, plans, sensation groups,
+    // 79 tools and 4 supports: E-49; practice modes and tiers: E-50).
+    expect(res.body.additions.catalogue).toBe(CATALOGUE_ROWS);
     // ...plus the check-in options filled from Figma (E-40).
-    expect(v.body.counts.records).toBe(expected.records.length + 293 + res.body.additions.inputs);
+    expect(v.body.counts.records).toBe(
+      expected.records.length + CATALOGUE_ROWS + res.body.additions.inputs,
+    );
     expect(v.body.counts.safety).toBeGreaterThan(5);
 
     const tab = await api.req<Items<Row>>('GET', `/rulesets/${first}/tabs/band_rules`, {
@@ -93,6 +113,8 @@ describe('rule store (engine v2)', () => {
     const source = expected.records.find((r) => r.tab === 'band_rules' && r.sourceRef === 'EX-1');
     expect(ex1?.columns).toEqual(source?.columns);
     expect(rules.find((r) => r.sourceRef === 'SF-1')?.safety).toBe(true);
+    // Unresolved rows open a gap each, for the decider named in the mapping file.
+    for (const ref of UNRESOLVED) expect(await openGapsFor(ref), ref).toBe(1);
   });
 
   it('refuses a second open version, an incomplete upload and writes by readers', async () => {
@@ -133,7 +155,7 @@ describe('rule store (engine v2)', () => {
       readWorkbook(files).records.map(strip),
     );
     // ...and the added tables travel with them, so a re-import keeps them (E-36).
-    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(293);
+    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(CATALOGUE_ROWS);
     expect(exported.filter((r) => r.tab === 'input_mappings').length).toBeGreaterThan(200);
     expect(Object.keys(res.body.files)).toEqual(
       expect.arrayContaining(['x-catalogue.csv', 'x-input-mappings.csv']),
@@ -429,6 +451,8 @@ describe('rule store (engine v2)', () => {
     expect(tab.body.items.find((r) => r.sourceRef === 'EX-1')?.recordId).toBe(
       rules.find((r) => r.sourceRef === 'EX-1')?.recordId,
     );
+    // A re-import doesn't open a second gap for a row whose gap is still open.
+    for (const ref of UNRESOLVED) expect(await openGapsFor(ref), ref).toBe(1);
     await api.req('POST', `/rulesets/${label}/discard`, {
       token: admin,
       body: { reason: 'e2e done' },

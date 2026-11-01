@@ -33,12 +33,13 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Mapping file mechanism, applied on import with a coverage report (E-48)
 - [x] States, bands and band rules (Tabs 1, 10); reference tabs 5, 8, 11, 12
 - [x] Context, sensitivity, timelines, demand characteristics, needs (Tabs 3a, 3b, 4, 6, 6b); tool catalogue (E-49)
-- [ ] Experience triggers (Tab 2)
-- [ ] Patterns 1 to 41, footer rules (Tab 7)
-- [ ] Reflect and Meditate gates, tools and entitlements (Tabs 6c, 6d)
-- [ ] Decision sequence and journey layers (Tabs 8, 11)
-- [ ] Each row marked exact, interpreted, unresolved or reference; gaps recorded
-- [ ] Catalogue fills for sensation groups and tools; the four input mappings (E-19)
+- [x] Experience triggers (Tab 2) (E-50)
+- [x] Patterns 1 to 41, non-negotiables (Tab 7) (E-50)
+- [x] Reflect and Meditate gates, tools and entitlements (Tabs 6c, 6d) (E-50)
+- [x] Decision sequence and journey layers (Tabs 8, 11): reference (E-48)
+- [x] Each row marked exact, interpreted, unresolved or reference: 354 rule rows, none pending; unresolved rows open a gap on import (E-50)
+- [x] Catalogue fills for sensation groups and tools; the input mappings (E-19, E-40, E-49)
+- [x] Format check refuses a rule that reads a derived fact before its stage (E-50)
 
 ## M4 Engine
 - [ ] Stages 0 to 12 on the rule set; requirements and proposals; exempt rules skipped

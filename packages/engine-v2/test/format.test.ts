@@ -257,6 +257,39 @@ describe('validating engine columns', () => {
     expect(validateEngine('x', catalogue)[0]?.message).toBe('expected the engine columns');
   });
 
+  it('refuses a rule that reads a derived fact before the stage that sets it', () => {
+    const light = { fact: 'light', op: 'eq', value: 'red' };
+    const run = (engine: unknown) => validateEngine(engine, catalogue);
+    const early = run({
+      stage: 'intervention',
+      rules: [{ when: light, then: [{ kind: 'support.show' }] }],
+    });
+    expect(early).toEqual([
+      {
+        path: '/rules/0/when',
+        message: 'light is set at the capacity_fit stage; run the rule there or later',
+      },
+    ]);
+    // The rule's own stage wins over the row's; input facts are readable from the start.
+    expect(
+      run({
+        stage: 'intervention',
+        rules: [{ stage: 'orchestration', when: light, then: [{ kind: 'support.show' }] }],
+      }),
+    ).toEqual([]);
+    expect(
+      run({
+        stage: 'safety',
+        rules: [
+          {
+            when: { fact: 'demand.present', op: 'is', value: true },
+            then: [{ kind: 'support.show' }],
+          },
+        ],
+      }),
+    ).toEqual([]);
+  });
+
   it('ties the mapping status to the engine columns', () => {
     expect(validateMapping('pending', null, catalogue)).toEqual([]);
     expect(validateMapping('reference', ex1, catalogue)[0]?.message).toBe(

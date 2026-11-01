@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, type RuleDecision, type RuleGap } from '@prisma/client';
-import { PrismaService } from '../../common/db/prisma.service.js';
+import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { BadInput, Conflict, NotFound } from '../../common/errors/errors.js';
 import { RulesetAuditService, type Actor } from './ruleset-audit.service.js';
 
@@ -75,6 +75,16 @@ export interface DecisionDto extends Omit<DecisionInput, 'gapIds'> {
 
 const iso = (d: Date | null): string | null => d?.toISOString() ?? null;
 export const gapCode = (n: number): string => `GAP-${String(n).padStart(4, '0')}`;
+
+/** A row the import's mapping file marks `unresolved`, as stored in the new version. */
+export interface UnresolvedRow {
+  readonly recordId: string;
+  /** "tab · reference", as gaps show it. */
+  readonly ref: string;
+  readonly reason: string;
+  readonly decides: 'founder' | 'clinical_safety';
+  readonly safety: boolean;
+}
 
 function toGap(g: RuleGap): GapDto {
   return {
@@ -203,6 +213,49 @@ export class RuleGapsService {
       });
       return toGap(gap);
     });
+  }
+
+  /**
+   * Opens a gap for each unresolved row of an import (E-11, E-50): the engine skips the row, and
+   * the gap says why and who decides. A row that already has an unresolved-row gap still open
+   * gets no second one, so re-imports don't pile up gaps. Runs in the import's transaction.
+   * Returns the new gaps' codes.
+   */
+  async openForUnresolved(tx: Tx, actor: Actor, rows: readonly UnresolvedRow[]): Promise<string[]> {
+    if (rows.length === 0) return [];
+    const open = await tx.ruleGap.findMany({
+      where: {
+        kind: 'unrepresentable',
+        status: { not: 'resolved' },
+        recordIds: { hasSome: rows.map((r) => r.recordId) },
+      },
+      select: { recordIds: true },
+    });
+    const covered = new Set(open.flatMap((g) => g.recordIds));
+    const codes: string[] = [];
+    for (const r of rows.filter((row) => !covered.has(row.recordId))) {
+      const gap = await tx.ruleGap.create({
+        data: {
+          title: `${r.ref}: can't run yet`.slice(0, 200),
+          kind: 'unrepresentable',
+          detail: r.reason,
+          recordIds: [r.recordId],
+          sourceRefs: [r.ref],
+          decides: r.decides,
+          safety: r.safety,
+          docRef: 'DECISION_LOG E-50',
+          createdById: actor.id,
+        },
+      });
+      const code = gapCode(gap.number);
+      await this.audit.append(tx, actor, {
+        action: 'gap.create',
+        gapId: gap.id,
+        detail: { code, title: gap.title, kind: gap.kind, refs: [r.ref], safety: r.safety },
+      });
+      codes.push(code);
+    }
+    return codes;
   }
 
   async update(actor: Actor, id: string, input: GapUpdate): Promise<GapDto> {

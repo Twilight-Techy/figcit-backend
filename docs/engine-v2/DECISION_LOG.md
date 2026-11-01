@@ -373,6 +373,63 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Format 3 additions:** `drivers.add` takes an optional weight; new effect `minutes.cap`.
 - **Revert:** n/a (method); each row is editable.
 
+### E-50 Tabs 2, 6c, 6d, 7 and the non-negotiables mapped: every rule row is mapped (M3)
+- **Coverage:** all 354 rule rows have a status: 27 exact, 156 interpreted, 2 unresolved, 169 reference, none pending. Each row's reason is in the mapping file (`packages/engine-v2/src/mapping/`) and in the dashboard.
+- **Tab 2 (experience triggers):**
+  - Each row reads its own feeling's intensity, because Tab 8 step 3 rates each feeling separately. "Use the HIGHEST intensity" decides which feeling leads when several fire. That is ranking, done by the engine (M4), not a row.
+  - A skipped intensity matches neither a "Mild or Moderate" row nor a "High" row (IG-04: it must not read as mild). Rows marked "Any" still fire.
+  - A sensation in a feeling's group (E-19) fires that feeling's row, e.g. "Frozen" fires the shutdown row. EX-1 now counts the shutdown sensations too, so it is `interpreted`.
+  - "Demand deferred" reads as Red reads it: no task step, no "try anyway", "skip to task" or "start small", and no drivers. "Reduced to the minimum" means the task never leads; only its smallest step is queued.
+  - "Co-primary" becomes a primary plus the first alternative, in the order written: the card has one primary.
+  - "Immediate risk language" and "Not sure" are reference: SF-1 and NS-1 already run them.
+- **Layers** (ADR 0001 §2):
+  - **Guard:** shutdown, sensory overload, rumination, MD-2, and patterns 16, 19 and 40.
+  - **Offer:** the v3.2 Reflect and Meditate rows, patterns 32 to 39, RF-1, MD-1, MD-4 and the Tab 6c setting rows.
+  - **Task due:** pattern 15.
+  - **New lowest layer, `default`:** the band patterns (1 to 8, 14, 27, 30, 31). They propose the band's card only when nothing above proposes, so a feeling still picks the action within what the band allows. ADR 0001's order is unchanged.
+- **"Asked for":** a Reflect or Meditate feeling or need, or a practice that is due. "Remind me later" and "find a space" only show then. A test keeps these lists in step with the rows that offer Reflect or Meditate. It caught "Start or end my day well", which offers the end-of-day close.
+- **Tab 6c:**
+  - **RF-1:** no Reflect in Amber or Red, or with a harder feeling at High+. Amber shows "remind me later" where Reflect was asked for.
+  - **RF-2:** no Reflect with rumination, or after a worse re-check of a Reflect card. The per-topic block stays deferred.
+  - **MD-1 (c), (d):** Amber with a harder feeling at Moderate+ leads with Regulate, and the 3-minute settle or the user's own practice is offered as an alternative. In Red, Meditate is never the primary.
+  - **MD-2:** a guard. Eyes-open only, no body scan, and the saved prayer audio only when the user starts it.
+  - **MD-4 and section D:** each setting limits how a practice runs.
+  - **Body scan:** offered only to users who opted in (the Meditate definition row).
+  - RF-3 to RF-5, MD-3, MD-5 and MD-6 are reference: they describe tool, records or notification behaviour, or are structural.
+- **Tab 6d:**
+  - **Tiers:** the section A rows mark tools as Advanced or safety floor as rules (`tools.tier`, E-49). There are 44 Advanced tools, 17 floor tools and 18 other free tools. Every pathway except Reflect has a floor.
+  - **ENT-1 and ENT-3:** read as rules for users whose plan lacks Advanced (the upselling rule). Such a user never gets an Advanced primary. Under strain, or after dismissing one, they see no Advanced tool; otherwise at most one.
+  - **Amber and Red, on every plan:** the primary is a floor tool, and no Advanced tool is shown.
+  - Plans, features and ENT-2 and ENT-4 to ENT-9 are reference (billing, records, workflow, or structural).
+- **Tab 7 patterns:**
+  - Each pattern proposes the same targets as the Tab 2 row it refines, with its CTA and alternative wording keys (`card.p<n>.cta`, `card.p<n>.alt.*`).
+  - **Conditions with no input yet stay out:** "safety-critical" (18), "persistent" pain (24), "end of a demanding day" (33) and the same-topic count (40). Each is recorded in the pattern's reason.
+  - **Pattern 13** needs two or more flags (ADR 0001 defers one flag).
+  - **Pattern 30** stops all suggestions. A step forced by a higher layer (distress, safety) still shows.
+  - **Pattern 28** is SF-1; its support-screen copy needs clinical sign-off.
+  - **Pattern 41** is MD-2.
+- **Non-negotiables:**
+  - "Don't repeat a rejected suggestion" means the pathway just declined isn't the next primary (`signals.rejected`).
+  - The others are structural or are mapped elsewhere. A test checks that no rule ever requires Reflect or Meditate.
+- **Unresolved (2), founder decides:** "Recurring struggle" (the Tab 2 row and pattern 34). Both need a history signal from the check-in records (M5, IG-21).
+  - **New:** on import, each unresolved row opens an `unrepresentable` gap in the gap register, for its decider. A re-import doesn't open a second gap while the first is still open.
+- **Format 3 additions** (M3 is still open and no format 3 rule set has left the dev database):
+  - **Effects:** `practice.limit` (modes, minutes, optional tools); `tools.tier`, `tier.limit` and `tier.require`; `reminder.offer`.
+  - **Actions:** `open_home` and `check_in`.
+  - **Layer:** `default`.
+  - **Value lists:** `practice_mode` (eyes open, silent, headphones, short chips) and `tier`.
+  - **Facts:** `recheck.previous_pathway`, `prefs.meditation_worse`, `prefs.body_scan_opt_in`, `signals.advanced_dismissed`, `signals.in_session` and `signals.rejected`.
+  - **Stage-order check:** facts set by rules (band, light, setting classes, drivers) are marked `derived`. The validator refuses a rule that reads one before the stage that sets it.
+- **For the engine (M4), decided here so the mapping means one thing:**
+  - Equal proposals (same target, same slot) merge into one. The wording comes from the highest-ranked proposal that has wording.
+  - The `queued` slot is an ordered list.
+  - Forbidding a pathway forbids its tools.
+  - Within a stage, rows run in tab, then row order (Tab 6d section A before the ENT rows).
+  - When two requirements conflict, the one from the higher layer wins.
+  - The 95 wording keys (`copyKeysOf()`) need their text.
+- **Interpretations for the founder to confirm** (T-20): the ENT-3 upselling reading; skipped intensity matching no band row; anger without a communication need giving no route; the rumination guard leaving out the user's own practice; "anything needing silence" read as the stillness timer; "in bed: not first thing" read as never the primary; the lab counted as a formal setting; "Leave early" read as Step out.
+- **Revert:** n/a (method); each row's mapping is editable.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
