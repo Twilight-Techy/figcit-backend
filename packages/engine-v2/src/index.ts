@@ -113,3 +113,28 @@ export {
   type WorkbookCell,
 } from './ruleset/types.js';
 export { toCsv, writeWorkbook, type WritableRecord } from './ruleset/write-workbook.js';
+export {
+  checkInput,
+  compile,
+  ENGINE_FORMATS,
+  ENGINE_VERSION,
+  MAX_ALTERNATIVES,
+  publishChecks,
+  PUBLISH_CHECKS,
+  run,
+  sweepInputs,
+  type PublishCheckId,
+  type PublishCheckReport,
+  type Violation,
+  type Card,
+  type CardItem,
+  type CompiledRule,
+  type CompiledRuleset,
+  type EngineInput,
+  type EngineRow,
+  type ProposalFate,
+  type RuleCheck,
+  type RunOptions,
+  type RunResult,
+  type Trace,
+} from './engine/index.js';

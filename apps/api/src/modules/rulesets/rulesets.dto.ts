@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import type {
+  PublishCheckReport,
   Issue,
   JsonValue,
   MappingStatus,
@@ -93,6 +94,8 @@ export interface VersionChecks {
   readonly blocking: readonly BlockingExemption[];
   readonly invalid: readonly InvalidRow[];
   readonly catalogueIssues: readonly Issue[];
+  /** The engine run on the publish sweep against the workbook's fixed rules (M4, DESIGN §5). */
+  readonly behaviour: PublishCheckReport;
 }
 
 export interface CellInput {

@@ -41,7 +41,7 @@ const NOT_NOW =
 
 export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
   '1': pattern({
-    when: all(band('available'), noDistress, noTask),
+    when: all(band('available'), not(peak('gte', 'high')), noTask),
     layer: 'default',
     rules: [
       rule(null, [
@@ -50,10 +50,10 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
         propose('alternative', path('regulate'), copyOf(1, 'alt.regulate')),
       ]),
     ],
-    reason: `"No distress trigger" read as no harder feeling at all. ${NOT_NOW}`,
+    reason: `"No distress trigger" read as no harder feeling at High+: a feeling that triggers anything ranks above this default card anyway (E-51). ${NOT_NOW}`,
   }),
   '2': pattern({
-    when: all(band('available'), noDistress, withTask, not(exploring)),
+    when: all(band('available'), not(peak('gte', 'high')), withTask, not(exploring)),
     layer: 'default',
     rules: [
       rule(null, [
@@ -62,7 +62,7 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
       ]),
     ],
     reason:
-      'Straight to the task. Its "Explore this for 10 minutes?" wording is pattern 14\'s, which covers the Exploration- or Interest-led case.',
+      'Straight to the task; "no distress trigger" as in pattern 1, so mild anxiety stays an alternative (ADR 0004). Its "Explore this for 10 minutes?" wording is pattern 14\'s, which covers the Exploration- or Interest-led case.',
   }),
   '3': pattern({
     when: all(band('conditional'), mildOrNone, withTask, drivers(['routine']), notT0),
@@ -163,15 +163,17 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
     when: all(eq('demand.timeline', 'T0'), withTask),
     layer: 'task_due',
     rules: [
-      rule(peak('gte', 'moderate'), [
-        propose('primary', path('regulate'), copyOf(15, 'reset')),
+      rule(peak('gte', 'moderate'), [propose('primary', path('regulate'), copyOf(15, 'reset'))]),
+      rule(any(peak('gte', 'moderate'), band('constrained', 'very_constrained')), [
         propose('queued', tool('smallest_step'), copyOf(15)),
       ]),
-      rule(not(peak('gte', 'moderate')), [propose('primary', tool('smallest_step'), copyOf(15))]),
+      rule(all(not(peak('gte', 'moderate')), not(band('constrained', 'very_constrained'))), [
+        propose('primary', tool('smallest_step'), copyOf(15)),
+      ]),
       rule(lights('red'), [set('minutes.cap', { max: 1 }), set('support.show')]),
     ],
     reason:
-      '"Distress trigger active" read as a harder feeling at Moderate+: the shortest reset (Tab 4 caps it at 2 minutes; 1 minute in Red, ADR 0004 §3), then the smallest step. Urgency is the T0 row. "I need more time" has no card action yet (M4).',
+      '"Distress trigger active" read as a harder feeling at Moderate+: the shortest reset (Tab 4 caps it at 2 minutes; 1 minute in Red, ADR 0004 §3), then the smallest step. In Amber and Red the task can\'t lead, so its smallest step is queued after the band\'s reset. Urgency is the T0 row. "I need more time" has no card action yet (M4).',
   }),
   '27': pattern({
     when: is('state.not_sure', true),

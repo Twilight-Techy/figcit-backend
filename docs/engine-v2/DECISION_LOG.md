@@ -430,6 +430,63 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Interpretations for the founder to confirm** (T-20): the ENT-3 upselling reading; skipped intensity matching no band row; anger without a communication need giving no route; the rumination guard leaving out the user's own practice; "anything needing silence" read as the stillness timer; "in bed: not first thing" read as never the primary; the lab counted as a formal setting; "Leave early" read as Step out.
 - **Revert:** n/a (method); each row's mapping is editable.
 
+### E-51 The engine (M4): how a check-in becomes a card, and the checks before publish
+- **Where:** `packages/engine-v2/src/engine/`, pure with no dependencies. `compile(rows, catalogue)` puts a version's rows in run order; `run(compiled, input, { trace })` gives the card and the trace; `publishChecks(compiled)` checks the fixed rules. Engine version 2.0.0; it runs format 3.
+- **Input:** the input facts by name, in standard values only, checked against the registry and the version's catalogue.
+  - A fact the rules set (`derived`) or the engine works out (`computed`) is refused if sent.
+  - A boolean left out is false; a set left out is empty; an unrated feeling is present with no rating.
+- **Facts the engine works out:**
+  - the State Grid cell, from energy and mood;
+  - the families felt;
+  - the number of sensitivity flags;
+  - `peak.negative`: the highest rating among the *harder* families. Which families are harder is now catalogue data (the family's group, `interpreted`, E-48's CX-1 list), and CX-1 reads `peak.negative`, so the list exists once.
+- **Run order:** stage (Tab 8), then "wave" (within a stage, rules that set a derived fact run before rules that read it), then the workbook's tab and row order. `compile` reports any rule order that can't be settled.
+- **The band and the light:**
+  - The band is settled when read: the baseline, minus the drops, then the drop limit (CAP-1), the floor (E4M1) and the rise limit (RC-3, RC-4). So the order the Tab 10 modifiers fire in doesn't matter.
+  - Blue is an overlay (`light.overlay`, new) shown over the band's light, unless `light.never` says no (RC-5).
+- **The card:**
+  - **Requirements always beat proposals.**
+  - **When a "must" and a "forbid" clash,** the one from the higher layer wins; a row with no layer ranks last. So a forced reset still shows after "Not now" or pattern 30.
+  - **Proposals rank** by layer, then by how strongly the feeling behind them is felt (Tab 2's "use the HIGHEST intensity"), then by workbook order. A need has no rating, so it ranks below a rated feeling in the same layer.
+  - **Equal proposals merge,** keeping the first wording in rank order.
+  - **A primary that lost to a better one is offered as an alternative.**
+  - **The queue** (the plan after the primary) is filled before the alternatives.
+  - **At most two alternatives.**
+  - **A pathway becomes its best allowed tool:** preferred tools first, then catalogue order. Never an excluded or forbidden tool, one already on the card, or one outside the slot's tier or over a tier limit.
+  - **A required pathway takes the best proposal within it,** e.g. a forced Regulate shows pattern 16's tap-only Breathe and its wording.
+  - **Wording (`copy.use`) applies** to the item its own row put on the card.
+  - **"Get support now" comes first** among the visible buttons.
+- **The safety override** stops the run after the safety stage; the card is the support screen only.
+- **Trace:** `light` lists the rules that fired; `full` adds every rule checked (and where its condition failed), the facts after each stage, and what happened to each proposal (used, merged, blocked by, outranked, no tool, over the limit). The card names the input the primary's rule matched ("Because you said X").
+- **Checks before publish** (DESIGN §5):
+  - **The sweep:** 3,468 inputs covering every cell and "not given", each feeling at High, no task or T0 or T3, and free or Plus, with places and flags rotated through.
+  - **The 8 fixed rules:**
+    - Red shows support;
+    - support is never hidden;
+    - the primary is in the user's plan;
+    - nothing Advanced in Amber or Red;
+    - one primary and at most two alternatives;
+    - no task first in Amber or Red;
+    - the Hopeless chip shows the support screen;
+    - no Reflect in Amber or Red.
+  - The v3.3 rule set breaks none of them; the sweep takes about 2 seconds.
+  - **On submit:** each broken rule is recorded as a gap (decided by Clinical Safety for the safety ones), naming the rows responsible.
+  - **On publish:** a broken rule blocks until its gap is acknowledged, like an exempt safety row (E-21). So a deliberate, signed-off exemption such as SF-1 can still ship, and an accidental break can't.
+- **Mapping bugs the engine exposed, fixed:**
+  - **The Tab 1 "regulate first" rows (E-48) never checked their cell,** so they fired for every cell. Each now checks its own cell.
+  - **RC-1, RC-3, RC-4 and RC-5 ran at the feedback stage,** after the light and the card. They now run at capacity fit. A new format check refuses any rule that changes the band, the light or the setting classes after the stage that settles them.
+  - **Red with a task:** the task is off the card, except at T0, where only its smallest step is queued (ADR 0004 §3). Before, the step could come back as an alternative.
+  - **Amber:** Urgency is kept only at T0/T1 (ADR 0004 §9).
+  - **Amber and Red with a task but no strong feeling had no primary.** The Amber and Red band rows now propose a reset as their default card (in the new lowest `default` layer), with "Start small" in Amber (ADR 0004 §4).
+  - **Yellow:** Tab 10's "light or optional intervention" is a reset offered as an alternative.
+  - **Patterns 1 and 2** read "no distress trigger" as no harder feeling at High+, so mild anxiety in Green stays an alternative to the task (ADR 0004).
+  - **Pattern 15:** in Amber and Red, the T0 smallest step is queued, not proposed as the primary.
+- **To review (T-20):**
+  - losing primaries offered as alternatives;
+  - needs ranking below rated feelings;
+  - a Blue card with no task, or a Yellow one with nothing to do, has no primary, only options.
+- **Revert:** n/a (new engine); the band-row and pattern changes are rule edits.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

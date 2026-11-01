@@ -1,0 +1,428 @@
+import { valuesOf, type Catalogue } from '../format/catalogue.js';
+import { LAYERS } from '../format/registry.js';
+import type { Target } from '../format/types.js';
+import type { Material, Origin, Proposal } from './apply.js';
+import { because } from './conditions.js';
+import type { RunState } from './state.js';
+import type { Card, CardItem, ProposalFate } from './types.js';
+
+/** Tab 7 non-negotiable: one primary and a small number of alternatives. */
+export const MAX_ALTERNATIVES = 2;
+
+const LAYER_RANK = new Map<string, number>(LAYERS.map((l, i) => [l.key, i]));
+/** A row with no layer only sets requirements; in a clash it ranks below every layer (E-51). */
+const rankOf = (o: Origin): number =>
+  o.rule.layer === null ? LAYERS.length : (LAYER_RANK.get(o.rule.layer) ?? LAYERS.length);
+const keyOf = (t: Target): string =>
+  'pathway' in t ? `p:${t.pathway}` : 'tool' in t ? `t:${t.tool}` : `a:${t.action}`;
+
+/** Proposals of one target in one slot, merged: the best-ranked one stands for all (E-50). */
+interface Group {
+  readonly best: Proposal;
+  readonly copy: string | null;
+  readonly members: readonly Proposal[];
+  readonly demoted: boolean;
+}
+
+const byRank = (a: Group, b: Group): number =>
+  rankOf(a.best) - rankOf(b.best) ||
+  Number(a.demoted) - Number(b.demoted) ||
+  b.best.salience - a.best.salience ||
+  a.best.rule.seq - b.best.rule.seq;
+
+/** Groups of one target merged (an alternative and a primary that lost): best rank, first wording. */
+function merge(groups: readonly Group[]): Group[] {
+  const by = new Map<string, Group[]>();
+  for (const g of groups)
+    by.set(keyOf(g.best.target), [...(by.get(keyOf(g.best.target)) ?? []), g]);
+  return [...by.values()]
+    .map((same): Group => {
+      const sorted = [...same].sort(byRank);
+      const first = sorted[0] as Group;
+      return {
+        best: first.best,
+        members: sorted.flatMap((g) => g.members),
+        copy: sorted.find((g) => g.copy !== null)?.copy ?? null,
+        demoted: sorted.every((g) => g.demoted),
+      };
+    })
+    .sort(byRank);
+}
+
+/** Builds the card from what the rules asked (DESIGN §4.4); records each proposal's fate. */
+export class CardBuilder {
+  readonly fates: ProposalFate[] = [];
+  readonly notes: string[] = [];
+  private readonly placed: { item: CardItem; slot: string }[] = [];
+  private readonly toolPathway = new Map<string, string>();
+  private readonly toolsByPathway = new Map<string, string[]>();
+
+  constructor(
+    private readonly m: Material,
+    private readonly state: RunState,
+    private readonly catalogue: Catalogue,
+  ) {
+    for (const t of valuesOf(catalogue, 'tool')) {
+      if (t.group === null) continue;
+      this.toolPathway.set(t.code, t.group);
+      this.toolsByPathway.set(t.group, [...(this.toolsByPathway.get(t.group) ?? []), t.code]);
+    }
+  }
+
+  build(): Card {
+    if (this.m.stop !== null) return this.supportScreen();
+    const primary = this.primary();
+    // The queue is the plan after the primary, so it is filled before the options beside it.
+    const queued = this.queued(primary.item);
+    const alternatives = this.alternatives(primary.losers);
+    return {
+      kind: 'card',
+      band: (this.state.fact('band.final') as string | undefined) ?? null,
+      light: (this.state.fact('light') as string | undefined) ?? null,
+      primary: primary.item,
+      alternatives,
+      queued,
+      visible: this.visible(),
+      prompts: [...new Set(this.m.copyUses.filter((c) => c.slot === 'visible').map((c) => c.key))],
+      reminder: this.reminder(),
+      supportVisible: this.m.support !== null,
+      drivers: this.drivers(),
+      stepCap: this.stepCap(),
+      minutesCap: this.m.minutesCaps.length > 0 ? Math.min(...this.m.minutesCaps) : null,
+      practice: this.m.practice,
+      because: primary.rule ? because(primary.rule.when, this.state, this.catalogue) : [],
+    };
+  }
+
+  private supportScreen(): Card {
+    this.m.proposals.forEach((p) => {
+      this.fate(p, 'blocked', this.m.stop ?? undefined);
+    });
+    const item = this.actionItem({ action: 'get_support_now' }, this.m.stop ?? '');
+    return {
+      kind: 'support_screen',
+      band: null,
+      light: null,
+      primary: null,
+      alternatives: [],
+      queued: [],
+      visible: [item],
+      prompts: [],
+      reminder: null,
+      supportVisible: true,
+      drivers: [],
+      stepCap: null,
+      minutesCap: null,
+      practice: [],
+      because: [],
+    };
+  }
+
+  // ---- slots ----
+
+  private primary(): { item: CardItem | null; rule: Origin['rule'] | null; losers: Group[] } {
+    for (const must of [...this.m.musts.filter((r) => r.slot === 'primary')].sort(
+      (a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq,
+    )) {
+      const blocker = this.blocker(must.target, 'primary', rankOf(must));
+      if (blocker) {
+        this.notes.push(
+          `${must.rule.ref} requires ${keyOf(must.target)} first, but ${blocker} forbids it from a higher layer`,
+        );
+        continue;
+      }
+      const groups = this.groups('primary');
+      // A required pathway takes the best proposal within it (pattern 16's tap-only Breathe).
+      const within = groups.filter((g) => this.within(g.best.target, must.target));
+      const adopted = within.find((g) => this.blocker(g.best.target, 'primary', -1) === null);
+      const target = adopted?.best.target ?? must.target;
+      const item = this.resolve(target, 'primary', must.rule.id);
+      if (item === null) continue;
+      this.place(item, 'primary');
+      within.forEach((g) => {
+        this.groupFate(g, 'merged', must.rule.id, 'primary');
+      });
+      const losers = groups
+        .filter((g) => !within.includes(g))
+        .map((g) => ({ ...g, demoted: true }));
+      const copy = adopted?.copy ?? this.copyFor(must.target);
+      return { item: { ...item, copy }, rule: must.rule, losers };
+    }
+    const losers: Group[] = [];
+    let chosen: { item: CardItem; rule: Origin['rule'] } | null = null;
+    for (const g of this.groups('primary')) {
+      if (chosen) {
+        // A primary that lost is offered as an alternative instead (E-51); its fate is decided there.
+        losers.push({ ...g, demoted: true });
+        continue;
+      }
+      const item = this.take(g, 'primary');
+      if (item) chosen = { item, rule: g.best.rule };
+    }
+    return { item: chosen?.item ?? null, rule: chosen?.rule ?? null, losers };
+  }
+
+  private alternatives(losers: readonly Group[]): CardItem[] {
+    const out: CardItem[] = [];
+    for (const g of merge([...this.groups('alternative'), ...losers])) {
+      if (out.length >= MAX_ALTERNATIVES) {
+        this.groupFate(g, 'over_limit');
+        continue;
+      }
+      const item = this.take(g, 'alternative');
+      if (item) out.push(item);
+    }
+    return out;
+  }
+
+  private queued(primary: CardItem | null): CardItem[] {
+    const out: CardItem[] = [];
+    for (const g of this.groups('queued')) {
+      if (primary && keyOf(g.best.target) === keyOf(primary.target)) {
+        this.groupFate(g, 'duplicate', primary.from);
+        continue;
+      }
+      const item = this.take(g, 'queued');
+      if (item) out.push(item);
+    }
+    return out;
+  }
+
+  private visible(): CardItem[] {
+    const out: CardItem[] = [];
+    if (this.m.support !== null)
+      out.push(this.actionItem({ action: 'get_support_now' }, this.m.support));
+    const musts = this.m.musts.filter((r) => r.slot === 'visible');
+    for (const must of musts) {
+      const blocker = this.blocker(must.target, 'visible', rankOf(must));
+      if (blocker) {
+        this.notes.push(
+          `${must.rule.ref} requires ${keyOf(must.target)}, but ${blocker} forbids it from a higher layer`,
+        );
+        continue;
+      }
+      if (!out.some((i) => keyOf(i.target) === keyOf(must.target)))
+        out.push({
+          ...this.actionItem(must.target, must.rule.id),
+          copy: this.copyFor(must.target),
+        });
+    }
+    for (const g of this.groups('visible')) {
+      if (out.some((i) => keyOf(i.target) === keyOf(g.best.target))) {
+        this.groupFate(
+          g,
+          'merged',
+          out.find((i) => keyOf(i.target) === keyOf(g.best.target))?.from,
+        );
+        continue;
+      }
+      const item = this.take(g, 'visible');
+      if (item) out.push(item);
+    }
+    return out;
+  }
+
+  // ---- proposals ----
+
+  private groups(slot: string): Group[] {
+    const by = new Map<string, Proposal[]>();
+    for (const p of this.m.proposals.filter((x) => x.slot === slot))
+      by.set(keyOf(p.target), [...(by.get(keyOf(p.target)) ?? []), p]);
+    return [...by.values()]
+      .map((members): Group => {
+        const sorted = [...members].sort(
+          (a, b) => rankOf(a) - rankOf(b) || b.salience - a.salience || a.rule.seq - b.rule.seq,
+        );
+        const best = sorted[0] as Proposal;
+        return {
+          best,
+          members: sorted,
+          copy: sorted.find((p) => p.copy !== null)?.copy ?? null,
+          demoted: false,
+        };
+      })
+      .sort(byRank);
+  }
+
+  /** Places a group's target in a slot if every requirement allows it; records the fate. */
+  private take(g: Group, slot: string): CardItem | null {
+    const blocker = this.blocker(g.best.target, slot, -1);
+    if (blocker) {
+      this.groupFate(g, 'blocked', blocker);
+      return null;
+    }
+    const item = this.resolve(g.best.target, slot, g.best.rule.id);
+    if (item === null) {
+      this.groupFate(g, 'no_tool');
+      return null;
+    }
+    if (this.isPlaced(item, slot)) {
+      this.groupFate(g, 'duplicate');
+      return null;
+    }
+    this.place(item, slot);
+    this.fate(g.best, 'used', undefined, slot);
+    g.members.slice(1).forEach((p) => {
+      this.fate(p, 'merged', g.best.rule.id, slot);
+    });
+    return { ...item, copy: g.copy };
+  }
+
+  /** The forbid that keeps a target out of a slot, if one outranks `rank` (-1: any forbid). */
+  private blocker(target: Target, slot: string, rank: number): string | null {
+    const pathway =
+      'pathway' in target
+        ? target.pathway
+        : 'tool' in target
+          ? this.toolPathway.get(target.tool)
+          : undefined;
+    const hit = this.m.forbids.find((f) => {
+      if (f.slot !== null && f.slot !== slot) return false;
+      if (rank >= 0 && rankOf(f) >= rank) return false;
+      if ('pathway' in f.target) return f.target.pathway === pathway && !('action' in target);
+      return keyOf(f.target) === keyOf(target);
+    });
+    return hit ? hit.rule.id : null;
+  }
+
+  // ---- tools ----
+
+  /** The item a target becomes in a slot: a pathway resolves to its best allowed tool. */
+  private resolve(target: Target, slot: string, from: string): CardItem | null {
+    if ('action' in target) return this.actionItem(target, from);
+    const pathway =
+      'pathway' in target ? target.pathway : (this.toolPathway.get(target.tool) ?? null);
+    const candidates = 'tool' in target ? [target.tool] : this.preferred(target.pathway);
+    // A pathway takes its next allowed tool not already on the card; a named tool is itself.
+    const tool = candidates.find(
+      (t) => this.toolAllowed(t, slot) && ('tool' in target || !this.toolPlaced(t)),
+    );
+    if (tool === undefined) return null;
+    return {
+      target,
+      pathway,
+      tool,
+      advanced: this.inTier(tool, 'advanced'),
+      copy: null,
+      tone: this.toneFor(slot, from),
+      from,
+    };
+  }
+
+  private preferred(pathway: string): string[] {
+    const own = this.toolsByPathway.get(pathway) ?? [];
+    const prefs = [...this.m.prefers]
+      .sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)
+      .flatMap((p) => p.tools)
+      .filter((t) => own.includes(t));
+    return [...new Set([...prefs, ...own])];
+  }
+
+  private toolAllowed(tool: string, slot: string): boolean {
+    if (this.m.excluded.has(tool)) return false;
+    if (
+      this.m.forbids.some(
+        (f) => 'tool' in f.target && f.target.tool === tool && (f.slot === null || f.slot === slot),
+      )
+    )
+      return false;
+    if (this.m.tierRequires.some((r) => r.slot === slot && !this.inTier(tool, r.tier)))
+      return false;
+    return this.m.tierLimits.every((l) => {
+      if (!this.inTier(tool, l.tier) || (l.slot !== null && l.slot !== slot)) return true;
+      const used = this.placed.filter(
+        (p) =>
+          p.item.tool !== null &&
+          this.inTier(p.item.tool, l.tier) &&
+          (l.slot === null || p.slot === l.slot),
+      );
+      return used.length + 1 <= l.max;
+    });
+  }
+
+  private inTier(tool: string, tier: string): boolean {
+    return this.m.tiers.get(tier)?.has(tool) ?? false;
+  }
+
+  // ---- details ----
+
+  private actionItem(target: Target, from: string): CardItem {
+    return { target, pathway: null, tool: null, advanced: false, copy: null, tone: [], from };
+  }
+
+  private toolPlaced(tool: string): boolean {
+    return this.placed.some((p) => p.item.tool === tool);
+  }
+
+  /** The target is the required pathway, or one of its tools. */
+  private within(target: Target, required: Target): boolean {
+    if (!('pathway' in required)) return keyOf(target) === keyOf(required);
+    if ('pathway' in target) return target.pathway === required.pathway;
+    return 'tool' in target && this.toolPathway.get(target.tool) === required.pathway;
+  }
+
+  /** The same tool, or the same target in another slot (a button never shows twice). */
+  private isPlaced(item: CardItem, slot: string): boolean {
+    return this.placed.some(
+      (p) =>
+        (p.item.tool !== null && p.item.tool === item.tool) ||
+        (keyOf(p.item.target) === keyOf(item.target) && p.slot !== 'visible' && slot !== 'visible'),
+    );
+  }
+
+  private place(item: CardItem, slot: string): void {
+    this.placed.push({ item, slot });
+  }
+
+  /** Wording of a required target: the best proposal of the same target that has wording. */
+  private copyFor(target: Target): string | null {
+    return (
+      [...this.m.proposals]
+        .filter((p) => keyOf(p.target) === keyOf(target) && p.copy !== null)
+        .sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)[0]?.copy ?? null
+    );
+  }
+
+  /** Tone keys (copy.use) from the row that put the item there (E-51). */
+  private toneFor(slot: string, from: string): string[] {
+    const row = from.split('#')[0];
+    return this.m.copyUses.filter((c) => c.slot === slot && c.rule.rowId === row).map((c) => c.key);
+  }
+
+  private reminder(): Card['reminder'] {
+    const best = [...this.m.reminders].sort(
+      (a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq,
+    )[0];
+    return best ? { minutes: best.minutes, copy: best.copy } : null;
+  }
+
+  private drivers(): Card['drivers'] {
+    const order = valuesOf(this.catalogue, 'driver').map((v) => v.code);
+    return [...this.state.drivers.entries()]
+      .filter(([code]) => this.m.keepOnly.every((k) => k.drivers.includes(code)))
+      .sort(([a, wa], [b, wb]) => wb - wa || order.indexOf(a) - order.indexOf(b))
+      .map(([code, weight]) => ({ code, weight }));
+  }
+
+  private stepCap(): number | null {
+    const caps = this.m.stepCaps.filter((c): c is number => c !== null);
+    return caps.length > 0 ? Math.min(...caps) : null;
+  }
+
+  private groupFate(g: Group, fate: ProposalFate['fate'], by?: string, slot?: string): void {
+    g.members.forEach((p) => {
+      this.fate(p, fate, by, slot);
+    });
+  }
+
+  /** Records a proposal's fate; `slot` is where it ended up when that differs from where it asked. */
+  private fate(p: Proposal, fate: ProposalFate['fate'], by?: string, slot?: string): void {
+    this.fates.push({
+      from: p.rule.id,
+      slot: slot ?? p.slot,
+      target: p.target,
+      fate,
+      ...(by ? { by } : {}),
+    });
+  }
+}

@@ -101,6 +101,32 @@ function intensityBands(records: readonly RuleRecordDraft[], notes: string[]): S
   }));
 }
 
+/**
+ * The harder (negative) families: CX-1's "a negative experience family", which the workbook doesn't
+ * list (E-48). Stored as the family's Group, so the engine's `peak.negative` and CX-1 read one list
+ * that the clinical admin can change (E-51).
+ */
+export const HARDER_FAMILIES: readonly string[] = [
+  'distress_overwhelm',
+  'anxious_fearful',
+  'anger_frustration',
+  'shame_guilt',
+  'sadness_low_mood',
+  'grief_loss',
+  'rejection_sensitivity_hurt',
+  'sensory_overload_building_meltdown_risk',
+  'social_hangover_masking_fatigue',
+  'racing_disorganised_thoughts',
+  'loneliness_isolation',
+  'shutdown_freeze_numb',
+  'task_paralysis_can_t_start',
+  'confusion_decision_paralysis',
+  'anticipatory_unease_dread',
+  'rumination_replay_loop',
+  'pain_illness_flare',
+  'immediate_risk_language',
+];
+
 function families(records: readonly RuleRecordDraft[]): SeedRow[] {
   const seen = new Set<string>();
   const out: SeedRow[] = [];
@@ -108,10 +134,19 @@ function families(records: readonly RuleRecordDraft[]): SeedRow[] {
     const name = firstCell(r);
     if (seen.has(name)) continue;
     seen.add(name);
+    const code = slug(name);
+    const harder = HARDER_FAMILIES.includes(code);
     out.push({
       domain: 'family',
-      mapping: 'exact',
-      cells: { Code: slug(name), Label: name, Source: source(r) },
+      mapping: harder ? 'interpreted' : 'exact',
+      cells: {
+        Code: code,
+        Label: name,
+        Source: source(r),
+        ...(harder
+          ? { Group: 'harder', Note: 'Group: a harder family, read from CX-1 (E-48, E-51)' }
+          : {}),
+      },
     });
   }
   return out;

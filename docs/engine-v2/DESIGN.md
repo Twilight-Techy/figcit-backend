@@ -170,7 +170,7 @@ Every effect is one of two types:
 
 This is how the workbook's own wording works: Tab 10 "Red: intervention forced immediately; demand deferred" is a requirement, and Tab 7 patterns propose. It makes the Red-task-first bug impossible by design.
 
-Ranking between proposals uses the layers in ADR 0004 §2 (stored as an addition, section 3.4), then the pattern's position within its layer.
+Ranking between proposals uses the layers in ADR 0004 §2 (stored as an addition, section 3.4), then the pattern's position within its layer. Within a layer, the proposal whose feeling is felt most strongly comes first (Tab 2: "use the HIGHEST intensity"). The full set of card rules is in `DECISION_LOG.md` E-51.
 
 ### 4.5 Safety lexicon
 

@@ -12,6 +12,7 @@ const eq = (fact: string, value: string): Comparison => ({ fact, op: 'eq', value
 const among = (fact: string, value: readonly string[]): Comparison => ({ fact, op: 'in', value });
 const all = (...c: Condition[]): Condition => ({ all: c });
 const any = (...c: Condition[]): Condition => ({ any: c });
+const not = (c: Condition): Condition => ({ not: c });
 const set = (kind: string, params: Record<string, unknown> = {}): Effect => ({ kind, ...params });
 const finalIs = (band: string): Comparison => eq('band.final', band);
 const withDemand = (band: string): Condition => all(finalIs(band), is('demand.present', true));
@@ -27,20 +28,6 @@ const EX1_FAMILIES = [
   'rejection_sensitivity_hurt',
   'sensory_overload_building_meltdown_risk',
   'social_hangover_masking_fatigue',
-];
-
-/** "A negative experience family" (CX-1): the harder families of Tab 2; the workbook gives no list. */
-const NEGATIVE_FAMILIES = [
-  ...EX1_FAMILIES,
-  'racing_disorganised_thoughts',
-  'loneliness_isolation',
-  'shutdown_freeze_numb',
-  'task_paralysis_can_t_start',
-  'confusion_decision_paralysis',
-  'anticipatory_unease_dread',
-  'rumination_replay_loop',
-  'pain_illness_flare',
-  'immediate_risk_language',
 ];
 
 /** A band row: its baseline cells (State stage), its light, and what it requires of the card. */
@@ -64,6 +51,8 @@ function bandRow({
     reason,
     engine: {
       stage: 'capacity_fit',
+      // A band's own proposals are its default card: they rank below every feeling (E-51).
+      ...(card.some((r) => r.then.some((e) => e.kind === 'propose')) ? { layer: 'default' } : {}),
       rules: [
         { stage: 'state', when: among('state.cell', cells), then: [set('band.set', { to: band })] },
         { when: finalIs(band), then: [set('light.set', { light })] },
@@ -90,9 +79,13 @@ export const BANDS: TabMapping = {
           when: withDemand('conditional'),
           then: [set('require', { slot: 'visible', target: { action: 'skip_to_task' } })],
         },
+        {
+          when: finalIs('conditional'),
+          then: [set('propose', { slot: 'alternative', target: { pathway: 'regulate' } })],
+        },
       ],
       reason:
-        'Baseline cells (E4M1 is set by its own rule), Yellow, and "Skip to task always visible" when there is a task. "Light or optional intervention first" is left to the patterns, which propose it; a band-level proposal would outrank the feeling.',
+        'Baseline cells (E4M1 is set by its own rule), Yellow, and "Skip to task always visible" when there is a task. "Light or optional intervention first": a reset is offered as an alternative, in the default layer so a feeling or a pattern still decides the primary (E-51).',
       mapping: 'interpreted',
     }),
     Constrained: bandRow({
@@ -104,13 +97,22 @@ export const BANDS: TabMapping = {
           when: withDemand('constrained'),
           then: [
             set('forbid', { slot: 'primary', target: { pathway: 'execute' } }),
-            set('drivers.keep_only', { drivers: ['routine', 'urgency'] }),
             set('require', { slot: 'visible', target: { action: 'try_anyway' } }),
+            set('propose', { slot: 'primary', target: { pathway: 'regulate' } }),
+            set('propose', { slot: 'alternative', target: { action: 'start_small' } }),
           ],
+        },
+        {
+          when: all(withDemand('constrained'), among('demand.timeline', ['T0', 'T1'])),
+          then: [set('drivers.keep_only', { drivers: ['routine', 'urgency'] })],
+        },
+        {
+          when: all(withDemand('constrained'), not(among('demand.timeline', ['T0', 'T1']))),
+          then: [set('drivers.keep_only', { drivers: ['routine'] })],
         },
       ],
       reason:
-        '"Intervention is the forced primary": a task is never the primary. "Demand capped to Routine": only Routine is kept, with Urgency at T0/T1 as pattern 5 and Tab 9 say (ADR 0004 §9). "I\'ll try the task anyway" is never hidden.',
+        '"Intervention is the forced primary": a task is never the primary, and a short reset is the default one with "Start small" as an alternative (ADR 0004 §4; a feeling picks first, E-51). "Demand capped to Routine": only Routine is kept, with Urgency only at T0/T1 as pattern 5 and Tab 9 say (ADR 0004 §9). "I\'ll try the task anyway" is never hidden.',
       mapping: 'interpreted',
     }),
     'Very Constrained': bandRow({
@@ -119,17 +121,28 @@ export const BANDS: TabMapping = {
       cells: ['E1M1', 'E1M2'],
       card: [
         {
-          when: finalIs('very_constrained'),
+          when: all(finalIs('very_constrained'), not(eq('demand.timeline', 'T0'))),
+          then: [set('forbid', { target: { pathway: 'execute' } })],
+        },
+        {
+          when: all(finalIs('very_constrained'), eq('demand.timeline', 'T0')),
           then: [
             set('forbid', { slot: 'primary', target: { pathway: 'execute' } }),
+            set('forbid', { slot: 'alternative', target: { pathway: 'execute' } }),
+          ],
+        },
+        {
+          when: finalIs('very_constrained'),
+          then: [
             set('forbid', { target: { action: 'try_anyway' } }),
             set('drivers.keep_only', { drivers: [] }),
             set('support.show'),
+            set('propose', { slot: 'primary', target: { pathway: 'regulate' } }),
           ],
         },
       ],
       reason:
-        '"Intervention forced immediately; demand deferred; Support visible throughout". "Try anyway" is never shown in Red (ADR 0004 §3).',
+        '"Intervention forced immediately; demand deferred; Support visible throughout": no task step anywhere on the card, except at T0, where only its smallest step is queued after the reset (ADR 0004 §3). "Try anyway" is never shown in Red. A reset is the default primary; a feeling that leads to Dump or Connect picks first (E-51).',
       mapping: 'interpreted',
     }),
     'Recovery (overlay, not a band)': {
@@ -166,7 +179,7 @@ export const BAND_RULES: TabMapping = {
     'CX-1': {
       mapping: 'interpreted',
       reason:
-        '"A negative experience family" has no list in the workbook: read as the harder families of Tab 2. Setting classes come from the Tab 3b rows (classes.add).',
+        '"A negative experience family" has no list in the workbook: read as the harder families of Tab 2, kept as the families\' catalogue group "harder" (E-51), so any one felt makes peak.negative present. Setting classes come from the Tab 3b rows (classes.add).',
       engine: {
         stage: 'capacity_fit',
         rules: [
@@ -179,7 +192,7 @@ export const BAND_RULES: TabMapping = {
                 value: ['public', 'formal', 'observed', 'unfamiliar'],
               },
               any(
-                { fact: 'families', op: 'contains_any', value: NEGATIVE_FAMILIES },
+                { fact: 'peak.negative', op: 'present' },
                 { fact: 'sensation.intensity', key: 'sensory_overload', op: 'present' },
               ),
             ),
@@ -256,9 +269,9 @@ export const BAND_RULES: TabMapping = {
     'RC-1': {
       mapping: 'interpreted',
       reason:
-        '"Better cell" read as a higher baseline band than the last final band; "intensity down by 2+" on the harder feelings only (ADR 0004 §8); "intervention completed" as the support session being finished.',
+        'Runs at capacity fit, so on a re-check Blue applies to this card; Blue is an overlay on the band\'s light (E-51). "Better cell" read as a higher baseline band than the last final band; "intensity down by 2+" on the harder feelings only (ADR 0004 §8); "intervention completed" as the support session being finished.',
       engine: {
-        stage: 'feedback',
+        stage: 'capacity_fit',
         rules: [
           {
             when: all(
@@ -271,7 +284,7 @@ export const BAND_RULES: TabMapping = {
                 value: -2,
               }),
             ),
-            then: [set('light.set', { light: 'blue' })],
+            then: [set('light.overlay', { light: 'blue' })],
           },
         ],
       },
@@ -295,9 +308,10 @@ export const BAND_RULES: TabMapping = {
     },
     'RC-3': {
       mapping: 'exact',
-      reason: 'At most one step up per re-check, from the last final band.',
+      reason:
+        'At most one step up per re-check, from the last final band; applied at capacity fit, with the other band limits (E-51).',
       engine: {
-        stage: 'feedback',
+        stage: 'capacity_fit',
         rules: [
           { when: is('recheck.present', true), then: [set('band.limit_rise', { steps: 1 })] },
         ],
@@ -308,7 +322,7 @@ export const BAND_RULES: TabMapping = {
       reason:
         '"Light stays the same (or drops)" as no rise in band. "Offer a different route" is the engine\'s rejected-tools signal; "if Red, Support visible" is the Very Constrained row.',
       engine: {
-        stage: 'feedback',
+        stage: 'capacity_fit',
         rules: [
           {
             when: all(
@@ -329,7 +343,7 @@ export const BAND_RULES: TabMapping = {
       reason:
         '"Blue is NOT shown automatically" after a safety override. The clinical pathway is not defined yet (Clinical Safety): meanwhile "Get support now" stays visible.',
       engine: {
-        stage: 'feedback',
+        stage: 'capacity_fit',
         rules: [
           {
             when: is('signals.safety_event_recently', true),
@@ -358,25 +372,36 @@ export const BAND_RULES: TabMapping = {
   },
 };
 
-/** Tab 1: the four cells whose lean says "regulate first" get a reset even with no feeling (ADR 0004 §6). */
-const leanFirst: RowMapping = {
-  mapping: 'interpreted',
-  reason:
-    'Default lean "Regulate first", used for this cell only (ADR 0004 §6): a reset is proposed even when no feeling is picked.',
-  engine: {
-    stage: 'orchestration',
-    layer: 'band',
-    rules: [
-      {
-        when: { fact: 'families', op: 'empty' },
-        then: [set('propose', { slot: 'primary', target: { pathway: 'regulate' } })],
-      },
-    ],
-  },
-};
+/**
+ * Tab 1: the four cells whose lean says "regulate first" get a reset even with no feeling picked
+ * (ADR 0004 §6). Each row checks its own cell (E-51: the first version left the cell out, so it
+ * fired for every cell).
+ */
+function leanFirst(cell: string): RowMapping {
+  return {
+    mapping: 'interpreted',
+    reason:
+      'Default lean "Regulate first", for this cell only (ADR 0004 §6): a reset is proposed when no feeling is picked.',
+    engine: {
+      stage: 'orchestration',
+      layer: 'band',
+      rules: [
+        {
+          when: all(eq('state.cell', cell), { fact: 'families', op: 'empty' }),
+          then: [set('propose', { slot: 'primary', target: { pathway: 'regulate' } })],
+        },
+      ],
+    },
+  };
+}
 
 export const STATE_GRID: TabMapping = {
-  rows: { E2M1: leanFirst, E3M1: leanFirst, E4M1: leanFirst, E4M2: leanFirst },
+  rows: {
+    E2M1: leanFirst('E2M1'),
+    E3M1: leanFirst('E3M1'),
+    E4M1: leanFirst('E4M1'),
+    E4M2: leanFirst('E4M2'),
+  },
   all: {
     mapping: 'reference',
     reason:

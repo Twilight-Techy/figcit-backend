@@ -20,7 +20,11 @@ interface Version {
   hash: string | null;
   basedOn: string | null;
   counts: { records: number; rules: number; safety: number; retired: number };
-  checks: { blocking: unknown[]; invalid: { sourceRef: string }[] } | null;
+  checks: {
+    blocking: unknown[];
+    invalid: { sourceRef: string }[];
+    behaviour?: { ran: number; counts: Record<string, number> };
+  } | null;
 }
 interface Row {
   recordId: string;
@@ -96,8 +100,8 @@ describe('rule store (engine v2)', () => {
 
     const v = await api.req<Version>('GET', `/rulesets/${first}`, { token: reader });
     // The workbook's rows, plus the catalogue filled from them (E-36).
-    // 193 values read exactly from rows; 106 interpreted (setting classes, plans, sensation groups,
-    // 79 tools and 4 supports: E-49; practice modes and tiers: E-50).
+    // 175 values read exactly from rows; 124 interpreted (setting classes, plans, sensation groups,
+    // 79 tools and 4 supports: E-49; practice modes and tiers: E-50; harder families: E-51).
     expect(res.body.additions.catalogue).toBe(CATALOGUE_ROWS);
     // ...plus the check-in options filled from Figma (E-40).
     expect(v.body.counts.records).toBe(
@@ -326,6 +330,17 @@ describe('rule store (engine v2)', () => {
       '/rulesets/gaps?status=acknowledged',
       { token: admin },
     );
+    // ...and so do the gaps recording a broken fixed rule (E-51): reopen both for this run.
+    const byTitle = await api.req<Items<{ id: string; title: string }>>(
+      'GET',
+      '/rulesets/gaps?status=acknowledged',
+      { token: admin },
+    );
+    for (const g of byTitle.body.items.filter((x) => x.title.startsWith('Breaks a fixed rule')))
+      await api.req('PATCH', `/rulesets/gaps/${g.id}`, {
+        token: admin,
+        body: { status: 'open', reason: 'e2e reset' },
+      });
     for (const g of old.body.items.filter((x) => x.recordIds.includes(sf1.recordId)))
       await api.req('PATCH', `/rulesets/gaps/${g.id}`, {
         token: admin,
@@ -339,6 +354,9 @@ describe('rule store (engine v2)', () => {
     expect(submitted.body.status).toBe('in_review');
     expect(submitted.body.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(submitted.body.checks?.blocking).toHaveLength(1);
+    // With SF-1 exempt, the Hopeless chip no longer stops the run: the engine check catches it.
+    expect(submitted.body.checks?.behaviour?.counts['hopeless_override']).toBeGreaterThan(0);
+    expect(submitted.body.checks?.behaviour?.ran).toBe(3468);
 
     const editInReview = await api.req('PATCH', `/rulesets/${first}/records/${sf1.recordId}`, {
       token: admin,
@@ -374,6 +392,24 @@ describe('rule store (engine v2)', () => {
     await api.req('PATCH', `/rulesets/gaps/${gap.body.id}`, {
       token: admin,
       body: { status: 'acknowledged', reason: 'e2e sign-off' },
+    });
+
+    // The broken fixed rule was recorded as a gap on submit; it blocks until acknowledged too.
+    const unsafe = await api.req<{ code: string }>('POST', `/rulesets/${first}/publish`, {
+      token: admin,
+    });
+    expect(unsafe.status).toBe(409);
+    expect(unsafe.body.code).toBe('ruleset_unsafe');
+    const breaks = await api.req<Items<{ id: string; title: string; safety: boolean }>>(
+      'GET',
+      '/rulesets/gaps?status=open',
+      { token: admin },
+    );
+    const hopeless = breaks.body.items.find((g) => g.title.includes('Hopeless chip'));
+    expect(hopeless?.safety).toBe(true);
+    await api.req('PATCH', `/rulesets/gaps/${hopeless?.id ?? ''}`, {
+      token: admin,
+      body: { status: 'acknowledged', reason: 'e2e sign-off of the exemption' },
     });
 
     const published = await api.req<Version>('POST', `/rulesets/${first}/publish`, {

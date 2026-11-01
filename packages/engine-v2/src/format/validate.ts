@@ -22,7 +22,7 @@ const FACT_BY_NAME = new Map(FACTS.map((f) => [f.name, f]));
 const STAGE_INDEX = new Map<unknown, number>(STAGES.map((s, i) => [s.key, i]));
 
 /** The facts a condition reads, in tree order. */
-function factsIn(cond: unknown, out: string[] = []): string[] {
+export function factsIn(cond: unknown, out: string[] = []): string[] {
   if (!isObj(cond)) return out;
   for (const key of ['all', 'any'] as const) {
     const children = cond[key];
@@ -270,6 +270,25 @@ export function opsFor(spec: FactSpec): readonly string[] {
     : base;
 }
 
+/**
+ * A rule that changes a derived fact after the stage that sets it would act after the fact was
+ * read (the light after the card is built). Reported on the effect, naming the stage to use.
+ */
+function checkWriteOrder(c: Checker, then: unknown, stage: unknown, at: string): void {
+  const runs = STAGE_INDEX.get(stage);
+  if (runs === undefined || !Array.isArray(then)) return;
+  then.forEach((e: unknown, j) => {
+    const writes = isObj(e) ? EFFECT_BY_KIND.get(String(e['kind']))?.writes : undefined;
+    const spec = writes === undefined ? undefined : FACT_BY_NAME.get(writes);
+    const last = spec ? STAGE_INDEX.get(spec.stage) : undefined;
+    if (spec && last !== undefined && runs > last)
+      c.fail(
+        `${at}/then/${String(j)}`,
+        `changes ${spec.name}, which is settled at the ${spec.stage} stage; run the rule there or earlier`,
+      );
+  });
+}
+
 function checkRules(c: Checker, rules: unknown, rowStage: unknown): boolean {
   if (!Array.isArray(rules) || rules.length === 0 || rules.length > LIMITS.rulesPerRow) {
     c.fail('/rules', `expected 1-${String(LIMITS.rulesPerRow)} rules`);
@@ -287,7 +306,9 @@ function checkRules(c: Checker, rules: unknown, rowStage: unknown): boolean {
       c.fail(`${at}/stage`, `expected one of ${STAGES.map((st) => st.key).join(', ')}`);
     c.resetCount();
     if (rule['when'] !== null && 'when' in rule) c.condition(rule['when'], `${at}/when`, 1);
-    checkStageOrder(c, rule['when'], 'stage' in rule ? rule['stage'] : rowStage, at);
+    const stage = 'stage' in rule ? rule['stage'] : rowStage;
+    checkStageOrder(c, rule['when'], stage, at);
+    checkWriteOrder(c, rule['then'], stage, at);
     const then = rule['then'];
     if (!Array.isArray(then) || then.length === 0 || then.length > LIMITS.effectsPerRule)
       c.fail(`${at}/then`, `expected 1-${String(LIMITS.effectsPerRule)} effects`);

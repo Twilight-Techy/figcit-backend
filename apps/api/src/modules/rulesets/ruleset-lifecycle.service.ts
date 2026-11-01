@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import {
   catalogueOf,
+  compile,
   inputOptionsOf,
+  publishChecks,
+  PUBLISH_CHECKS,
+  type PublishCheckReport,
   INPUTS,
   rowIssues,
   rulesetDocument,
@@ -12,6 +16,7 @@ import {
 import { Prisma, type RulesetVersion } from '@prisma/client';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { AppError, BadInput, Conflict } from '../../common/errors/errors.js';
+import { breakTitle, RuleGapsService } from './rule-gaps.service.js';
 import { RulesetAuditService, type Actor } from './ruleset-audit.service.js';
 import {
   countsOf,
@@ -91,6 +96,59 @@ function invalidRows(rows: readonly RecordRow[]): {
   return { invalid, catalogueIssues: [...catalogueIssues, ...optionIssues, ...empty] };
 }
 
+const LONG = { timeout: 60_000 } as const;
+/** Fixed rules about safety: a break is Clinical Safety's to decide. */
+const SAFETY_CHECKS: readonly string[] = ['red_support', 'support_visible', 'hopeless_override'];
+
+/** The engine on the publish sweep (M4, DESIGN §5): the version's live rows, as stored. */
+function behaviourOf(rows: readonly RecordRow[]): PublishCheckReport {
+  const live = rows.filter((r) => r.status === 'active');
+  const { catalogue } = catalogueOf(
+    live.map((r) => ({ ...r, columns: r.columns as unknown as WorkbookCell[] })),
+  );
+  const engine = compile(
+    live.map((r) => ({
+      id: r.recordId,
+      tab: r.tab,
+      sourceRef: r.sourceRef,
+      order: r.order,
+      status: r.status,
+      mapping: r.mapping,
+      engine: r.engine,
+    })),
+    catalogue,
+  );
+  return publishChecks(engine);
+}
+
+/** Each broken check once, with every row the engine named for it. */
+function brokenChecks(report: PublishCheckReport) {
+  return PUBLISH_CHECKS.filter((c) => (report.counts[c.id] ?? 0) > 0).map((c) => ({
+    check: c.id,
+    rule: c.rule,
+    recordIds: [
+      ...new Set(report.violations.filter((v) => v.check === c.id).flatMap((v) => v.rows)),
+    ],
+    safety: SAFETY_CHECKS.includes(c.id),
+  }));
+}
+
+/**
+ * Broken fixed rules whose gap nobody has acknowledged. Like an exempt safety row (E-21), a break
+ * the decider has acknowledged (a deliberate, signed-off exemption) doesn't block (E-51).
+ */
+async function unacknowledgedBreaks(tx: Tx, report: PublishCheckReport): Promise<string[]> {
+  const broken = brokenChecks(report);
+  if (broken.length === 0) return [];
+  const acknowledged = await tx.ruleGap.findMany({
+    where: { title: { in: broken.map((b) => breakTitle(b.rule)) }, status: 'acknowledged' },
+    select: { title: true },
+  });
+  return broken
+    .filter((b) => !acknowledged.some((g) => g.title === breakTitle(b.rule)))
+    .map((b) => b.check);
+}
+
 /**
  * Moves versions through draft → in review → published → retired (DESIGN §3.5). Submitting
  * freezes the hash of the canonical document; publishing re-checks it and refuses while an exempt
@@ -103,6 +161,7 @@ export class RulesetLifecycleService {
     private readonly prisma: PrismaService,
     private readonly audit: RulesetAuditService,
     private readonly rulesets: RulesetsService,
+    private readonly gaps: RuleGapsService,
   ) {}
 
   private async checksFor(tx: Tx, v: RulesetVersion): Promise<VersionChecks> {
@@ -119,6 +178,7 @@ export class RulesetLifecycleService {
       counts: countsOf(rows),
       blocking: await blockingExemptions(tx, rows),
       ...invalidRows(rows),
+      behaviour: behaviourOf(rows),
     };
   }
 
@@ -136,12 +196,19 @@ export class RulesetLifecycleService {
           submittedAt: new Date(),
         },
       });
+      const gapsOpened = await this.gaps.openForChecks(tx, actor, brokenChecks(checks.behaviour));
       await this.audit.append(tx, actor, {
         action: 'ruleset.submit',
         versionId: v.id,
-        detail: { label, hash: checks.hash, blocking: checks.blocking.length },
+        detail: {
+          label,
+          hash: checks.hash,
+          blocking: checks.blocking.length,
+          broken: checks.behaviour.violations.length,
+          gapsOpened,
+        },
       });
-    });
+    }, LONG);
     return this.rulesets.get(label);
   }
 
@@ -182,7 +249,7 @@ export class RulesetLifecycleService {
           'ruleset_not_in_review',
         );
       await this.publishChecked(tx, actor, v, 'ruleset.publish');
-    });
+    }, LONG);
     return this.rulesets.get(label);
   }
 
@@ -208,6 +275,16 @@ export class RulesetLifecycleService {
       throw new AppError(409, 'safety_exemptions_open', 'Some safety rules still need sign-off', {
         detail: `${String(checks.blocking.length)} exempt safety row(s) need an acknowledged gap before this version can be published.`,
         extra: { blocking: checks.blocking },
+      });
+    const unsafe = await unacknowledgedBreaks(tx, checks.behaviour);
+    if (unsafe.length > 0)
+      throw new AppError(409, 'ruleset_unsafe', 'The rules break a fixed rule of the workbook', {
+        detail: `On the publish sweep the engine broke ${String(unsafe.length)} fixed rule(s). Each is recorded as a gap; change the rules, or have the decider acknowledge the gap.`,
+        extra: {
+          broken: unsafe,
+          counts: checks.behaviour.counts,
+          violations: checks.behaviour.violations,
+        },
       });
     const now = new Date();
     const previous = await tx.rulesetVersion.findFirst({
@@ -245,35 +322,32 @@ export class RulesetLifecycleService {
       throw new BadInput(
         'Only a version that was published and has since been retired can be rolled back to.',
       );
-    const copy = await this.prisma.$transaction(
-      async (tx) => {
-        await assertNoOpenVersion(tx);
-        const version = await copyVersion(
-          tx,
-          actor,
-          target,
-          `Rollback to ${label}: ${reason}`.slice(0, 500),
+    const copy = await this.prisma.$transaction(async (tx) => {
+      await assertNoOpenVersion(tx);
+      const version = await copyVersion(
+        tx,
+        actor,
+        target,
+        `Rollback to ${label}: ${reason}`.slice(0, 500),
+      );
+      const checks = await this.checksFor(tx, version);
+      if (checks.hash !== target.hash)
+        throw new Conflict(
+          'The copy does not match the version it was taken from.',
+          'ruleset_hash_mismatch',
         );
-        const checks = await this.checksFor(tx, version);
-        if (checks.hash !== target.hash)
-          throw new Conflict(
-            'The copy does not match the version it was taken from.',
-            'ruleset_hash_mismatch',
-          );
-        const submitted = await tx.rulesetVersion.update({
-          where: { id: version.id },
-          data: {
-            status: 'in_review',
-            hash: checks.hash,
-            submittedById: actor.id,
-            submittedAt: new Date(),
-          },
-        });
-        await this.publishChecked(tx, actor, submitted, 'ruleset.rollback', { to: label, reason });
-        return submitted;
-      },
-      { timeout: 60_000 },
-    );
+      const submitted = await tx.rulesetVersion.update({
+        where: { id: version.id },
+        data: {
+          status: 'in_review',
+          hash: checks.hash,
+          submittedById: actor.id,
+          submittedAt: new Date(),
+        },
+      });
+      await this.publishChecked(tx, actor, submitted, 'ruleset.rollback', { to: label, reason });
+      return submitted;
+    }, LONG);
     return this.rulesets.get(copy.label);
   }
 

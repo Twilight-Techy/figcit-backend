@@ -17,7 +17,7 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-17 | Remove the temporary v2 → v1 check-in adapter when the v2 engine runs | The v2 engine is M4 | E-39 |
 | T-19 | The PWA's CSP script reads `NEXT_PUBLIC_API_URL` from the shell, not from `.env.production.local`; a build without it exported blocks every API call | Found while redeploying the test server | — |
 | T-08 | Clinical Safety lead confirms or changes every row marked `safety` on import | Marked from a list to unblock the publish gate | E-25 |
-| T-20 | Founder confirms the interpreted readings of Tabs 2, 6c, 6d and 7 (the list in E-50), and the 2 unresolved rows (recurring struggle) | Read from the text to unblock the engine | E-50 |
+| T-20 | Founder confirms the interpreted readings of Tabs 2, 6c, 6d and 7 (the list in E-50), the 2 unresolved rows (recurring struggle), and the engine's card choices to review in E-51 | Read from the text to unblock the engine | E-50, E-51 |
 | T-21 | Write the text of the 95 card wording keys (`copyKeysOf()`); Clinical Safety and Partnership sign-off for the support-screen, prompt and faith-related wording (Tab 6c owner note) | Keys only until the engine builds cards (M4) | E-50 |
 | T-22 | v1's timing budgets (`packages/engine/test/budget.test.ts`, p95 < 2 ms and < 1 ms) fail when `pnpm check` runs the suites in parallel on a loaded 2-core host; they pass run alone | Environment, not code; CI runs on its own runner | E-50 |
 

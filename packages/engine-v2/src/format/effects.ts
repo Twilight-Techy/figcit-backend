@@ -25,6 +25,11 @@ export interface EffectSpec {
   readonly params: Readonly<Record<string, ParamSpec>>;
   /** Params that may be left out. */
   readonly optional?: readonly string[];
+  /**
+   * The derived fact it changes. A rule may only change it at or before the stage that sets it,
+   * or the change would come after the fact was read (validate.ts).
+   */
+  readonly writes?: 'band.baseline' | 'band.final' | 'light' | 'context.classes';
   readonly description: string;
 }
 
@@ -35,30 +40,35 @@ export const EFFECTS: readonly EffectSpec[] = [
     kind: 'band.lower',
     class: 'requirement',
     params: { steps: { type: 'int', min: 1, max: 3 } },
+    writes: 'band.final',
     description: 'Move the band down (lower Order, towards Very Constrained)',
   }),
   effect({
     kind: 'band.cap',
     class: 'requirement',
     params: { to: { type: 'enum', domain: 'band' } },
+    writes: 'band.final',
     description: 'The band goes no lower than this (Tab 10 caps, e.g. E4M1 stops at Constrained)',
   }),
   effect({
     kind: 'band.hold',
     class: 'requirement',
     params: {},
+    writes: 'band.final',
     description: 'Keep the band as it is (no further change in this stage)',
   }),
   effect({
     kind: 'band.set',
     class: 'requirement',
     params: { to: { type: 'enum', domain: 'band' } },
+    writes: 'band.baseline',
     description: 'Set the baseline band (State stage: Tab 10 band rows, E4M1, NS-1)',
   }),
   effect({
     kind: 'band.limit_drop',
     class: 'requirement',
     params: { steps: { type: 'int', min: 0, max: 3 } },
+    writes: 'band.final',
     description:
       'The band falls at most this many steps below the baseline in one check-in (CAP-1)',
   }),
@@ -66,6 +76,7 @@ export const EFFECTS: readonly EffectSpec[] = [
     kind: 'band.limit_rise',
     class: 'requirement',
     params: { steps: { type: 'int', min: 0, max: 3 } },
+    writes: 'band.final',
     description:
       'On a re-check the band rises at most this many steps above the previous final band (RC-3, RC-4)',
   }),
@@ -73,18 +84,29 @@ export const EFFECTS: readonly EffectSpec[] = [
     kind: 'light.never',
     class: 'requirement',
     params: { light: { type: 'enum', domain: 'light' } },
+    writes: 'light',
     description: 'This light is not shown (RC-5: no automatic Blue after a safety override)',
+  }),
+  effect({
+    kind: 'light.overlay',
+    class: 'requirement',
+    params: { light: { type: 'enum', domain: 'light' } },
+    writes: 'light',
+    description:
+      "Show this light over the band's (Blue recovery, RC-1); light.never still stops it (RC-5)",
   }),
   effect({
     kind: 'classes.add',
     class: 'modifier',
     params: { classes: { type: 'enum_list', domain: 'setting_class', min: 1 } },
+    writes: 'context.classes',
     description: 'The setting counts as these classes (Tab 3b; read by CX-1 and MD-4)',
   }),
   effect({
     kind: 'light.set',
     class: 'requirement',
     params: { light: { type: 'enum', domain: 'light' } },
+    writes: 'light',
     description: 'Set the light',
   }),
   effect({

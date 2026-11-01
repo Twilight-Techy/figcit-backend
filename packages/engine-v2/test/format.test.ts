@@ -78,9 +78,11 @@ describe('the catalogue, filled from the workbook', () => {
     const interpreted = rows.filter((r) => r.mapping === 'interpreted').map((r) => r.sourceRef);
     expect(interpreted).toContain('setting_class · public');
     expect(interpreted).toContain('plan · free');
-    // 16 cells, 4 bands, 5 lights, 33 families, 4 intensity bands, 8 flags, 19 contexts,
-    // 9 timelines, 8 drivers, 17 characteristics, 21 needs, 8 pathways, 41 patterns.
-    expect(rows.filter((r) => r.mapping === 'exact')).toHaveLength(193);
+    // 16 cells, 4 bands, 5 lights, 15 families (the 18 harder ones carry an interpreted group,
+    // E-51), 4 intensity bands, 8 flags, 19 contexts, 9 timelines, 8 drivers, 17 characteristics,
+    // 21 needs, 8 pathways, 41 patterns.
+    expect(rows.filter((r) => r.mapping === 'exact')).toHaveLength(175);
+    expect(interpreted).toContain('family · anxious_fearful');
     expect(imported.additions.notes.some((n) => n.includes('ALL public'))).toBe(true);
     expect(imported.additions.catalogueGiven).toBe(false);
   });
@@ -290,6 +292,23 @@ describe('validating engine columns', () => {
     ).toEqual([]);
   });
 
+  it('refuses a rule that changes a derived fact after the stage that settles it', () => {
+    const late = validateEngine(
+      {
+        stage: 'feedback',
+        rules: [{ when: null, then: [{ kind: 'light.overlay', light: 'blue' }] }],
+      },
+      catalogue,
+    );
+    expect(late).toEqual([
+      {
+        path: '/rules/0/then/0',
+        message:
+          'changes light, which is settled at the capacity_fit stage; run the rule there or earlier',
+      },
+    ]);
+  });
+
   it('ties the mapping status to the engine columns', () => {
     expect(validateMapping('pending', null, catalogue)).toEqual([]);
     expect(validateMapping('reference', ex1, catalogue)[0]?.message).toBe(
@@ -378,11 +397,11 @@ describe('the JSON Schema agrees with the validator', () => {
       ],
     },
     {
-      stage: 'feedback',
+      stage: 'capacity_fit',
       rules: [
         {
           when: { fact: 'recheck.intensity_change', op: 'lte', value: -2 },
-          then: [{ kind: 'light.set', light: 'blue' }],
+          then: [{ kind: 'light.overlay', light: 'blue' }],
         },
       ],
     },
@@ -416,7 +435,8 @@ describe('the JSON Schema agrees with the validator', () => {
 
   it('accepts and refuses the same rules', () => {
     for (const sample of samples) {
-      // Two rules the schema can't state (layer when proposing; size limits) are not in these samples.
+      // Rules the schema can't state (layer when proposing; size limits; stage order) are not in
+      // these samples.
       expect(check(sample), JSON.stringify(sample)).toBe(
         validateEngine(sample, withExtras).length === 0,
       );

@@ -75,6 +75,8 @@ export interface DecisionDto extends Omit<DecisionInput, 'gapIds'> {
 
 const iso = (d: Date | null): string | null => d?.toISOString() ?? null;
 export const gapCode = (n: number): string => `GAP-${String(n).padStart(4, '0')}`;
+/** The title of the gap that records a broken fixed rule; one gap per rule (E-51). */
+export const breakTitle = (rule: string): string => `Breaks a fixed rule: ${rule}`.slice(0, 200);
 
 /** A row the import's mapping file marks `unresolved`, as stored in the new version. */
 export interface UnresolvedRow {
@@ -252,6 +254,53 @@ export class RuleGapsService {
         action: 'gap.create',
         gapId: gap.id,
         detail: { code, title: gap.title, kind: gap.kind, refs: [r.ref], safety: r.safety },
+      });
+      codes.push(code);
+    }
+    return codes;
+  }
+
+  /**
+   * Records each fixed rule a submitted version breaks as a gap (DESIGN §5: "the break is recorded
+   * as a gap"), naming the rows responsible where the engine can tell. A check that already has a
+   * gap still open gets no second one. Runs in the submit transaction. Returns the new codes.
+   */
+  async openForChecks(
+    tx: Tx,
+    actor: Actor,
+    broken: readonly {
+      check: string;
+      rule: string;
+      recordIds: readonly string[];
+      safety: boolean;
+    }[],
+  ): Promise<string[]> {
+    const codes: string[] = [];
+    for (const b of broken) {
+      const title = breakTitle(b.rule);
+      const open = await tx.ruleGap.findFirst({
+        where: { title, status: { not: 'resolved' } },
+        select: { id: true },
+      });
+      if (open) continue;
+      const gap = await tx.ruleGap.create({
+        data: {
+          title,
+          kind: 'contradiction',
+          detail: `The engine broke "${b.rule}" on the publish sweep (check ${b.check}). The version can't be published until the rules are changed.`,
+          recordIds: [...b.recordIds],
+          sourceRefs: [],
+          decides: b.safety ? 'clinical_safety' : 'founder',
+          safety: b.safety,
+          docRef: 'DESIGN §5, DECISION_LOG E-51',
+          createdById: actor.id,
+        },
+      });
+      const code = gapCode(gap.number);
+      await this.audit.append(tx, actor, {
+        action: 'gap.create',
+        gapId: gap.id,
+        detail: { code, title, kind: gap.kind, refs: [], safety: b.safety },
       });
       codes.push(code);
     }

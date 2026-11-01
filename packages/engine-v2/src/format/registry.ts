@@ -131,6 +131,8 @@ export interface FactSpec {
    * read it only at or after that stage; input facts are known from the start.
    */
   readonly derived?: true;
+  /** Worked out by the engine from other input (e.g. the cell from energy and mood); never sent. */
+  readonly computed?: true;
   readonly description: string;
 }
 
@@ -154,6 +156,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'enum',
     domain: 'cell',
     stage: 'state',
+    computed: true,
     description: 'The State Grid cell (Energy x Mood)',
   }),
   fact({
@@ -207,6 +210,7 @@ export const FACTS: readonly FactSpec[] = [
     type: 'set',
     domain: 'family',
     stage: 'experience',
+    computed: true,
     description: 'Experience families present',
   }),
   fact({
@@ -220,7 +224,9 @@ export const FACTS: readonly FactSpec[] = [
     name: 'peak.negative',
     type: 'intensity',
     stage: 'experience',
-    description: 'Highest intensity among the harder (negative) families',
+    computed: true,
+    description:
+      'Highest intensity among the harder families felt (catalogue group "harder"); present when one is felt, unrated when none of them is rated',
   }),
   fact({
     name: 'sensation.intensity',
@@ -242,6 +248,7 @@ export const FACTS: readonly FactSpec[] = [
     min: 0,
     max: 20,
     stage: 'context',
+    computed: true,
     description: 'How many sensitivity flags are set',
   }),
   fact({

@@ -42,9 +42,10 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Format check refuses a rule that reads a derived fact before its stage (E-50)
 
 ## M4 Engine
-- [ ] Stages 0 to 12 on the rule set; requirements and proposals; exempt rules skipped
-- [ ] Two trace levels: light (rule IDs fired) and full (every rule checked, facts per stage)
-- [ ] Re-check and recovery; checks before publish
+- [x] Stages on the rule set; requirements and proposals; exempt rules skipped (`packages/engine-v2/src/engine`, E-51)
+- [x] Two trace levels: light (rule IDs fired) and full (every rule checked, facts per stage, each proposal's fate)
+- [x] Re-check and recovery (RC-1 to RC-5 at capacity fit, Blue as an overlay)
+- [x] Checks before publish: 8 fixed rules on a 3,468-input sweep; breaks recorded as gaps, publish blocked until acknowledged (E-51)
 
 ## M5 API and records
 - [ ] `POST /v2/recommendations` (signed in and Browse)
