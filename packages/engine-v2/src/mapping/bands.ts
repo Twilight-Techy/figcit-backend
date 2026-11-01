@@ -110,7 +110,7 @@ export const BANDS: TabMapping = {
         },
       ],
       reason:
-        '"Intervention is the forced primary": a task is never the primary. "Demand capped to Routine": only Routine is kept, with Urgency at T0/T1 as pattern 5 and Tab 9 say (ADR 0001 §9). "I\'ll try the task anyway" is never hidden.',
+        '"Intervention is the forced primary": a task is never the primary. "Demand capped to Routine": only Routine is kept, with Urgency at T0/T1 as pattern 5 and Tab 9 say (ADR 0004 §9). "I\'ll try the task anyway" is never hidden.',
       mapping: 'interpreted',
     }),
     'Very Constrained': bandRow({
@@ -129,7 +129,7 @@ export const BANDS: TabMapping = {
         },
       ],
       reason:
-        '"Intervention forced immediately; demand deferred; Support visible throughout". "Try anyway" is never shown in Red (ADR 0001 §3).',
+        '"Intervention forced immediately; demand deferred; Support visible throughout". "Try anyway" is never shown in Red (ADR 0004 §3).',
       mapping: 'interpreted',
     }),
     'Recovery (overlay, not a band)': {
@@ -209,7 +209,7 @@ export const BAND_RULES: TabMapping = {
     E4M1: {
       mapping: 'interpreted',
       reason:
-        'Baseline Conditional; one modifier takes it to Constrained. With both EX-1 and CX-1 it stops at Constrained (ADR 0001 §8), read as a floor.',
+        'Baseline Conditional; one modifier takes it to Constrained. With both EX-1 and CX-1 it stops at Constrained (ADR 0004 §8), read as a floor.',
       engine: {
         stage: 'state',
         rules: [
@@ -256,7 +256,7 @@ export const BAND_RULES: TabMapping = {
     'RC-1': {
       mapping: 'interpreted',
       reason:
-        '"Better cell" read as a higher baseline band than the last final band; "intensity down by 2+" on the harder feelings only (ADR 0001 §8); "intervention completed" as the support session being finished.',
+        '"Better cell" read as a higher baseline band than the last final band; "intensity down by 2+" on the harder feelings only (ADR 0004 §8); "intervention completed" as the support session being finished.',
       engine: {
         stage: 'feedback',
         rules: [
@@ -358,11 +358,11 @@ export const BAND_RULES: TabMapping = {
   },
 };
 
-/** Tab 1: the four cells whose lean says "regulate first" get a reset even with no feeling (ADR 0001 §6). */
+/** Tab 1: the four cells whose lean says "regulate first" get a reset even with no feeling (ADR 0004 §6). */
 const leanFirst: RowMapping = {
   mapping: 'interpreted',
   reason:
-    'Default lean "Regulate first", used for this cell only (ADR 0001 §6): a reset is proposed even when no feeling is picked.',
+    'Default lean "Regulate first", used for this cell only (ADR 0004 §6): a reset is proposed even when no feeling is picked.',
   engine: {
     stage: 'orchestration',
     layer: 'band',
@@ -380,6 +380,6 @@ export const STATE_GRID: TabMapping = {
   all: {
     mapping: 'reference',
     reason:
-      "The cell's band comes from the Tab 10 band rows. Its default lean's NUCRIPCE, Reflect and Meditate hints are not used in the MVP (ADR 0001 §6).",
+      "The cell's band comes from the Tab 10 band rows. Its default lean's NUCRIPCE, Reflect and Meditate hints are not used in the MVP (ADR 0004 §6).",
   },
 };

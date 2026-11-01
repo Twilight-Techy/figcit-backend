@@ -23,7 +23,7 @@ import { COMMUNICATION } from './experience.js';
 import type { TabMapping } from './types.js';
 
 // Tab 7 patterns read by feeling, sensation or need (M3, E-50): 9-13, 16-26, 28, 29. They rank in
-// the trigger layer with Tab 2 and Tab 6b (ADR 0001 §2 step 4), or as guards (16, 19). Where a
+// the trigger layer with Tab 2 and Tab 6b (ADR 0004 §2 step 4), or as guards (16, 19). Where a
 // Tab 2 row already routes the same feeling, the pattern proposes the same targets with its
 // wording and alternatives; the engine merges equal proposals (M4).
 
@@ -99,7 +99,7 @@ export const PATTERNS_TRIGGER: NonNullable<TabMapping['rows']> = {
       ]),
     ],
     reason:
-      'Two or more flags: the single-flag case is deferred (ADR 0001). "Focus-demanding" read as any task.',
+      'Two or more flags: the single-flag case is deferred (ADR 0004). "Focus-demanding" read as any task.',
   }),
   '16': pattern({
     when: felt('shutdown_freeze_numb', 'shutdown'),

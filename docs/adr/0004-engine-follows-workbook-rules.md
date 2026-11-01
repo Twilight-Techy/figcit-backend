@@ -1,6 +1,7 @@
-# 0001: The engine follows the workbook's rules, not its example scenarios
+# 0004: The engine follows the workbook's rules, not its example scenarios
 
 - **Status:** Accepted (31 Oct 2026). Items marked *interim* are adopted now and still need Clinical Safety sign-off before launch.
+- **Number:** written as 0001 on the engine v2 branch; numbered 0004 when it joined `main`, which had taken 0001-0003 for the AI model records.
 - **Decided by:** Owner, approving the recommendations from the engine audit of 31 Oct 2026.
 - **Supersedes:** DECISIONS B-07 (calibration from the scenario tabs), B-09 (pattern 15 needs a High+ trigger) and B-40 (Red "Start small" exception).
 

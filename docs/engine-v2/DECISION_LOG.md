@@ -4,7 +4,7 @@
 - **Branch:** `engine-v2/rules-redesign`.
 - **Decided by:** the Owner, in conversation, on 1 Nov 2026 (E-01 to E-07 are also in `DESIGN.md` §2).
 - **Where this sits:** where this log and `DESIGN.md` disagree, this log wins. `DESIGN.md` is updated to match when a decision lands.
-- **Related:** `DESIGN.md`, `INPUT_GAPS.md`, `OWNER_DISCUSSION.md` (points for the founder and Clinical Safety lead), `docs/adr/0001-engine-follows-workbook-rules.md`, `docs/build/DECISIONS.md` (the earlier build's `B-xx` entries) and `docs/CONFLICTS.md` (`D-xx`).
+- **Related:** `DESIGN.md`, `INPUT_GAPS.md`, `OWNER_DISCUSSION.md` (points for the founder and Clinical Safety lead), `docs/adr/0004-engine-follows-workbook-rules.md`, `docs/build/DECISIONS.md` (the earlier build's `B-xx` entries) and `docs/CONFLICTS.md` (`D-xx`).
 
 **How to use it.** Each entry has: the decision, why, what was dropped for it, what it touches, and how to revert. If a stakeholder wants one changed, change the entry and the files it names.
 
@@ -42,9 +42,9 @@ See `DESIGN.md` §2. E-01 (engine only on the server, for signed-in and Browse u
 - **Why:** the Owner's ruling. The examples have errors of their own and the rules are the authority (Tab 0 itself says "the source tabs remain the authority").
 - **Dropped:**
   - drift as a gate on publishing (proposed 1 Nov 2026);
-  - ADR 0001 §1's "run the examples against every version and record drift". ADR 0001 is amended to say so.
+  - ADR 0004 §1's "run the examples against every version and record drift". ADR 0004 is amended to say so.
 - **Open:** whether to keep the example tabs imported as read-only reference. `OWNER_DISCUSSION.md` O-05.
-- **Touches:** `DESIGN.md` §1, §3.6, §6; ADR 0001 §1.
+- **Touches:** `DESIGN.md` §1, §3.6, §6; ADR 0004 §1.
 - **Revert:** reinstate the drift register and a pass-or-warn check on publish (the old design is in this branch's history).
 
 ### E-11 Logically broken rules are exempted and recorded, not patched
@@ -140,7 +140,7 @@ Rule §15 asks for a written exception. These are listed here and need an ADR be
 
 | Rule | What v2 does instead | Why | Cost | Revisit |
 |---|---|---|---|---|
-| §13 "Engine fixtures: every scenario row in Tabs 0, 0b, 6d, 9, 10 passes" | v2 is not tested against the example tabs | E-10 (Owner). ADR 0001 already says the examples are not tests. The v2 tests are written from the rules | No regression oracle from the examples | When the Owner wants them back |
+| §13 "Engine fixtures: every scenario row in Tabs 0, 0b, 6d, 9, 10 passes" | v2 is not tested against the example tabs | E-10 (Owner). ADR 0004 already says the examples are not tests. The v2 tests are written from the rules | No regression oracle from the examples | When the Owner wants them back |
 | §5.3 "JSONB only for the trace, snapshot, card payloads and event properties" | Rule records keep the workbook's columns and the engine's columns as JSONB | The rule set is the snapshot, split into rows so rows can be edited one at a time (E-12). They are never filtered or joined on | None expected: the engine loads a whole version at once | If row-level queries are needed |
 | §1.3 "one recommendation including trace < 4 KB" | Honoured by storing the input, the card and the versions, and rebuilding the trace by replay (E-21) | The v2 trace is larger than 4 KB | Replay must be exact (a daily check, `DESIGN.md` §7) | O-15 |
 
@@ -151,7 +151,7 @@ Recorded so a reviewer can see what the reader does with the spreadsheet (`packa
 - **References:** the author's own ID is the reference (E1M1, T0, EX-1, RF-1, ENT-3). Tab 2 uses family plus intensity band. Tab 7's `16.0` is stored as `16` (listed in the import report). A repeated reference gets `#2` (listed in the report).
 - **Examples and reference tables** (Tabs 0, 0b, 9, 6d section F, and the glossary tables under Tab 0) are stored with the role `example` or `reference`, read-only, never run.
 - **Tab 7 footer** lines become the `non_negotiables` table. The first line is a heading; the rest are rules.
-- **Not imported:** the workbook's "Sheet1" scratch tab (ADR 0001). It isn't in the CSV set.
+- **Not imported:** the workbook's "Sheet1" scratch tab (ADR 0004). It isn't in the CSV set.
 - **Revert:** n/a (it is how the reader works; the layout table is `layout.ts`).
 
 ### E-25 Which rows start as `safety` on import (interpreted)
@@ -228,7 +228,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Working assumption:** its own subdomain (e.g. `admin.<domain>`). Not decided; it doesn't affect the work until the staff app is deployed. Its own origin keeps staff sessions and cookies apart from the user app.
 
 ### E-36 The rule format is served by the API, per version
-- **Decision:** `GET /v1/rulesets/{label}/format` returns everything a client needs to show, edit and check engine columns for that version: the stages (tied to Tab 8), the precedence layers (ADR 0001 §2), the card slots and actions, every fact with its type, domain and allowed operators, every effect with its parameters and class (requirement, proposal, modifier), the size limits, the catalogue's values per domain, and the JSON Schema (2020-12) of engine columns with those values filled in. The staff app builds its editor from this response, not from code.
+- **Decision:** `GET /v1/rulesets/{label}/format` returns everything a client needs to show, edit and check engine columns for that version: the stages (tied to Tab 8), the precedence layers (ADR 0004 §2), the card slots and actions, every fact with its type, domain and allowed operators, every effect with its parameters and class (requirement, proposal, modifier), the size limits, the catalogue's values per domain, and the JSON Schema (2020-12) of engine columns with those values filled in. The staff app builds its editor from this response, not from code.
 - **One source:** a declarative registry in `@figcit/engine-v2` (`src/format/registry.ts`) produces the validator, the JSON Schema and the description. A test runs the same sample rules through the validator and through a standard JSON Schema validator (Ajv) and requires the same verdict.
 - **Checked twice:** on save (the editor refuses a row the engine couldn't run, listing every problem with its location) and on submit (every live row against the version's own catalogue; a renamed or removed value that a rule still uses blocks publishing, code `ruleset_invalid`).
 - **Two rules the schema can't state** are checked on save only: a row that proposes needs a `layer`; conditions stay within the size limits (6 deep, 64 parts).
@@ -295,7 +295,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Review:** OWNER_DISCUSSION O-19.
 
 ### E-43 Tapping "Hopeless" offers support at once (needs Clinical Safety)
-- **What it is:** the Hopeless chip is a "selected option" under SF-1 and maps to the family "Immediate risk language", so the safety override fires at any intensity (ADR 0001 §7).
+- **What it is:** the Hopeless chip is a "selected option" under SF-1 and maps to the family "Immediate risk language", so the safety override fires at any intensity (ADR 0004 §7).
 - **The new prompt:** as soon as the chip is tapped, the app shows a small prompt, "Want support right now?", with **Get support now** (opens Help/SOS) and **Keep going**. It doesn't block the user. The card at the end is the safety card either way.
 - **Not this:** the danger-words check on typed text belongs to the free-text team (E-14) and is unchanged.
 - **Review:** OWNER_DISCUSSION O-19.
@@ -338,7 +338,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Notes, examples and reference tables** become `reference` automatically; they never run.
 - **Mapped so far:**
   - Tab 10: band rows and all 14 modifier rules.
-  - Tab 1: E2M1, E3M1, E4M1 and E4M2 lean "regulate first" (ADR 0001 §6). The other cells are reference: their band comes from Tab 10.
+  - Tab 1: E2M1, E3M1, E4M1 and E4M2 lean "regulate first" (ADR 0004 §6). The other cells are reference: their band comes from Tab 10.
   - Tabs 5, 8, 11 and 12 are reference: definitions and descriptions.
 - **Format 3 adds:**
   - effects `band.set` (the baseline), `band.limit_drop` (CAP-1), `band.limit_rise` (RC-3, RC-4), `light.never` (RC-5) and `classes.add` (Tab 3b's setting classes);
@@ -350,7 +350,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - RC-2: Routine and at most 3 steps.
   - RC-5: support visible while the clinical pathway is undefined.
   - SF-2: either clause.
-  - Amber: Urgency kept (ADR 0001 §9).
+  - Amber: Urgency kept (ADR 0004 §9).
 - **Revert:** n/a (method); each row's mapping can be changed in the file or the editor.
 
 ### E-49 Tools, supports and Tabs 3a, 3b, 4, 6, 6b mapped (M3)
@@ -368,7 +368,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - T0 shortens a needed reset to 2 minutes.
   - TX repairs first (Express, then the smallest step, no blame).
   - TR adds Routine. Its next-occurrence urgency needs an input that doesn't exist yet.
-- **Tab 6:** each characteristic tags its driver. "Imposed", "Switching / transition" and "Stopping" are deferred by ADR 0001, so they are reference.
+- **Tab 6:** each characteristic tags its driver. "Imposed", "Switching / transition" and "Stopping" are deferred by ADR 0004, so they are reference.
 - **Tab 6b:** each need proposes its route, gated by the lights it lists. Need rows run at orchestration (Tab 8 step 10) because they need the final light.
 - **Format 3 additions:** `drivers.add` takes an optional weight; new effect `minutes.cap`.
 - **Revert:** n/a (method); each row is editable.
@@ -382,11 +382,11 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - "Demand deferred" reads as Red reads it: no task step, no "try anyway", "skip to task" or "start small", and no drivers. "Reduced to the minimum" means the task never leads; only its smallest step is queued.
   - "Co-primary" becomes a primary plus the first alternative, in the order written: the card has one primary.
   - "Immediate risk language" and "Not sure" are reference: SF-1 and NS-1 already run them.
-- **Layers** (ADR 0001 §2):
+- **Layers** (ADR 0004 §2):
   - **Guard:** shutdown, sensory overload, rumination, MD-2, and patterns 16, 19 and 40.
   - **Offer:** the v3.2 Reflect and Meditate rows, patterns 32 to 39, RF-1, MD-1, MD-4 and the Tab 6c setting rows.
   - **Task due:** pattern 15.
-  - **New lowest layer, `default`:** the band patterns (1 to 8, 14, 27, 30, 31). They propose the band's card only when nothing above proposes, so a feeling still picks the action within what the band allows. ADR 0001's order is unchanged.
+  - **New lowest layer, `default`:** the band patterns (1 to 8, 14, 27, 30, 31). They propose the band's card only when nothing above proposes, so a feeling still picks the action within what the band allows. ADR 0004's order is unchanged.
 - **"Asked for":** a Reflect or Meditate feeling or need, or a practice that is due. "Remind me later" and "find a space" only show then. A test keeps these lists in step with the rows that offer Reflect or Meditate. It caught "Start or end my day well", which offers the end-of-day close.
 - **Tab 6c:**
   - **RF-1:** no Reflect in Amber or Red, or with a harder feeling at High+. Amber shows "remind me later" where Reflect was asked for.
@@ -404,7 +404,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Tab 7 patterns:**
   - Each pattern proposes the same targets as the Tab 2 row it refines, with its CTA and alternative wording keys (`card.p<n>.cta`, `card.p<n>.alt.*`).
   - **Conditions with no input yet stay out:** "safety-critical" (18), "persistent" pain (24), "end of a demanding day" (33) and the same-topic count (40). Each is recorded in the pattern's reason.
-  - **Pattern 13** needs two or more flags (ADR 0001 defers one flag).
+  - **Pattern 13** needs two or more flags (ADR 0004 defers one flag).
   - **Pattern 30** stops all suggestions. A step forced by a higher layer (distress, safety) still shows.
   - **Pattern 28** is SF-1; its support-screen copy needs clinical sign-off.
   - **Pattern 41** is MD-2.
@@ -436,7 +436,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 |---|---|---|---|---|
 | First milestone limited to a slice | Claude, 1 Nov | Dropped | E-08 | E-08 |
 | Drift as a publish gate | Claude, 1 Nov | Dropped | E-10 | E-10 |
-| Running the example tables against each version | ADR 0001 §1 | Dropped | E-10 | E-10, ADR 0001 |
+| Running the example tables against each version | ADR 0004 §1 | Dropped | E-10 | E-10, ADR 0004 |
 | Spreadsheet as master until the editor exists | Claude, 1 Nov | Dropped | E-12 | E-12 |
 | Editor built last | `DESIGN.md` §12 | Dropped | E-12 | E-12 |
 | Phrase check on the phone | Claude, 1 Nov | Dropped (out of scope) | E-14 | E-14 |

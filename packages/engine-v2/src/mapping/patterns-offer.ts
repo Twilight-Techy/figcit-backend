@@ -28,7 +28,7 @@ import { SHARED_SETTING } from './experience-reflect.js';
 import { REFLECT_ASKED } from './reflect-meditate.js';
 import type { TabMapping } from './types.js';
 
-// Tab 7 patterns 32-41: the Reflect and Meditate offers rank last (ADR 0001 §2 step 6) and still
+// Tab 7 patterns 32-41: the Reflect and Meditate offers rank last (ADR 0004 §2 step 6) and still
 // pass the Tab 6c gates; 40 and 41 are guards. (M3, E-50)
 
 /** "Amber when calm" (MD-1b): no harder feeling at Moderate or above. */
@@ -157,7 +157,7 @@ export const PATTERNS_OFFER: NonNullable<TabMapping['rows']> = {
       rule(null, [set('drivers.add', { drivers: ['routine'] })]),
     ],
     reason:
-      '"It\'s time for your practice" only when it is due (ADR 0001); asked for by need, the same practice without that wording. "Setting does not allow it" read as a shared setting. Amber with distress or Red: Breathe first, the practice the first alternative. Passion needs the user to mark it meaningful (IG-21). "Skip today" is "Not now", never counted.',
+      '"It\'s time for your practice" only when it is due (ADR 0004); asked for by need, the same practice without that wording. "Setting does not allow it" read as a shared setting. Amber with distress or Red: Breathe first, the practice the first alternative. Passion needs the user to mark it meaningful (IG-21). "Skip today" is "Not now", never counted.',
   }),
   '38': pattern({
     when: all(
@@ -190,7 +190,7 @@ export const PATTERNS_OFFER: NonNullable<TabMapping['rows']> = {
       rule(lights('green', 'blue'), [propose('queued', tool('end_of_day'))]),
     ],
     reason:
-      'The need starts it; a saved opening or closing practice needs fields IG-21 lists. Opening vs closing (morning or evening) and the stopping demand are deferred (ADR 0001), so one wording key for now. The optional end-of-day Reflect only in Green or Blue.',
+      'The need starts it; a saved opening or closing practice needs fields IG-21 lists. Opening vs closing (morning or evening) and the stopping demand are deferred (ADR 0004), so one wording key for now. The optional end-of-day Reflect only in Green or Blue.',
   }),
   '40': pattern({
     when: any(
@@ -214,7 +214,7 @@ export const PATTERNS_OFFER: NonNullable<TabMapping['rows']> = {
       rule(lights('red'), [set('support.show')]),
     ],
     reason:
-      '"Reflect requested or due" read as a Reflect feeling or need (Tab 6c). The same-topic count is deferred (ADR 0001, RF-2). Meditate only as the 3-minute settle, as the Tab 2 rumination row.',
+      '"Reflect requested or due" read as a Reflect feeling or need (Tab 6c). The same-topic count is deferred (ADR 0004, RF-2). Meditate only as the 3-minute settle, as the Tab 2 rumination row.',
   }),
   '41': {
     mapping: 'reference',

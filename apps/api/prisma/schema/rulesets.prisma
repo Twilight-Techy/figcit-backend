@@ -159,7 +159,7 @@ model RuleGap {
   @@map("rule_gaps")
 }
 
-// Decision register (DESIGN §3.6): rulings that fill gaps, e.g. "ADR 0001 §3", "E-19".
+// Decision register (DESIGN §3.6): rulings that fill gaps, e.g. "ADR 0004 §3", "E-19".
 model RuleDecision {
   id        String   @id @default(uuid(7)) @db.Uuid
   code      String   @unique @db.VarChar(40)

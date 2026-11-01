@@ -1,14 +1,14 @@
 # Engine v2: points to discuss with the Owner
 
 - **Purpose:** points to settle with the Owner and, where marked, the Clinical Safety lead. Each point says how we are approaching it now, what the sources actually require, the constraints, and a recommendation. Record the outcome on each point's **Decision** line.
-- **Related:** `DESIGN.md`, `INPUT_GAPS.md`, `docs/adr/0001-engine-follows-workbook-rules.md`.
+- **Related:** `DESIGN.md`, `INPUT_GAPS.md`, `docs/adr/0004-engine-follows-workbook-rules.md`.
 
 | ID | Topic | Who | Blocks |
 |---|---|---|---|
 | O-01 | Engine on the server only; what works offline | Owner | Confirming E-01/E-03 |
 | O-02 | Recording Browse-mode recommendations | Owner, legal | Compliance trail for Browse users |
 | O-03 | Who screens free text for risk language | Owner, Clinical Safety, free-text team | Safety override from typed text |
-| O-04 | ADR 0001 interim safety rulings | Clinical Safety | Launch |
+| O-04 | ADR 0004 interim safety rulings | Clinical Safety | Launch |
 | O-05 | Reviewing drift from the example tables | Owner, Clinical Safety | Rule changes after import |
 | O-06 | Clinical safety standard, medical-device status, keeping records | Owner, legal | Launch |
 | O-07 | Who approves rule changes | Owner | Publishing |
@@ -81,7 +81,7 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
   - The phrase list is owned in the rule set and signed off by Clinical Safety.
 - **Decision:** Owner, 1 Nov 2026: screening free text is **outside this work**. It belongs to the AI and free-text team, who decide where it runs and who owns the phrase list, including whether anything runs in the app and what happens offline. This work only accepts the result as an input (IG-20) and implements the safety rules on standard values. Not built here, and no phrase check is added to the app (`DECISION_LOG.md` E-14). The recommendation above stays on record for that team.
 
-## O-04 ADR 0001 interim safety rulings (Clinical Safety)
+## O-04 ADR 0004 interim safety rulings (Clinical Safety)
 
 - **Current approach:** adopted for the MVP as *interim*:
   - the Hopeless chip triggers the safety override at any intensity;
@@ -95,7 +95,7 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 ## O-05 Reviewing drift from the example tables
 
 - **Current approach:**
-  - The examples (Tab 0, 0b, 9, 6d F) are never pass/fail tests (ADR 0001 §1).
+  - The examples (Tab 0, 0b, 9, 6d F) are never pass/fail tests (ADR 0004 §1).
   - Each rule set version is run against them, and differences go to the drift register with the rule that causes them.
   - The current engine already differs from at least 6 examples. More are expected once the rules are applied strictly.
 - **What the sources require:** the workbook README says Tab 9 is "for use as a unit test", and Tab 0 says "the source tabs remain the authority".
@@ -180,9 +180,9 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 
 | # | Rule | Sources | State |
 |---|---|---|---|
-| 1 | The "Hopeless" chip starts the safety override | Workbook Tab 2 (hopelessness is immediate-risk language), Tab 10 SF-1; CONFLICTS D-07; build DECISIONS B-10 (override only at 7–10; lower counts as sadness); ADR 0001 §7 (interim: **any** intensity; a skipped intensity never hides it); INPUT_GAPS IG-04, IG-20 | Interim. The build and the ADR differ. |
-| 2 | The risky-phrase list | ADR 0001 §7 (expanded with variants, extra words, slang); audit of 31 Oct 2026 (the old list missed common wording); BLOCKERS X-02; `packages/rules-compiler/src/catalogue/rules.ts` | Unsigned. Ownership of free-text screening has moved to the AI team (O-03, E-14). |
-| 3 | "Get support now" shows at distress 7+ in every band | ADR 0001 §7; Workbook Tab 2 distress row, Tab 9; Tab 10 (Red always shows it) | Interim |
+| 1 | The "Hopeless" chip starts the safety override | Workbook Tab 2 (hopelessness is immediate-risk language), Tab 10 SF-1; CONFLICTS D-07; build DECISIONS B-10 (override only at 7–10; lower counts as sadness); ADR 0004 §7 (interim: **any** intensity; a skipped intensity never hides it); INPUT_GAPS IG-04, IG-20 | Interim. The build and the ADR differ. |
+| 2 | The risky-phrase list | ADR 0004 §7 (expanded with variants, extra words, slang); audit of 31 Oct 2026 (the old list missed common wording); BLOCKERS X-02; `packages/rules-compiler/src/catalogue/rules.ts` | Unsigned. Ownership of free-text screening has moved to the AI team (O-03, E-14). |
+| 3 | "Get support now" shows at distress 7+ in every band | ADR 0004 §7; Workbook Tab 2 distress row, Tab 9; Tab 10 (Red always shows it) | Interim |
 | 4 | Workbook rows the workbook itself marks "needs clinical sign-off" | Workbook Tab 12: G-EM13, G-SF1, G-SF2, G-IN1 (prompt copy), G-IN2, G-IN4; RC-5 pathway (`docs/build/ENGINE_AUDIT.md`, "Tab 12 gaps"); Workbook README (every safety row) | Built as written |
 | 5 | Open workbook items | CONFLICTS D-36: E4M1 baseline rule ("v3 - confirm"), NS-1 ("confirm"), pattern 6 against 8, proposed traffic-light colours, every threshold "MVP starting point" | Built as versioned data |
 | 6 | Physical warning signs (chest tight with short of breath, dizzy, heart racing) | INPUT_GAPS IG-05 point 4 | No rule exists |
@@ -230,7 +230,7 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 |---|---|---|---|---|
 | D-02 | Age rule | 18+ self sign-up; 16–17 only through an institution; no purchases under 18 | B-13, B-44; ENT-8 | Entitlement and sign-up rules |
 | D-06 | Band names on screen | Plain wording: Good to go, Go gently, Reduce the load first, Take care first, Steadier | B-13 | Card labels and the light |
-| D-07 | Hopeless chip | Override at 7–10 (the ADR later said any intensity) | B-10; ADR 0001 §7 | Safety override (O-11) |
+| D-07 | Hopeless chip | Override at 7–10 (the ADR later said any intensity) | B-10; ADR 0004 §7 | Safety override (O-11) |
 | D-08 | Need list: 12 in Figma, 21 in the workbook | 12 at top level with "More…" | B-13 | The need drives the route (IG-12) |
 | D-09 | Emotion chips against families | The build's own chip-to-family table | B-10, B-13 | Which family fires which rule (IG-03) |
 | D-13, D-15 | Plans and Free/Advanced labels | One Advanced entitlement with configurable prices; PRD tiers | B-13; BLOCKERS X-01 | Entitlement filter ENT-1 to ENT-9 |
@@ -276,7 +276,7 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 
 - **Principle (Owner, 1 Nov 2026, `DECISION_LOG.md` E-09):** the main rules are data, in the workbook's own structure, so new rules can be added and wrong ones fixed without a release. Code changes only when something major or the approach changes. Some logic stays in code.
 - **What stays in code:** running the stages in order, evaluating conditions, applying effects, requirement-against-proposal handling, building the trace.
-- **The edge:** `DESIGN.md` §4.3 lists a closed set of effects. A rule that needs an effect outside it needs a code change and a new format version. Examples that may not fit: "pain at High+ beats non-safety families" (a ranking rule, stored as an addition from ADR 0001 §2); Pattern 13 with a single flag (deferred); RC-1 "improved" (compares two check-ins).
+- **The edge:** `DESIGN.md` §4.3 lists a closed set of effects. A rule that needs an effect outside it needs a code change and a new format version. Examples that may not fit: "pain at High+ beats non-safety families" (a ranking rule, stored as an addition from ADR 0004 §2); Pattern 13 with a single flag (deferred); RC-1 "improved" (compares two check-ins).
 - **Recommendation:** accept this. During the first import, list every row that can't be expressed as `unresolved` and show the author, so the effect list can grow where the author needs it.
 - **Decision:**
 
@@ -285,7 +285,7 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 - **Context:** an exempt rule (a rule that is contradictory, undefined or incomplete: `DECISION_LOG.md` E-10, E-11) is not run. Something must say what the engine does in its place.
 - **Options:**
   1. Behave as if the row doesn't exist.
-  2. Keep the interim ruling from ADR 0001 for that case until it is settled.
+  2. Keep the interim ruling from ADR 0004 for that case until it is settled.
   3. For a `safety` row, block publishing until Clinical Safety has seen the exemption, because a missing safety rule weakens safety.
 - **Recommendation:** option 1 for ordinary rows. Option 3 for `safety` rows. Every exemption shows in the dashboard and in the trace ("rule X exempt").
 - **Decision:**
@@ -299,7 +299,7 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 - **Sources:**
   - Tab 2 ("Immediate risk language … selected option");
   - SF-1;
-  - ADR 0001 §7;
+  - ADR 0004 §7;
   - PRD ("Skip is always available");
   - INPUT_GAPS IG-04 and IG-20.
 - **Constraints:** a skipped rating must never read as mild for a harder feeling. A prompt must not shame or alarm.

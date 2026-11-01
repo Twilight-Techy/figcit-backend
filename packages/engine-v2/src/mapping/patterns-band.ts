@@ -28,7 +28,7 @@ import type { TabMapping } from './types.js';
 
 // Tab 7 patterns read by band, by timeline or by the system (M3, E-50): 1-8, 14, 15, 27, 30, 31.
 // The band patterns propose the band's default card in the lowest layer, so a feeling, a need or a
-// task due now always picks first (ADR 0001 §2: the band sets what is allowed, the feeling picks).
+// task due now always picks first (ADR 0004 §2: the band sets what is allowed, the feeling picks).
 // Every pattern puts its CTA wording on the proposal it belongs to (`card.p<n>.cta`).
 
 const notT0: Condition = not(eq('demand.timeline', 'T0'));
@@ -96,7 +96,7 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
       ]),
     ],
     reason:
-      'A 2-minute reset, then the task, "Skip to task" always visible. It also covers Yellow with no trigger and a non-routine task (ADR 0001 §5). Not where pattern 3 or 15 applies.',
+      'A 2-minute reset, then the task, "Skip to task" always visible. It also covers Yellow with no trigger and a non-routine task (ADR 0004 §5). Not where pattern 3 or 15 applies.',
   }),
   '5': pattern({
     when: all(band('constrained'), peak('gte', 'moderate'), withTask),
@@ -132,7 +132,7 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
       rule(notT0, [forbid(path('execute'))]),
     ],
     reason:
-      'Care first, "Get support now" visible, the task off the card until a re-check improves. At T0 the smallest step stays queued (ADR 0001 §3, pattern 15).',
+      'Care first, "Get support now" visible, the task off the card until a re-check improves. At T0 the smallest step stays queued (ADR 0004 §3, pattern 15).',
   }),
   '8': pattern({
     when: all(band('very_constrained'), noTask),
@@ -171,7 +171,7 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
       rule(lights('red'), [set('minutes.cap', { max: 1 }), set('support.show')]),
     ],
     reason:
-      '"Distress trigger active" read as a harder feeling at Moderate+: the shortest reset (Tab 4 caps it at 2 minutes; 1 minute in Red, ADR 0001 §3), then the smallest step. Urgency is the T0 row. "I need more time" has no card action yet (M4).',
+      '"Distress trigger active" read as a harder feeling at Moderate+: the shortest reset (Tab 4 caps it at 2 minutes; 1 minute in Red, ADR 0004 §3), then the smallest step. Urgency is the T0 row. "I need more time" has no card action yet (M4).',
   }),
   '27': pattern({
     when: is('state.not_sure', true),

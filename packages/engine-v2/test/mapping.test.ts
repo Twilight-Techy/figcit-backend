@@ -85,7 +85,7 @@ describe('the mapping file', () => {
     }
   });
 
-  it('runs shutdown, sensory overload and rumination as guards (ADR 0001 §2)', () => {
+  it('runs shutdown, sensory overload and rumination as guards (ADR 0004 §2)', () => {
     const layerOf = (prefix: string) =>
       (
         records.find((r) => r.tab === 'experience_triggers' && r.sourceRef.startsWith(prefix))

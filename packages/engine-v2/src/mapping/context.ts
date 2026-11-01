@@ -240,7 +240,7 @@ const flagRow = (
 ): RowMapping => ({
   mapping: 'interpreted',
   reason,
-  // A flag orders tools inside the chosen pathway; it ranks with the user's own triggers (ADR 0001 §2).
+  // A flag orders tools inside the chosen pathway; it ranks with the user's own triggers (ADR 0004 §2).
   engine: {
     stage: 'context',
     layer: 'trigger',

@@ -25,7 +25,7 @@ import {
 import type { RowMapping, TabMapping } from './types.js';
 
 // Tab 2 (experience → intervention), read for the engine (M3, E-50). Each row runs at Tab 8 step 4
-// in the "feeling, sensation or need" layer unless it is a guard (ADR 0001 §2). Tab 8 step 3 rates
+// in the "feeling, sensation or need" layer unless it is a guard (ADR 0004 §2). Tab 8 step 3 rates
 // each feeling on its own, so a row reads its own family's intensity. Which feeling leads when
 // several fire ("use the HIGHEST intensity") is ranking, done by the engine (M4), not a row.
 
@@ -84,7 +84,7 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
     when: high('distress_overwhelm'),
     rules: [rule(null, [must('primary', path('regulate')), set('support.show')])],
     reason:
-      'Regulate is the forced primary; "Get support now" is visible in every band (ADR 0001 §7).',
+      'Regulate is the forced primary; "Get support now" is visible in every band (ADR 0004 §7).',
     mapping: 'exact',
   }),
   'Racing / disorganised thoughts · Any': trigger({
@@ -108,7 +108,7 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
     when: belowHigh('anxious_fearful'),
     rules: [rule(null, [propose('alternative', path('regulate'))])],
     reason:
-      'Nothing forced; Regulate offered as an alternative (ADR 0001: mild anxiety is an alternative, never the primary). A skipped intensity matches neither anxious row (IG-04).',
+      'Nothing forced; Regulate offered as an alternative (ADR 0004: mild anxiety is an alternative, never the primary). A skipped intensity matches neither anxious row (IG-04).',
     mapping: 'exact',
   }),
   'Anger / frustration · High or Very High (7-10)': trigger({
@@ -146,7 +146,7 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
         set('tools.prefer', { tools: ['move', 'movement_plus'] }),
       ]),
     ],
-    reason: `Regulate added to the alternatives, movement tools first (ADR 0001: restlessness is an alternative, never the primary). ${SENSATION}`,
+    reason: `Regulate added to the alternatives, movement tools first (ADR 0004: restlessness is an alternative, never the primary). ${SENSATION}`,
   }),
   'Disconnected/Misaligned · Any': trigger({
     when: felt('disconnected_misaligned'),
@@ -202,7 +202,7 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
         ...DEFER_DEMAND,
       ]),
     ],
-    reason: `A guard (ADR 0001 §2). Regulate forced; "no typing or speaking" read as no Express, Dump or Reflect; Connect only as the one-tap pre-written message; demand deferred as Red defers it. "Lowers the band" is EX-1. ${SENSATION}`,
+    reason: `A guard (ADR 0004 §2). Regulate forced; "no typing or speaking" read as no Express, Dump or Reflect; Connect only as the one-tap pre-written message; demand deferred as Red defers it. "Lowers the band" is EX-1. ${SENSATION}`,
   }),
   "Task paralysis / can't start · Any": trigger({
     when: felt('task_paralysis_can_t_start'),
@@ -241,7 +241,7 @@ export const EXPERIENCE_CORE: NonNullable<TabMapping['rows']> = {
       rule(T0, [forbid(path('execute'), 'primary'), propose('queued', tool('smallest_step'))]),
     ],
     reason:
-      'A guard. Adapt first (reduce input; pattern 19 "Find a quieter spot"), then Regulate with Step out, Breathe and Ground first. Demand deferred as Red defers it, unless due now (T0): then only its smallest step, after the reset. High+ only (ADR 0001); a sensation counts only when rated High+. "Lowers the band" is EX-1.',
+      'A guard. Adapt first (reduce input; pattern 19 "Find a quieter spot"), then Regulate with Step out, Breathe and Ground first. Demand deferred as Red defers it, unless due now (T0): then only its smallest step, after the reset. High+ only (ADR 0004); a sensation counts only when rated High+. "Lowers the band" is EX-1.',
   }),
   'Hyperfocus lock / time blindness · Any': trigger({
     when: felt('hyperfocus_lock_time_blindness', 'hyperfocus'),
