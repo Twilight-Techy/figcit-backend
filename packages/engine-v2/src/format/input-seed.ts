@@ -301,10 +301,22 @@ export const INPUT_SEED: readonly InputSeed[] = [
     input: 'support',
     source: 'Figma S10 (291:146)',
     rows: [
-      ['just_me', 'Just me', 'alone', '', 'Excludes "Someone with me" (E-45)'],
-      ['can_call', 'Can call someone', '', ''],
-      ['someone_with_me', 'Someone with me', 'company', '', 'Excludes "Just me" (E-45)'],
-      ['headphones', 'Headphones / headset', '', '', 'Tabs 3a, 3b and 6c read headphones'],
+      ['just_me', 'Just me', 'alone', 'support:just_me', 'Excludes "Someone with me" (E-45)'],
+      ['can_call', 'Can call someone', '', 'support:can_call'],
+      [
+        'someone_with_me',
+        'Someone with me',
+        'company',
+        'support:someone_with_me',
+        'Excludes "Just me" (E-45)',
+      ],
+      [
+        'headphones',
+        'Headphones / headset',
+        '',
+        'support:headphones',
+        'Tabs 3a, 3b and 6c read headphones',
+      ],
     ],
   },
   {

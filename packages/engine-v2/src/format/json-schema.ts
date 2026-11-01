@@ -2,7 +2,6 @@ import type { JsonValue } from '../ruleset/canonical.js';
 import { valuesOf, type Catalogue } from './catalogue.js';
 import {
   ACTIONS,
-  EFFECTS,
   FACTS,
   LAYERS,
   LIMITS,
@@ -10,10 +9,9 @@ import {
   STAGES,
   UNARY_OPS,
   type Domain,
-  type EffectSpec,
   type FactSpec,
-  type ParamSpec,
 } from './registry.js';
+import { EFFECTS, type EffectSpec, type ParamSpec } from './effects.js';
 import { COPY_KEY, opsFor } from './validate.js';
 
 type Schema = { readonly [key: string]: JsonValue };

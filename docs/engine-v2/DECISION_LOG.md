@@ -353,6 +353,26 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - Amber: Urgency kept (ADR 0001 §9).
 - **Revert:** n/a (method); each row's mapping can be changed in the file or the editor.
 
+### E-49 Tools, supports and Tabs 3a, 3b, 4, 6, 6b mapped (M3)
+- **Tool catalogue:** Tab 6d names each pathway's tools in prose and gives no codes. 79 tools get codes, grouped by pathway, each naming its Tab 6d row. v1's code is kept where it was the same tool (`settle_3`, `body_scan`, `step_out`...).
+  - All rows are `interpreted`.
+  - The tier (free, advanced, safety floor) stays a rule of the Tab 6d rows, not a property of the tool.
+- **Supports:** a `support` value list (just me, can call someone, someone with me, headphones) and the `context.supports` fact, because Tabs 3a, 3b and 6c read headphones. The check-in's support options map to it.
+- **Tab 3b:** each place gives its setting classes (`classes.add`) and the tools it excludes.
+  - "Sounds (headphones)" reads as no Sounds unless headphones are available.
+  - Classes are interpreted per row (IG-07), e.g. Work = observed, Exam hall = formal + observed, Gym = public.
+  - The "ALL public, formal, observed or caring" row limits Meditate to short, silent, eyes-open tools, and written Reflect to when no task is under way.
+- **Tab 3a:** each flag excludes or prefers tools, or adds a prompt on the card (e.g. `card.prompt.noise_reduction`). Preferences rank in the trigger layer.
+- **Tab 4:** urgency weights read as maximum 4, high 3, moderate 2, low 1 (IG-16).
+  - Step caps: T0 at most 3, T1 at most 5, T2 none.
+  - T0 shortens a needed reset to 2 minutes.
+  - TX repairs first (Express, then the smallest step, no blame).
+  - TR adds Routine. Its next-occurrence urgency needs an input that doesn't exist yet.
+- **Tab 6:** each characteristic tags its driver. "Imposed", "Switching / transition" and "Stopping" are deferred by ADR 0001, so they are reference.
+- **Tab 6b:** each need proposes its route, gated by the lights it lists. Need rows run at orchestration (Tab 8 step 10) because they need the final light.
+- **Format 3 additions:** `drivers.add` takes an optional weight; new effect `minutes.cap`.
+- **Revert:** n/a (method); each row is editable.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

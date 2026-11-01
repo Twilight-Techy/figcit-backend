@@ -5,16 +5,15 @@ import {
   ACTIONS,
   DOMAIN_INFO,
   DOMAINS,
-  EFFECTS,
   FACTS,
   LAYERS,
   LIMITS,
   ORDERED_DOMAINS,
   SLOTS,
   STAGES,
-  type EffectSpec,
   type FactSpec,
 } from './registry.js';
+import { EFFECTS, type EffectSpec } from './effects.js';
 import { opsFor } from './validate.js';
 
 export interface DomainDescription {

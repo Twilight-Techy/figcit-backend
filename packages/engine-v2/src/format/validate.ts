@@ -1,7 +1,6 @@
 import { valuesOf, type Catalogue, type Issue } from './catalogue.js';
 import {
   ACTIONS,
-  EFFECTS,
   FACTS,
   LAYERS,
   LIMITS,
@@ -13,8 +12,8 @@ import {
   UNARY_OPS,
   type Domain,
   type FactSpec,
-  type ParamSpec,
 } from './registry.js';
+import { EFFECTS, type ParamSpec } from './effects.js';
 
 /** Wording keys follow the content keys (`admin` content editor). */
 export const COPY_KEY = /^[a-z0-9_.]{3,120}$/;

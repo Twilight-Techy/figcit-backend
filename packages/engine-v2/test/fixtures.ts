@@ -30,17 +30,5 @@ export const ex1 = {
   ],
 };
 
-/** The catalogue with a tool, as M3 will add (E-19). */
-export const withExtras = catalogueOf([
-  ...imported.records,
-  {
-    tab: 'catalogue',
-    status: 'active',
-    frame: 0,
-    columns: [
-      { header: 'Domain', text: 'tool', col: 0 },
-      { header: 'Code', text: 'breathe', col: 1 },
-      { header: 'Label', text: 'Breathe', col: 2 },
-    ],
-  },
-]).catalogue;
+/** The catalogue as imported; it now holds the tools too (E-49). */
+export const withExtras = catalogueOf(imported.records).catalogue;

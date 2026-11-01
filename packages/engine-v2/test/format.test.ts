@@ -64,7 +64,13 @@ describe('the catalogue, filled from the workbook', () => {
       'meditate',
     ]);
     expect(codes(catalogue, 'pattern')).toHaveLength(41);
-    expect(codes(catalogue, 'tool')).toEqual([]);
+    expect(codes(catalogue, 'tool')).toHaveLength(79);
+    expect(codes(catalogue, 'support')).toEqual([
+      'just_me',
+      'can_call',
+      'someone_with_me',
+      'headphones',
+    ]);
   });
 
   it('marks values read from the text as interpreted, and says what it left out', () => {
@@ -138,8 +144,15 @@ describe('validating engine columns', () => {
       stage: 'context',
       rules: [{ when: null, then: [{ kind: 'tools.exclude', tools: ['breathe'] }] }],
     };
-    expect(validateEngine(tools, catalogue)).toEqual([
+    expect(validateEngine(tools, new Map())).toEqual([
       { path: '/rules/0/then/0/tools/0', message: 'the catalogue has no tool values yet' },
+    ]);
+    const unknown = {
+      stage: 'context',
+      rules: [{ when: null, then: [{ kind: 'tools.exclude', tools: ['teleporter'] }] }],
+    };
+    expect(validateEngine(unknown, catalogue)).toEqual([
+      { path: '/rules/0/then/0/tools/0', message: '"teleporter" is not a tool in the catalogue' },
     ]);
     expect(validateEngine(ex1, catalogue)).toEqual([]);
   });
@@ -383,11 +396,11 @@ describe('the JSON Schema agrees with the validator', () => {
     expect(format.format).toBe(3);
     expect(format.facts).toHaveLength(FACTS.length);
     expect(format.facts.find((f) => f.name === 'band.final')?.ops).toContain('gte');
-    expect(format.domains.find((d) => d.domain === 'tool')?.values.map((v) => v.code)).toEqual([
+    expect(format.domains.find((d) => d.domain === 'tool')?.values.map((v) => v.code)).toContain(
       'breathe',
-    ]);
+    );
     expect(format.mappingStatuses).toContain('reference');
-    const schema = engineJsonSchema(catalogue) as {
+    const schema = engineJsonSchema(new Map()) as {
       $defs: Record<string, { oneOf: { not?: unknown }[] }>;
     };
     expect(schema.$defs['target']?.oneOf[1]).toEqual({

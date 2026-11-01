@@ -39,7 +39,6 @@ export { rowIssues, VALUE_TABS, type CheckedRow } from './format/rows.js';
 export {
   ACTIONS,
   DOMAINS,
-  EFFECTS,
   FACTS,
   LAYERS,
   LIMITS,
@@ -47,13 +46,12 @@ export {
   STAGES,
   type Action,
   type Domain,
-  type EffectSpec,
   type FactSpec,
   type FactType,
   type LayerKey,
-  type ParamSpec,
   type StageKey,
 } from './format/registry.js';
+export { EFFECTS, type EffectSpec, type ParamSpec } from './format/effects.js';
 export {
   CATALOGUE_FILE,
   INPUT_MAPPINGS_FILE,

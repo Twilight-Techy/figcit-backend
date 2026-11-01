@@ -78,10 +78,11 @@ describe('rule store (engine v2)', () => {
 
     const v = await api.req<Version>('GET', `/rulesets/${first}`, { token: reader });
     // The workbook's rows, plus the catalogue filled from them (E-36).
-    // 193 values read exactly from rows; 17 interpreted (setting classes, plans, sensation groups).
-    expect(res.body.additions.catalogue).toBe(210);
+    // 193 values read exactly from rows; 100 interpreted (setting classes, plans, sensation groups,
+    // 79 tools and 4 supports: E-49).
+    expect(res.body.additions.catalogue).toBe(293);
     // ...plus the check-in options filled from Figma (E-40).
-    expect(v.body.counts.records).toBe(expected.records.length + 210 + res.body.additions.inputs);
+    expect(v.body.counts.records).toBe(expected.records.length + 293 + res.body.additions.inputs);
     expect(v.body.counts.safety).toBeGreaterThan(5);
 
     const tab = await api.req<Items<Row>>('GET', `/rulesets/${first}/tabs/band_rules`, {
@@ -132,7 +133,7 @@ describe('rule store (engine v2)', () => {
       readWorkbook(files).records.map(strip),
     );
     // ...and the added tables travel with them, so a re-import keeps them (E-36).
-    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(210);
+    expect(exported.filter((r) => r.tab === 'catalogue')).toHaveLength(293);
     expect(exported.filter((r) => r.tab === 'input_mappings').length).toBeGreaterThan(200);
     expect(Object.keys(res.body.files)).toEqual(
       expect.arrayContaining(['x-catalogue.csv', 'x-input-mappings.csv']),

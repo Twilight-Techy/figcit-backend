@@ -2,6 +2,7 @@ import { fromDraft, type RulesetRecord } from '../ruleset/store.js';
 import type { ReadResult, RuleRecordDraft, TableFrame, TabKey } from '../ruleset/types.js';
 import { CATALOGUE_HEADER, cellText, type CatalogueColumn } from './catalogue.js';
 import { INPUT_SEED } from './input-seed.js';
+import { SUPPORT_SEED, TOOL_SEED } from './tool-seed.js';
 import { INPUT_MAPPINGS_HEADER } from './inputs.js';
 import type { Domain } from './registry.js';
 
@@ -138,6 +139,25 @@ function drivers(records: readonly RuleRecordDraft[]): SeedRow[] {
   });
 }
 
+/** Tools per pathway from Tab 6d section A's prose (E-49): `interpreted`, each naming its row. */
+function tools(records: readonly RuleRecordDraft[]): SeedRow[] {
+  const rows = rowsOf(records, 'tools_tiers').filter((r) => r.section?.startsWith('A.') ?? false);
+  return TOOL_SEED.map(([code, label, pathway]) => {
+    const row = rows.find((r) => slug(r.sourceRef.split(' · ')[0] ?? '') === pathway);
+    return {
+      domain: 'tool',
+      mapping: 'interpreted',
+      cells: {
+        Code: code,
+        Label: label,
+        Group: pathway,
+        Source: row ? source(row) : 'tools_tiers · A.',
+        Note: 'Named from the prose; code added (E-49)',
+      },
+    };
+  });
+}
+
 /** Groups the sensation-led rules read (E-40); filled from the text, so `interpreted`. */
 const SENSATION_GROUPS = [
   'pain',
@@ -237,6 +257,17 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
     ),
     ...pathways(records),
     ...asIs('pattern', records, 'patterns', 'Capacity band + trigger pattern'),
+    ...tools(records),
+    ...SUPPORT_SEED.map(([code, label]): SeedRow => ({
+      domain: 'support',
+      mapping: 'interpreted',
+      cells: {
+        Code: code,
+        Label: label,
+        Source: 'Figma S10 (291:146); Tabs 3a, 3b, 6c (headphones)',
+        Note: 'Confirm (IG-10)',
+      },
+    })),
     ...interpreted(
       'plan',
       ['free', 'plus', 'institution'],

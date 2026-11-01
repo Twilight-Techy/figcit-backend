@@ -4,6 +4,9 @@ import type { JsonValue } from '../ruleset/canonical.js';
 import type { RulesetRecord } from '../ruleset/store.js';
 import type { TabKey } from '../ruleset/types.js';
 import { BAND_RULES, BANDS, STATE_GRID } from './bands.js';
+import { CONTEXTS, SENSITIVITY_FLAGS } from './context.js';
+import { DEMAND_CHARACTERISTICS, TIMELINES } from './demand.js';
+import { NEEDS } from './needs.js';
 import { COVERAGE_GAPS, DECISION_SEQUENCE, DRIVERS, JOURNEY_LAYERS } from './reference-tabs.js';
 import type { RowMapping, TabMapping } from './types.js';
 
@@ -16,6 +19,11 @@ export const MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   bands: BANDS,
   band_rules: BAND_RULES,
   state_grid: STATE_GRID,
+  contexts: CONTEXTS,
+  sensitivity_flags: SENSITIVITY_FLAGS,
+  timelines: TIMELINES,
+  demand_characteristics: DEMAND_CHARACTERISTICS,
+  needs: NEEDS,
 };
 
 const NOT_A_RULE: RowMapping = {

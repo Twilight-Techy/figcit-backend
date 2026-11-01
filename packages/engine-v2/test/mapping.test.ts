@@ -36,6 +36,39 @@ describe('the mapping file', () => {
     expect(report.byTab.state_grid).toMatchObject({ rules: 16, interpreted: 4, reference: 12 });
   });
 
+  it('covers Tabs 3a, 3b, 4, 6 and 6b row by row', () => {
+    expect(report.byTab.contexts).toMatchObject({
+      rules: 20,
+      interpreted: 19,
+      reference: 1,
+      pending: 0,
+    });
+    expect(report.byTab.sensitivity_flags).toMatchObject({ rules: 8, interpreted: 8, pending: 0 });
+    expect(report.byTab.timelines).toMatchObject({
+      rules: 9,
+      interpreted: 8,
+      reference: 1,
+      pending: 0,
+    });
+    expect(report.byTab.demand_characteristics).toMatchObject({
+      rules: 17,
+      exact: 8,
+      interpreted: 5,
+      reference: 4,
+    });
+    expect(report.byTab.needs).toMatchObject({ rules: 21, exact: 3, interpreted: 18, pending: 0 });
+  });
+
+  it('marks deferred characteristics as reference, with the reason', () => {
+    const imposed = records.find(
+      (r) => r.tab === 'demand_characteristics' && r.sourceRef === 'Imposed by someone else',
+    );
+    expect(imposed?.mapping).toBe('reference');
+    expect(MAPPINGS.demand_characteristics?.rows?.['Imposed by someone else']?.reason).toMatch(
+      /Deferred/,
+    );
+  });
+
   it('stores the interpretation with the engine columns', () => {
     const cx1 = records.find((r) => r.tab === 'band_rules' && r.sourceRef === 'CX-1');
     expect(cx1?.mapping).toBe('interpreted');
