@@ -9083,6 +9083,527 @@
         "x-access": "user"
       }
     },
+    "/v1/decisions/{id}/another": {
+      "post": {
+        "operationId": "Decisions_another",
+        "summary": "Browse: the card again, without the pathway just declined (\"try another\", Adapt)",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "declinedToolId": {
+                    "description": "The tool the user just declined",
+                    "type": "string",
+                    "maxLength": 48
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "declinedToolId": "Example declinedToolId"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "checkInId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "light": {
+                      "type": "string",
+                      "enum": [
+                        "green",
+                        "yellow",
+                        "amber",
+                        "red",
+                        "blue"
+                      ]
+                    },
+                    "lightLabel": {
+                      "type": "string"
+                    },
+                    "lightHex": {
+                      "type": "string"
+                    },
+                    "lightIcon": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "object",
+                      "properties": {
+                        "cellId": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string"
+                        },
+                        "meaning": {
+                          "type": "string"
+                        },
+                        "confirmed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "cellId",
+                        "name",
+                        "icon",
+                        "meaning",
+                        "confirmed"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "rationale": {
+                      "type": "string"
+                    },
+                    "primary": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "pathway",
+                            "support",
+                            "skip_to_task",
+                            "try_anyway",
+                            "save_for_later",
+                            "remind_later",
+                            "check_in_again",
+                            "open_home",
+                            "own_practice",
+                            "quiet_message"
+                          ]
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "pathway": {
+                          "type": "string",
+                          "enum": [
+                            "regulate",
+                            "dump",
+                            "express",
+                            "execute",
+                            "adapt",
+                            "reflect",
+                            "connect",
+                            "meditate"
+                          ]
+                        },
+                        "toolId": {
+                          "type": "string"
+                        },
+                        "advanced": {
+                          "type": "boolean"
+                        },
+                        "minutes": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "practiceId": {
+                          "type": "string"
+                        },
+                        "href": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "label",
+                        "href"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "alternatives": {
+                      "maxItems": 2,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "pathway",
+                              "support",
+                              "skip_to_task",
+                              "try_anyway",
+                              "save_for_later",
+                              "remind_later",
+                              "check_in_again",
+                              "open_home",
+                              "own_practice",
+                              "quiet_message"
+                            ]
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "pathway": {
+                            "type": "string",
+                            "enum": [
+                              "regulate",
+                              "dump",
+                              "express",
+                              "execute",
+                              "adapt",
+                              "reflect",
+                              "connect",
+                              "meditate"
+                            ]
+                          },
+                          "toolId": {
+                            "type": "string"
+                          },
+                          "advanced": {
+                            "type": "boolean"
+                          },
+                          "minutes": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "practiceId": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "label",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "queuedStep": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "pathway",
+                                "support",
+                                "skip_to_task",
+                                "try_anyway",
+                                "save_for_later",
+                                "remind_later",
+                                "check_in_again",
+                                "open_home",
+                                "own_practice",
+                                "quiet_message"
+                              ]
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "pathway": {
+                              "type": "string",
+                              "enum": [
+                                "regulate",
+                                "dump",
+                                "express",
+                                "execute",
+                                "adapt",
+                                "reflect",
+                                "connect",
+                                "meditate"
+                              ]
+                            },
+                            "toolId": {
+                              "type": "string"
+                            },
+                            "advanced": {
+                              "type": "boolean"
+                            },
+                            "minutes": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "practiceId": {
+                              "type": "string"
+                            },
+                            "href": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "label",
+                            "href"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "supportVisible": {
+                      "type": "boolean"
+                    },
+                    "notNow": {
+                      "type": "boolean"
+                    },
+                    "safetyTriggered": {
+                      "type": "boolean"
+                    },
+                    "crisisRoutes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "call",
+                              "text",
+                              "link"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label",
+                          "detail",
+                          "href",
+                          "kind"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "patterns": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "timeline": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "stepCap": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "stepCap"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "taskId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "online",
+                        "offline"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "checkInId",
+                    "createdAt",
+                    "light",
+                    "lightLabel",
+                    "lightHex",
+                    "lightIcon",
+                    "state",
+                    "title",
+                    "rationale",
+                    "primary",
+                    "alternatives",
+                    "queuedStep",
+                    "supportVisible",
+                    "notNow",
+                    "safetyTriggered",
+                    "crisisRoutes",
+                    "patterns",
+                    "timeline",
+                    "taskId",
+                    "origin"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "checkInId": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "light": "green",
+                  "lightLabel": "Example lightLabel",
+                  "lightHex": "Example lightHex",
+                  "lightIcon": "Example lightIcon",
+                  "state": {
+                    "cellId": "Example cellId",
+                    "name": "Example name",
+                    "icon": "Example icon",
+                    "meaning": "Example meaning",
+                    "confirmed": true
+                  },
+                  "title": "Example title",
+                  "rationale": "Example rationale",
+                  "primary": {
+                    "kind": "pathway",
+                    "label": "Example label",
+                    "pathway": "regulate",
+                    "toolId": "Example toolId",
+                    "advanced": true,
+                    "minutes": 1,
+                    "practiceId": "Example practiceId",
+                    "href": "Example href"
+                  },
+                  "alternatives": [
+                    {
+                      "kind": "pathway",
+                      "label": "Example label",
+                      "pathway": "regulate",
+                      "toolId": "Example toolId",
+                      "advanced": true,
+                      "minutes": 1,
+                      "practiceId": "Example practiceId",
+                      "href": "Example href"
+                    }
+                  ],
+                  "queuedStep": {
+                    "kind": "pathway",
+                    "label": "Example label",
+                    "pathway": "regulate",
+                    "toolId": "Example toolId",
+                    "advanced": true,
+                    "minutes": 1,
+                    "practiceId": "Example practiceId",
+                    "href": "Example href"
+                  },
+                  "supportVisible": true,
+                  "notNow": true,
+                  "safetyTriggered": true,
+                  "crisisRoutes": [
+                    {
+                      "id": "Example id",
+                      "label": "Example label",
+                      "detail": "Example detail",
+                      "href": "Example href",
+                      "kind": "call"
+                    }
+                  ],
+                  "patterns": [
+                    1
+                  ],
+                  "timeline": {
+                    "code": "Example code",
+                    "stepCap": 1
+                  },
+                  "taskId": "00000000-0000-4000-8000-000000000001",
+                  "origin": "online"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "browse": []
+          }
+        ],
+        "x-access": "browse"
+      }
+    },
     "/v1/decisions/{id}/replay": {
       "post": {
         "operationId": "Decisions_replay",

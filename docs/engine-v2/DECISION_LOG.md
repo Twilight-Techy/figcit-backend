@@ -556,6 +556,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - **CTA wording** comes from the patterns, not from Tab 2 rows (Tab 2 routes, Tab 7 words).
 - **Engine fix:** the full trace lists only facts that have a value, never defaults. Before, adding a fact changed every older trace, and replay reported records as changed when nothing about them had (found by the daily replay).
 - **Re-check:** "support completed" now comes from the re-checked card's session (closing T-23 for check-ins). The re-check rule that applied is reported to the session's feedback, as v1 did, so recovery windows open.
+- **Browse card actions:** `POST /v1/decisions/{id}/another` re-runs a Browse decision with the declined pathway just rejected and returns the app's card, recorded without an account. Browse cards are decisions, so the app no longer needs an engine of its own for "try another" or Adapt (E-01).
 - **Revert:** unpublish v2 (publish a v1-era version) and the check-in falls back to v1; the code paths stay.
 
 ## Dropped or changed from earlier proposals (one list)

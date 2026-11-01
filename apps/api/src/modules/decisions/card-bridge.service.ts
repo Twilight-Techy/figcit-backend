@@ -28,6 +28,20 @@ export interface V2Trace {
   readonly why: Why;
 }
 
+/** The input with the declined tool's pathway marked as just rejected (Tab 7 non-negotiables). */
+function withRejected(
+  input: EngineInput,
+  engine: Runnable,
+  declinedTool: string | null,
+): EngineInput {
+  const pathway = declinedTool
+    ? valuesOf(engine.ruleset.catalogue, 'tool').find((t) => t.code === declinedTool)?.group
+    : undefined;
+  const before = (input['signals.rejected'] as string[] | undefined) ?? [];
+  const rejected = [...new Set([...before, ...(pathway ? [pathway] : [])])];
+  return rejected.length > 0 ? { ...input, 'signals.rejected': rejected } : input;
+}
+
 /** The re-check rules, most telling first: Blue (RC-1), no Blue (RC-5), unchanged (RC-4). */
 const RECHECK_RULES = ['RC-1', 'RC-5', 'RC-4', 'RC-3', 'RC-2'];
 
@@ -138,6 +152,34 @@ export class CardBridgeService {
   }
 
   /**
+   * "Try another" or Adapt on a Browse card (E-53): the Browse decision again, with the declined
+   * pathway just rejected, recorded without an account. Browse cards are decisions, not rows.
+   */
+  async browseAnother(decisionId: string, declinedTool: string | null): Promise<CardDto> {
+    const decision = await this.prisma.decisionRecord.findFirst({
+      where: { id: decisionId, mode: 'browse' },
+    });
+    if (!decision) throw new NotFound('card');
+    const engine = await this.decisions.engineFor(decision.versionId);
+    const input = withRejected(decision.input as EngineInput, engine, declinedTool);
+    const now = new Date();
+    const { record, card, trace } = await this.decisions.record(
+      this.prisma,
+      { engine, input },
+      { userId: undefined, recheckOfId: null, now },
+    );
+    const ids: CardIds = {
+      id: record.id,
+      checkInId: record.id,
+      createdAt: now,
+      taskId: null,
+      origin: 'online',
+    };
+    const shown = await this.presentation(engine, input, trace, { said: [], taskTitle: null });
+    return present(card, shown, ids).card;
+  }
+
+  /**
    * "Try another" or Adapt on a v2 card: the same input again, with the declined pathway marked as
    * just rejected (Tab 7: not repeated at once). Adaptations have no v2 fact yet (T-26).
    */
@@ -154,20 +196,10 @@ export class CardBridgeService {
       where: { id: rec.trace.decisionId },
     });
     const engine = await this.decisions.engineFor(decision.versionId);
-    const input = decision.input as EngineInput;
-    const pathway = declinedTool
-      ? valuesOf(engine.ruleset.catalogue, 'tool').find((t) => t.code === declinedTool)?.group
-      : undefined;
-    const rejected = [
-      ...new Set([
-        ...((input['signals.rejected'] as string[] | undefined) ?? []),
-        ...(pathway ? [pathway] : []),
-      ]),
-    ];
     const prepared = {
       engine,
       risk: null,
-      input: { ...input, ...(rejected.length > 0 ? { 'signals.rejected': rejected } : {}) },
+      input: withRejected(decision.input as EngineInput, engine, declinedTool),
     };
     const made = await this.prisma.$transaction((tx) =>
       this.store(tx, prepared, {

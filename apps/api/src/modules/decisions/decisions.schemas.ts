@@ -126,3 +126,10 @@ export const exploreResultSchema = z.object({
   }),
 });
 export type ExploreResult = z.infer<typeof exploreResultSchema>;
+
+/** "Try another" or Adapt on a Browse card (E-53). */
+export const anotherBodySchema = z
+  .object({
+    declinedToolId: z.string().max(48).optional().describe('The tool the user just declined'),
+  })
+  .strict();

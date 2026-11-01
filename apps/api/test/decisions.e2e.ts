@@ -160,6 +160,35 @@ describe('decisions (engine v2)', () => {
     expect(result.mismatched).toEqual([]);
   });
 
+  it("re-runs a Browse card without the pathway just declined ('try another', E-53)", async () => {
+    const made = await api.req<{
+      card: { id: string; primary: { pathway?: string; toolId?: string } };
+    }>('POST', '/check-ins', {
+      headers: { 'x-browse-token': device },
+      body: {
+        state: { kind: 'grid', energy: 3, mood: 3 },
+        emotions: [{ code: 'lonely', intensity: 6 }],
+      },
+    });
+    expect(made.body.card.primary.pathway).toBe('connect');
+    const again = await api.req<{ primary: { pathway?: string } }>(
+      'POST',
+      `/decisions/${made.body.card.id}/another`,
+      {
+        headers: { 'x-browse-token': device },
+        body: { declinedToolId: made.body.card.primary.toolId },
+      },
+    );
+    expect(again.status).toBe(201);
+    expect(again.body.primary.pathway).not.toBe('connect');
+    const signedIn = await decide({}, user);
+    const refused = await api.req('POST', `/decisions/${signedIn.body.id}/another`, {
+      headers: { 'x-browse-token': device },
+      body: {},
+    });
+    expect(refused.status).toBe(404);
+  });
+
   it('keeps records append-only: only the replay outcome can change', async () => {
     const made = await decide({});
     const prisma = api.app.get(PrismaService);
