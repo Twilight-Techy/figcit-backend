@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "status": "synthetic",
+  "clips": [
+    {
+      "id": "sp-001",
+      "kind": "speech",
+      "text": "There's so much going on in my head today that I can't think straight.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-002",
+      "kind": "speech",
+      "text": "I need to email my tutor about the essay but I keep putting it off.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-003",
+      "kind": "speech",
+      "text": "My heart is racing and the room feels really loud right now.",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-004",
+      "kind": "speech",
+      "text": "Remind me to call the dentist and pick up my prescription.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-005",
+      "kind": "speech",
+      "text": "I want to ask my manager if I can work from home on Fridays.",
+      "voice": "en_US-lessac-medium",
+      "accent": "US English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-006",
+      "kind": "speech",
+      "text": "The meeting moved to the small room on the second floor.",
+      "voice": "en_GB-alan-medium",
+      "accent": "English (Midlands)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-007",
+      "kind": "speech",
+      "text": "I'm worried I'll forget what I was supposed to say in the interview.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-008",
+      "kind": "speech",
+      "text": "Buy milk, bread and some washing up liquid on the way home.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-009",
+      "kind": "speech",
+      "text": "I had an idea for a podcast about growing vegetables on a balcony.",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-010",
+      "kind": "speech",
+      "text": "I feel completely drained after spending the whole day with people.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-011",
+      "kind": "speech",
+      "text": "Could you help me break the project into smaller pieces?",
+      "voice": "en_US-lessac-medium",
+      "accent": "US English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-012",
+      "kind": "speech",
+      "text": "I don't know whether to start with the laundry or the dishes.",
+      "voice": "en_GB-alan-medium",
+      "accent": "English (Midlands)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-013",
+      "kind": "speech",
+      "text": "I keep thinking about what my sister said at dinner last night.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-014",
+      "kind": "speech",
+      "text": "Please tell my flatmate that the music is too loud after midnight.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-015",
+      "kind": "speech",
+      "text": "I need a quiet moment before I go back into the office.",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-016",
+      "kind": "speech",
+      "text": "The train was cancelled again so I'm going to be late.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-017",
+      "kind": "speech",
+      "text": "I want to write down that I finished the report on time.",
+      "voice": "en_US-lessac-medium",
+      "accent": "US English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-018",
+      "kind": "speech",
+      "text": "My mind keeps jumping between the bills and the job application.",
+      "voice": "en_GB-alan-medium",
+      "accent": "English (Midlands)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-019",
+      "kind": "speech",
+      "text": "I'd like to practise what I'm going to say to the landlord.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-020",
+      "kind": "speech",
+      "text": "Everything feels like too much and I just want to lie down.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-021",
+      "kind": "speech",
+      "text": "Can you turn this into a short and polite message for my boss?",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-022",
+      "kind": "speech",
+      "text": "I forgot my keys at work and had to wait outside for an hour.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-023",
+      "kind": "speech",
+      "text": "Maybe we could paint the hallway a lighter colour this spring.",
+      "voice": "en_US-lessac-medium",
+      "accent": "US English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-024",
+      "kind": "speech",
+      "text": "I'm nervous about the hospital appointment on Thursday morning.",
+      "voice": "en_GB-alan-medium",
+      "accent": "English (Midlands)",
+      "room": "noisy",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-025",
+      "kind": "speech",
+      "text": "Sort out the recycling and take the bins out before Tuesday.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-026",
+      "kind": "speech",
+      "text": "I want to learn how to make bread without a recipe.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-027",
+      "kind": "speech",
+      "text": "My shoulders are tense and my jaw has been clenched all afternoon.",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-028",
+      "kind": "speech",
+      "text": "Let my team know I need the slides by the end of the week.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-029",
+      "kind": "speech",
+      "text": "I'm grateful that my friend came round and helped me tidy up.",
+      "voice": "en_US-lessac-medium",
+      "accent": "US English",
+      "room": "quiet",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-030",
+      "kind": "speech",
+      "text": "I can't stop scrolling and I know I should be revising.",
+      "voice": "en_GB-alan-medium",
+      "accent": "English (Midlands)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-031",
+      "kind": "speech",
+      "text": "Book a table for four people at the Italian place near the station.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-032",
+      "kind": "speech",
+      "text": "I need to stop working on this and start cooking dinner.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-033",
+      "kind": "speech",
+      "text": "The noise in the canteen makes it really hard to concentrate.",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-034",
+      "kind": "speech",
+      "text": "I want to tell my partner I need more time to myself.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-035",
+      "kind": "speech",
+      "text": "Write a list of everything I need for the weekend away.",
+      "voice": "en_US-lessac-medium",
+      "accent": "US English",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-036",
+      "kind": "speech",
+      "text": "I keep starting things and never finishing any of them.",
+      "voice": "en_GB-alan-medium",
+      "accent": "English (Midlands)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-037",
+      "kind": "speech",
+      "text": "Ask the pharmacy whether my repeat prescription is ready.",
+      "voice": "en_GB-alba-medium",
+      "accent": "Scottish",
+      "room": "quiet"
+    },
+    {
+      "id": "sp-038",
+      "kind": "speech",
+      "text": "I felt proud when I spoke up in the seminar this morning.",
+      "voice": "en_GB-northern_english_male-medium",
+      "accent": "Northern English",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-039",
+      "kind": "speech",
+      "text": "Help me plan the first small step for clearing out the garage.",
+      "voice": "en_GB-southern_english_female-low",
+      "accent": "Southern English",
+      "room": "quiet",
+      "silenceSeconds": 6
+    },
+    {
+      "id": "sp-040",
+      "kind": "speech",
+      "text": "I'd rather send a message than have to make a phone call.",
+      "voice": "en_GB-jenny_dioco-medium",
+      "accent": "English (RP)",
+      "room": "noisy"
+    },
+    {
+      "id": "sp-041",
+      "kind": "silence",
+      "text": "",
+      "room": "quiet",
+      "seconds": 10
+    },
+    {
+      "id": "sp-042",
+      "kind": "silence",
+      "text": "",
+      "room": "quiet",
+      "seconds": 10
+    },
+    {
+      "id": "sp-043",
+      "kind": "silence",
+      "text": "",
+      "room": "quiet",
+      "seconds": 10
+    },
+    {
+      "id": "sp-044",
+      "kind": "silence",
+      "text": "",
+      "room": "quiet",
+      "seconds": 10
+    },
+    {
+      "id": "sp-045",
+      "kind": "silence",
+      "text": "",
+      "room": "quiet",
+      "seconds": 10
+    },
+    {
+      "id": "sp-046",
+      "kind": "silence",
+      "text": "",
+      "room": "noisy",
+      "seconds": 10
+    },
+    {
+      "id": "sp-047",
+      "kind": "silence",
+      "text": "",
+      "room": "noisy",
+      "seconds": 10
+    },
+    {
+      "id": "sp-048",
+      "kind": "silence",
+      "text": "",
+      "room": "noisy",
+      "seconds": 10
+    },
+    {
+      "id": "sp-049",
+      "kind": "silence",
+      "text": "",
+      "room": "noisy",
+      "seconds": 10
+    },
+    {
+      "id": "sp-050",
+      "kind": "silence",
+      "text": "",
+      "room": "noisy",
+      "seconds": 10
+    }
+  ]
+}
