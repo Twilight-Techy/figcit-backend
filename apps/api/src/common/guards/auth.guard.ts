@@ -10,6 +10,8 @@ export const STAFF_ROLES = [
   'safety_reviewer',
   'content_editor',
   'institution_supporter',
+  // Changes engine v2 rules (DECISION_LOG E-34); no other staff powers.
+  'clinical_admin',
 ] as const;
 
 /**

@@ -259,7 +259,7 @@ A separate staff app, with the existing staff sign-in, roles and MFA. Every acti
 | Published version bundles | Object storage (existing MinIO), named by hash | An immutable copy for replay and audit |
 | Background runs (explorer, replay, import) | pg-boss (existing) | Already in the stack |
 | Workbook import and export | A spreadsheet library (SheetJS or ExcelJS; to be chosen under the dependency rules) | Reads and writes `.xlsx` with the same layout |
-| Admin dashboard | Next.js (as the PWA), separate app `apps/admin` | Keeps staff tools out of the user app |
+| Admin dashboard | Next.js, one staff app in the client repo (E-31) | Keeps staff tools out of the user app |
 | Off-the-shelf rule engines (Drools, DMN engines) | Not used | They would replace the workbook's structure with their own. The structure must stay the author's. |
 | Machine learning | Not used in deciding a card | Recommendations must be explainable and replayable. ML may later study outcomes to *suggest* rule changes, which go through the same approval. |
 
@@ -284,7 +284,7 @@ A separate staff app, with the existing staff sign-in, roles and MFA. Every acti
 1. Agree the input catalogue (`INPUT_GAPS.md`) and the rule format.
 2. Rule store, versions and the importer with its report. Import v3.3 and fill the gap register.
 3. Engine with trace and checks; drift register from the examples.
-4. Admin dashboard (`apps/admin`, `DECISION_LOG.md` E-15): viewer, simulator **and the editor with approvals first**, because the rule store is the master copy from the first import and single rules must be editable without a re-import (E-12); then explorer and query.
+4. Admin dashboard (the staff app in the client repo, `DECISION_LOG.md` E-31): viewer, simulator **and the editor with approvals first**, because the rule store is the master copy from the first import and single rules must be editable without a re-import (E-12); then explorer and query.
 5. Decision records, replay and audit log.
 6. ~~**Shadow run**~~ Dropped 1 Nov 2026 (`DECISION_LOG.md` E-18). The engine is tested through the admin Simulator and explorer, on inputs and outputs only.
 7. Switch over, then remove the device engine from the PWA.

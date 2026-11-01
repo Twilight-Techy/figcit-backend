@@ -25,8 +25,16 @@ const daysQuery = z.object({ days: z.coerce.number().int().min(1).max(90).defaul
 const rolesSchema = z
   .object({
     roles: z
-      .array(z.enum(['admin', 'safety_reviewer', 'content_editor', 'institution_supporter']))
-      .max(4),
+      .array(
+        z.enum([
+          'admin',
+          'safety_reviewer',
+          'content_editor',
+          'institution_supporter',
+          'clinical_admin',
+        ]),
+      )
+      .max(5),
   })
   .strict();
 const contentQuery = z.object({ kind: z.string().max(24).optional() }).strict();

@@ -4,6 +4,7 @@ enum UserRole {
   safety_reviewer
   content_editor
   institution_supporter
+  clinical_admin
 
   @@map("user_role")
 }

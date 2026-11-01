@@ -31,10 +31,10 @@ import { RulesetsService } from './rulesets.service.js';
 
 const any = z.unknown();
 const list = z.object({ items: z.array(z.unknown()) });
-// Anyone on the staff side may read the rule set; only the clinical admin changes it (E-20: one
-// role for now, the `admin` role; the editor / Product Owner / Clinical Safety split is TODO T-01).
-const READ = ['admin', 'safety_reviewer', 'content_editor'] as const;
-const WRITE = ['admin'] as const;
+// Staff who work on or review rules may read the rule set; only the clinical admin changes it
+// (E-34). The editor / Product Owner / Clinical Safety approval split is TODO T-01.
+const READ = ['clinical_admin', 'admin', 'safety_reviewer', 'content_editor'] as const;
+const WRITE = ['clinical_admin'] as const;
 const TAGS = ['Rule store (engine v2)'];
 
 function actorOf(user: RequestUser): Actor {

@@ -12,6 +12,7 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Row add, edit, retire and restore in a draft; history per rule; audit log with chain check
 - [x] Gap and decision registers; exempt safety rows block publishing until their gap is acknowledged (E-21)
 - [x] Export back to the workbook layout (CSV per tab)
+- [x] `clinical_admin` role; only it changes rules (E-34)
 - [ ] `.xlsx` import and export with shaded engine columns (T-06)
 - [ ] Published version bundle in object storage, named by hash (T-07)
 
@@ -37,11 +38,12 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [ ] Decision records, replay, daily replay job
 - [ ] Staff API for rule sets, simulate, explore, registers
 
-## M6 Admin app (`apps/admin`)
+## M6 Staff app (client repo, after the restructure; E-31, E-33)
 - [ ] Viewer in the workbook layout, filters, row history
 - [ ] Simulator: pick inputs, see the output stage by stage (E-18)
 - [ ] Editor: add and edit a single rule, impact check, publish (E-12, E-20)
 - [ ] Gaps and exemptions, import and export
+- [ ] Redesigned old admin screens: content, decisions, safety events, overview, staff and roles, research, audit
 
 ## M7 Explorer, query and impact
 - [ ] All-flows explorer, outcome maps, rules that never fire
@@ -50,6 +52,7 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 ## M8 App
 - [ ] Rewire the PWA to the server-only engine; remove `vendor/engine`; Figma S81 wording (U-01, U-02)
 - [ ] Retire the PWA `/admin` screens (U-03)
+- [ ] Squash the branch's migrations into one before the PR (E-34)
 
 ## M9 Finish
 - [ ] Full tests, coverage, performance budgets, ADR for the exceptions (E-23)

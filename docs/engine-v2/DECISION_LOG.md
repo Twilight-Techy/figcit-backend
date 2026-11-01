@@ -80,7 +80,7 @@ See `DESIGN.md` §2. E-01 (engine only on the server, for signed-in and Browse u
 - **Open for that team:** who owns the phrase list, where it runs, and what happens offline. `OWNER_DISCUSSION.md` O-03.
 - **Revert:** n/a (scope boundary).
 
-### E-15 The admin dashboard is a separate app
+### E-15 The admin dashboard is a separate app (replaced by E-31)
 - **Decision:** `apps/admin` in the backend workspace, sharing the rule-format schemas. The PWA's `/admin` screens retire when v2 goes live.
 - **Why:** staff tools stay out of the public bundle, and the dashboard shares types with the rule format (`DESIGN.md` §9). The Owner said to go ahead with whatever is necessary and note it.
 - **Dropped:** keeping the admin screens in the PWA.
@@ -94,7 +94,7 @@ See `DESIGN.md` §2. E-01 (engine only on the server, for signed-in and Browse u
 |---|---|---|---|---|---|
 | U-01 | Figma S81, "Recommendations" row | "Uses last known rules" (a card made offline) | "Available when you're back online" | The engine is server-only (E-01, E-03) | Restore the device engine in the PWA |
 | U-02 | PWA `vendor/engine` and `scripts/sync-engine.mjs` | The app bundles a copy of the engine | Removed when v2 goes live | E-01 | Re-vendor the engine |
-| U-03 | PWA `/admin` | Admin screens inside the app | Moved to `apps/admin` | E-15 | See E-15 |
+| U-03 | PWA `/admin` | Admin screens inside the app | Moved to one staff app in the client repo and redesigned | E-31, E-33 | See E-15 |
 
 ### E-18 The engine is tested through the admin Simulator, on inputs and outputs only
 - **Decision:**
@@ -197,6 +197,36 @@ Recorded so a reviewer can see what the reader does with the spreadsheet (`packa
 ### E-23 addition (1 Nov 2026)
 Rule set versions also keep their table frames, import report and checks as JSONB. Same reason as the rows: they are part of the version, read whole, never filtered on.
 
+### E-31 One staff app, in the client repo, for every staff tool (replaces E-15)
+- **Decision (Owner and fellow developer, 1 Nov 2026):**
+  - The PWA repo is renamed to a **client** repo (e.g. `figcit-client`) that holds every client-side app. The backend repo holds only the backend.
+  - The staff tools leave the user app. They become **one separate staff app** in the client repo (e.g. `apps/admin`): a standard desktop web app, responsive on mobile, never bundled with the user app.
+  - The **clinical rule tools are a section of that app** (viewer, simulator, editor, gaps, versions, audit), not a separate app. The other sections are the old `/admin` screens, redesigned (E-33): content, decisions, safety events, overview, staff and roles, research, audit. Menus follow the user's roles.
+- **Why:** one staff sign-in, two-step check and role model; one deploy and design system; the clinical lead needs decisions and safety events next to the rules, for tracing an incident.
+- **Consequence:** the staff app can't import `@figcit/engine-v2` across repos. It uses types generated from the API's OpenAPI file, so the rule format (M2) must be fully described in the API contract.
+- **Split out later if:** the clinical side must be walled off from platform data, or needs separate hosting for a medical-device boundary (`OWNER_DISCUSSION.md` O-06).
+- **Dropped:** E-15 (`figcit-backend/apps/admin`, rule screens only).
+- **Revert:** build the staff app in the backend repo again (E-15).
+
+### E-32 Order of work
+- **Decision:** the backend carries on (M2 rule format, M3 engine columns, M4 engine, M5 API and records) while the client repo is restructured. The staff app is built after the move.
+- **Why:** the backend doesn't depend on the client repo's layout.
+
+### E-33 Claude builds the whole staff app, and the old admin screens are redesigned
+- **Decision:** Claude builds the staff app in full: the rule section and the redesign of every old `/admin` screen. The old screens are not ported as they are.
+- **Why:** the Owner.
+- **Touches:** the client repo, once restructured; the PWA's `/admin` is removed when the staff app covers it (`TODO.md` T-05).
+
+### E-34 A separate clinical admin role changes the rules
+- **Decision:** a new staff role, `clinical_admin`, is the only role that changes engine v2 rules (import, edit, submit, publish, roll back, gaps, decisions). A platform `admin` can read the rule set but not change it. `safety_reviewer` and `content_editor` can read it.
+- **Replaces:** E-20's use of the general `admin` role. The rest of E-20 stands (one role for drafting and approving, for now).
+- **Built:** `clinical_admin` added to the user roles (migration `20261101120000_clinical_admin_role`, `users.prisma`, `STAFF_ROLES`, the roles screen's allowed list).
+- **Open:** a platform `admin` grants roles, so an admin could grant themselves `clinical_admin`. The grant is audited. Whether only the Owner may grant it is part of O-07 (`TODO.md` T-01).
+- **Note for merge:** the branch now has two migrations; they are squashed into one before the PR (repo rule: one migration per PR).
+
+### E-35 Where the staff app is hosted
+- **Working assumption:** its own subdomain (e.g. `admin.<domain>`). Not decided; it doesn't affect the work until the staff app is deployed. Its own origin keeps staff sessions and cookies apart from the user app.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
@@ -213,6 +243,8 @@ Rule set versions also keep their table frames, import report and checks as JSON
 | Waiting for the founder's input-gap session before building | `DESIGN.md` §12 step 1 | Dropped | E-19 | E-19 |
 | `/v2/...` API paths | `DESIGN.md` §10 | Changed to `/v1/rulesets/...` | E-27 | E-27 |
 | Storing only changed rows per version | Claude, 1 Nov | Dropped | E-26 | E-26 |
+| Staff app at `figcit-backend/apps/admin`, rule screens only | E-15 | Replaced: one staff app in the client repo | E-31 | E-31 |
+| Rule changes by the general `admin` role | E-20 | Replaced: `clinical_admin` | E-34 | E-34 |
 
 ## Open points that came out of this conversation
 

@@ -47,7 +47,7 @@ async function discardOpen(): Promise<void> {
 
 beforeAll(async () => {
   api = await bootApi();
-  admin = (await api.staff(['admin'])).token;
+  admin = (await api.staff(['clinical_admin'])).token;
   reader = (await api.staff(['content_editor'])).token;
   await discardOpen();
 });
@@ -100,6 +100,11 @@ describe('rule store (engine v2)', () => {
     expect(partial.status).toBe(400);
     const denied = await api.req('POST', `/rulesets/${first}/submit`, { token: reader });
     expect(denied.status).toBe(403);
+    // A platform admin can read rules but not change them (E-34).
+    const platform = (await api.staff(['admin'])).token;
+    expect((await api.req('GET', `/rulesets/${first}`, { token: platform })).status).toBe(200);
+    const notClinical = await api.req('POST', `/rulesets/${first}/submit`, { token: platform });
+    expect(notClinical.status).toBe(403);
   });
 
   it('exports the draft back into the same sheets', async () => {

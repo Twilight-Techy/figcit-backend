@@ -1026,7 +1026,7 @@
                 "type": "object",
                 "properties": {
                   "roles": {
-                    "maxItems": 4,
+                    "maxItems": 5,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -1034,7 +1034,8 @@
                         "admin",
                         "safety_reviewer",
                         "content_editor",
-                        "institution_supporter"
+                        "institution_supporter",
+                        "clinical_admin"
                       ]
                     }
                   }
@@ -19496,6 +19497,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -19547,6 +19549,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -19622,7 +19625,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -19671,6 +19674,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -19722,7 +19726,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -19837,7 +19841,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -19965,7 +19969,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20046,7 +20050,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20127,7 +20131,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20176,7 +20180,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20249,7 +20253,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20298,7 +20302,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20371,6 +20375,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -20474,6 +20479,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -20515,6 +20521,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -20572,6 +20579,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -20681,7 +20689,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20745,7 +20753,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -20816,6 +20824,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
@@ -20980,7 +20989,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -21077,7 +21086,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -21157,7 +21166,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
-          "admin"
+          "clinical_admin"
         ]
       }
     },
@@ -21222,6 +21231,7 @@
         ],
         "x-access": "staff",
         "x-roles": [
+          "clinical_admin",
           "admin",
           "safety_reviewer",
           "content_editor"
