@@ -20,6 +20,8 @@ export interface PublicOption {
   readonly risk?: true;
   /** A need that doesn't work without a task (Tab 6b): the task step is required (E-45). */
   readonly needsTask?: true;
+  /** A Not-sure picture's level on the State Grid axis (energy or mood, 1-4), for the suggestion. */
+  readonly level?: number;
 }
 
 export interface PublicCell {
@@ -69,6 +71,7 @@ function publicOption(input: InputKind, o: InputOption, catalogue: Catalogue): P
     group: o.group,
     ...(risk ? { risk: true as const } : {}),
     ...(needsTask ? { needsTask: true as const } : {}),
+    ...(o.mapsTo && 'axis' in o.mapsTo ? { level: o.mapsTo.level } : {}),
   };
 }
 

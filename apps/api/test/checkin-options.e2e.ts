@@ -92,6 +92,9 @@ describe('check-in options (E-40)', () => {
     expect(inputs['need']?.find((o) => o.code === 'feel_calmer')?.needsTask).toBeUndefined();
     expect(inputs['place']?.filter((o) => o.group === 'common')).toHaveLength(10);
     expect(res.body.cells.find((c) => c.id === 'E2M2')?.name).toBe('Slow Warm');
+    expect(inputs['not_sure_comfort']?.map((o) => (o as Option & { level: number }).level)).toEqual(
+      [1, 2, 3, 4],
+    );
     expect(res.body.intensityBands.map((b) => b.code)).toEqual([
       'mild',
       'moderate',

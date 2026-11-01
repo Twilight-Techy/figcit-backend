@@ -11,6 +11,7 @@ const option = z.object({
   group: z.string().nullable(),
   risk: z.literal(true).optional(),
   needsTask: z.literal(true).optional(),
+  level: z.number().int().min(1).max(4).optional(),
 });
 const optionsSchema = z.object({
   version: z.string(),
