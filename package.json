@@ -23,7 +23,7 @@
     "openapi:generate": "pnpm --filter @figcit/api openapi:generate",
     "fixtures:generate": "pnpm --filter @figcit/rules-compiler fixtures:generate",
     "knip": "knip",
-    "deps:check": "depcruise apps/api/src packages/engine/src packages/rules-compiler/src",
+    "deps:check": "depcruise apps/api/src packages/engine/src packages/engine-v2/src packages/rules-compiler/src",
     "licences:check": "node scripts/check-licences.mjs",
     "openapi:check": "pnpm openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "test:coverage": "pnpm --filter @figcit/engine exec vitest run --coverage",

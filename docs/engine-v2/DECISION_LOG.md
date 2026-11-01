@@ -1,0 +1,183 @@
+# Engine v2: decision log
+
+- **Status:** Living record. Every decision, every dropped idea and every deviation from Figma or the earlier docs on this branch goes here, with the reason and how to undo it.
+- **Branch:** `engine-v2/rules-redesign`.
+- **Decided by:** the Owner, in conversation, on 1 Nov 2026 (E-01 to E-07 are also in `DESIGN.md` §2).
+- **Where this sits:** where this log and `DESIGN.md` disagree, this log wins. `DESIGN.md` is updated to match when a decision lands.
+- **Related:** `DESIGN.md`, `INPUT_GAPS.md`, `OWNER_DISCUSSION.md` (points for the founder and Clinical Safety lead), `docs/adr/0001-engine-follows-workbook-rules.md`, `docs/build/DECISIONS.md` (the earlier build's `B-xx` entries) and `docs/CONFLICTS.md` (`D-xx`).
+
+**How to use it.** Each entry has: the decision, why, what was dropped for it, what it touches, and how to revert. If a stakeholder wants one changed, change the entry and the files it names.
+
+## Standing instruction (E-17)
+
+We are early in development. The Owner's rule for this branch:
+
+- Don't limit the work; do whatever is necessary.
+- **Every decision, every dropped idea and every change against Figma or an earlier document is written down here**, with the reason, so it can be reviewed and reversed.
+- Questions for the founder or the Clinical Safety lead go in `OWNER_DISCUSSION.md` or `INPUT_GAPS.md`, with the sources named.
+
+## Decisions
+
+### E-01 to E-07
+See `DESIGN.md` §2. E-01 (engine only on the server, for signed-in and Browse users alike) was **confirmed again by the Owner on 1 Nov 2026**: everything about the engine is on the server; the app keeps tools and basic features only.
+
+### E-08 Scope of this branch: the full build, not a first slice
+- **Decision:** build the whole of `DESIGN.md` on this branch (rule store, importer, engine, trace, decision records and replay, the admin app with viewer, simulator, editor and approvals, explorer, query, registers, audit log). It merges to `main` only after final testing and refinement.
+- **Why:** the Owner wants one finished piece, not a stage to be extended later.
+- **Dropped:** a first milestone limited to import, engine, trace and a read-only viewer and simulator (proposed 1 Nov 2026).
+- **Touches:** `DESIGN.md` §12.
+- **Revert:** restore the staged order in §12 and stop after step 3.
+
+### E-09 Rules are data; the code holds only mechanics
+- **Decision:** the rules themselves are data in the rule store. Adding a rule, fixing one or changing a threshold is a data change, with no release. Code changes only when something major changes or the approach itself changes (a new kind of stage, a new kind of effect).
+- **What stays in code:** the engine's mechanics: running the stages in order, evaluating conditions, applying effects, requirement-versus-proposal handling, building the trace. These are not "rules" in the workbook's sense.
+- **Same structure as the workbook:** the rule set has the **same tabs, columns, row order and wording as the current workbook**, so the person who wrote it can read and maintain it and does not meet a new structure. Anything extra the engine needs sits in clearly marked added columns or added tables (`DESIGN.md` §3.3, §3.4). This restates and stresses E-06.
+- **Why:** the author must stay in charge of the rules; the product will keep adding and correcting rules.
+- **Dropped:** nothing; this sharpens E-06.
+- **Open:** where exactly the line falls for effects. `DESIGN.md` §4.3 lists a closed set of effects; a new effect kind is a code change. Confirm that is acceptable (see `OWNER_DISCUSSION.md` O-17).
+- **Revert:** n/a (principle).
+
+### E-10 The example tables are not used; the rule data decides
+- **Decision:** the engine follows the rule data. Tab 0, Tab 0b, Tab 9 and Tab 6d section F are **not used as tests and not as a publish gate**. There is no drift gate.
+- **Why:** the Owner's ruling. The examples have errors of their own and the rules are the authority (Tab 0 itself says "the source tabs remain the authority").
+- **Dropped:**
+  - drift as a gate on publishing (proposed 1 Nov 2026);
+  - ADR 0001 §1's "run the examples against every version and record drift". ADR 0001 is amended to say so.
+- **Open:** whether to keep the example tabs imported as read-only reference. `OWNER_DISCUSSION.md` O-05.
+- **Touches:** `DESIGN.md` §1, §3.6, §6; ADR 0001 §1.
+- **Revert:** reinstate the drift register and a pass-or-warn check on publish (the old design is in this branch's history).
+
+### E-11 Logically broken rules are exempted and recorded, not patched
+- **Decision:** a rule that is contradictory, undefined or incomplete is marked **exempt**. The engine does not run it. It stays visible in the dashboard and gets a gap record. This is the same idea as the `unresolved` mapping status in `DESIGN.md` §3.3.
+- **Each gap record holds:** the rows involved (by `source_ref`), what is broken, an example input that shows it, what the engine does while it is exempt, a recommendation, and who decides (founder or Clinical Safety lead).
+- **Why:** the Owner's ruling: don't bend the engine to fit a bad rule, and don't hide it.
+- **Open:** what the engine does in place of an exempt rule, especially for `safety` rows. `OWNER_DISCUSSION.md` O-18.
+- **Revert:** n/a (it extends `DESIGN.md` §1 "gaps are recorded, not patched").
+
+### E-12 The rule store is the master copy from the first import; rules can be added one at a time
+- **Decision:**
+  - After the first import the rule store is the master copy. The spreadsheet is an export.
+  - A clinical admin can **add or change a single rule in the dashboard** without re-importing the workbook. Re-import stays possible for bulk changes.
+  - The editor therefore comes early in the build, not last.
+- **Why:** the spreadsheet has problems of its own, so it can't remain the master. Having the store as master with no way to edit it would leave nobody able to change a rule (`OWNER_DISCUSSION.md` O-09).
+- **Dropped:** "the spreadsheet stays master until the editor is live" (proposed 1 Nov 2026), and an editor built last.
+- **Touches:** `DESIGN.md` §8 (Editor), §12 (order).
+- **Look and feel:** a first version, to be improved. A tab grid in the workbook's layout; "add row" or "edit row" opens a form with the workbook columns as text and the engine columns filled through dropdowns; it saves into a draft version, runs the impact check, goes to approval, then publish.
+- **Revert:** restore the spreadsheet as master and move the editor to the end of §12.
+
+### E-13 Engine v2 records are not encrypted at this stage
+- **Decision:** decision records, traces and rule data are stored unencrypted for now. Encryption (the user-key scheme in `DESIGN.md` §7) is added before launch.
+- **Stored inputs:** until the replay and Browse question is settled, a decision record keeps the **structured standard-value input** (codes, no free text), not a one-way hash, because replay needs the real input. This is a working default, not a ruling; see `OWNER_DISCUSSION.md` O-15, which sets out the problem, the constraints and the options.
+- **Why:** the Owner: nothing is encrypted at this stage of development.
+- **Pre-launch action:** resolve O-15; add encryption; fix retention on account deletion (O-06).
+- **Revert:** n/a (deferral).
+
+### E-14 Screening free text for risk language is outside this work
+- **Decision:** the safety screen on typed or spoken text belongs to the AI and free-text team (E-04). This work does not build it and does not add a phrase check to the app.
+- **What this work does need:** the engine accepts the result as an input (the risk flag and the form it takes: `INPUT_GAPS.md` IG-20) and the safety **rules on standard values** (the Hopeless chip, "Get support now", SF-1 and SF-2).
+- **Why:** the Owner: this work is the recommendation engine and its standard inputs.
+- **Dropped:** a phrase check in the app, in addition to the server screen (proposed 1 Nov 2026). The old design had one (`figcit-pwa/docs/SYSTEM_DESIGN.md` §9).
+- **Open for that team:** who owns the phrase list, where it runs, and what happens offline. `OWNER_DISCUSSION.md` O-03.
+- **Revert:** n/a (scope boundary).
+
+### E-15 The admin dashboard is a separate app
+- **Decision:** `apps/admin` in the backend workspace, sharing the rule-format schemas. The PWA's `/admin` screens retire when v2 goes live.
+- **Why:** staff tools stay out of the public bundle, and the dashboard shares types with the rule format (`DESIGN.md` §9). The Owner said to go ahead with whatever is necessary and note it.
+- **Dropped:** keeping the admin screens in the PWA.
+- **Revert:** build the dashboard as `/admin` routes in `figcit-pwa` (the old design, `figcit-pwa/docs/SYSTEM_DESIGN.md` §5).
+
+### E-16 Changes to the app or Figma are allowed when needed, and listed
+- **Decision:** if the app has to change in a way that goes against the Figma, change it and add a row to the table below.
+- **Why:** the Owner: proceed, but document it.
+
+| # | Where | Figma / earlier design says | Now | Reason | Revert |
+|---|---|---|---|---|---|
+| U-01 | Figma S81, "Recommendations" row | "Uses last known rules" (a card made offline) | "Available when you're back online" | The engine is server-only (E-01, E-03) | Restore the device engine in the PWA |
+| U-02 | PWA `vendor/engine` and `scripts/sync-engine.mjs` | The app bundles a copy of the engine | Removed when v2 goes live | E-01 | Re-vendor the engine |
+| U-03 | PWA `/admin` | Admin screens inside the app | Moved to `apps/admin` | E-15 | See E-15 |
+
+### E-18 The engine is tested through the admin Simulator, on inputs and outputs only
+- **Decision:**
+  - Testing before merge uses the **Simulator page in the admin app**: pick input values similar to what a real user produces and see the engine's output **stage by stage**, as a real user's run would go. The explorer runs the same thing over many inputs.
+  - The engine's contract is **input values in, output out**, regardless of the app screen that collects them. The engine is tested on that contract alone.
+- **Why:** the Owner: the recommendation engine is about standard input and output, not about the input interface.
+- **Dropped:** a shadow run on live check-ins, and a v1-against-v2 comparison on generated inputs (both proposed 1 Nov 2026). A comparison with v1 can still be run later as an extra, but it isn't required.
+- **Touches:** `DESIGN.md` §8 (Simulator), §12 step 6.
+- **Revert:** reinstate the shadow run in §12.
+
+### E-19 Build the engine as complete as we can; fill gaps where we can and record each fill
+- **Decision:** don't wait for the founder's input-gap session. Where a mapping or value is missing, fill it from the workbook first, then from Figma, mark it `interpreted`, and record it. The four input mappings are their own versioned rule-set tables: chip to family, sensation to flag, environment to setting class, picture answers to cell. They're marked as additions that aren't from the workbook, and flagged `safety` where they set a safety flag.
+- **Every fill is recorded** with: what was missing, what was used, the source, who should confirm it (`INPUT_GAPS.md` ID and `OWNER_DISCUSSION.md` item).
+- **Why:** the Owner: build as complete as possible, record decisions for review.
+- **Revert:** replace the `interpreted` rows with the founder's answers; nothing else changes because the mappings are data.
+
+### E-20 One clinical admin role for now; tighten later
+- **Decision:** there is a single **clinical admin** who can draft, add, edit, approve and publish rules. The separate editor role, Product Owner approval, Clinical Safety co-approval on `safety` rows and the rule that nobody approves their own change (`OWNER_DISCUSSION.md` O-07) are **not built yet**. They're on the development TODO (`TODO.md`).
+- **Why:** the Owner: keep early development simple; tighten later.
+- **Safety net kept even now:** every change is audit-logged with who and when, and every published version is immutable and can be rolled back.
+- **Revert:** build O-07 as written.
+
+### E-21 Working defaults where the Owner has not ruled yet
+Built this way so work is not blocked. Each is open in `OWNER_DISCUSSION.md` and can be changed there.
+
+| Open point | Working default | Item |
+|---|---|---|
+| What the engine does while a rule is exempt | Ordinary rules: behave as if the row doesn't exist. `safety` rows: publishing is blocked until the exemption is acknowledged | O-18 |
+| Example tabs | Imported as read-only reference, never run | O-05 |
+| Impact check for safety rows | Run the engine over all combinations of the inputs those rules read; where that is too many, all combinations of the safety-relevant inputs plus boundary values | `DESIGN.md` §8 (Editor) |
+| What the public API returns | The card and the versions only; the trace and the rule-set export are staff-only | O-16 |
+| What a decision record stores | Structured standard-value input (codes), not a hash; the trace is rebuilt by replay | O-15, E-13 |
+| Where the data/code line sits | Closed set of effects (`DESIGN.md` §4.3); a new kind of effect is a code change | O-17 |
+
+### E-22 Engine v2 lives in its own pure package, `@figcit/engine-v2`
+- **Decision:** `packages/engine-v2` holds the rule-set format, the workbook reader and (later) the engine. It has no runtime dependencies and no Node built-ins, and the same lint, dependency-cruiser and CI checks as `@figcit/engine` apply to it. Storing, versioning, the API and the admin app sit in `apps/api` and `apps/admin` and use the package.
+- **Why:** `ENGINEERING_RULES.md` §2.2 wants the engine pure and testable on its own; the importer and the engine then share one definition of the format. `DESIGN.md` §9 said "inside the NestJS API", which would have mixed the engine with storage.
+- **Dropped:** putting the engine inside `apps/api`.
+- **Revert:** move the code into an API module; nothing else depends on the package name yet.
+
+### E-23 Exceptions to `ENGINEERING_RULES.md` that v2 needs
+Rule §15 asks for a written exception. These are listed here and need an ADR before merge.
+
+| Rule | What v2 does instead | Why | Cost | Revisit |
+|---|---|---|---|---|
+| §13 "Engine fixtures: every scenario row in Tabs 0, 0b, 6d, 9, 10 passes" | v2 is not tested against the example tabs | E-10 (Owner). ADR 0001 already says the examples are not tests. The v2 tests are written from the rules | No regression oracle from the examples | When the Owner wants them back |
+| §5.3 "JSONB only for the trace, snapshot, card payloads and event properties" | Rule records keep the workbook's columns and the engine's columns as JSONB | The rule set is the snapshot, split into rows so rows can be edited one at a time (E-12). They are never filtered or joined on | None expected: the engine loads a whole version at once | If row-level queries are needed |
+| §1.3 "one recommendation including trace < 4 KB" | Honoured by storing the input, the card and the versions, and rebuilding the trace by replay (E-21) | The v2 trace is larger than 4 KB | Replay must be exact (a daily check, `DESIGN.md` §7) | O-15 |
+
+### E-24 Reader behaviour on the workbook
+Recorded so a reviewer can see what the reader does with the spreadsheet (`packages/engine-v2/src/ruleset`).
+- **Layout:** every tab is read as notes (one filled cell) and tables (two or more). A table's first row is its header (Tabs 0 and 0b: the row starting "Ref"). Blank rows and notes end a table.
+- **Word for word:** every cell is stored exactly as written, with its column heading, its sheet row and its cell range. A test checks that no filled row is dropped and that every record matches its source row.
+- **References:** the author's own ID is the reference (E1M1, T0, EX-1, RF-1, ENT-3). Tab 2 uses family plus intensity band. Tab 7's `16.0` is stored as `16` (listed in the import report). A repeated reference gets `#2` (listed in the report).
+- **Examples and reference tables** (Tabs 0, 0b, 9, 6d section F, and the glossary tables under Tab 0) are stored with the role `example` or `reference`, read-only, never run.
+- **Tab 7 footer** lines become the `non_negotiables` table. The first line is a heading; the rest are rules.
+- **Not imported:** the workbook's "Sheet1" scratch tab (ADR 0001). It isn't in the CSV set.
+- **Revert:** n/a (it is how the reader works; the layout table is `layout.ts`).
+
+## Dropped or changed from earlier proposals (one list)
+
+| Idea | By | Status | Reason | Where recorded |
+|---|---|---|---|---|
+| First milestone limited to a slice | Claude, 1 Nov | Dropped | E-08 | E-08 |
+| Drift as a publish gate | Claude, 1 Nov | Dropped | E-10 | E-10 |
+| Running the example tables against each version | ADR 0001 §1 | Dropped | E-10 | E-10, ADR 0001 |
+| Spreadsheet as master until the editor exists | Claude, 1 Nov | Dropped | E-12 | E-12 |
+| Editor built last | `DESIGN.md` §12 | Dropped | E-12 | E-12 |
+| Phrase check on the phone | Claude, 1 Nov | Dropped (out of scope) | E-14 | E-14 |
+| Encryption of v2 records in this stage | `DESIGN.md` §7 | Deferred to before launch | E-13 | E-13, O-15 |
+| Shadow run on live check-ins; v1-against-v2 comparison as the merge test | Claude, 1 Nov | Dropped | E-18 | E-18 |
+| Editor role, Product Owner approval, Clinical Safety co-approval, no self-approval | `OWNER_DISCUSSION.md` O-07 | Deferred (one clinical admin for now) | E-20 | E-20, `TODO.md` |
+| Waiting for the founder's input-gap session before building | `DESIGN.md` §12 step 1 | Dropped | E-19 | E-19 |
+
+## Open points that came out of this conversation
+
+All are in `OWNER_DISCUSSION.md` with sources, constraints, options and a recommendation:
+
+- O-11 Safety rules without clinical sign-off
+- O-12 SF-2 against "we do not monitor check-ins in real time"
+- O-13 Support without a check-in (D-39)
+- O-14 Product decisions the engine rests on (provisional)
+- O-15 Decision records: replay, hashing, encryption, Browse and deletion
+- O-16 What the public API returns (trace, export)
+- O-17 Where data ends and code begins
+- O-18 What the engine does while a rule is exempt

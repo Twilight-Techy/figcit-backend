@@ -67,7 +67,7 @@ export default tseslint.config(
   },
   {
     // The engine is pure and runs in Node and browsers (rules 2.2).
-    files: ['packages/engine/src/**/*.ts'],
+    files: ['packages/engine/src/**/*.ts', 'packages/engine-v2/src/**/*.ts'],
     rules: {
       'no-restricted-globals': [
         'error',

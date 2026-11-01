@@ -12,7 +12,10 @@
     "packages/engine": {
       "entry": ["test/**/*.ts"]
     },
-    "packages/rules-compiler": {}
+    "packages/rules-compiler": {},
+    "packages/engine-v2": {
+      "entry": ["test/**/*.ts"]
+    }
   },
   "ignoreExportsUsedInFile": true
 }

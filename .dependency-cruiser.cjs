@@ -4,10 +4,11 @@ module.exports = {
   forbidden: [
     {
       name: 'engine-pure',
-      comment: '@figcit/engine is pure: no Node built-ins and nothing outside the package.',
+      comment:
+        '@figcit/engine and @figcit/engine-v2 are pure: no Node built-ins and nothing outside their own package.',
       severity: 'error',
-      from: { path: '^packages/engine/src' },
-      to: { pathNot: '^packages/engine/src' },
+      from: { path: '^packages/(engine|engine-v2)/src' },
+      to: { pathNot: '^packages/$1/src' },
     },
     {
       name: 'no-circular',

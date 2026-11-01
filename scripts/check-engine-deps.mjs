@@ -1,18 +1,21 @@
-// Fails CI if @figcit/engine gains a runtime dependency (rules 2.2).
+// Fails CI if @figcit/engine or @figcit/engine-v2 gains a runtime dependency (rules 2.2).
 import { readFileSync } from 'node:fs';
 
-const pkg = JSON.parse(
-  readFileSync(new URL('../packages/engine/package.json', import.meta.url), 'utf8'),
-);
 const fields = ['dependencies', 'peerDependencies', 'optionalDependencies'];
-const found = fields.flatMap((field) =>
-  Object.keys(pkg[field] ?? {}).map((name) => `${field}: ${name}`),
-);
+let failed = false;
 
-if (found.length > 0) {
-  console.error(
-    `@figcit/engine must have no runtime dependencies. Found:\n  ${found.join('\n  ')}`,
+for (const dir of ['engine', 'engine-v2']) {
+  const pkg = JSON.parse(
+    readFileSync(new URL(`../packages/${dir}/package.json`, import.meta.url), 'utf8'),
   );
-  process.exit(1);
+  const found = fields.flatMap((field) =>
+    Object.keys(pkg[field] ?? {}).map((name) => `${field}: ${name}`),
+  );
+  if (found.length > 0) {
+    failed = true;
+    console.error(`${pkg.name} must have no runtime dependencies. Found:\n  ${found.join('\n  ')}`);
+  } else {
+    console.log(`${pkg.name} has no runtime dependencies.`);
+  }
 }
-console.log('@figcit/engine has no runtime dependencies.');
+if (failed) process.exit(1);
