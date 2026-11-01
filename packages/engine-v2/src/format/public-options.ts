@@ -79,7 +79,8 @@ function cellOf(columns: readonly WorkbookCell[]): PublicCell | null {
     energy: Number(m[1]),
     mood: Number(m[2]),
     name: cellText(columns, 'Name'),
-    icon: cellText(columns, 'Icon'),
+    // The workbook writes the emoji then its description ("✨ Sparkles"); the app shows the emoji.
+    icon: cellText(columns, 'Icon').split(/\s+/)[0] ?? '',
     meaning: cellText(columns, 'Plain-language meaning (layman, no jargon)'),
     band: cellText(columns, 'Capacity band'),
   };

@@ -1,6 +1,6 @@
 {
   "version": "bundled",
-  "hash": "893f5e72eabf43effeba06ae3f34a9076c9b1c460fe6775565dd6593acfe22f9",
+  "hash": "9b000cafc5159bb554738e6ae933762148c7431cd10d15a9a456876207035bb2",
   "inputs": {
     "feeling": [
       {
@@ -1136,7 +1136,7 @@
       "energy": 1,
       "mood": 1,
       "name": "Hibernate",
-      "icon": "🌙 Crescent moon",
+      "icon": "🌙",
       "meaning": "Rest is the task right now — everything else can wait.",
       "band": "Very Constrained"
     },
@@ -1145,7 +1145,7 @@
       "energy": 1,
       "mood": 2,
       "name": "Gentle Drift",
-      "icon": "🌱 Small sprout",
+      "icon": "🌱",
       "meaning": "Low on fuel and feeling flat — small, soft steps only.",
       "band": "Very Constrained"
     },
@@ -1154,7 +1154,7 @@
       "energy": 1,
       "mood": 3,
       "name": "Tender Space",
-      "icon": "🕯️ Candle flame",
+      "icon": "🕯️",
       "meaning": "Calm but running on empty — be gentle with yourself.",
       "band": "Constrained"
     },
@@ -1163,7 +1163,7 @@
       "energy": 1,
       "mood": 4,
       "name": "Quiet Glow",
-      "icon": "☁️ Cloud",
+      "icon": "☁️",
       "meaning": "Peaceful and settled, just low on energy — enjoy the stillness.",
       "band": "Constrained"
     },
@@ -1172,7 +1172,7 @@
       "energy": 2,
       "mood": 1,
       "name": "Ground First",
-      "icon": "🌱 Sprout (small)",
+      "icon": "🌱",
       "meaning": "Some energy, but unsettled — steady yourself before anything else.",
       "band": "Constrained"
     },
@@ -1181,7 +1181,7 @@
       "energy": 2,
       "mood": 2,
       "name": "Slow Warm",
-      "icon": "☀️ Sun (soft rays)",
+      "icon": "☀️",
       "meaning": "Warming up slowly — low-pressure tasks fit best.",
       "band": "Conditional"
     },
@@ -1190,7 +1190,7 @@
       "energy": 2,
       "mood": 3,
       "name": "Building Up",
-      "icon": "✨ Sparkles",
+      "icon": "✨",
       "meaning": "Familiar tasks welcome here.",
       "band": "Conditional"
     },
@@ -1199,7 +1199,7 @@
       "energy": 2,
       "mood": 4,
       "name": "Ready to Try",
-      "icon": "⚙️ Gear / sun target",
+      "icon": "⚙️",
       "meaning": "Settled and willing — a good moment to start something.",
       "band": "Available"
     },
@@ -1208,7 +1208,7 @@
       "energy": 3,
       "mood": 1,
       "name": "Activate",
-      "icon": "🔥 Flame",
+      "icon": "🔥",
       "meaning": "Energy is up but so is friction — channel it before you use it.",
       "band": "Conditional"
     },
@@ -1217,7 +1217,7 @@
       "energy": 3,
       "mood": 2,
       "name": "Flow Entering",
-      "icon": "🎯 Target",
+      "icon": "🎯",
       "meaning": "Getting going, though mood's still catching up — ease in.",
       "band": "Conditional"
     },
@@ -1226,7 +1226,7 @@
       "energy": 3,
       "mood": 3,
       "name": "Full Flow",
-      "icon": "🌊 Wave / swirl",
+      "icon": "🌊",
       "meaning": "Steady energy, clear head — good for focused work.",
       "band": "Available"
     },
@@ -1235,7 +1235,7 @@
       "energy": 3,
       "mood": 4,
       "name": "Creative Peak",
-      "icon": "🎨 Palette",
+      "icon": "🎨",
       "meaning": "Energised and in a good place — great for ideas and making things.",
       "band": "Available"
     },
@@ -1244,7 +1244,7 @@
       "energy": 4,
       "mood": 1,
       "name": "Regain Base",
-      "icon": "💧 Droplet",
+      "icon": "💧",
       "meaning": "Lots of energy but mood is scattered — find your footing first.",
       "band": "Conditional / Constrained"
     },
@@ -1253,7 +1253,7 @@
       "energy": 4,
       "mood": 2,
       "name": "Storm Mode",
-      "icon": "⚡ Lightning bolt",
+      "icon": "⚡",
       "meaning": "Wired and on edge — high energy needs an outlet, not a task yet.",
       "band": "Conditional"
     },
@@ -1262,7 +1262,7 @@
       "energy": 4,
       "mood": 3,
       "name": "Release First",
-      "icon": "🌊 Wave",
+      "icon": "🌊",
       "meaning": "Charged up and steady — let some energy out before diving in.",
       "band": "Conditional"
     },
@@ -1271,7 +1271,7 @@
       "energy": 4,
       "mood": 4,
       "name": "Peak Flow",
-      "icon": "🚀 Rocket",
+      "icon": "🚀",
       "meaning": "High energy, feeling good — your best window for big things.",
       "band": "Available"
     }

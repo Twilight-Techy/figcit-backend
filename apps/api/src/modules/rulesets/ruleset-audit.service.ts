@@ -6,7 +6,8 @@ import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 
 /** Who did something to the rule store. */
 export interface Actor {
-  readonly id: string;
+  /** Null for the system (the seed). */
+  readonly id: string | null;
   readonly role: string;
 }
 

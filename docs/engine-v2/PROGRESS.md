@@ -22,6 +22,13 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Editor accepts and checks engine columns; submit re-checks every live row; publish refused while any row or catalogue value is invalid
 - [x] `GET /v1/rulesets/{label}/format` for the staff app (E-36)
 
+## Check-in input fix (E-39 to E-46; done 1 Nov 2026)
+- [x] Check-in options as rule set data; public `GET /v1/check-in/options`; bundled copy for the app
+- [x] Check-in contract: unrated feelings, several supports, skipped state, rules between answers; Browse on the server, not stored
+- [x] Custom places API; seed publishes the v2 rule set
+- [x] PWA (`figcit-pwa`, branch `engine-v2/checkin-input`): screens rebuilt to Figma, `docs/FIGMA_DECISIONS.md`
+- [x] Test server redeployed from the branches; deep links fixed
+
 ## M3 Engine columns for every rule tab
 - [ ] States, bands and band rules (Tabs 1, 10)
 - [ ] Experience, context, timelines, drivers, demand (Tabs 2, 3, 4, 5, 6)
