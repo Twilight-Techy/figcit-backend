@@ -227,14 +227,24 @@ export type BreakDownOutput = {
   estimatedDemand: 'low' | 'moderate' | 'heavy';
 };
 const BLAME = /\b(finally|should have|just do it|lazy)\b/i;
+/** Someone who is strained (Amber) only gets steps of five minutes or less. */
+const STRAINED_MINUTES = 5;
 export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
   name: 'breakDownTask',
-  promptVersion: 'break-down@2',
+  promptVersion: 'break-down@3',
   schema: (i) =>
     z.object({
       steps: z
         .array(
-          z.object({ text: z.string().min(2).max(80), minutes: z.number().int().min(1).max(30) }),
+          z.object({
+            text: z.string().min(2).max(80),
+            // In the schema, so the model's grammar can't produce a longer step.
+            minutes: z
+              .number()
+              .int()
+              .min(1)
+              .max(i.strained ? STRAINED_MINUTES : 30),
+          }),
         )
         .min(1)
         .max(i.stepCap),
@@ -247,9 +257,13 @@ export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
   temperature: 0.4,
   maxTokens: 300,
   timeoutMs: 16_000,
-  check: (o) =>
+  check: (o, i) =>
     o.steps.every(
-      (s) => !BLAME.test(s.text) && !hasBanned(s.text) && !/\band then\b/i.test(s.text),
+      (s) =>
+        !BLAME.test(s.text) &&
+        !hasBanned(s.text) &&
+        !/\band then\b/i.test(s.text) &&
+        (!i.strained || s.minutes <= STRAINED_MINUTES),
     ),
   fallback: (i) => breakDownByRules(i.title, i.stepCap, i.strained),
 };
