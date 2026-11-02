@@ -186,16 +186,13 @@ describe('fallbacks', () => {
     ).toBe(false);
   });
 
-  it('drops repeated drivers and need codes shown as heard chips', () => {
-    expect(
-      suggestDrivers.clean?.(
-        {
-          drivers: ['challenge', 'challenge', 'routine'],
-          demandCharacteristics: ['focus', 'focus'],
-        },
-        { title: 'x' },
-      ),
-    ).toEqual({ drivers: ['challenge', 'routine'], demandCharacteristics: ['focus'] });
+  it('decodes drivers and drops need codes shown as heard chips', () => {
+    // Decision scoring: drivers at or above 0.20, best first, at most three; never "none".
+    const p = { A: 0.05, B: 0.5, C: 0.25, D: 0.0, E: 0.0, F: 0.0, G: 0.0, H: 0.2 };
+    expect(suggestDrivers.decode(p, { title: 'Weekly team meeting' }).drivers).toEqual([
+      'challenge',
+      'routine',
+    ]);
     const heard = parseNeed.clean?.(
       {
         needs: ['feel_calmer'],

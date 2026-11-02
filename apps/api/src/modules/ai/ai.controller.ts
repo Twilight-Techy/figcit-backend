@@ -79,7 +79,7 @@ export class AiController {
     @Body(new ZodPipe(suggestDriversRequestSchema))
     body: z.infer<typeof suggestDriversRequestSchema>,
   ): Promise<z.infer<typeof suggestDriversResponseSchema>> {
-    const res = await this.ai.json(
+    const res = await this.ai.decide(
       suggestDrivers,
       { title: body.title, kind: body.kind },
       { userId: user?.id, browseToken: req.browseToken },

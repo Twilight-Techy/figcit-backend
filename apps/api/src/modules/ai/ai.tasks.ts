@@ -30,7 +30,22 @@ export interface JsonTask<I, O> {
   readonly fallback: (input: I) => O;
 }
 
-const distinct = <T>(xs: readonly T[]): T[] => [...new Set(xs)];
+/** A classification answered by decision scoring (ADR 0005): options under single-token labels. */
+export interface DecisionTask<I, O> {
+  readonly name: string;
+  readonly promptVersion: string;
+  readonly system: (input: I) => string;
+  readonly text: (input: I) => string;
+  readonly labels: (input: I) => readonly string[];
+  /** Turns the label probabilities into the task's answer. */
+  readonly decode: (p: Record<string, number>, input: I) => O;
+  readonly maxChars: number;
+  readonly timeoutMs: number;
+  readonly check: (out: O, input: I) => boolean;
+  readonly fallback: (input: I) => O;
+}
+
+const LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export interface TextTask<I> {
   readonly name: string;
@@ -157,26 +172,6 @@ const DRIVERS = [
   'collaboration',
   'exploration',
 ] as const;
-const TRAITS = [
-  'first_time',
-  'consequence',
-  'multi_step',
-  'done_before',
-  'enjoy',
-  'matters',
-  'with_others',
-  'research',
-  'communication',
-  'focus',
-  'imposed',
-  'transition',
-  'stopping',
-  'ask_adjustment',
-  'recurring_practice',
-  'reflective_work',
-  'event_prep',
-  'start_day',
-] as const;
 /** The driver definitions from the PRD (NUCRIPCE table). Urgency is left out: it comes from the timeline. */
 const DRIVER_MEANING: Record<(typeof DRIVERS)[number], string> = {
   novelty: 'the activity is new, unfamiliar, different, or offers a new experience',
@@ -192,25 +187,28 @@ export type DriversOutput = {
   drivers: (typeof DRIVERS)[number][];
   demandCharacteristics: string[];
 };
-export const suggestDrivers: JsonTask<DriversInput, DriversOutput> = {
+/** A driver is suggested when its probability reaches this (ADR 0005: chosen on half the set,
+ * held on the other half). */
+const DRIVER_THRESHOLD = 0.2;
+const DRIVER_OPTIONS = [...DRIVERS, 'none'] as const;
+export const suggestDrivers: DecisionTask<DriversInput, DriversOutput> = {
   name: 'suggestDrivers',
-  promptVersion: 'suggest-drivers@2',
-  schema: () =>
-    z.object({
-      drivers: z.array(z.enum(DRIVERS)).max(3),
-      demandCharacteristics: z.array(z.enum(TRAITS)).max(4),
-    }),
+  promptVersion: 'suggest-drivers@3',
   system: () =>
-    `Tag a task with what might make it engaging (drivers) and what kind of demand it is. Never tag urgency. ${DATA_ONLY}\nDrivers:\n${DRIVERS.map((d) => `${d}: ${DRIVER_MEANING[d]}`).join('\n')}\nGive 0 to 3 drivers that clearly fit, each at most once, the best fit first. Give none rather than guess. List each demand characteristic at most once.`,
+    `Tag a task with what might make it engaging. ${DATA_ONLY} Never tag urgency.\nOptions:\n${DRIVER_OPTIONS.map((d, n) => `${LABELS[n] ?? '?'}: ${d === 'none' ? 'none of these fit clearly' : `${d}: ${DRIVER_MEANING[d]}`}`).join('\n')}\nReply with the letter of the option that fits best.`,
   text: (i) => (i.kind ? `${i.title} (${i.kind})` : i.title),
-  maxChars: 200,
-  temperature: 0.2,
-  maxTokens: 100,
-  timeoutMs: 4000,
-  clean: (o) => ({
-    drivers: distinct(o.drivers),
-    demandCharacteristics: distinct(o.demandCharacteristics),
+  labels: () => DRIVER_OPTIONS.map((_, n) => LABELS[n] ?? '?'),
+  decode: (p, i) => ({
+    drivers: DRIVERS.map((d, n) => [d, p[LABELS[n] ?? ''] ?? 0] as const)
+      .filter(([, v]) => v >= DRIVER_THRESHOLD)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([d]) => d),
+    // Demand characteristics are Tab 6 codes; the rules find them.
+    demandCharacteristics: suggestDriversByRules(i.title).demandCharacteristics,
   }),
+  maxChars: 200,
+  timeoutMs: 4000,
   check: () => true,
   fallback: (i) => suggestDriversByRules(i.title),
 };

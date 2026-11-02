@@ -21,6 +21,7 @@ import {
   splitTasks,
   structure,
   suggestDrivers,
+  type DecisionTask,
   type JsonTask,
   type TextTask,
 } from '../ai.tasks.js';
@@ -75,7 +76,7 @@ const snapshot = JSON.parse(
 
 interface Plan<C, I, O> {
   /** A JSON task (schema-constrained) or a text task (streamed in the app; whole here). */
-  readonly task: JsonTask<I, O> | TextTask<I>;
+  readonly task: JsonTask<I, O> | TextTask<I> | DecisionTask<I, O>;
   readonly input: (c: C) => I;
   readonly score: (out: O, c: C) => boolean;
   /** The hard rule, judged on whatever the model returned, even when it then failed a check. */
@@ -165,6 +166,7 @@ async function callModel(
   input: unknown,
 ): Promise<{ outcome: Outcome; raw: unknown; outputTokens: number | null }> {
   const { task } = p;
+  if ('labels' in task) return callDecision(task, input);
   if (!('schema' in task)) return callText(task, input);
   const schema = task.schema(input);
   try {
@@ -182,6 +184,26 @@ async function callModel(
     const raw = task.clean?.(parsed.data, input) ?? parsed.data;
     const outcome = task.check(raw, input) ? 'ok' : 'invalid';
     return { outcome, raw, outputTokens: res.outputTokens };
+  } catch (error) {
+    const timeout = error instanceof AiUnavailable && error.reason === 'timeout';
+    return { outcome: timeout ? 'timeout' : 'error', raw: null, outputTokens: null };
+  }
+}
+
+/** A decision task, as AiService.decide calls it: one token, label probabilities, decode, check. */
+async function callDecision(
+  task: DecisionTask<unknown, unknown>,
+  input: unknown,
+): Promise<{ outcome: Outcome; raw: unknown; outputTokens: number | null }> {
+  try {
+    const p = await new AiClient(env).decide({
+      system: task.system(input),
+      user: scrub(task.text(input), task.maxChars),
+      labels: task.labels(input),
+      timeoutMs: Math.max(task.timeoutMs, EVAL_TIMEOUT_MS),
+    });
+    const raw = task.decode(p, input);
+    return { outcome: task.check(raw, input) ? 'ok' : 'invalid', raw, outputTokens: 1 };
   } catch (error) {
     const timeout = error instanceof AiUnavailable && error.reason === 'timeout';
     return { outcome: timeout ? 'timeout' : 'error', raw: null, outputTokens: null };

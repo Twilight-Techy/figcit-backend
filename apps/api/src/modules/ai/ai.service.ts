@@ -6,7 +6,7 @@ import { PrismaService } from '../../common/db/prisma.service.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
 import { SafetyService, type SafetyMatch } from '../safety/safety.service.js';
 import { AiClient, AiUnavailable } from './ai.client.js';
-import type { JsonTask, TextTask } from './ai.tasks.js';
+import type { DecisionTask, JsonTask, TextTask } from './ai.tasks.js';
 import { scrub } from './text.js';
 
 export interface AiCaller {
@@ -147,6 +147,39 @@ export class AiService {
         return { blocked: false, data, source: 'ai', limited: false };
       }
       this.log(task, caller, 'invalid', started, res);
+    } catch (error) {
+      this.log(task, caller, AiService.reason(error), started);
+    }
+    return { blocked: false, data: task.fallback(input), source: 'fallback', limited: false };
+  }
+
+  /** A classification by decision scoring (ADR 0005), with the same screen, limits and fallback. */
+  async decide<I, O>(task: DecisionTask<I, O>, input: I, caller: AiCaller): Promise<AiResult<O>> {
+    const raw = task.text(input);
+    const match = await this.safety.check([raw]);
+    if (match) return { blocked: true, match };
+    const started = Date.now();
+    if (!(await this.withinLimit(task.name, caller))) {
+      this.log(task, caller, 'not_entitled', started);
+      return { blocked: false, data: task.fallback(input), source: 'fallback', limited: true };
+    }
+    if (!this.client.configured) {
+      this.log(task, caller, 'fallback', started);
+      return { blocked: false, data: task.fallback(input), source: 'fallback', limited: false };
+    }
+    try {
+      const p = await this.client.decide({
+        system: task.system(input),
+        user: scrub(raw, task.maxChars),
+        labels: task.labels(input),
+        timeoutMs: task.timeoutMs,
+      });
+      const data = task.decode(p, input);
+      if (task.check(data, input)) {
+        this.log(task, caller, 'ok', started);
+        return { blocked: false, data, source: 'ai', limited: false };
+      }
+      this.log(task, caller, 'invalid', started);
     } catch (error) {
       this.log(task, caller, AiService.reason(error), started);
     }
