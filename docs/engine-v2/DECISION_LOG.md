@@ -652,6 +652,39 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - A test database can simply be dropped; the e2e setup recreates it.
 - **If `main` gains migrations before the merge:** regenerate this one after rebasing, as the repo rule says.
 
+### E-59 One engine, on the server: the app's copy is removed (T-04)
+- **Decision (Owner, 2 Nov 2026):** the engine runs only on the server, Browse included. The app keeps no copy of it, for offline use or anything else, as agreed earlier (E-01).
+- **Built:**
+  - **The typed-text safety check:** the app used the vendored engine to screen dumps and reflections kept on the phone in Browse.
+    - Now `POST /v1/safety/screen` (Browse token or signed in) screens them with the server's phrase rules. It returns whether a phrase matched and its category. The text isn't stored; a match records a safety event (rule and category).
+    - Signed in, each module's own API call already screens the text.
+    - **Offline, nothing screens typed text.** The Help pill is on every screen (PWA hard rule), so help stays one tap away.
+  - **Browse task order:** `POST /v1/tasks/order` orders the tasks kept on the phone. It takes only what ordering reads (timeline, drivers, steps left, putting off, skips, plan slot) and refuses a title. Offline, the app shows the tasks in their saved order with no "why now".
+  - **Types:** the app's few engine types (light, timeline code, the content snapshot's fields) are its own (`src/lib/content/types.ts`), until the content moves into the rule set (T-25).
+  - **Removed:** `vendor/engine`, `scripts/sync-engine.mjs`, the `@figcit/engine` paths and aliases, and the webpack setting they needed.
+  - **The size check is inverted:** a build that carries engine code now fails.
+  - The PWA's README and AGENTS.md say the server runs the only engine. The PWA's SYSTEM_DESIGN still describes the device engine. It is left for its owners, since agents don't edit it unasked.
+- **Why:** two engines drift. The safety screen in particular must be one set of rules.
+- **Revert:** restore `vendor/engine` from git and point the two callers back at it.
+
+### E-60 Red keeps a choice after a decline; Amber's forced primary holds without a task (T-28)
+- **Found by the explorer (E-56):**
+  1. Red, with Regulate just declined, left a card with only "Get support now".
+  2. Amber, with the need "Get started" and no task, put Execute (the smallest step) first.
+- **What the shared documents say:**
+  - **Workbook, Tab 7 patterns 6-8:** Very Constrained gives "Regulate and/or Dump and/or Connect", "Regulate/Dump forced immediately" (pattern 7), and "Regulate/Dump/Connect + Support pathway visible" (pattern 8).
+  - **Workbook, non-negotiable note 3:** only "do not repeat the same rejected suggestion immediately".
+  - **Workbook, pattern 30:** stops suggesting after 3 declines in a session.
+  - **PRD v3.1 FR-M04-07 and US-M04 acceptance:** "Not now and Try another are always available. In Red, 'Get support now' is shown on the card".
+  - **PRD v3.1 §15.1:** a rejected recommendation leads to "Not now, Try another, change state, or open any module manually".
+  - **Activity Tables v2.1, process 8:** the customer "starts it or picks another".
+  - **Tab 1 Amber:** "Intervention is the forced primary", which the fixed publish check "no task first in Amber or Red" also states, with or without a task.
+- **Decision:**
+  - **Red:** the Very Constrained band row offers Red's three pathways in the workbook's order: Regulate, then Dump, then Connect. A declined one gives way to the next, and the others are the alternatives. "Get support now" stays visible on every Red card. Pattern 7 also has Dump beside the reset, as its sequence says. A feeling that leads to Dump or Connect still picks first (E-51). After 3 declines, pattern 30's "stay out of your way" card applies as before.
+  - **Amber:** Execute is never the primary, task or not. The Amber band row's forbid no longer needs a task. "Try anyway" and "Start small" still come only with a task.
+- **Tests:** a Red card after one, two or three declines (with and without a task, at T0 and T3) always offers something and keeps "Get support now". The Amber "Get started" case keeps Execute off the primary. The all-flows set over three seeds has no card with nothing to offer and no fixed rule broken.
+- **Mapping status:** both band rows stay `interpreted`. Clinical Safety confirms the Red order with the other safety rows (T-11).
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

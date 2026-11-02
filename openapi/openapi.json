@@ -30046,6 +30046,109 @@
         "x-access": "public"
       }
     },
+    "/v1/safety/screen": {
+      "post": {
+        "operationId": "Safety_screen",
+        "summary": "Browse: screen text kept on the phone with the server's phrase rules; the text is not stored (E-59)",
+        "tags": [
+          "Safety"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sourceModule": {
+                    "type": "string",
+                    "enum": [
+                      "dump",
+                      "reflect",
+                      "express",
+                      "connect",
+                      "checkin"
+                    ]
+                  },
+                  "texts": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 5000
+                    }
+                  }
+                },
+                "required": [
+                  "sourceModule",
+                  "texts"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "sourceModule": "dump",
+                "texts": [
+                  "Example texts"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "safety": {
+                      "type": "boolean",
+                      "description": "A risk phrase matched: show the crisis routes"
+                    },
+                    "category": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "safety",
+                    "category"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "safety": true,
+                  "category": "Example category"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "browse": []
+          }
+        ],
+        "x-access": "browse"
+      }
+    },
     "/v1/sessions": {
       "post": {
         "operationId": "Sessions_start",
@@ -35480,6 +35583,224 @@
           }
         ],
         "x-access": "user"
+      }
+    },
+    "/v1/tasks/order": {
+      "post": {
+        "operationId": "Tasks_order",
+        "summary": "Browse: order tasks kept on the phone; send only what ordering reads, never titles (E-59)",
+        "tags": [
+          "Tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "light": {
+                    "type": "string",
+                    "enum": [
+                      "green",
+                      "yellow",
+                      "amber",
+                      "red",
+                      "blue"
+                    ]
+                  },
+                  "tasks": {
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "timeline": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "T0",
+                                "T1",
+                                "T2",
+                                "T3",
+                                "T4",
+                                "T5",
+                                "T6",
+                                "TX",
+                                "TR"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "drivers": {
+                          "maxItems": 8,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "novelty",
+                              "urgency",
+                              "challenge",
+                              "routine",
+                              "interest",
+                              "passion",
+                              "collaboration",
+                              "exploration"
+                            ]
+                          }
+                        },
+                        "stepsLeft": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 200
+                        },
+                        "puttingOff": {
+                          "type": "boolean"
+                        },
+                        "skipCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1000
+                        },
+                        "planSlot": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "now",
+                                "later",
+                                "not_today"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "timeline",
+                        "drivers",
+                        "stepsLeft",
+                        "puttingOff",
+                        "skipCount",
+                        "planSlot"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "light",
+                  "tasks"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "light": "green",
+                "tasks": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "timeline": "T0",
+                    "drivers": [
+                      "novelty"
+                    ],
+                    "stepsLeft": 0,
+                    "puttingOff": true,
+                    "skipCount": 0,
+                    "planSlot": "now"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "whyNow": {
+                            "type": "string"
+                          },
+                          "whyNowText": {
+                            "type": "string"
+                          },
+                          "onlyIfMust": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "whyNow",
+                          "whyNowText",
+                          "onlyIfMust"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "whyNow": "Example whyNow",
+                      "whyNowText": "Example whyNowText",
+                      "onlyIfMust": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "browse": []
+          }
+        ],
+        "x-access": "browse"
       }
     },
     "/v1/tasks/ordered": {

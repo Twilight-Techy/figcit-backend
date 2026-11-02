@@ -14,6 +14,18 @@ export const safetyEventInputSchema = z
   })
   .strict();
 
+/** Browse: screen text kept on the phone with the server's phrase rules (E-59). Not stored. */
+export const screenInputSchema = z
+  .object({
+    sourceModule: z.enum(['dump', 'reflect', 'express', 'connect', 'checkin']),
+    texts: z.array(z.string().max(5000)).min(1).max(50),
+  })
+  .strict();
+export const screenResultSchema = z.object({
+  safety: z.boolean().describe('A risk phrase matched: show the crisis routes'),
+  category: z.string().nullable(),
+});
+
 export const routesQuerySchema = z.object({ region: z.string().length(2).optional() }).strict();
 export const routesSchema = z.object({ region: z.string(), routes: z.array(crisisRouteSchema) });
 

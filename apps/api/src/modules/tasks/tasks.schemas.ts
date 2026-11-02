@@ -120,6 +120,41 @@ export const orderedSchema = z.object({
     taskSchema.extend({ whyNow: z.string(), whyNowText: z.string(), onlyIfMust: z.boolean() }),
   ),
 });
+/**
+ * Browse orders its tasks on the server (E-59): the app keeps the tasks on the phone and sends only
+ * what ordering reads. Titles and steps never leave the phone.
+ */
+export const orderInputSchema = z
+  .object({
+    light: z.enum(['green', 'yellow', 'amber', 'red', 'blue']),
+    tasks: z
+      .array(
+        z
+          .object({
+            id: z.uuid(),
+            timeline: z.enum(TIMELINES).nullable(),
+            drivers: z.array(DRIVER).max(8),
+            stepsLeft: z.number().int().min(0).max(200),
+            puttingOff: z.boolean(),
+            skipCount: z.number().int().min(0).max(1000),
+            planSlot: z.enum(['now', 'later', 'not_today']).nullable(),
+          })
+          .strict(),
+      )
+      .max(200),
+  })
+  .strict();
+export const orderResultSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.uuid(),
+      whyNow: z.string(),
+      whyNowText: z.string(),
+      onlyIfMust: z.boolean(),
+    }),
+  ),
+});
+
 export const breakDownResponseSchema = z.object({
   steps: z.array(z.object({ text: z.string(), minutes: z.number().int() })),
   estimatedDemand: z.enum(['low', 'moderate', 'heavy']),

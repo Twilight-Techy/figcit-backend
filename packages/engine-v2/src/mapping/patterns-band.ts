@@ -128,11 +128,15 @@ export const PATTERNS_BAND: NonNullable<TabMapping['rows']> = {
     when: all(band('very_constrained'), peak('gte', 'high'), withTask),
     layer: 'default',
     rules: [
-      rule(null, [propose('primary', path('regulate'), copyOf(7)), set('support.show')]),
+      rule(null, [
+        propose('primary', path('regulate'), copyOf(7)),
+        propose('alternative', path('dump')),
+        set('support.show'),
+      ]),
       rule(notT0, [forbid(path('execute'))]),
     ],
     reason:
-      'Care first, "Get support now" visible, the task off the card until a re-check improves. At T0 the smallest step stays queued (ADR 0004 §3, pattern 15).',
+      '"Regulate/Dump forced immediately": a reset first with Dump beside it, "Get support now" visible, the task off the card until a re-check improves. At T0 the smallest step stays queued (ADR 0004 §3, pattern 15).',
   }),
   '8': pattern({
     when: all(band('very_constrained'), noTask),

@@ -23,6 +23,8 @@ import {
   routesQuerySchema,
   routesSchema,
   safetyEventInputSchema,
+  screenInputSchema,
+  screenResultSchema,
   supportPlanInputSchema,
   supportPlanSchema,
   type ContactDto,
@@ -59,6 +61,32 @@ export class SafetyController {
   ): Promise<{ ok: true }> {
     await this.safety.record({ userId: user?.id ?? null, ...body });
     return { ok: true };
+  }
+
+  @Post('safety/screen')
+  @HttpCode(200)
+  @Route({
+    summary:
+      "Browse: screen text kept on the phone with the server's phrase rules; the text is not stored (E-59)",
+    tags: ['Safety'],
+    access: 'browse',
+    body: screenInputSchema,
+    response: screenResultSchema,
+  })
+  async screen(
+    @MaybeUser() user: RequestUser | undefined,
+    @Body(new ZodPipe(screenInputSchema)) body: z.infer<typeof screenInputSchema>,
+  ): Promise<z.infer<typeof screenResultSchema>> {
+    const match = await this.safety.check(body.texts);
+    if (!match) return { safety: false, category: null };
+    await this.safety.record({
+      userId: user?.id ?? null,
+      sourceModule: body.sourceModule,
+      trigger: 'phrase',
+      ruleId: match.ruleId,
+      category: match.category,
+    });
+    return { safety: true, category: match.category };
   }
 
   @Get('safety/routes')

@@ -264,4 +264,37 @@ describe('AI with a model server', () => {
     expect(res.status).toBe(201);
     expect(res.body.drivers).toEqual(['routine']);
   });
+  it('orders Browse tasks from what ordering reads, never their titles (E-59)', async () => {
+    const browse = { 'x-browse-token': 'browse-device-token-1234567890' };
+    const task = (id: string, over: object) => ({
+      id,
+      timeline: null,
+      drivers: [],
+      stepsLeft: 3,
+      puttingOff: false,
+      skipCount: 0,
+      planSlot: null,
+      ...over,
+    });
+    const later = '0190a000-0000-7000-8000-000000000001';
+    const now = '0190a000-0000-7000-8000-000000000002';
+    const res = await api.req<{ items: { id: string; whyNow: string; onlyIfMust: boolean }[] }>(
+      'POST',
+      '/tasks/order',
+      {
+        headers: browse,
+        body: {
+          light: 'green',
+          tasks: [task(later, { timeline: 'T6' }), task(now, { timeline: 'T0' })],
+        },
+      },
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.items.map((i) => i.id)).toEqual([now, later]);
+    const titled = await api.req('POST', '/tasks/order', {
+      headers: browse,
+      body: { light: 'green', tasks: [{ ...task(now, {}), title: 'Essay' }] },
+    });
+    expect(titled.status).toBe(400);
+  });
 });

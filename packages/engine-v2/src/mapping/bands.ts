@@ -93,10 +93,15 @@ export const BANDS: TabMapping = {
       light: 'amber',
       cells: ['E1M3', 'E1M4', 'E2M1'],
       card: [
+        // The forced primary holds with or without a task: a "Get started" need alone doesn't put
+        // Execute first in Amber (found by the explorer, E-60).
+        {
+          when: finalIs('constrained'),
+          then: [set('forbid', { slot: 'primary', target: { pathway: 'execute' } })],
+        },
         {
           when: withDemand('constrained'),
           then: [
-            set('forbid', { slot: 'primary', target: { pathway: 'execute' } }),
             set('require', { slot: 'visible', target: { action: 'try_anyway' } }),
             set('propose', { slot: 'primary', target: { pathway: 'regulate' } }),
             set('propose', { slot: 'alternative', target: { action: 'start_small' } }),
@@ -112,7 +117,7 @@ export const BANDS: TabMapping = {
         },
       ],
       reason:
-        '"Intervention is the forced primary": a task is never the primary, and a short reset is the default one with "Start small" as an alternative (ADR 0004 §4; a feeling picks first, E-51). "Demand capped to Routine": only Routine is kept, with Urgency only at T0/T1 as pattern 5 and Tab 9 say (ADR 0004 §9). "I\'ll try the task anyway" is never hidden.',
+        '"Intervention is the forced primary": a task step is never the primary, task or not, and a short reset is the default one with "Start small" as an alternative (ADR 0004 §4; a feeling picks first, E-51). "Demand capped to Routine": only Routine is kept, with Urgency only at T0/T1 as pattern 5 and Tab 9 say (ADR 0004 §9). "I\'ll try the task anyway" is never hidden.',
       mapping: 'interpreted',
     }),
     'Very Constrained': bandRow({
@@ -137,12 +142,17 @@ export const BANDS: TabMapping = {
             set('forbid', { target: { action: 'try_anyway' } }),
             set('drivers.keep_only', { drivers: [] }),
             set('support.show'),
+            // Red's pathways, in the order the workbook gives them (Tab 7 patterns 6-8: "Regulate
+            // and/or Dump and/or Connect"). The first not declined leads; the others fall back to
+            // the alternatives, so "Try another" always has one (E-60, T-28).
             set('propose', { slot: 'primary', target: { pathway: 'regulate' } }),
+            set('propose', { slot: 'primary', target: { pathway: 'dump' } }),
+            set('propose', { slot: 'primary', target: { pathway: 'connect' } }),
           ],
         },
       ],
       reason:
-        '"Intervention forced immediately; demand deferred; Support visible throughout": no task step anywhere on the card, except at T0, where only its smallest step is queued after the reset (ADR 0004 §3). "Try anyway" is never shown in Red. A reset is the default primary; a feeling that leads to Dump or Connect picks first (E-51).',
+        '"Intervention forced immediately; demand deferred; Support visible throughout": no task step anywhere on the card, except at T0, where only its smallest step is queued after the reset (ADR 0004 §3). "Try anyway" is never shown in Red. A reset is the default primary, then Dump, then Connect, the Red pathways of Tab 7 patterns 6-8; a declined one gives way to the next, and a feeling that leads to Dump or Connect picks first (E-51, E-60).',
       mapping: 'interpreted',
     }),
     'Recovery (overlay, not a band)': {

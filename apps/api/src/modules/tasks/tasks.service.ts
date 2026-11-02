@@ -15,6 +15,8 @@ import { TASK_SELECT, liveTimeline, toTaskDto } from './tasks.mapper.js';
 import type {
   breakDownResponseSchema,
   orderedSchema,
+  orderInputSchema,
+  orderResultSchema,
   stepsPutSchema,
   TaskCreate,
   TaskDto,
@@ -280,6 +282,19 @@ export class TasksService {
   async currentLight(userId: string): Promise<{ light: Light; known: boolean }> {
     const { light, known } = await this.recs.currentState(userId);
     return { light, known };
+  }
+
+  /** Browse: the order of tasks kept on the phone, from what ordering reads (E-59). */
+  async order(input: z.infer<typeof orderInputSchema>): Promise<z.infer<typeof orderResultSchema>> {
+    const { snapshot } = await this.rules.current();
+    return {
+      items: orderTasks(input.tasks, input.light, snapshot).map((o) => ({
+        id: o.id,
+        whyNow: o.whyNow,
+        whyNowText: o.whyNowText,
+        onlyIfMust: o.onlyIfMust,
+      })),
+    };
   }
 
   async ordered(userId: string): Promise<z.infer<typeof orderedSchema>> {

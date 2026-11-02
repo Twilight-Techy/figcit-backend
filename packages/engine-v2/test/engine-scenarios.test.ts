@@ -232,3 +232,74 @@ describe('the engine on the v3.3 rule set', () => {
     });
   });
 });
+
+// T-28, E-60: found by the explorer. Red offers Regulate, Dump and Connect (Tab 7 patterns 6-8);
+// a declined one gives way to the next, so "Try another" never leaves an empty Red card (PRD
+// FR-M04-07; Activity Tables process 8: "starts it or picks another").
+describe('Red after a pathway is declined', () => {
+  const red = {
+    'state.energy': 1,
+    'state.mood': 1,
+    'demand.present': true,
+    'demand.timeline': 'T3',
+    'signals.plan': 'free',
+  };
+  const target = (i: CardItem | null): string | undefined =>
+    i ? ('pathway' in i.target ? i.target.pathway : (i.tool ?? undefined)) : undefined;
+  const support = (c: ReturnType<typeof cardFor>['card']): boolean =>
+    c.visible.some((v) => 'action' in v.target && v.target.action === 'get_support_now');
+
+  it('leads with a reset, with Dump and Connect beside it', () => {
+    const { card } = cardFor(red);
+    expect(card.light).toBe('red');
+    expect(card.primary?.pathway).toBe('regulate');
+    expect(card.alternatives.map((a) => a.pathway)).toEqual(['dump', 'connect']);
+    expect(support(card)).toBe(true);
+  });
+
+  it('offers Dump when Regulate was just declined, then Connect', () => {
+    const once = cardFor({ ...red, 'signals.rejected': ['regulate'] }).card;
+    expect(once.primary?.pathway).toBe('dump');
+    expect(once.alternatives.map((a) => a.pathway)).toContain('connect');
+    expect(support(once)).toBe(true);
+    const twice = cardFor({ ...red, 'signals.rejected': ['regulate', 'dump'] }).card;
+    expect(target(twice.primary)).toBeDefined();
+    expect(twice.primary?.pathway).toBe('connect');
+    expect(support(twice)).toBe(true);
+  });
+
+  it('never leaves a Red card with nothing to offer, whatever was declined', () => {
+    for (const rejected of [['regulate'], ['regulate', 'dump'], ['regulate', 'dump', 'connect']])
+      for (const timeline of [null, 'T0', 'T3'] as const) {
+        const input: Record<string, unknown> = {
+          ...red,
+          'signals.rejected': rejected,
+          // The session's declines go with them; at 3, pattern 30 stops suggesting.
+          'signals.declines_session': rejected.length,
+        };
+        if (timeline) input['demand.timeline'] = timeline;
+        else {
+          delete input['demand.timeline'];
+          input['demand.present'] = false;
+        }
+        const { card } = cardFor(input);
+        const offers = [card.primary, ...card.alternatives, ...card.visible].filter(Boolean);
+        expect(offers.length, JSON.stringify(input)).toBeGreaterThan(0);
+        expect(support(card)).toBe(true);
+        if (rejected.length < 3) expect(card.primary, JSON.stringify(input)).not.toBeNull();
+      }
+  });
+});
+
+// E-60, found by the explorer: "Intervention is the forced primary" in Amber holds without a task.
+it('keeps Execute off the primary in Amber when a "Get started" need comes without a task', () => {
+  const { card } = cardFor({
+    'state.energy': 3,
+    'state.mood': 1,
+    needs: ['get_started'],
+    'family.intensity': { anger_frustration: 8 },
+    'signals.plan': 'free',
+  });
+  expect(card.light).toBe('amber');
+  expect(card.primary?.pathway).not.toBe('execute');
+});

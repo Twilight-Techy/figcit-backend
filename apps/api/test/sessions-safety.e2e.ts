@@ -151,6 +151,30 @@ describe('safety', () => {
     expect(browse.status).toBe(202);
   });
 
+  it('screens Browse text with the server phrase rules, storing no text (E-59)', async () => {
+    const browse = { 'x-browse-token': 'device-token-abcdefghijklmnop' };
+    const risky = await api.req<{ safety: boolean; category: string | null }>(
+      'POST',
+      '/safety/screen',
+      {
+        headers: browse,
+        body: { sourceModule: 'dump', texts: ['groceries', 'I want to kill myself'] },
+      },
+    );
+    expect(risky.status).toBe(200);
+    expect(risky.body.safety).toBe(true);
+    expect(risky.body.category).not.toBeNull();
+    const calm = await api.req<{ safety: boolean }>('POST', '/safety/screen', {
+      headers: browse,
+      body: { sourceModule: 'reflect', texts: ['I am dying to see the new film'] },
+    });
+    expect(calm.body).toEqual({ safety: false, category: null });
+    expect(
+      (await api.req('POST', '/safety/screen', { body: { sourceModule: 'dump', texts: ['x'] } }))
+        .status,
+    ).toBe(401);
+  });
+
   it('keeps an encrypted support plan', async () => {
     const empty = await api.req<{ messages: string[] }>('GET', '/me/support-plan', { token });
     expect(empty.body.messages).toEqual([]);

@@ -65,7 +65,7 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 
 ## M8 App
 - [x] The check-in runs on engine v2 on the server; the card contract is unchanged; the wording is rule-set data (E-53)
-- [ ] Remove the engine copy from the PWA (`vendor/engine`); Figma S81 wording (U-01, U-02)
+- [x] Remove the engine copy from the PWA (`vendor/engine`, E-59); Figma S81 wording (U-01, U-02, E-53)
 - [x] Retire the PWA `/admin` screens (U-03, E-55)
 - [x] Squash the branch's migrations into one before the PR (E-34, E-58)
 

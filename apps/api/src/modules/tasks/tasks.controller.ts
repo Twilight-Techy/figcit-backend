@@ -19,6 +19,8 @@ import {
   breakDownRequestSchema,
   breakDownResponseSchema,
   orderedSchema,
+  orderInputSchema,
+  orderResultSchema,
   stepsPutSchema,
   taskCreateSchema,
   taskListQuerySchema,
@@ -57,6 +59,22 @@ export class TasksController {
   })
   ordered(@CurrentUser() user: RequestUser): Promise<z.infer<typeof orderedSchema>> {
     return this.tasks.ordered(user.id);
+  }
+
+  @Post('order')
+  @HttpCode(200)
+  @Route({
+    summary:
+      'Browse: order tasks kept on the phone; send only what ordering reads, never titles (E-59)',
+    tags: ['Tasks'],
+    access: 'browse',
+    body: orderInputSchema,
+    response: orderResultSchema,
+  })
+  order(
+    @Body(new ZodPipe(orderInputSchema)) body: z.infer<typeof orderInputSchema>,
+  ): Promise<z.infer<typeof orderResultSchema>> {
+    return this.tasks.order(body);
   }
 
   @Post()
