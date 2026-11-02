@@ -222,7 +222,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Replaces:** E-20's use of the general `admin` role. The rest of E-20 stands (one role for drafting and approving, for now).
 - **Built:** `clinical_admin` added to the user roles (migration `20261101120000_clinical_admin_role`, `users.prisma`, `STAFF_ROLES`, the roles screen's allowed list).
 - **Open:** a platform `admin` grants roles, so an admin could grant themselves `clinical_admin`. The grant is audited. Whether only the Owner may grant it is part of O-07 (`TODO.md` T-01).
-- **Note for merge:** the branch now has two migrations; they are squashed into one before the PR (repo rule: one migration per PR).
+- **Note for merge:** ~~the branch now has two migrations; they are squashed into one before the PR~~ Done (E-58).
 
 ### E-35 Where the staff app is hosted
 - **Working assumption:** its own subdomain (e.g. `admin.<domain>`). Not decided; it doesn't affect the work until the staff app is deployed. Its own origin keeps staff sessions and cookies apart from the user app.
@@ -632,13 +632,25 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - A lost queue message is run by the worker's minute sweep. Results are deleted after 7 days (`retention.nightly`).
   - A request the engine can't serve fails without a retry, with the reason stored.
   - The Simulator (one run) stays in the request.
-  - Migration `20261102010000_engine_explorations`, squashed with the branch's others before the PR (E-34).
+  - Migration `20261102010000_engine_explorations`, since squashed with the branch's others (E-58).
 - **Tests added:**
   - Every condition operator on every kind of fact (`conditions.test.ts`), including those the workbook doesn't use yet.
   - The engine properties of ENGINEERING_RULES §13 over 3,000 seeded random inputs (`properties.test.ts`).
   - The §1.1 budget over the all-flows set (`budget.test.ts`): p50 0.31, p95 0.97, p99 3.9 ms.
   - Engine-v2 coverage: 97.9% lines, 90.2% branches.
 - **Exceptions to the engineering rules** are in ADR 0005 (E-23 asked for an ADR before merge): example tabs not run; JSONB for rule rows, frames and explorer runs; properties without fast-check; coverage at 95/90 rather than 100.
+
+### E-58 The branch's migrations are one migration (E-34)
+- **Done:** the six working migrations are squashed, in order and as written, into `20261102030000_engine_v2`: the rule store, `clinical_admin`, the reference mapping, the check-in's standard input, decision records and explorer runs. The repo rule is one migration per PR.
+- **Checked:**
+  - On an empty database it applies after `main`'s two migrations, and `prisma migrate diff` against the schema is empty.
+  - Every trigger is there: append-only records and audit, frozen versions, draft-only rows.
+  - The e2e suite passes on a test database built from it (111 tests).
+- **A database that applied the old six** (the development database here, which the test server also uses, is done) needs one step. Its tables are already right, only its migration history differs:
+  - `DELETE FROM _prisma_migrations WHERE migration_name IN ('20261101113000_ruleset_store', '20261101120000_clinical_admin_role', '20261101130000_rule_mapping_reference', '20261101140000_checkin_standard_input', '20261101222219_decision_records', '20261102010000_engine_explorations');`
+  - then `prisma migrate resolve --applied 20261102030000_engine_v2`.
+  - A test database can simply be dropped; the e2e setup recreates it.
+- **If `main` gains migrations before the merge:** regenerate this one after rebasing, as the repo rule says.
 
 ## Dropped or changed from earlier proposals (one list)
 

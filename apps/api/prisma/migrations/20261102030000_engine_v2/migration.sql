@@ -1,3 +1,11 @@
+-- Engine v2 (docs/engine-v2): the rule store, the clinical admin role, the check-in's standard
+-- input, decision records and explorer runs. One migration for the branch (repo rule; E-34),
+-- squashed from the branch's working migrations in order, each kept as written.
+
+-- ====================================================================================
+-- ruleset_store
+-- ====================================================================================
+
 -- CreateEnum
 CREATE TYPE "ruleset_status" AS ENUM ('draft', 'in_review', 'published', 'retired', 'discarded');
 
@@ -235,3 +243,139 @@ CREATE TRIGGER "ruleset_versions_frozen" BEFORE UPDATE OR DELETE ON "ruleset_ver
 -- The rule store audit log is append-only (reject_change comes from the init migration).
 CREATE TRIGGER "ruleset_audit_events_append_only" BEFORE UPDATE OR DELETE ON "ruleset_audit_events"
   FOR EACH ROW EXECUTE FUNCTION "reject_change"();
+
+-- ====================================================================================
+-- clinical_admin_role
+-- ====================================================================================
+
+-- AlterEnum: the role that changes engine v2 rules (DECISION_LOG E-34).
+ALTER TYPE "user_role" ADD VALUE 'clinical_admin';
+
+-- ====================================================================================
+-- rule_mapping_reference
+-- ====================================================================================
+
+-- AlterEnum: rows that state no executable rule (a definition or a description), E-37.
+ALTER TYPE "rule_mapping" ADD VALUE 'reference';
+
+-- ====================================================================================
+-- checkin_standard_input
+-- ====================================================================================
+
+-- Check-in input without silent defaults (DECISION_LOG E-41, E-45): unrated feelings, several
+-- supports, a skipped state, and custom places linked to a standard place.
+-- AlterEnum
+ALTER TYPE "check_in_source" ADD VALUE 'not_given';
+
+-- AlterTable
+ALTER TABLE "check_in_contexts" ADD COLUMN     "supports" TEXT[] DEFAULT ARRAY[]::TEXT[];
+
+-- AlterTable
+ALTER TABLE "check_in_emotions" ALTER COLUMN "intensity" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "custom_tags" ADD COLUMN     "like_code" VARCHAR(48);
+
+
+-- ====================================================================================
+-- decision_records
+-- ====================================================================================
+
+-- CreateEnum
+CREATE TYPE "decision_mode" AS ENUM ('signed_in', 'browse');
+
+-- CreateTable
+CREATE TABLE "decision_records" (
+    "id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "mode" "decision_mode" NOT NULL,
+    "user_id" UUID,
+    "version_id" UUID NOT NULL,
+    "ruleset_hash" CHAR(64) NOT NULL,
+    "engine_version" VARCHAR(20) NOT NULL,
+    "input" JSONB NOT NULL,
+    "card" JSONB NOT NULL,
+    "trace" JSONB NOT NULL,
+    "band" VARCHAR(32),
+    "light" VARCHAR(16),
+    "support_screen" BOOLEAN NOT NULL,
+    "recheck_of_id" UUID,
+    "replayed_at" TIMESTAMPTZ(3),
+    "replay_matches" BOOLEAN,
+
+    CONSTRAINT "decision_records_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "decision_records_user_id_created_at_idx" ON "decision_records"("user_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "decision_records_created_at_idx" ON "decision_records"("created_at");
+
+-- CreateIndex
+CREATE INDEX "decision_records_version_id_idx" ON "decision_records"("version_id");
+
+-- AddForeignKey
+ALTER TABLE "decision_records" ADD CONSTRAINT "decision_records_version_id_fkey" FOREIGN KEY ("version_id") REFERENCES "ruleset_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- A decision record is append-only (DESIGN §7): only the replay outcome may be written later, and
+-- the account link may be cleared (account deletion, O-06). Deleting a row stays possible for
+-- retention and the right to erasure.
+CREATE OR REPLACE FUNCTION decision_records_append_only() RETURNS trigger AS $$
+BEGIN
+  IF NEW."id" IS DISTINCT FROM OLD."id"
+    OR NEW."created_at" IS DISTINCT FROM OLD."created_at"
+    OR NEW."mode" IS DISTINCT FROM OLD."mode"
+    OR (NEW."user_id" IS DISTINCT FROM OLD."user_id" AND NEW."user_id" IS NOT NULL)
+    OR NEW."version_id" IS DISTINCT FROM OLD."version_id"
+    OR NEW."ruleset_hash" IS DISTINCT FROM OLD."ruleset_hash"
+    OR NEW."engine_version" IS DISTINCT FROM OLD."engine_version"
+    OR NEW."input" IS DISTINCT FROM OLD."input"
+    OR NEW."card" IS DISTINCT FROM OLD."card"
+    OR NEW."trace" IS DISTINCT FROM OLD."trace"
+    OR NEW."band" IS DISTINCT FROM OLD."band"
+    OR NEW."light" IS DISTINCT FROM OLD."light"
+    OR NEW."support_screen" IS DISTINCT FROM OLD."support_screen"
+    OR NEW."recheck_of_id" IS DISTINCT FROM OLD."recheck_of_id" THEN
+    RAISE EXCEPTION 'decision_records: a decision record cannot change' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER decision_records_append_only
+  BEFORE UPDATE ON "decision_records"
+  FOR EACH ROW EXECUTE FUNCTION decision_records_append_only();
+
+-- ====================================================================================
+-- engine_explorations
+-- ====================================================================================
+
+-- CreateEnum
+CREATE TYPE "exploration_kind" AS ENUM ('explore', 'compare', 'impact');
+
+-- CreateEnum
+CREATE TYPE "exploration_status" AS ENUM ('queued', 'running', 'done', 'failed');
+
+-- CreateTable
+CREATE TABLE "engine_explorations" (
+    "id" UUID NOT NULL,
+    "kind" "exploration_kind" NOT NULL,
+    "status" "exploration_status" NOT NULL DEFAULT 'queued',
+    "label" VARCHAR(40) NOT NULL,
+    "request" JSONB NOT NULL,
+    "result" JSONB,
+    "error" VARCHAR(500),
+    "requested_by" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "started_at" TIMESTAMPTZ(3),
+    "finished_at" TIMESTAMPTZ(3),
+
+    CONSTRAINT "engine_explorations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "engine_explorations_status_created_at_idx" ON "engine_explorations"("status", "created_at");
+
+-- CreateIndex
+CREATE INDEX "engine_explorations_created_at_idx" ON "engine_explorations"("created_at");

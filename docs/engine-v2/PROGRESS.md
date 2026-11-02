@@ -67,7 +67,7 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] The check-in runs on engine v2 on the server; the card contract is unchanged; the wording is rule-set data (E-53)
 - [ ] Remove the engine copy from the PWA (`vendor/engine`); Figma S81 wording (U-01, U-02)
 - [x] Retire the PWA `/admin` screens (U-03, E-55)
-- [ ] Squash the branch's migrations into one before the PR (E-34)
+- [x] Squash the branch's migrations into one before the PR (E-34, E-58)
 
 ## M9 Finish
 - [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0005 for the exceptions (E-23, E-57)
