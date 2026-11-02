@@ -22,7 +22,13 @@ services:
     volumes: ['./models:/models:ro']
     ports: ['${AI_BIND:-127.0.0.1}:8080:8080']
     healthcheck:
-      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/8080 && printf "GET /health HTTP/1.0\r\n\r\n" >&3 && grep -q "200 OK" <&3']
+      test:
+        [
+          'CMD',
+          'bash',
+          '-c',
+          'exec 3<>/dev/tcp/127.0.0.1/8080 && printf "GET /health HTTP/1.0\r\n\r\n" >&3 && grep -q "200 OK" <&3',
+        ]
       interval: 15s
       start_period: 60s
 
