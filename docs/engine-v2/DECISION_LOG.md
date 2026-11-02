@@ -612,12 +612,33 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **What one rule affects:** `POST /v1/rulesets/{label}/impact` runs the same inputs with and without the row, and reports how many inputs it fired on and which cards change.
 - **Compare:** compare (a version's impact against another) takes the same sets.
 - **Decisions by version and day:** `GET /v1/decisions?ruleset=…&since=…` ("which decisions in October used 3.3-r2").
-- **Deviation from DESIGN §8:** the explorer runs in the request, not in the job queue. The largest set takes about 15 s and nothing is stored, so a queue would only add polling. Revisit if sets grow or many staff run it at once (`TODO.md` T-29).
+- ~~**Deviation from DESIGN §8:** the explorer runs in the request, not in the job queue.~~ Withdrawn by E-57: holding 15 s of CPU on the API's event loop breaks ENGINEERING_RULES §6. The explorer runs in the worker, as DESIGN §8 says.
 - **Contract fix:** simulate, explore, compare, impact and replay return 200 (they create nothing), as the OpenAPI file already said. Nest had sent 201.
 - **Found by the explorer** (for the Owner, `TODO.md` T-28):
   - Red, with Regulate just declined, gives a card with only "Get support now".
   - Non-negotiable note 3 blocks re-offering the declined pathway, and Red proposes nothing else, so the app falls back to Home. Whether Red should offer something else (rest, Connect) is a rule question.
   - Also found: a generator bug. A "not rated" level (`null`) was turned into 8, so unrated feelings were never tested. Fixed and tested.
+
+### E-57 Finishing (M9): records within budget, the explorer in the worker, exceptions in an ADR
+- **Decision records keep the light trace** (the rules that fired and the run's notes). The full trace is rebuilt by replaying the record on its own version when staff open it, and the response says `traceFrom: replay`.
+  - If the rebuilt run fires other rules than recorded (an engine change, T-24), only the stored light trace is shown (`traceFrom: record`).
+  - A re-check rebuilds the earlier decision's `peak.negative` and `band.baseline` the same way.
+  - Replay compares the card and the rules that fired. Records stored with a full trace (development data from before this change) still compare.
+- **Why:** E-52 had stored the full trace. That contradicted E-21 ("the trace is rebuilt by replay") and E-23, and broke ENGINEERING_RULES §1.3. Measured: about 52 KB of text, 12.8 KB on disk, against a budget of 4 KB per recommendation.
+  - Now a record is under 4 KB, tested in `decisions.e2e`.
+- **The explorer runs in the worker** (DESIGN §8; ENGINEERING_RULES §6), withdrawing E-56's in-request deviation.
+  - `POST /v1/rulesets/{label}/explore|compare|impact` checks the request at once (versions, rule, input set). It then stores the run in `engine_explorations`, queues `rulesets.explore` and returns `202` with the run.
+  - The worker runs it and stores the result. Staff poll `GET /v1/rulesets/explorations/{id}`; the staff app polls every second.
+  - A lost queue message is run by the worker's minute sweep. Results are deleted after 7 days (`retention.nightly`).
+  - A request the engine can't serve fails without a retry, with the reason stored.
+  - The Simulator (one run) stays in the request.
+  - Migration `20261102010000_engine_explorations`, squashed with the branch's others before the PR (E-34).
+- **Tests added:**
+  - Every condition operator on every kind of fact (`conditions.test.ts`), including those the workbook doesn't use yet.
+  - The engine properties of ENGINEERING_RULES §13 over 3,000 seeded random inputs (`properties.test.ts`).
+  - The §1.1 budget over the all-flows set (`budget.test.ts`): p50 0.31, p95 0.97, p99 3.9 ms.
+  - Engine-v2 coverage: 97.9% lines, 90.2% branches.
+- **Exceptions to the engineering rules** are in ADR 0005 (E-23 asked for an ADR before merge): example tabs not run; JSONB for rule rows, frames and explorer runs; properties without fast-check; coverage at 95/90 rather than 100.
 
 ## Dropped or changed from earlier proposals (one list)
 
@@ -639,7 +660,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 | Rule changes by the general `admin` role | E-20 | Replaced: `clinical_admin` | E-34 | E-34 |
 | Client work only after the backend M2-M5 | E-32 | Changed: the check-in input is fixed now | E-39 | E-39 |
 | Optional task toggles when AI is off | Claude, 1 Nov | Dropped | E-44 | E-44 |
-| Explorer in the background job queue | `DESIGN.md` §8 | Changed: runs in the request | E-56 | E-56, `TODO.md` T-29 |
+| Explorer in the request (not the job queue) | Claude, E-56 | Withdrawn: runs in the worker | ENGINEERING_RULES §6 | E-57 |
 | v1's invented feeling chips and places | v1 build (B-07, B-10) | Dropped | E-40 | E-40 |
 
 ## Open points that came out of this conversation

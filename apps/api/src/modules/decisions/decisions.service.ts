@@ -40,6 +40,22 @@ export interface Prepared {
 
 /** Browse has no profile, so no time zone: the UK, where the service runs (E-46). */
 const BROWSE_ZONE = 'Europe/London';
+/** JSONB doesn't keep key order, so values are compared as canonical JSON (RFC 8785). */
+const same = (a: unknown, b: unknown): boolean =>
+  canonicalJson(a as JsonValue) === canonicalJson(b as JsonValue);
+
+/**
+ * Whether two runs fired the same rules with the same notes. Compares only what a light trace
+ * holds, so records stored with a full trace (before E-57) still compare.
+ */
+const sameRun = (a: unknown, b: unknown): boolean => {
+  const pick = (t: unknown): unknown => {
+    const { fired, notes } = (t ?? {}) as { fired?: unknown; notes?: unknown };
+    return { fired: fired ?? null, notes: notes ?? null };
+  };
+  return same(pick(a), pick(b));
+};
+
 /** Staff who may read any record and its trace (trace and export are staff-only, E-21, O-16). */
 export const STAFF = ['clinical_admin', 'admin', 'safety_reviewer', 'content_editor'] as const;
 const RED_LOOKBACK_DAYS = 30;
@@ -119,7 +135,9 @@ export class DecisionsService {
     p: Pick<Prepared, 'engine' | 'input'>,
     meta: { userId: string | undefined; recheckOfId: string | null; now: Date },
   ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
-    const result = run(p.engine.ruleset, p.input, { trace: 'full' });
+    // The record keeps the light trace (the rules that fired, under 1 KB); the full trace is
+    // rebuilt by replay when staff open the record (E-21, E-23, E-57; ENGINEERING_RULES §1.3).
+    const result = run(p.engine.ruleset, p.input, { trace: 'light' });
     // The check-in was checked against the options, so a refusal here is a mapping fault.
     if (!result.ok)
       throw new AppError(
@@ -194,13 +212,15 @@ export class DecisionsService {
       where: { id: decisionId, userId },
     });
     if (!previous) throw new NotFound('decision to re-check');
+    // The facts the engine worked out then, rebuilt by replaying it on its own version.
+    const full = await this.fullTrace(previous);
     return {
       ...recheckFacts({
         band: previous.band,
         light: previous.light,
         card: previous.card as unknown as Card,
-        peak: lastFact(previous.trace, 'peak.negative') as number | null | undefined,
-        baseline: lastFact(previous.trace, 'band.baseline') as string | undefined,
+        peak: lastFact(full, 'peak.negative') as number | null | undefined,
+        baseline: lastFact(full, 'band.baseline') as string | undefined,
       }),
       ...(completed === undefined ? {} : { 'recheck.support_completed': completed }),
     };
@@ -218,7 +238,17 @@ export class DecisionsService {
     const staff = staffOf(viewer.roles);
     if (!record || (!staff && record.userId !== viewer.id)) throw new NotFound('decision');
     const dto = this.dto(record, record.version.label);
-    return staff ? this.recordDto(record, dto) : dto;
+    return staff ? this.recordDto(record, dto, await this.fullTrace(record)) : dto;
+  }
+
+  /**
+   * A record's full trace, rebuilt by running its input on its own version. Null when the rebuilt
+   * run fired other rules than the record says (an engine change, T-24): then it isn't that trace.
+   */
+  private async fullTrace(record: DecisionRecord): Promise<Trace | null> {
+    const engine = await this.runtime.byId(record.versionId);
+    const result = run(engine.ruleset, record.input as EngineInput, { trace: 'full' });
+    return result.ok && sameRun(result.trace, record.trace) ? result.trace : null;
   }
 
   /**
@@ -229,12 +259,9 @@ export class DecisionsService {
     const record = await this.prisma.decisionRecord.findUnique({ where: { id } });
     if (!record) throw new NotFound('decision');
     const engine = await this.runtime.byId(record.versionId);
-    const result = run(engine.ruleset, record.input as EngineInput, { trace: 'full' });
-    // JSONB doesn't keep key order, so both sides are compared as canonical JSON (RFC 8785).
-    const same = (a: unknown, b: unknown): boolean =>
-      canonicalJson(a as JsonValue) === canonicalJson(b as JsonValue);
+    const result = run(engine.ruleset, record.input as EngineInput, { trace: 'light' });
     const sameCard = result.ok && same(result.card, record.card);
-    const sameTrace = result.ok && same(result.trace, record.trace);
+    const sameTrace = result.ok && sameRun(result.trace, record.trace);
     const matches = sameCard && sameTrace && record.engineVersion === ENGINE_VERSION;
     await this.prisma.decisionRecord.update({
       where: { id },
@@ -347,12 +374,13 @@ export class DecisionsService {
     };
   }
 
-  private recordDto(r: DecisionRecord, dto: DecisionDto): DecisionRecordDto {
+  private recordDto(r: DecisionRecord, dto: DecisionDto, full: Trace | null): DecisionRecordDto {
     return {
       ...dto,
       userId: r.userId,
       input: r.input as Record<string, unknown>,
-      trace: r.trace,
+      trace: full ?? r.trace,
+      traceFrom: full ? 'replay' : 'record',
       recheckOfId: r.recheckOfId,
       replay:
         r.replayedAt && r.replayMatches !== null

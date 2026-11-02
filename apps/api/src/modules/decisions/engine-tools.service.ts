@@ -30,10 +30,10 @@ type SetReport = ExploreResult['set'];
 type RuleRef = { tab: string; ref: string };
 
 /**
- * The staff engine tools (E-18, DESIGN §8; M7, E-56): the Simulator, the explorer over the sweep,
- * the all-flows set or the safety set, the query, and the impact of a version or of one rule.
- * Nothing here is stored. Each call runs in the request: the largest set (safety, 30,000 inputs)
- * takes about 15 s.
+ * The staff engine tools (E-18, DESIGN §8; M7, E-56, E-57): the Simulator, and the explorer over
+ * the sweep, the all-flows set or the safety set, the query, and the impact of a version or of one
+ * rule. The Simulator runs in the request (one run); the explorer runs in the worker
+ * (`ExplorationsService`), since its largest set takes about 15 s of CPU.
  */
 @Injectable()
 export class EngineToolsService {
@@ -79,6 +79,28 @@ export class EngineToolsService {
       rule: `${body.rule.tab} · ${body.rule.ref}`,
       fired,
     };
+  }
+
+  /**
+   * The checks that need no run, so a bad request is refused at once instead of failing in the
+   * worker: the versions and the rule exist, and the input set can be made.
+   */
+  async check(
+    kind: 'explore' | 'compare' | 'impact',
+    label: string,
+    body: Partial<z.infer<typeof impactBodySchema>> & {
+      against?: string;
+      where?: z.infer<typeof exploreBodySchema>['where'];
+    },
+  ): Promise<void> {
+    const engine = await this.runtime.byLabel(label);
+    if (body.inputs?.length === 0)
+      throw new BadInput('Give at least one input, or none for a set.');
+    if (body.set === 'safety' && !body.inputs && engine.safetyRows.size === 0)
+      throw new BadInput('This version has no rows marked safety.');
+    if (kind === 'compare' && body.against) await this.runtime.byLabel(body.against);
+    const rule = kind === 'impact' ? body.rule : body.where?.rule;
+    if (rule) this.rowOf(engine, rule);
   }
 
   /** The inputs to run: the caller's own, or one of the named sets. */

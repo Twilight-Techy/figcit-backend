@@ -70,5 +70,5 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [ ] Squash the branch's migrations into one before the PR (E-34)
 
 ## M9 Finish
-- [ ] Full tests, coverage, performance budgets, ADR for the exceptions (E-23)
+- [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0005 for the exceptions (E-23, E-57)
 - [ ] Merge to `main`

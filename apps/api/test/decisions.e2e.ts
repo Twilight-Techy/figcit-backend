@@ -1,9 +1,16 @@
 // Engine v2 decisions (M5, DESIGN §7, §10, DECISION_LOG E-52): a check-in becomes a card and a
 // record; the owner sees the card, staff the input and trace; replay gives the same card; the
 // Simulator and explorer run any version; records can't change.
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
 import { DecisionsService } from '../src/modules/decisions/decisions.service.js';
+import type {
+  CompareResult,
+  ExploreResult,
+  ImpactResult,
+} from '../src/modules/decisions/decisions.schemas.js';
+import { ExplorationsService } from '../src/modules/decisions/explorations.service.js';
 import { bootApi, publishV2, type Api } from './helpers.js';
 
 interface Item {
@@ -26,6 +33,7 @@ interface Decision {
   };
   input?: Record<string, unknown>;
   trace?: { level: string; stages: unknown[] };
+  traceFrom?: 'replay' | 'record';
   replay?: { matches: boolean } | null;
 }
 
@@ -43,6 +51,36 @@ const decide = (body: object, token?: string) =>
     ...(token ? { token } : { headers: { 'x-browse-token': device } }),
     body: { state: { kind: 'grid', energy: 3, mood: 3 }, ...body },
   });
+
+interface Results {
+  explore: ExploreResult;
+  compare: CompareResult;
+  impact: ImpactResult;
+}
+
+/** An explorer run (E-57): queued by the API (202), run as the worker would, then read back. */
+async function explored<K extends keyof Results>(kind: K, body: object): Promise<Results[K]> {
+  const queued = await api.req<{ id: string; status: string }>(
+    'POST',
+    `/rulesets/${label}/${kind}`,
+    {
+      token: admin,
+      body,
+    },
+  );
+  expect(queued.status).toBe(202);
+  expect(queued.body.status).toBe('queued');
+  await api.app.get(ExplorationsService).run(queued.body.id);
+  const done = await api.req<Partial<Results> & { status: string }>(
+    'GET',
+    `/rulesets/explorations/${queued.body.id}`,
+    { token: admin },
+  );
+  expect(done.body.status).toBe('done');
+  const result = done.body[kind] as Results[K] | undefined;
+  if (!result) throw new Error(`no ${kind} result`);
+  return result;
+}
 
 beforeAll(async () => {
   api = await bootApi();
@@ -108,6 +146,29 @@ describe('decisions (engine v2)', () => {
       'signals.plan': 'free',
     });
     expect(staff.body.trace?.level).toBe('full');
+    expect(staff.body.traceFrom).toBe('replay');
+  });
+
+  it('keeps a record under 4 KB: the input, the card and the rules that fired (§1.3, E-57)', async () => {
+    const made = await decide(
+      {
+        state: { kind: 'grid', energy: 2, mood: 2 },
+        emotions: [
+          { code: 'anxious', intensity: 8 },
+          { code: 'overwhelmed', intensity: 7 },
+        ],
+        demand: { title: 'Essay', timeline: 'T1' },
+      },
+      user,
+    );
+    expect(made.status).toBe(201);
+    const prisma = api.app.get(PrismaService);
+    const [row] = await prisma.$queryRaw<{ bytes: number; level: string }[]>`
+      SELECT (octet_length(input::text) + octet_length(card::text) + octet_length(trace::text))::int AS bytes,
+             trace->>'level' AS level
+      FROM decision_records WHERE id = ${made.body.id}::uuid`;
+    expect(row?.level).toBe('light');
+    expect(row?.bytes).toBeLessThan(4096);
   });
 
   it('re-checks an earlier decision of the same user', async () => {
@@ -259,15 +320,11 @@ describe('decisions (engine v2)', () => {
   });
 
   it('compares two versions on the same inputs (impact)', async () => {
-    const res = await api.req<{ ran: number; changed: number }>(
-      'POST',
-      `/rulesets/${label}/compare`,
-      {
-        token: admin,
-        body: { against: label, inputs: [{ 'state.energy': 2, 'state.mood': 2 }] },
-      },
-    );
-    expect(res.body).toEqual({ set: { name: 'inputs' }, ran: 1, changed: 0, examples: [] });
+    const res = await explored('compare', {
+      against: label,
+      inputs: [{ 'state.energy': 2, 'state.mood': 2 }],
+    });
+    expect(res).toEqual({ set: { name: 'inputs' }, ran: 1, changed: 0, examples: [] });
   });
 
   it('explores many inputs on a version, with the fixed-rule checks', async () => {
@@ -276,83 +333,70 @@ describe('decisions (engine v2)', () => {
       { 'state.energy': 4, 'state.mood': 4 },
       { nope: 1 },
     ];
-    const res = await api.req<{
-      ran: number;
-      refused: number;
-      byLight: Record<string, number>;
-      checks: { counts: object };
-      rules: { total: number; neverFired: string[] };
-    }>('POST', `/rulesets/${label}/explore`, { token: admin, body: { inputs } });
-    expect(res.body).toMatchObject({ ran: 3, refused: 1, byLight: { red: 1, green: 1 } });
-    expect(res.body.checks.counts).toEqual({});
-    expect(res.body.rules.total).toBeGreaterThan(250);
-    expect(res.body.rules.neverFired.length).toBeGreaterThan(0);
+    const res = await explored('explore', { inputs });
+    expect(res).toMatchObject({ ran: 3, refused: 1, byLight: { red: 1, green: 1 } });
+    expect(res.checks.counts).toEqual({});
+    expect(res.rules.total).toBeGreaterThan(250);
+    expect(res.rules.neverFired.length).toBeGreaterThan(0);
   });
 
   it('explores the all-flows set, maps outcomes and answers a query (M7)', async () => {
-    const res = await api.req<{
-      set: { name: string; parts: { sweep: number; pairwise: number; sample: number } };
-      ran: number;
-      refused: number;
-      map: { cell: string; family: string; n: number }[];
-      matches: { count: number; examples: { light: string | null }[] };
-      rules: { neverFired: string[] };
-      checks: { counts: object };
-    }>('POST', `/rulesets/${label}/explore`, {
-      token: admin,
-      body: { set: 'flows', sample: 50, where: { light: 'red' } },
-    });
-    expect(res.status).toBe(200);
-    expect(res.body.set).toMatchObject({ name: 'flows', parts: { sweep: 3468, sample: 50 } });
-    expect(res.body.refused).toBe(0);
-    expect(res.body.checks.counts).toEqual({});
-    expect(res.body.map.reduce((n, c) => n + c.n, 0)).toBe(res.body.ran);
-    expect(res.body.matches.count).toBeGreaterThan(0);
-    expect(res.body.matches.examples.every((m) => m.light === 'red')).toBe(true);
+    const res = await explored('explore', { set: 'flows', sample: 50, where: { light: 'red' } });
+    expect(res.set).toMatchObject({ name: 'flows', parts: { sweep: 3468, sample: 50 } });
+    expect(res.refused).toBe(0);
+    expect(res.checks.counts).toEqual({});
+    expect(res.map.reduce((n, c) => n + c.n, 0)).toBe(res.ran);
+    expect(res.matches?.count).toBeGreaterThan(0);
+    expect(res.matches?.examples.every((m) => m.light === 'red')).toBe(true);
     // The pairwise cover reaches far more rules than the sweep alone.
-    expect(res.body.rules.neverFired.length).toBeLessThan(20);
+    expect(res.rules.neverFired.length).toBeLessThan(20);
   }, 60_000);
 
   it('runs every combination the safety rows read (E-21)', async () => {
-    const res = await api.req<{
-      set: { name: string; facts: string[]; exhaustive: boolean; combinations: number };
-      ran: number;
-      checks: { counts: object };
-    }>('POST', `/rulesets/${label}/explore`, { token: admin, body: { set: 'safety' } });
-    expect(res.status).toBe(200);
-    expect(res.body.set.name).toBe('safety');
-    expect(res.body.set.facts).toContain('family.intensity');
-    expect(res.body.ran).toBeGreaterThan(0);
-    expect(res.body.checks.counts).toEqual({});
+    const res = await explored('explore', { set: 'safety' });
+    expect(res.set.name).toBe('safety');
+    expect(res.set.facts).toContain('family.intensity');
+    expect(res.ran).toBeGreaterThan(0);
+    expect(res.checks.counts).toEqual({});
   }, 120_000);
 
-  it('shows what one rule affects, and refuses a rule the version lacks', async () => {
-    const res = await api.req<{ rule: string; fired: number; ran: number; changed: number }>(
-      'POST',
-      `/rulesets/${label}/impact`,
-      {
-        token: admin,
-        body: {
-          rule: { tab: 'bands', ref: 'Very Constrained' },
-          inputs: [
-            { 'state.energy': 1, 'state.mood': 1 },
-            { 'state.energy': 4, 'state.mood': 4 },
-          ],
-        },
-      },
-    );
-    expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({
-      rule: 'bands · Very Constrained',
-      fired: 1,
-      ran: 2,
-      changed: 1,
+  it('shows what one rule affects, and refuses a rule the version lacks at once', async () => {
+    const res = await explored('impact', {
+      rule: { tab: 'bands', ref: 'Very Constrained' },
+      inputs: [
+        { 'state.energy': 1, 'state.mood': 1 },
+        { 'state.energy': 4, 'state.mood': 4 },
+      ],
     });
+    expect(res).toMatchObject({ rule: 'bands · Very Constrained', fired: 1, ran: 2, changed: 1 });
     const none = await api.req('POST', `/rulesets/${label}/impact`, {
       token: admin,
       body: { rule: { tab: 'bands', ref: 'No such row' } },
     });
     expect(none.status).toBe(404);
+  });
+
+  it('keeps explorer runs for staff, and the worker sweep runs a lost one (E-57)', async () => {
+    const queued = await api.req<{ id: string }>('POST', `/rulesets/${label}/explore`, {
+      token: admin,
+      body: { inputs: [{ 'state.energy': 2, 'state.mood': 3 }] },
+    });
+    expect(queued.status).toBe(202);
+    const path = `/rulesets/explorations/${queued.body.id}`;
+    expect((await api.req('GET', path, { token: user })).status).toBe(403);
+    const waiting = await api.req<{ status: string; explore: unknown }>('GET', path, {
+      token: admin,
+    });
+    expect(waiting.body).toMatchObject({ status: 'queued', explore: null });
+    await api.app.get(ExplorationsService).sweep(new Date(Date.now() + 120_000));
+    const done = await api.req<{ status: string; explore: { ran: number } }>('GET', path, {
+      token: admin,
+    });
+    expect(done.body.status).toBe('done');
+    expect(done.body.explore.ran).toBe(1);
+    expect(
+      (await api.req('GET', `/rulesets/explorations/${randomUUID()}`, { token: admin })).status,
+    ).toBe(404);
   });
 
   it('sends staff sign-in links to the staff app only when its address is set (E-31)', async () => {

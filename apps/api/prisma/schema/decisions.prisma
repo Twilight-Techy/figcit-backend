@@ -23,7 +23,8 @@ model DecisionRecord {
   // The engine's input facts: standard values only, never free text (E-04, E-13).
   input         Json
   card          Json
-  // The full trace (every rule checked, facts per stage, each proposal's fate).
+  // The light trace: the rules that fired and the run's notes. The full trace is rebuilt by
+  // replay (E-21, E-57), which keeps a record under 4 KB (ENGINEERING_RULES §1.3).
   trace         Json
   band          String?        @db.VarChar(32)
   light         String?        @db.VarChar(16)
@@ -37,4 +38,42 @@ model DecisionRecord {
   @@index([createdAt])
   @@index([versionId])
   @@map("decision_records")
+}
+
+enum ExplorationKind {
+  explore
+  compare
+  impact
+
+  @@map("exploration_kind")
+}
+
+enum ExplorationStatus {
+  queued
+  running
+  done
+  failed
+
+  @@map("exploration_status")
+}
+
+// A staff explorer run (M7, DESIGN §8, E-57): the API queues it, the worker runs it off the
+// API's event loop (ENGINEERING_RULES §6), the staff app polls for the result. Kept 7 days.
+model EngineExploration {
+  id          String            @id @default(uuid(7)) @db.Uuid
+  kind        ExplorationKind
+  status      ExplorationStatus @default(queued)
+  label       String            @db.VarChar(40)
+  // The request as sent: the input set, query, version compared against or rule. Codes only.
+  request     Json
+  result      Json?
+  error       String?           @db.VarChar(500)
+  requestedBy String            @map("requested_by") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  startedAt   DateTime?         @map("started_at") @db.Timestamptz(3)
+  finishedAt  DateTime?         @map("finished_at") @db.Timestamptz(3)
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+  @@map("engine_explorations")
 }

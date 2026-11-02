@@ -67,7 +67,16 @@ export type DecisionDto = z.infer<typeof decisionSchema>;
 export const decisionRecordSchema = decisionSchema.extend({
   userId: z.uuid().nullable(),
   input: z.record(z.string(), z.unknown()),
-  trace: z.unknown(),
+  trace: z
+    .unknown()
+    .describe(
+      'The full trace, rebuilt by replaying the record (E-21, E-57); the record keeps the rules that fired',
+    ),
+  traceFrom: z
+    .enum(['replay', 'record'])
+    .describe(
+      'replay: rebuilt, and it fired the same rules as recorded; record: the replay differs, so only the stored (light) trace is shown',
+    ),
   recheckOfId: z.uuid().nullable(),
   replay: z
     .object({ at: z.iso.datetime(), matches: z.boolean() })
@@ -274,3 +283,20 @@ export const impactResultSchema = compareResultSchema.extend({
 });
 export type ImpactResult = z.infer<typeof impactResultSchema>;
 export type CompareResult = z.infer<typeof compareResultSchema>;
+
+/** An explorer run (M7, E-57): queued, run by the worker, its result once done. */
+export const explorationSchema = z.object({
+  id: z.uuid(),
+  kind: z.enum(['explore', 'compare', 'impact']),
+  status: z.enum(['queued', 'running', 'done', 'failed']),
+  label: z.string(),
+  request: z.record(z.string(), z.unknown()).describe('The request as sent'),
+  error: z.string().nullable().describe('Why it failed'),
+  createdAt: z.iso.datetime(),
+  startedAt: z.iso.datetime().nullable(),
+  finishedAt: z.iso.datetime().nullable(),
+  explore: exploreResultSchema.nullable().describe('The result of an explore, once done'),
+  compare: compareResultSchema.nullable().describe('The result of a compare, once done'),
+  impact: impactResultSchema.nullable().describe('The result of an impact, once done'),
+});
+export type ExplorationDto = z.infer<typeof explorationSchema>;

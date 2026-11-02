@@ -10,19 +10,16 @@ import { CardBridgeService } from './card-bridge.service.js';
 import {
   anotherBodySchema,
   compareBodySchema,
-  compareResultSchema,
   decisionListQuerySchema,
   decisionListSchema,
-  type CompareResult,
   type DecisionList,
   decideBodySchema,
   decisionRecordSchema,
   decisionSchema,
   exploreBodySchema,
-  exploreResultSchema,
+  explorationSchema,
   impactBodySchema,
-  impactResultSchema,
-  type ImpactResult,
+  type ExplorationDto,
   replayResultSchema,
   simulateBodySchema,
   simulateResultSchema,
@@ -32,6 +29,7 @@ import {
 } from './decisions.schemas.js';
 import { DecisionsService, STAFF } from './decisions.service.js';
 import { EngineToolsService } from './engine-tools.service.js';
+import { ExplorationsService } from './explorations.service.js';
 
 const TAGS = ['Engine v2'];
 
@@ -125,7 +123,10 @@ export class DecisionsController {
 /** The staff Simulator and explorer on any version, drafts included (E-18, DESIGN §8). */
 @Controller('rulesets')
 export class EngineToolsController {
-  constructor(private readonly tools: EngineToolsService) {}
+  constructor(
+    private readonly tools: EngineToolsService,
+    private readonly explorations: ExplorationsService,
+  ) {}
 
   @Post(':label/simulate')
   @HttpCode(200)
@@ -145,54 +146,74 @@ export class EngineToolsController {
   }
 
   @Post(':label/compare')
-  @HttpCode(200)
+  @HttpCode(202)
   @Route({
-    summary: 'The impact of a version: the same inputs against another version, and what changes',
+    summary:
+      'Queue the impact of a version: the same inputs against another version, and what changes (poll the exploration)',
     tags: TAGS,
     access: 'staff',
     roles: STAFF,
     body: compareBodySchema,
-    response: compareResultSchema,
+    response: explorationSchema,
+    status: 202,
   })
   compare(
+    @CurrentUser() user: RequestUser,
     @Param('label', new ZodPipe(labelParam)) label: string,
     @Body(new ZodPipe(compareBodySchema)) body: z.infer<typeof compareBodySchema>,
-  ): Promise<CompareResult> {
-    return this.tools.compare(label, body);
+  ): Promise<ExplorationDto> {
+    return this.explorations.queue('compare', label, body, user.id);
   }
 
   @Post(':label/explore')
-  @HttpCode(200)
+  @HttpCode(202)
   @Route({
     summary:
-      'Run a set of inputs through a version: cards by light and primary, the outcome map, fixed-rule checks, rules never fired, and the inputs matching a query',
+      'Queue a set of inputs through a version: cards by light and primary, the outcome map, fixed-rule checks, rules never fired, and the inputs matching a query (poll the exploration)',
     tags: TAGS,
     access: 'staff',
     roles: STAFF,
     body: exploreBodySchema,
-    response: exploreResultSchema,
+    response: explorationSchema,
+    status: 202,
   })
   explore(
+    @CurrentUser() user: RequestUser,
     @Param('label', new ZodPipe(labelParam)) label: string,
     @Body(new ZodPipe(exploreBodySchema)) body: z.infer<typeof exploreBodySchema>,
-  ): Promise<z.infer<typeof exploreResultSchema>> {
-    return this.tools.explore(label, body);
+  ): Promise<ExplorationDto> {
+    return this.explorations.queue('explore', label, body, user.id);
   }
 
   @Post(':label/impact')
-  @HttpCode(200)
+  @HttpCode(202)
   @Route({
-    summary: 'What one rule affects: the cards that change when its row is taken out',
+    summary:
+      'Queue what one rule affects: the cards that change when its row is taken out (poll the exploration)',
     tags: TAGS,
     access: 'staff',
     roles: STAFF,
     body: impactBodySchema,
-    response: impactResultSchema,
+    response: explorationSchema,
+    status: 202,
   })
   impact(
+    @CurrentUser() user: RequestUser,
     @Param('label', new ZodPipe(labelParam)) label: string,
     @Body(new ZodPipe(impactBodySchema)) body: z.infer<typeof impactBodySchema>,
-  ): Promise<ImpactResult> {
-    return this.tools.impact(label, body);
+  ): Promise<ExplorationDto> {
+    return this.explorations.queue('impact', label, body, user.id);
+  }
+
+  @Get('explorations/:id')
+  @Route({
+    summary: 'An explorer run: its status, and its result once the worker has run it',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    response: explorationSchema,
+  })
+  exploration(@Param('id', ParseUUIDPipe) id: string): Promise<ExplorationDto> {
+    return this.explorations.get(id);
   }
 }

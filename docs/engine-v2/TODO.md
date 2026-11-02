@@ -25,7 +25,7 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-26 | Give Adapt's adaptations (environment, scope, pace …) a v2 fact, so "Adapt" re-runs with the adapted conditions (pattern 12); today it re-runs the same input | No rule reads adaptations yet | E-53 |
 | T-27 | Raise `ENGINE_VERSION` on any change to the engine's behaviour or trace once records exist outside development, and add a check that fails when the output changes without it | One unreleased engine version so far | E-52, E-53 |
 | T-28 | Owner and Clinical Safety: Red with Regulate just declined offers only "Get support now" (non-negotiable note 3 blocks the declined pathway; Red proposes nothing else). Add a Red alternative (rest, Connect) or confirm | Found by the explorer; a rule question, not the engine's to decide | E-56 |
-| T-29 | Move the explorer to the job queue if its sets grow, or many staff run it at once | Runs in the request (about 15 s at most) | E-56 |
+| T-29 | ~~Move the explorer to the job queue~~ Done (E-57): it runs in the worker | — | E-56, E-57 |
 | T-22 | v1's timing budgets (`packages/engine/test/budget.test.ts`, p95 < 2 ms and < 1 ms) fail when `pnpm check` runs the suites in parallel on a loaded 2-core host; they pass run alone | Environment, not code; CI runs on its own runner | E-50 |
 
 ## Before launch

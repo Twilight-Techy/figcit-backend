@@ -9135,7 +9135,17 @@
                           },
                           "additionalProperties": {}
                         },
-                        "trace": {},
+                        "trace": {
+                          "description": "The full trace, rebuilt by replaying the record (E-21, E-57); the record keeps the rules that fired"
+                        },
+                        "traceFrom": {
+                          "type": "string",
+                          "enum": [
+                            "replay",
+                            "record"
+                          ],
+                          "description": "replay: rebuilt, and it fired the same rules as recorded; record: the replay differs, so only the stored (light) trace is shown"
+                        },
                         "recheckOfId": {
                           "anyOf": [
                             {
@@ -9185,6 +9195,7 @@
                         "userId",
                         "input",
                         "trace",
+                        "traceFrom",
                         "recheckOfId",
                         "replay"
                       ],
@@ -23489,7 +23500,7 @@
     "/v1/rulesets/{label}/compare": {
       "post": {
         "operationId": "EngineTools_compare",
-        "summary": "The impact of a version: the same inputs against another version, and what changes",
+        "summary": "Queue the impact of a version: the same inputs against another version, and what changes (poll the exploration)",
         "tags": [
           "Engine v2"
         ],
@@ -23567,180 +23578,856 @@
           }
         },
         "responses": {
-          "200": {
+          "202": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "set": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "explore",
+                        "compare",
+                        "impact"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "running",
+                        "done",
+                        "failed"
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "request": {
                       "type": "object",
-                      "properties": {
-                        "name": {
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {},
+                      "description": "The request as sent"
+                    },
+                    "error": {
+                      "description": "Why it failed",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "startedAt": {
+                      "anyOf": [
+                        {
                           "type": "string",
-                          "enum": [
-                            "inputs",
-                            "sweep",
-                            "flows",
-                            "safety"
-                          ]
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                         },
-                        "parts": {
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "finishedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "explore": {
+                      "anyOf": [
+                        {
                           "type": "object",
                           "properties": {
-                            "sweep": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
                               "type": "integer",
                               "minimum": -9007199254740991,
                               "maximum": 9007199254740991
                             },
-                            "pairwise": {
+                            "refused": {
                               "type": "integer",
                               "minimum": -9007199254740991,
                               "maximum": 9007199254740991
                             },
-                            "sample": {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                            "rules": {
+                              "type": "object",
+                              "properties": {
+                                "total": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "neverFired": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Rules (\"tab · reference #n\") no input fired"
+                                }
+                              },
+                              "required": [
+                                "total",
+                                "neverFired"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "byLight": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "byPrimary": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "checks": {
+                              "type": "object",
+                              "properties": {
+                                "counts": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "violations": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "check": {
+                                        "type": "string"
+                                      },
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "rows": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "check",
+                                      "input",
+                                      "rows"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "counts",
+                                "violations"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "map": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "cell": {
+                                    "type": "string"
+                                  },
+                                  "family": {
+                                    "type": "string"
+                                  },
+                                  "n": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "light": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "primary": {
+                                    "type": "string"
+                                  },
+                                  "share": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "outcomes": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "cell",
+                                  "family",
+                                  "n",
+                                  "light",
+                                  "primary",
+                                  "share",
+                                  "outcomes"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "State × strongest feeling → the most common outcome"
+                            },
+                            "noOutcome": {
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Cards with no primary, no alternatives and no support screen"
+                            },
+                            "matches": {
+                              "description": "The inputs that match `where`",
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "input",
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
-                            "sweep",
-                            "pairwise",
-                            "sample"
+                            "set",
+                            "ran",
+                            "refused",
+                            "rules",
+                            "byLight",
+                            "byPrimary",
+                            "checks",
+                            "map",
+                            "noOutcome"
                           ],
                           "additionalProperties": false
                         },
-                        "facts": {
-                          "description": "safety: the inputs the safety rows read",
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "exhaustive": {
-                          "description": "safety: every combination was run",
-                          "type": "boolean"
-                        },
-                        "combinations": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "name"
                       ],
-                      "additionalProperties": false
+                      "description": "The result of an explore, once done"
                     },
-                    "ran": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "changed": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "examples": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "input": {
-                            "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
-                            "additionalProperties": {}
-                          },
-                          "before": {
-                            "type": "object",
-                            "properties": {
-                              "light": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
+                    "compare": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
                               },
-                              "primary": {
-                                "type": "string"
-                              }
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
                             },
-                            "required": [
-                              "light",
-                              "primary"
-                            ],
-                            "additionalProperties": false
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
                           },
-                          "after": {
-                            "type": "object",
-                            "properties": {
-                              "light": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "primary": {
-                                "type": "string"
-                              }
-                            },
-                            "required": [
-                              "light",
-                              "primary"
-                            ],
-                            "additionalProperties": false
-                          }
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples"
+                          ],
+                          "additionalProperties": false
                         },
-                        "required": [
-                          "input",
-                          "before",
-                          "after"
-                        ],
-                        "additionalProperties": false
-                      }
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of a compare, once done"
+                    },
+                    "impact": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "rule": {
+                              "type": "string",
+                              "description": "\"tab · reference\""
+                            },
+                            "fired": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991,
+                              "description": "Inputs any of its rules fired on"
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples",
+                            "rule",
+                            "fired"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of an impact, once done"
                     }
                   },
                   "required": [
-                    "set",
-                    "ran",
-                    "changed",
-                    "examples"
+                    "id",
+                    "kind",
+                    "status",
+                    "label",
+                    "request",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "explore",
+                    "compare",
+                    "impact"
                   ],
                   "additionalProperties": false
                 },
                 "example": {
-                  "set": {
-                    "name": "inputs",
-                    "parts": {
-                      "sweep": 1,
-                      "pairwise": 1,
-                      "sample": 1
-                    },
-                    "facts": [
-                      "Example facts"
-                    ],
-                    "exhaustive": true,
-                    "combinations": 1
-                  },
-                  "ran": 1,
-                  "changed": 1,
-                  "examples": [
-                    {
-                      "input": {},
-                      "before": {
-                        "light": "Example light",
-                        "primary": "Example primary"
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "kind": "explore",
+                  "status": "queued",
+                  "label": "Example label",
+                  "request": {},
+                  "error": "Example error",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "finishedAt": "2026-01-15T09:30:00.000Z",
+                  "explore": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
                       },
-                      "after": {
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "refused": 1,
+                    "rules": {
+                      "total": 1,
+                      "neverFired": [
+                        "Example neverFired"
+                      ]
+                    },
+                    "byLight": {},
+                    "byPrimary": {},
+                    "checks": {
+                      "counts": {},
+                      "violations": [
+                        {
+                          "check": "Example check",
+                          "input": {},
+                          "rows": [
+                            "Example rows"
+                          ]
+                        }
+                      ]
+                    },
+                    "map": [
+                      {
+                        "cell": "Example cell",
+                        "family": "Example family",
+                        "n": 1,
                         "light": "Example light",
-                        "primary": "Example primary"
+                        "primary": "Example primary",
+                        "share": 1,
+                        "outcomes": 1
                       }
+                    ],
+                    "noOutcome": {
+                      "count": 1,
+                      "examples": [
+                        {}
+                      ]
+                    },
+                    "matches": {
+                      "count": 1,
+                      "examples": [
+                        {
+                          "input": {},
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      ]
                     }
-                  ]
+                  },
+                  "compare": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ]
+                  },
+                  "impact": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ],
+                    "rule": "Example rule",
+                    "fired": 1
+                  }
                 }
               }
             }
@@ -23846,7 +24533,7 @@
     "/v1/rulesets/{label}/explore": {
       "post": {
         "operationId": "EngineTools_explore",
-        "summary": "Run a set of inputs through a version: cards by light and primary, the outcome map, fixed-rule checks, rules never fired, and the inputs matching a query",
+        "summary": "Queue a set of inputs through a version: cards by light and primary, the outcome map, fixed-rule checks, rules never fired, and the inputs matching a query (poll the exploration)",
         "tags": [
           "Engine v2"
         ],
@@ -23957,375 +24644,855 @@
           }
         },
         "responses": {
-          "200": {
+          "202": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "set": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "explore",
+                        "compare",
+                        "impact"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "running",
+                        "done",
+                        "failed"
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "request": {
                       "type": "object",
-                      "properties": {
-                        "name": {
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {},
+                      "description": "The request as sent"
+                    },
+                    "error": {
+                      "description": "Why it failed",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "startedAt": {
+                      "anyOf": [
+                        {
                           "type": "string",
-                          "enum": [
-                            "inputs",
-                            "sweep",
-                            "flows",
-                            "safety"
-                          ]
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                         },
-                        "parts": {
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "finishedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "explore": {
+                      "anyOf": [
+                        {
                           "type": "object",
                           "properties": {
-                            "sweep": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
                               "type": "integer",
                               "minimum": -9007199254740991,
                               "maximum": 9007199254740991
                             },
-                            "pairwise": {
+                            "refused": {
                               "type": "integer",
                               "minimum": -9007199254740991,
                               "maximum": 9007199254740991
                             },
-                            "sample": {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                            "rules": {
+                              "type": "object",
+                              "properties": {
+                                "total": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "neverFired": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Rules (\"tab · reference #n\") no input fired"
+                                }
+                              },
+                              "required": [
+                                "total",
+                                "neverFired"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "byLight": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "byPrimary": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "checks": {
+                              "type": "object",
+                              "properties": {
+                                "counts": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "violations": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "check": {
+                                        "type": "string"
+                                      },
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "rows": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "check",
+                                      "input",
+                                      "rows"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "counts",
+                                "violations"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "map": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "cell": {
+                                    "type": "string"
+                                  },
+                                  "family": {
+                                    "type": "string"
+                                  },
+                                  "n": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "light": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "primary": {
+                                    "type": "string"
+                                  },
+                                  "share": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "outcomes": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "cell",
+                                  "family",
+                                  "n",
+                                  "light",
+                                  "primary",
+                                  "share",
+                                  "outcomes"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "State × strongest feeling → the most common outcome"
+                            },
+                            "noOutcome": {
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Cards with no primary, no alternatives and no support screen"
+                            },
+                            "matches": {
+                              "description": "The inputs that match `where`",
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "input",
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
-                            "sweep",
-                            "pairwise",
-                            "sample"
+                            "set",
+                            "ran",
+                            "refused",
+                            "rules",
+                            "byLight",
+                            "byPrimary",
+                            "checks",
+                            "map",
+                            "noOutcome"
                           ],
                           "additionalProperties": false
                         },
-                        "facts": {
-                          "description": "safety: the inputs the safety rows read",
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "exhaustive": {
-                          "description": "safety: every combination was run",
-                          "type": "boolean"
-                        },
-                        "combinations": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "name"
                       ],
-                      "additionalProperties": false
+                      "description": "The result of an explore, once done"
                     },
-                    "ran": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "refused": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "rules": {
-                      "type": "object",
-                      "properties": {
-                        "total": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
-                        },
-                        "neverFired": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          },
-                          "description": "Rules (\"tab · reference #n\") no input fired"
-                        }
-                      },
-                      "required": [
-                        "total",
-                        "neverFired"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "byLight": {
-                      "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
-                      "additionalProperties": {
-                        "type": "integer",
-                        "minimum": -9007199254740991,
-                        "maximum": 9007199254740991
-                      }
-                    },
-                    "byPrimary": {
-                      "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
-                      "additionalProperties": {
-                        "type": "integer",
-                        "minimum": -9007199254740991,
-                        "maximum": 9007199254740991
-                      }
-                    },
-                    "checks": {
-                      "type": "object",
-                      "properties": {
-                        "counts": {
+                    "compare": {
+                      "anyOf": [
+                        {
                           "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {
-                            "type": "integer",
-                            "minimum": -9007199254740991,
-                            "maximum": 9007199254740991
-                          }
-                        },
-                        "violations": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "check": {
-                                "type": "string"
-                              },
-                              "input": {
-                                "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
                                 },
-                                "additionalProperties": {}
-                              },
-                              "rows": {
-                                "type": "array",
-                                "items": {
-                                  "type": "string"
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
                                 }
-                              }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
                             },
-                            "required": [
-                              "check",
-                              "input",
-                              "rows"
-                            ],
-                            "additionalProperties": false
-                          }
-                        }
-                      },
-                      "required": [
-                        "counts",
-                        "violations"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "map": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "cell": {
-                            "type": "string"
-                          },
-                          "family": {
-                            "type": "string"
-                          },
-                          "n": {
-                            "type": "integer",
-                            "minimum": -9007199254740991,
-                            "maximum": 9007199254740991
-                          },
-                          "light": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
-                          },
-                          "primary": {
-                            "type": "string"
-                          },
-                          "share": {
-                            "type": "integer",
-                            "minimum": -9007199254740991,
-                            "maximum": 9007199254740991
-                          },
-                          "outcomes": {
-                            "type": "integer",
-                            "minimum": -9007199254740991,
-                            "maximum": 9007199254740991
-                          }
-                        },
-                        "required": [
-                          "cell",
-                          "family",
-                          "n",
-                          "light",
-                          "primary",
-                          "share",
-                          "outcomes"
-                        ],
-                        "additionalProperties": false
-                      },
-                      "description": "State × strongest feeling → the most common outcome"
-                    },
-                    "noOutcome": {
-                      "type": "object",
-                      "properties": {
-                        "count": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
-                        },
-                        "examples": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "propertyNames": {
-                              "type": "string"
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
                             },
-                            "additionalProperties": {}
-                          }
-                        }
-                      },
-                      "required": [
-                        "count",
-                        "examples"
-                      ],
-                      "additionalProperties": false,
-                      "description": "Cards with no primary, no alternatives and no support screen"
-                    },
-                    "matches": {
-                      "description": "The inputs that match `where`",
-                      "type": "object",
-                      "properties": {
-                        "count": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
-                        },
-                        "examples": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "input": {
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
                                 },
-                                "additionalProperties": {}
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of a compare, once done"
+                    },
+                    "impact": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
                               },
-                              "light": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "primary": {
-                                "type": "string"
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
                               }
                             },
-                            "required": [
-                              "input",
-                              "light",
-                              "primary"
-                            ],
-                            "additionalProperties": false
-                          }
+                            "rule": {
+                              "type": "string",
+                              "description": "\"tab · reference\""
+                            },
+                            "fired": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991,
+                              "description": "Inputs any of its rules fired on"
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples",
+                            "rule",
+                            "fired"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "count",
-                        "examples"
                       ],
-                      "additionalProperties": false
+                      "description": "The result of an impact, once done"
                     }
                   },
                   "required": [
-                    "set",
-                    "ran",
-                    "refused",
-                    "rules",
-                    "byLight",
-                    "byPrimary",
-                    "checks",
-                    "map",
-                    "noOutcome"
+                    "id",
+                    "kind",
+                    "status",
+                    "label",
+                    "request",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "explore",
+                    "compare",
+                    "impact"
                   ],
                   "additionalProperties": false
                 },
                 "example": {
-                  "set": {
-                    "name": "inputs",
-                    "parts": {
-                      "sweep": 1,
-                      "pairwise": 1,
-                      "sample": 1
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "kind": "explore",
+                  "status": "queued",
+                  "label": "Example label",
+                  "request": {},
+                  "error": "Example error",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "finishedAt": "2026-01-15T09:30:00.000Z",
+                  "explore": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
                     },
-                    "facts": [
-                      "Example facts"
-                    ],
-                    "exhaustive": true,
-                    "combinations": 1
-                  },
-                  "ran": 1,
-                  "refused": 1,
-                  "rules": {
-                    "total": 1,
-                    "neverFired": [
-                      "Example neverFired"
-                    ]
-                  },
-                  "byLight": {},
-                  "byPrimary": {},
-                  "checks": {
-                    "counts": {},
-                    "violations": [
+                    "ran": 1,
+                    "refused": 1,
+                    "rules": {
+                      "total": 1,
+                      "neverFired": [
+                        "Example neverFired"
+                      ]
+                    },
+                    "byLight": {},
+                    "byPrimary": {},
+                    "checks": {
+                      "counts": {},
+                      "violations": [
+                        {
+                          "check": "Example check",
+                          "input": {},
+                          "rows": [
+                            "Example rows"
+                          ]
+                        }
+                      ]
+                    },
+                    "map": [
                       {
-                        "check": "Example check",
-                        "input": {},
-                        "rows": [
-                          "Example rows"
-                        ]
-                      }
-                    ]
-                  },
-                  "map": [
-                    {
-                      "cell": "Example cell",
-                      "family": "Example family",
-                      "n": 1,
-                      "light": "Example light",
-                      "primary": "Example primary",
-                      "share": 1,
-                      "outcomes": 1
-                    }
-                  ],
-                  "noOutcome": {
-                    "count": 1,
-                    "examples": [
-                      {}
-                    ]
-                  },
-                  "matches": {
-                    "count": 1,
-                    "examples": [
-                      {
-                        "input": {},
+                        "cell": "Example cell",
+                        "family": "Example family",
+                        "n": 1,
                         "light": "Example light",
-                        "primary": "Example primary"
+                        "primary": "Example primary",
+                        "share": 1,
+                        "outcomes": 1
+                      }
+                    ],
+                    "noOutcome": {
+                      "count": 1,
+                      "examples": [
+                        {}
+                      ]
+                    },
+                    "matches": {
+                      "count": 1,
+                      "examples": [
+                        {
+                          "input": {},
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      ]
+                    }
+                  },
+                  "compare": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
                       }
                     ]
+                  },
+                  "impact": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ],
+                    "rule": "Example rule",
+                    "fired": 1
                   }
                 }
               }
@@ -24463,7 +25630,7 @@
     "/v1/rulesets/{label}/impact": {
       "post": {
         "operationId": "EngineTools_impact",
-        "summary": "What one rule affects: the cards that change when its row is taken out",
+        "summary": "Queue what one rule affects: the cards that change when its row is taken out (poll the exploration)",
         "tags": [
           "Engine v2"
         ],
@@ -24557,194 +25724,856 @@
           }
         },
         "responses": {
-          "200": {
+          "202": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "set": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "explore",
+                        "compare",
+                        "impact"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "running",
+                        "done",
+                        "failed"
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "request": {
                       "type": "object",
-                      "properties": {
-                        "name": {
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {},
+                      "description": "The request as sent"
+                    },
+                    "error": {
+                      "description": "Why it failed",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "startedAt": {
+                      "anyOf": [
+                        {
                           "type": "string",
-                          "enum": [
-                            "inputs",
-                            "sweep",
-                            "flows",
-                            "safety"
-                          ]
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                         },
-                        "parts": {
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "finishedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "explore": {
+                      "anyOf": [
+                        {
                           "type": "object",
                           "properties": {
-                            "sweep": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
                               "type": "integer",
                               "minimum": -9007199254740991,
                               "maximum": 9007199254740991
                             },
-                            "pairwise": {
+                            "refused": {
                               "type": "integer",
                               "minimum": -9007199254740991,
                               "maximum": 9007199254740991
                             },
-                            "sample": {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                            "rules": {
+                              "type": "object",
+                              "properties": {
+                                "total": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "neverFired": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Rules (\"tab · reference #n\") no input fired"
+                                }
+                              },
+                              "required": [
+                                "total",
+                                "neverFired"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "byLight": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "byPrimary": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "checks": {
+                              "type": "object",
+                              "properties": {
+                                "counts": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "violations": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "check": {
+                                        "type": "string"
+                                      },
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "rows": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "check",
+                                      "input",
+                                      "rows"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "counts",
+                                "violations"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "map": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "cell": {
+                                    "type": "string"
+                                  },
+                                  "family": {
+                                    "type": "string"
+                                  },
+                                  "n": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "light": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "primary": {
+                                    "type": "string"
+                                  },
+                                  "share": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "outcomes": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "cell",
+                                  "family",
+                                  "n",
+                                  "light",
+                                  "primary",
+                                  "share",
+                                  "outcomes"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "State × strongest feeling → the most common outcome"
+                            },
+                            "noOutcome": {
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Cards with no primary, no alternatives and no support screen"
+                            },
+                            "matches": {
+                              "description": "The inputs that match `where`",
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "input",
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
-                            "sweep",
-                            "pairwise",
-                            "sample"
+                            "set",
+                            "ran",
+                            "refused",
+                            "rules",
+                            "byLight",
+                            "byPrimary",
+                            "checks",
+                            "map",
+                            "noOutcome"
                           ],
                           "additionalProperties": false
                         },
-                        "facts": {
-                          "description": "safety: the inputs the safety rows read",
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "exhaustive": {
-                          "description": "safety: every combination was run",
-                          "type": "boolean"
-                        },
-                        "combinations": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "name"
                       ],
-                      "additionalProperties": false
+                      "description": "The result of an explore, once done"
                     },
-                    "ran": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "changed": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "examples": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "input": {
-                            "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
-                            "additionalProperties": {}
-                          },
-                          "before": {
-                            "type": "object",
-                            "properties": {
-                              "light": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
+                    "compare": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
                               },
-                              "primary": {
-                                "type": "string"
-                              }
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
                             },
-                            "required": [
-                              "light",
-                              "primary"
-                            ],
-                            "additionalProperties": false
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
                           },
-                          "after": {
-                            "type": "object",
-                            "properties": {
-                              "light": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "primary": {
-                                "type": "string"
-                              }
-                            },
-                            "required": [
-                              "light",
-                              "primary"
-                            ],
-                            "additionalProperties": false
-                          }
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples"
+                          ],
+                          "additionalProperties": false
                         },
-                        "required": [
-                          "input",
-                          "before",
-                          "after"
-                        ],
-                        "additionalProperties": false
-                      }
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of a compare, once done"
                     },
-                    "rule": {
-                      "type": "string",
-                      "description": "\"tab · reference\""
-                    },
-                    "fired": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991,
-                      "description": "Inputs any of its rules fired on"
+                    "impact": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "rule": {
+                              "type": "string",
+                              "description": "\"tab · reference\""
+                            },
+                            "fired": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991,
+                              "description": "Inputs any of its rules fired on"
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples",
+                            "rule",
+                            "fired"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of an impact, once done"
                     }
                   },
                   "required": [
-                    "set",
-                    "ran",
-                    "changed",
-                    "examples",
-                    "rule",
-                    "fired"
+                    "id",
+                    "kind",
+                    "status",
+                    "label",
+                    "request",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "explore",
+                    "compare",
+                    "impact"
                   ],
                   "additionalProperties": false
                 },
                 "example": {
-                  "set": {
-                    "name": "inputs",
-                    "parts": {
-                      "sweep": 1,
-                      "pairwise": 1,
-                      "sample": 1
-                    },
-                    "facts": [
-                      "Example facts"
-                    ],
-                    "exhaustive": true,
-                    "combinations": 1
-                  },
-                  "ran": 1,
-                  "changed": 1,
-                  "examples": [
-                    {
-                      "input": {},
-                      "before": {
-                        "light": "Example light",
-                        "primary": "Example primary"
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "kind": "explore",
+                  "status": "queued",
+                  "label": "Example label",
+                  "request": {},
+                  "error": "Example error",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "finishedAt": "2026-01-15T09:30:00.000Z",
+                  "explore": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
                       },
-                      "after": {
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "refused": 1,
+                    "rules": {
+                      "total": 1,
+                      "neverFired": [
+                        "Example neverFired"
+                      ]
+                    },
+                    "byLight": {},
+                    "byPrimary": {},
+                    "checks": {
+                      "counts": {},
+                      "violations": [
+                        {
+                          "check": "Example check",
+                          "input": {},
+                          "rows": [
+                            "Example rows"
+                          ]
+                        }
+                      ]
+                    },
+                    "map": [
+                      {
+                        "cell": "Example cell",
+                        "family": "Example family",
+                        "n": 1,
                         "light": "Example light",
-                        "primary": "Example primary"
+                        "primary": "Example primary",
+                        "share": 1,
+                        "outcomes": 1
                       }
+                    ],
+                    "noOutcome": {
+                      "count": 1,
+                      "examples": [
+                        {}
+                      ]
+                    },
+                    "matches": {
+                      "count": 1,
+                      "examples": [
+                        {
+                          "input": {},
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      ]
                     }
-                  ],
-                  "rule": "Example rule",
-                  "fired": 1
+                  },
+                  "compare": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ]
+                  },
+                  "impact": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ],
+                    "rule": "Example rule",
+                    "fired": 1
+                  }
                 }
               }
             }
@@ -26659,6 +28488,903 @@
         "x-access": "staff",
         "x-roles": [
           "clinical_admin"
+        ]
+      }
+    },
+    "/v1/rulesets/explorations/{id}": {
+      "get": {
+        "operationId": "EngineTools_exploration",
+        "summary": "An explorer run: its status, and its result once the worker has run it",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "explore",
+                        "compare",
+                        "impact"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "running",
+                        "done",
+                        "failed"
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "request": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {},
+                      "description": "The request as sent"
+                    },
+                    "error": {
+                      "description": "Why it failed",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "startedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "finishedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "explore": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "refused": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "rules": {
+                              "type": "object",
+                              "properties": {
+                                "total": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "neverFired": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Rules (\"tab · reference #n\") no input fired"
+                                }
+                              },
+                              "required": [
+                                "total",
+                                "neverFired"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "byLight": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "byPrimary": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "checks": {
+                              "type": "object",
+                              "properties": {
+                                "counts": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "violations": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "check": {
+                                        "type": "string"
+                                      },
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "rows": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "check",
+                                      "input",
+                                      "rows"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "counts",
+                                "violations"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "map": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "cell": {
+                                    "type": "string"
+                                  },
+                                  "family": {
+                                    "type": "string"
+                                  },
+                                  "n": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "light": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "primary": {
+                                    "type": "string"
+                                  },
+                                  "share": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "outcomes": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "cell",
+                                  "family",
+                                  "n",
+                                  "light",
+                                  "primary",
+                                  "share",
+                                  "outcomes"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "State × strongest feeling → the most common outcome"
+                            },
+                            "noOutcome": {
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Cards with no primary, no alternatives and no support screen"
+                            },
+                            "matches": {
+                              "description": "The inputs that match `where`",
+                              "type": "object",
+                              "properties": {
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "input": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {}
+                                      },
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "input",
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "count",
+                                "examples"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "refused",
+                            "rules",
+                            "byLight",
+                            "byPrimary",
+                            "checks",
+                            "map",
+                            "noOutcome"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of an explore, once done"
+                    },
+                    "compare": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of a compare, once done"
+                    },
+                    "impact": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inputs",
+                                    "sweep",
+                                    "flows",
+                                    "safety"
+                                  ]
+                                },
+                                "parts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sweep": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "pairwise": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "sample": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "sweep",
+                                    "pairwise",
+                                    "sample"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "facts": {
+                                  "description": "safety: the inputs the safety rows read",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "exhaustive": {
+                                  "description": "safety: every combination was run",
+                                  "type": "boolean"
+                                },
+                                "combinations": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "ran": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "changed": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "examples": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "input": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {}
+                                  },
+                                  "before": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "after": {
+                                    "type": "object",
+                                    "properties": {
+                                      "light": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "primary": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "light",
+                                      "primary"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "before",
+                                  "after"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "rule": {
+                              "type": "string",
+                              "description": "\"tab · reference\""
+                            },
+                            "fired": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991,
+                              "description": "Inputs any of its rules fired on"
+                            }
+                          },
+                          "required": [
+                            "set",
+                            "ran",
+                            "changed",
+                            "examples",
+                            "rule",
+                            "fired"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The result of an impact, once done"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "status",
+                    "label",
+                    "request",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "explore",
+                    "compare",
+                    "impact"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "kind": "explore",
+                  "status": "queued",
+                  "label": "Example label",
+                  "request": {},
+                  "error": "Example error",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "startedAt": "2026-01-15T09:30:00.000Z",
+                  "finishedAt": "2026-01-15T09:30:00.000Z",
+                  "explore": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "refused": 1,
+                    "rules": {
+                      "total": 1,
+                      "neverFired": [
+                        "Example neverFired"
+                      ]
+                    },
+                    "byLight": {},
+                    "byPrimary": {},
+                    "checks": {
+                      "counts": {},
+                      "violations": [
+                        {
+                          "check": "Example check",
+                          "input": {},
+                          "rows": [
+                            "Example rows"
+                          ]
+                        }
+                      ]
+                    },
+                    "map": [
+                      {
+                        "cell": "Example cell",
+                        "family": "Example family",
+                        "n": 1,
+                        "light": "Example light",
+                        "primary": "Example primary",
+                        "share": 1,
+                        "outcomes": 1
+                      }
+                    ],
+                    "noOutcome": {
+                      "count": 1,
+                      "examples": [
+                        {}
+                      ]
+                    },
+                    "matches": {
+                      "count": 1,
+                      "examples": [
+                        {
+                          "input": {},
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      ]
+                    }
+                  },
+                  "compare": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ]
+                  },
+                  "impact": {
+                    "set": {
+                      "name": "inputs",
+                      "parts": {
+                        "sweep": 1,
+                        "pairwise": 1,
+                        "sample": 1
+                      },
+                      "facts": [
+                        "Example facts"
+                      ],
+                      "exhaustive": true,
+                      "combinations": 1
+                    },
+                    "ran": 1,
+                    "changed": 1,
+                    "examples": [
+                      {
+                        "input": {},
+                        "before": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        },
+                        "after": {
+                          "light": "Example light",
+                          "primary": "Example primary"
+                        }
+                      }
+                    ],
+                    "rule": "Example rule",
+                    "fired": 1
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "clinical_admin",
+          "admin",
+          "safety_reviewer",
+          "content_editor"
         ]
       }
     },

@@ -4,12 +4,19 @@ import { DecisionsController, EngineToolsController } from './decisions.controll
 import { DecisionsService } from './decisions.service.js';
 import { EngineRuntimeService } from './engine-runtime.service.js';
 import { EngineToolsService } from './engine-tools.service.js';
+import { ExplorationsService } from './explorations.service.js';
 
 /** Engine v2 decisions, replay, the staff engine tools (M5) and the check-in's v2 cards (M8). */
 @Global()
 @Module({
   controllers: [DecisionsController, EngineToolsController],
-  providers: [DecisionsService, EngineRuntimeService, EngineToolsService, CardBridgeService],
-  exports: [DecisionsService, CardBridgeService],
+  providers: [
+    DecisionsService,
+    EngineRuntimeService,
+    EngineToolsService,
+    ExplorationsService,
+    CardBridgeService,
+  ],
+  exports: [DecisionsService, CardBridgeService, ExplorationsService],
 })
 export class DecisionsModule {}

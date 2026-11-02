@@ -4,6 +4,7 @@ import { PrismaService } from './common/db/prisma.service.js';
 import { JobsService } from './platform/jobs/jobs.service.js';
 import { AnalyticsService } from './modules/analytics/analytics.service.js';
 import { DecisionsService } from './modules/decisions/decisions.service.js';
+import { ExplorationsService } from './modules/decisions/explorations.service.js';
 import { InstitutionsService } from './modules/institutions/institutions.service.js';
 import { DispatcherService } from './modules/notifications/dispatcher.service.js';
 import { PrivacyService } from './modules/privacy/privacy.service.js';
@@ -58,9 +59,13 @@ export class WorkerRunner implements OnApplicationBootstrap {
         'reminders.tick': async () => {
           await this.dispatcher.tick();
           await this.sweepExports();
+          await this.svc(ExplorationsService).sweep();
         },
         'checkin.sustained-red': async () => {
           await this.svc(SustainedService).run();
+        },
+        'rulesets.explore': async (data) => {
+          if (typeof data['id'] === 'string') await this.svc(ExplorationsService).run(data['id']);
         },
         'decisions.replay-sample': async () => {
           this.logger.log(await this.svc(DecisionsService).replaySample(), 'decision replay');
@@ -76,6 +81,10 @@ export class WorkerRunner implements OnApplicationBootstrap {
         },
         'retention.nightly': async () => {
           this.logger.log({ removed: await this.privacy.retention() }, 'retention');
+          this.logger.log(
+            { removed: await this.svc(ExplorationsService).cleanup() },
+            'explorations retention',
+          );
         },
         'reflect.topic-counts': () => this.topicCounts(),
         'institutions.aggregate': async () => {
