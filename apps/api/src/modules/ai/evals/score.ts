@@ -2,7 +2,15 @@
 import { hasBanned } from '../text.js';
 import type { BreakDownOutput, DriversOutput } from '../ai.tasks.js';
 import type { ParsedNeed } from '../fallbacks/parse-need.js';
-import type { BreakDownCase, DriversCase, ParseNeedCase } from './sets.js';
+import type {
+  BreakDownCase,
+  DriversCase,
+  DumpCase,
+  ExpressCase,
+  FeelingCase,
+  ParseNeedCase,
+  SplitCase,
+} from './sets.js';
 
 /** How one case went: `ai` is the model's checked answer; `fallback` is what the user would see instead. */
 export type Outcome = 'ok' | 'invalid' | 'timeout' | 'error' | 'rules';
@@ -42,6 +50,8 @@ export const BARS: Record<string, Bars> = {
   parseNeed: { accuracy: 0.85 },
   suggestDrivers: {},
   breakDownTask: { withinRule: 1 },
+  // A worry is never turned into a todo (Figma S103).
+  sortDump: { withinRule: 1 },
 };
 const BANNED_HITS = 0;
 const WITHIN_TIMEOUT = 0.95;
@@ -81,6 +91,48 @@ export function scoreBreakDown(out: BreakDownOutput, c: BreakDownCase): boolean 
     out.steps.every((s) => !/\band then\b/i.test(s.text))
   );
 }
+
+/** The strongest match is a described feeling, and so is every match shown pre-selected (≥ 0.7). */
+export function scoreFeeling(
+  out: { matches: { code: string; confidence: number }[] },
+  c: FeelingCase,
+): boolean {
+  const sorted = [...out.matches].sort((a, b) => b.confidence - a.confidence);
+  const top = sorted[0];
+  return (
+    top !== undefined &&
+    c.emotions.includes(top.code) &&
+    sorted.filter((m) => m.confidence >= 0.7).every((m) => c.emotions.includes(m.code))
+  );
+}
+
+export const scoreSplit = (out: { tasks: string[] }, c: SplitCase): boolean =>
+  c.counts.includes(out.tasks.length);
+
+type Dump = { items: { id: string; bucket: string }[] };
+/** At least four in five items in the right bucket. */
+export function scoreDump(out: Dump, c: DumpCase): boolean {
+  const right = c.items.filter((x) => out.items.find((y) => y.id === x.id)?.bucket === x.bucket);
+  return right.length / c.items.length >= 0.8;
+}
+/** The hard rule: a worry is never sorted as a todo. */
+export function dumpKeepsWorries(raw: unknown, c: DumpCase): boolean {
+  const items = (raw as Partial<Dump> | null)?.items;
+  if (!Array.isArray(items)) return true;
+  return c.items
+    .filter((x) => x.bucket === 'worries')
+    .every((x) => items.find((y) => y.id === x.id)?.bucket !== 'todo');
+}
+
+const wordCount = (t: string): number => t.split(/\s+/).filter(Boolean).length;
+/** Text tasks pass their own checks first (no new facts, no banned phrases); simplify must shorten. */
+export const scoreSimplify = (out: string, c: ExpressCase): boolean =>
+  wordCount(out) < wordCount(c.text);
+export const scoreText = (out: string): boolean => out.trim().length > 0;
+export const scoreStructure = (out: { sections: { role: string }[] }): boolean =>
+  out.sections.some((s) => s.role === 'ask');
+export const scoreScript = (out: { lines: { cue: string }[] }): boolean =>
+  out.lines.some((l) => l.cue === 'you');
 
 export function percentile(values: readonly number[], p: number): number | null {
   if (values.length === 0) return null;

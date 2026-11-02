@@ -44,6 +44,14 @@ describe('eval sets', () => {
     const breakDown = loadSet('breakDownTask').cases;
     expect(breakDown.length).toBeGreaterThanOrEqual(50);
     expect(breakDown.every((c) => caps.has(c.stepCap))).toBe(true);
+    const chips = new Set(snapshot.emotions.map((e) => e.code));
+    const feelings = loadSet('mapFeeling').cases;
+    expect(feelings.length).toBeGreaterThanOrEqual(50);
+    expect(feelings.flatMap((c) => c.emotions).every((e) => chips.has(e))).toBe(true);
+    expect(loadSet('splitTasks').cases.length).toBeGreaterThanOrEqual(30);
+    expect(loadSet('sortDump').cases.length).toBeGreaterThanOrEqual(20);
+    for (const t of ['simplify', 'rewrite', 'draft', 'structure', 'script'] as const)
+      expect(loadSet(t).cases.length).toBeGreaterThanOrEqual(10);
   });
 });
 

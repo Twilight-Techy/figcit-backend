@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "st-001",
+      "text": "Call the dentist",
+      "counts": [1]
+    },
+    {
+      "id": "st-002",
+      "text": "Email my tutor and book the library room",
+      "counts": [2]
+    },
+    {
+      "id": "st-003",
+      "text": "Buy milk, pay the gas bill and ring mum",
+      "counts": [3]
+    },
+    {
+      "id": "st-004",
+      "text": "Finish the report",
+      "counts": [1]
+    },
+    {
+      "id": "st-005",
+      "text": "Wash up then hoover the lounge",
+      "counts": [2]
+    },
+    {
+      "id": "st-006",
+      "text": "Write the cover letter and send it to Sam",
+      "counts": [2]
+    },
+    {
+      "id": "st-007",
+      "text": "I need to revise for biology",
+      "counts": [1]
+    },
+    {
+      "id": "st-008",
+      "text": "Pick up the parcel, post the card and get stamps",
+      "counts": [3]
+    },
+    {
+      "id": "st-009",
+      "text": "Reply to Jo's message",
+      "counts": [1]
+    },
+    {
+      "id": "st-010",
+      "text": "Clean the bathroom and change the sheets and do the laundry",
+      "counts": [3]
+    },
+    {
+      "id": "st-011",
+      "text": "Book a GP appointment and order my prescription",
+      "counts": [2]
+    },
+    {
+      "id": "st-012",
+      "text": "Read chapter four",
+      "counts": [1]
+    },
+    {
+      "id": "st-013",
+      "text": "Plan the meal for Saturday",
+      "counts": [1]
+    },
+    {
+      "id": "st-014",
+      "text": "Tidy my desk, file the receipts, update the budget and pay the rent",
+      "counts": [4]
+    },
+    {
+      "id": "st-015",
+      "text": "Ask my manager about Friday and tell the team",
+      "counts": [2]
+    },
+    {
+      "id": "st-016",
+      "text": "Practise the presentation",
+      "counts": [1]
+    },
+    {
+      "id": "st-017",
+      "text": "Fix the leaking tap",
+      "counts": [1]
+    },
+    {
+      "id": "st-018",
+      "text": "Print the tickets and pack the bag",
+      "counts": [2]
+    },
+    {
+      "id": "st-019",
+      "text": "Message the landlord about the boiler",
+      "counts": [1]
+    },
+    {
+      "id": "st-020",
+      "text": "Cook dinner then wash the dishes then take the bins out",
+      "counts": [3]
+    },
+    {
+      "id": "st-021",
+      "text": "Submit the expense claim",
+      "counts": [1]
+    },
+    {
+      "id": "st-022",
+      "text": "Call the bank and cancel the old card",
+      "counts": [2]
+    },
+    {
+      "id": "st-023",
+      "text": "Study for the exam and finish the essay and email the lecturer",
+      "counts": [3]
+    },
+    {
+      "id": "st-024",
+      "text": "Sort the recycling",
+      "counts": [1]
+    },
+    {
+      "id": "st-025",
+      "text": "Make a doctor's appointment",
+      "counts": [1]
+    },
+    {
+      "id": "st-026",
+      "text": "Water the plants and feed the cat",
+      "counts": [2]
+    },
+    {
+      "id": "st-027",
+      "text": "Update my CV and apply for the internship",
+      "counts": [2]
+    },
+    {
+      "id": "st-028",
+      "text": "Go to the post office",
+      "counts": [1]
+    },
+    {
+      "id": "st-029",
+      "text": "Check the timetable",
+      "counts": [1]
+    },
+    {
+      "id": "st-030",
+      "text": "Buy a birthday present for Alex and write the card",
+      "counts": [2]
+    },
+    {
+      "id": "st-031",
+      "text": "Prepare the slides, rehearse the talk and book the room",
+      "counts": [3]
+    },
+    {
+      "id": "st-032",
+      "text": "Do the food shop",
+      "counts": [1]
+    },
+    {
+      "id": "st-033",
+      "text": "Text Priya and Sam",
+      "counts": [1, 2]
+    },
+    {
+      "id": "st-034",
+      "text": "Clean the kitchen and the bathroom",
+      "counts": [1, 2]
+    },
+    {
+      "id": "st-035",
+      "text": "Review the contract and sign it",
+      "counts": [2]
+    },
+    {
+      "id": "st-036",
+      "text": "Get my hair cut",
+      "counts": [1]
+    }
+  ]
+}

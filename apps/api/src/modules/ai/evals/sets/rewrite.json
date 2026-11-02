@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "rw-001",
+      "text": "I'm so sorry to bother you, I was just wondering if there might perhaps be any chance of an extension on the essay because I've been unwell this week, no worries if not.",
+      "level": "clear"
+    },
+    {
+      "id": "rw-002",
+      "text": "Hi, sorry, I know you're really busy, but I just wanted to ask whether it would be okay if I worked from home on Friday, I completely understand if this isn't possible at all.",
+      "level": "shortest"
+    },
+    {
+      "id": "rw-003",
+      "text": "Sorry for the trouble, I think I might have been charged twice for my order and I was wondering if you could maybe look into it when you get a chance.",
+      "level": "gentle"
+    },
+    {
+      "id": "rw-004",
+      "text": "I'm really sorry, I just wanted to say I can't make it to the meeting tomorrow, I hope this is okay.",
+      "level": "clear"
+    },
+    {
+      "id": "rw-005",
+      "text": "Apologies for the late reply, I was just wondering if the rent could be paid a few days late this month, if that's okay.",
+      "level": "shortest"
+    },
+    {
+      "id": "rw-006",
+      "text": "I might be wrong but I think the boiler isn't working properly, sorry to bother you, could someone have a look?",
+      "level": "gentle"
+    },
+    {
+      "id": "rw-007",
+      "text": "This might be a silly question but could you explain the assignment brief again, sorry.",
+      "level": "clear"
+    },
+    {
+      "id": "rw-008",
+      "text": "I'm so sorry, I just wanted to ask if I could swap my shift on Saturday with someone, I know it's short notice.",
+      "level": "shortest"
+    },
+    {
+      "id": "rw-009",
+      "text": "Sorry to bother you, I was wondering whether you'd be able to send me the slides from today's lecture.",
+      "level": "gentle"
+    },
+    {
+      "id": "rw-010",
+      "text": "I'm really sorry to ask, but would it be possible to have the meeting notes in writing, it helps me a lot.",
+      "level": "clear"
+    },
+    {
+      "id": "rw-011",
+      "text": "Hi, I hope this is okay, I just wanted to let you know I'll be about ten minutes late today, sorry.",
+      "level": "shortest"
+    },
+    {
+      "id": "rw-012",
+      "text": "I'm sorry, I know this is annoying, but could you turn the music down a bit after eleven?",
+      "level": "gentle"
+    }
+  ]
+}

@@ -9,12 +9,13 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import type { Snapshot } from '@figcit/engine';
 import { scrub } from '../text.js';
-import { percentile, scoreDrivers, scoreParseNeed } from './score.js';
+import { percentile, scoreDrivers, scoreDump, scoreFeeling, scoreParseNeed } from './score.js';
 import { loadSet } from './sets.js';
 
 const { values } = parseArgs({
   options: {
     limit: { type: 'string' },
+    extra: { type: 'boolean', default: false },
     out: { type: 'string', default: 'var/evals' },
   },
 });
@@ -188,6 +189,92 @@ const report = (name: string, rows: readonly Row[]): string => {
   const ms = rows.map((r) => r.ms);
   return `| ${name} | ${pct(rows.filter((r) => r.correct).length / rows.length)} | ${String(percentile(ms, 50))} ms | ${String(percentile(ms, 95))} ms |`;
 };
+
+// --- --extra: mapFeeling (one call over every chip) and sortDump (one call per item) -----------
+const LABELS = [...LETTERS, ...'abcdefghijklmnopqrstuvwxyz'.split('')];
+const chips = snapshot.emotions;
+const feelingSystem = `Match how someone describes their feelings to the closest feeling chip. ${DATA_ONLY}
+Chips:
+${chips.map((e, i) => `${LABELS[i] ?? '?'}: ${e.label}`).join('\n')}
+Reply with the letter of the chip that fits best.`;
+const BUCKETS = ['ideas', 'notes', 'worries', 'todo'] as const;
+const dumpSystem = `Sort one item from a brain dump. A worry is never a todo. ${DATA_ONLY}
+A: ideas (something they might do or make one day)
+B: notes (a fact to remember)
+C: worries (something they are anxious about)
+D: todo (a concrete thing to do)
+Reply with the letter only.`;
+
+async function extra(): Promise<void> {
+  const feel: Row[] = [];
+  const fSet = loadSet('mapFeeling').cases.slice(0, limit);
+  for (const c of fSet) {
+    const labels = chips.map((_, i) => LABELS[i] ?? '?');
+    const r = await decide(feelingSystem, words(c.text, 500), labels);
+    const p = Object.fromEntries(chips.map((e, i) => [e.code, r.p[labels[i] ?? ''] ?? 0]));
+    feel.push({ id: c.id, ms: r.ms, p, correct: false });
+    process.stderr.write(`${c.id}\n`);
+  }
+  const matches = (p: Record<string, number>, t: number) =>
+    Object.entries(p)
+      .filter(([, v]) => v >= t)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([code, confidence]) => ({ code, confidence }));
+  const fSweep = [0.05, 0.1, 0.2, 0.3].map((t) => {
+    const right = feel.filter((r) => {
+      const c = fSet.find((x) => x.id === r.id);
+      return c ? scoreFeeling({ matches: matches(r.p, t) }, c) : false;
+    }).length;
+    return `${t.toFixed(2)}: ${pct(right / feel.length)}`;
+  });
+
+  const dump: Row[] = [];
+  const dSet2 = loadSet('sortDump').cases.slice(0, limit);
+  let worryAsTodo = 0;
+  for (const c of dSet2) {
+    let ms = 0;
+    const items: { id: string; bucket: string }[] = [];
+    for (const item of c.items) {
+      const r = await decide(dumpSystem, words(item.text, 500), ['A', 'B', 'C', 'D']);
+      ms += r.ms;
+      const ranked = BUCKETS.map((b, i) => [b, r.p['ABCD'[i] ?? ''] ?? 0] as const).sort(
+        (a, b) => b[1] - a[1],
+      );
+      // A worry is never a todo: when worries is a close second, todo yields to it.
+      let bucket: string = ranked[0]?.[0] ?? 'notes';
+      const worries = r.p['C'] ?? 0;
+      if (bucket === 'todo' && worries >= 0.25) bucket = 'worries';
+      if (item.bucket === 'worries' && bucket === 'todo') worryAsTodo++;
+      items.push({ id: item.id, bucket });
+    }
+    dump.push({ id: c.id, ms, p: {}, correct: scoreDump({ items }, c) });
+    process.stderr.write(`${c.id}\n`);
+  }
+  const fMs = feel.map((r) => r.ms);
+  const md = [
+    `### Decision scoring, extra · ${model}`,
+    '',
+    `mapFeeling (one call, p50 ${String(percentile(fMs, 50))} ms / p95 ${String(percentile(fMs, 95))} ms) by threshold: ${fSweep.join(', ')}.`,
+    '',
+    report('sortDump (one call per item)', dump),
+    '',
+    `sortDump worries sorted as todo: ${String(worryAsTodo)}.`,
+  ].join('\n');
+  const dir = resolve(values.out);
+  mkdirSync(dir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  writeFileSync(
+    join(dir, `decide-extra--${model}--${stamp}.json`),
+    JSON.stringify({ feel, dump }, null, 2),
+  );
+  console.log(md);
+}
+
+if (values.extra) {
+  await extra();
+  process.exit(0);
+}
 
 const choice = await driverChoiceRows();
 const need = await parseNeedRows();

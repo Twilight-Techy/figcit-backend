@@ -1,0 +1,606 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "dm-001",
+      "items": [
+        {
+          "id": "a",
+          "text": "Call the dentist",
+          "bucket": "todo"
+        },
+        {
+          "id": "b",
+          "text": "What if I fail the exam",
+          "bucket": "worries"
+        },
+        {
+          "id": "c",
+          "text": "Start a podcast about plants",
+          "bucket": "ideas"
+        },
+        {
+          "id": "d",
+          "text": "The meeting moved to room 4",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Buy bread",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-002",
+      "items": [
+        {
+          "id": "a",
+          "text": "I'm scared they'll think I'm useless",
+          "bucket": "worries"
+        },
+        {
+          "id": "b",
+          "text": "Email the landlord",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Paint the hallway green maybe",
+          "bucket": "ideas"
+        },
+        {
+          "id": "d",
+          "text": "Bin day is Tuesday",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Pay the phone bill",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-003",
+      "items": [
+        {
+          "id": "a",
+          "text": "Could try a standing desk",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "The train leaves at 8.15",
+          "bucket": "notes"
+        },
+        {
+          "id": "c",
+          "text": "Book the vet",
+          "bucket": "todo"
+        },
+        {
+          "id": "d",
+          "text": "Worried the cat is ill",
+          "bucket": "worries"
+        },
+        {
+          "id": "e",
+          "text": "Order more printer ink",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-004",
+      "items": [
+        {
+          "id": "a",
+          "text": "Mum's birthday is on the 12th",
+          "bucket": "notes"
+        },
+        {
+          "id": "b",
+          "text": "Get mum a present",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "What if nobody comes to the party",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Make a photo album for her",
+          "bucket": "ideas"
+        },
+        {
+          "id": "e",
+          "text": "Wifi password is on the router",
+          "bucket": "notes"
+        }
+      ]
+    },
+    {
+      "id": "dm-005",
+      "items": [
+        {
+          "id": "a",
+          "text": "Finish the essay",
+          "bucket": "todo"
+        },
+        {
+          "id": "b",
+          "text": "Learn to bake sourdough",
+          "bucket": "ideas"
+        },
+        {
+          "id": "c",
+          "text": "Anxious about the deadline",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Lecture is in the big hall",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Email the tutor",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-006",
+      "items": [
+        {
+          "id": "a",
+          "text": "Did I leave the oven on",
+          "bucket": "worries"
+        },
+        {
+          "id": "b",
+          "text": "Write a blog about my walks",
+          "bucket": "ideas"
+        },
+        {
+          "id": "c",
+          "text": "Renew the parking permit",
+          "bucket": "todo"
+        },
+        {
+          "id": "d",
+          "text": "Gym closes at 9",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Call Sam back",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-007",
+      "items": [
+        {
+          "id": "a",
+          "text": "Start a book club",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Pay rent by Friday",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Afraid I'll lose my job",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Manager is off next week",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Update my CV",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-008",
+      "items": [
+        {
+          "id": "a",
+          "text": "The doctor said rest for a week",
+          "bucket": "notes"
+        },
+        {
+          "id": "b",
+          "text": "Collect prescription",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Worried it won't get better",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Try yoga videos",
+          "bucket": "ideas"
+        },
+        {
+          "id": "e",
+          "text": "Ring work about sick leave",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-009",
+      "items": [
+        {
+          "id": "a",
+          "text": "Clean the fridge",
+          "bucket": "todo"
+        },
+        {
+          "id": "b",
+          "text": "Maybe repaint the bedroom",
+          "bucket": "ideas"
+        },
+        {
+          "id": "c",
+          "text": "Concerned about money this month",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Council tax is due on the 1st",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Cancel the streaming service",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-010",
+      "items": [
+        {
+          "id": "a",
+          "text": "What if I said something wrong",
+          "bucket": "worries"
+        },
+        {
+          "id": "b",
+          "text": "Make a playlist for the run",
+          "bucket": "ideas"
+        },
+        {
+          "id": "c",
+          "text": "Race starts at 10am",
+          "bucket": "notes"
+        },
+        {
+          "id": "d",
+          "text": "Buy new trainers",
+          "bucket": "todo"
+        },
+        {
+          "id": "e",
+          "text": "Book physio",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-011",
+      "items": [
+        {
+          "id": "a",
+          "text": "Grow tomatoes on the balcony",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Water the plants",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Worried the neighbours are annoyed",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Parcel was left with number 6",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Collect the parcel",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-012",
+      "items": [
+        {
+          "id": "a",
+          "text": "Interview is at 2pm Thursday",
+          "bucket": "notes"
+        },
+        {
+          "id": "b",
+          "text": "Prepare interview answers",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Scared I'll freeze up",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Wear the blue shirt",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Practise with a friend",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-013",
+      "items": [
+        {
+          "id": "a",
+          "text": "Set up a family group chat",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Ring grandma",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Worried grandma is lonely",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Grandma's number changed",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Visit on Sunday",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-014",
+      "items": [
+        {
+          "id": "a",
+          "text": "Make a budget spreadsheet",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Pay the credit card",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Afraid of the overdraft",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Payday is the 28th",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Move money to savings",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-015",
+      "items": [
+        {
+          "id": "a",
+          "text": "Could volunteer at the food bank",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Email the volunteer coordinator",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Nervous about meeting new people",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Sessions run on Wednesdays",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Check the bus times",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-016",
+      "items": [
+        {
+          "id": "a",
+          "text": "The heating engineer comes Monday",
+          "bucket": "notes"
+        },
+        {
+          "id": "b",
+          "text": "Clear the cupboard for the engineer",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Worried it'll be expensive",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Maybe get a smart thermostat",
+          "bucket": "ideas"
+        },
+        {
+          "id": "e",
+          "text": "Ask for a quote",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-017",
+      "items": [
+        {
+          "id": "a",
+          "text": "Draw comics on the weekend",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Buy sketchbook",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Worried my drawings are rubbish",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Art shop opens at 10",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Sign up for the class",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-018",
+      "items": [
+        {
+          "id": "a",
+          "text": "Team lunch is on Friday",
+          "bucket": "notes"
+        },
+        {
+          "id": "b",
+          "text": "Reply to the lunch invite",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Anxious about small talk",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Suggest a quieter place",
+          "bucket": "ideas"
+        },
+        {
+          "id": "e",
+          "text": "Book the table",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-019",
+      "items": [
+        {
+          "id": "a",
+          "text": "Learn some Spanish",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Renew passport",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Worried the passport won't arrive in time",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "Flight is on 3 June",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Book airport parking",
+          "bucket": "todo"
+        }
+      ]
+    },
+    {
+      "id": "dm-020",
+      "items": [
+        {
+          "id": "a",
+          "text": "Make a morning routine chart",
+          "bucket": "ideas"
+        },
+        {
+          "id": "b",
+          "text": "Set an alarm for 7",
+          "bucket": "todo"
+        },
+        {
+          "id": "c",
+          "text": "Scared I'll oversleep again",
+          "bucket": "worries"
+        },
+        {
+          "id": "d",
+          "text": "School run starts at 8.20",
+          "bucket": "notes"
+        },
+        {
+          "id": "e",
+          "text": "Pack the bags tonight",
+          "bucket": "todo"
+        }
+      ]
+    }
+  ]
+}
