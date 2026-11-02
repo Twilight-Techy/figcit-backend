@@ -8,7 +8,14 @@ import { mapFeelingByRules } from './fallbacks/map-feeling.js';
 import { parseNeedByRules } from './fallbacks/parse-need.js';
 import { splitTasksByRules } from './fallbacks/split-tasks.js';
 import { bucketFor } from './fallbacks/sort-dump.js';
-import { breakDownTask, parseNeed, simplify, sortDump, suggestDrivers } from './ai.tasks.js';
+import {
+  breakDownTask,
+  mapFeeling,
+  parseNeed,
+  simplify,
+  sortDump,
+  suggestDrivers,
+} from './ai.tasks.js';
 import { changes, introducesFacts, scrub, simplifyByRules, words } from './text.js';
 
 const snapshot = JSON.parse(
@@ -184,6 +191,15 @@ describe('fallbacks', () => {
         },
       ),
     ).toBe(false);
+  });
+
+  it('decodes feeling chips: probability is the confidence, weak chips dropped', () => {
+    // A = the first chip (anxious), B = sad, C = tired.
+    const { matches } = mapFeeling.decode({ A: 0.72, B: 0.2, C: 0.05 }, { text: 'x', snapshot });
+    expect(matches).toEqual([
+      { code: 'anxious', confidence: 0.72 },
+      { code: 'sad', confidence: 0.2 },
+    ]);
   });
 
   it('decodes drivers and drops need codes shown as heard chips', () => {

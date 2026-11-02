@@ -111,23 +111,26 @@ export interface MapFeelingInput {
   readonly snapshot: Snapshot;
 }
 export type MapFeelingOutput = { matches: { code: string; confidence: number }[] };
-export const mapFeeling: JsonTask<MapFeelingInput, MapFeelingOutput> = {
+/** 40 chips: upper-case labels, then lower-case (each a single token). */
+const CHIP_LABELS = [...LABELS, ...'abcdefghijklmnopqrstuvwxyz'.split('')];
+/** Chips below this probability are not offered at all (ADR 0006). */
+const FEELING_FLOOR = 0.1;
+export const mapFeeling: DecisionTask<MapFeelingInput, MapFeelingOutput> = {
   name: 'mapFeeling',
-  promptVersion: 'map-feeling@1',
-  schema: (i) => {
-    const codes = i.snapshot.emotions.map((e) => e.code) as [string, ...string[]];
-    return z.object({
-      matches: z
-        .array(z.object({ code: z.enum(codes), confidence: z.number().min(0).max(1) }))
-        .max(3),
-    });
-  },
+  promptVersion: 'map-feeling@2',
   system: (i) =>
-    `Match how someone describes their feelings to the closest feeling chips. ${DATA_ONLY}\nChips:\n${i.snapshot.emotions.map((e) => `${e.code}: ${e.label}`).join('\n')}\nReturn up to 3 chips with a confidence from 0 to 1. Use a low confidence when the words are vague or could mean two things. Never add a feeling the words do not describe.`,
+    `Match how someone describes their feelings to the closest feeling chip. ${DATA_ONLY}\nChips:\n${i.snapshot.emotions.map((e, n) => `${CHIP_LABELS[n] ?? '?'}: ${e.label}`).join('\n')}\nReply with the letter of the chip that fits best.`,
   text: (i) => i.text,
+  labels: (i) => i.snapshot.emotions.map((_, n) => CHIP_LABELS[n] ?? '?'),
+  // The probability is the confidence: >= 0.7 shows pre-selected, below asks "more like X or Y?".
+  decode: (p, i) => ({
+    matches: i.snapshot.emotions
+      .map((e, n) => ({ code: e.code, confidence: p[CHIP_LABELS[n] ?? ''] ?? 0 }))
+      .filter((m) => m.confidence >= FEELING_FLOOR)
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 3),
+  }),
   maxChars: 500,
-  temperature: 0.1,
-  maxTokens: 120,
   timeoutMs: 8000,
   check: (o) => new Set(o.matches.map((m) => m.code)).size === o.matches.length,
   fallback: (i) => mapFeelingByRules(i.text, i.snapshot),

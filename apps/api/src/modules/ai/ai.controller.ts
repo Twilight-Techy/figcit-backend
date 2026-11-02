@@ -102,7 +102,7 @@ export class AiController {
     @Body(new ZodPipe(mapFeelingRequestSchema)) body: z.infer<typeof mapFeelingRequestSchema>,
   ): Promise<z.infer<typeof mapFeelingResponseSchema>> {
     const { snapshot } = await this.rules.current();
-    const res = await this.ai.json(
+    const res = await this.ai.decide(
       mapFeeling,
       { text: body.text, snapshot },
       { userId: user?.id, browseToken: req.browseToken },
