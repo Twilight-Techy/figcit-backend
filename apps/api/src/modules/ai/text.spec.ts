@@ -144,6 +144,23 @@ describe('fallbacks', () => {
     ).toBe(true);
   });
 
+  it('keeps steps to five minutes for someone who is strained', () => {
+    const strained = { title: 'Clean the kitchen', stepCap: 5, strained: true };
+    const step = (minutes: number) => ({ text: 'Clear the worktop', minutes });
+    expect(
+      breakDownTask.schema(strained).safeParse({ steps: [step(10)], estimatedDemand: 'low' })
+        .success,
+    ).toBe(false);
+    expect(breakDownTask.check({ steps: [step(5)], estimatedDemand: 'low' }, strained)).toBe(true);
+    expect(breakDownTask.check({ steps: [step(6)], estimatedDemand: 'low' }, strained)).toBe(false);
+    expect(
+      breakDownTask.check(
+        { steps: [step(20)], estimatedDemand: 'low' },
+        { ...strained, strained: false },
+      ),
+    ).toBe(true);
+  });
+
   it('buckets dump items and never makes worries into todos', () => {
     expect(bucketFor('What if I fail the exam')).toBe('worries');
     expect(bucketFor('Call the dentist')).toBe('todo');
