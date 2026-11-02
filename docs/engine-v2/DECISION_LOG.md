@@ -220,7 +220,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 ### E-34 A separate clinical admin role changes the rules
 - **Decision:** a new staff role, `clinical_admin`, is the only role that changes engine v2 rules (import, edit, submit, publish, roll back, gaps, decisions). A platform `admin` can read the rule set but not change it. `safety_reviewer` and `content_editor` can read it.
 - **Replaces:** E-20's use of the general `admin` role. The rest of E-20 stands (one role for drafting and approving, for now).
-- **Built:** `clinical_admin` added to the user roles (migration `20261101120000_clinical_admin_role`, `users.prisma`, `STAFF_ROLES`, the roles screen's allowed list).
+- **Built:** `clinical_admin` added to the user roles (migration `20261101120000_clinical_admin_role`, since squashed into `20261102030000_engine_v2` (E-58); `users.prisma`, `STAFF_ROLES`, the roles screen's allowed list).
 - **Open:** a platform `admin` grants roles, so an admin could grant themselves `clinical_admin`. The grant is audited. Whether only the Owner may grant it is part of O-07 (`TODO.md` T-01).
 - **Note for merge:** ~~the branch now has two migrations; they are squashed into one before the PR~~ Done (E-58).
 
