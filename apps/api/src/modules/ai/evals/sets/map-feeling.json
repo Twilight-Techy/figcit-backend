@@ -1,0 +1,306 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "mf-001",
+      "text": "I can't stop worrying about tomorrow's meeting",
+      "emotions": ["uneasy_ahead", "anxious"]
+    },
+    {
+      "id": "mf-002",
+      "text": "My chest is tight and I keep thinking something bad will happen",
+      "emotions": ["anxious"]
+    },
+    {
+      "id": "mf-003",
+      "text": "I just feel really low and teary today",
+      "emotions": ["sad"]
+    },
+    {
+      "id": "mf-004",
+      "text": "I'm absolutely shattered, I could sleep for a week",
+      "emotions": ["tired"]
+    },
+    {
+      "id": "mf-005",
+      "text": "Nothing is going right and it's driving me up the wall",
+      "emotions": ["frustrated", "angry"]
+    },
+    {
+      "id": "mf-006",
+      "text": "There's way too much going on and I can't cope with all of it",
+      "emotions": ["overwhelmed"]
+    },
+    {
+      "id": "mf-007",
+      "text": "I can't sit still, I keep pacing around",
+      "emotions": ["restless"]
+    },
+    {
+      "id": "mf-008",
+      "text": "I'm so angry at how they spoke to me",
+      "emotions": ["angry", "hurt_comment"]
+    },
+    {
+      "id": "mf-009",
+      "text": "I don't feel anything at all, just blank",
+      "emotions": ["numb"]
+    },
+    {
+      "id": "mf-010",
+      "text": "My brain is foggy and I can't think clearly",
+      "emotions": ["foggy"]
+    },
+    {
+      "id": "mf-011",
+      "text": "I feel so alone, nobody gets it",
+      "emotions": ["lonely"]
+    },
+    {
+      "id": "mf-012",
+      "text": "Everything feels pointless lately",
+      "emotions": ["hopeless"]
+    },
+    {
+      "id": "mf-013",
+      "text": "I miss my grandad so much since he died",
+      "emotions": ["grief", "loss"]
+    },
+    {
+      "id": "mf-014",
+      "text": "I'm so embarrassed about what I said at the party",
+      "emotions": ["shame"]
+    },
+    {
+      "id": "mf-015",
+      "text": "I feel bad that I let my friend down",
+      "emotions": ["guilt"]
+    },
+    {
+      "id": "mf-016",
+      "text": "I keep replaying the conversation over and over",
+      "emotions": ["going_over"]
+    },
+    {
+      "id": "mf-017",
+      "text": "I'm bored out of my mind with nothing to do",
+      "emotions": ["bored"]
+    },
+    {
+      "id": "mf-018",
+      "text": "I know what I need to do but I just can't start",
+      "emotions": ["stuck_start"]
+    },
+    {
+      "id": "mf-019",
+      "text": "What she said about my work really stung",
+      "emotions": ["hurt_comment"]
+    },
+    {
+      "id": "mf-020",
+      "text": "I've been around people all day and I'm completely peopled out",
+      "emotions": ["peopled_out", "tired"]
+    },
+    {
+      "id": "mf-021",
+      "text": "The noise and lights in here are just too much",
+      "emotions": ["overloaded", "overwhelmed"]
+    },
+    {
+      "id": "mf-022",
+      "text": "The way I'm doing this clearly isn't working",
+      "emotions": ["not_working", "frustrated"]
+    },
+    {
+      "id": "mf-023",
+      "text": "My head is so full of thoughts I can't hold onto any",
+      "emotions": ["racing_head", "overwhelmed"]
+    },
+    {
+      "id": "mf-024",
+      "text": "I've been gaming for hours and can't make myself stop",
+      "emotions": ["locked_in"]
+    },
+    {
+      "id": "mf-025",
+      "text": "I want to say something but I can't find the words",
+      "emotions": ["lost_for_words"]
+    },
+    {
+      "id": "mf-026",
+      "text": "I feel calm and settled this evening",
+      "emotions": ["calm", "content"]
+    },
+    {
+      "id": "mf-027",
+      "text": "I'm really happy, today went well",
+      "emotions": ["happy"]
+    },
+    {
+      "id": "mf-028",
+      "text": "I think things might actually get better",
+      "emotions": ["hopeful"]
+    },
+    {
+      "id": "mf-029",
+      "text": "I'm so thankful my sister helped me today",
+      "emotions": ["grateful"]
+    },
+    {
+      "id": "mf-030",
+      "text": "Phew, the exam is over and it went fine",
+      "emotions": ["relieved"]
+    },
+    {
+      "id": "mf-031",
+      "text": "I'm curious about how bees find their way home",
+      "emotions": ["curious"]
+    },
+    {
+      "id": "mf-032",
+      "text": "I'm buzzing about the trip next week",
+      "emotions": ["excited"]
+    },
+    {
+      "id": "mf-033",
+      "text": "I'm in the zone and getting loads done",
+      "emotions": ["focused"]
+    },
+    {
+      "id": "mf-034",
+      "text": "I'm quite content just sitting with my tea",
+      "emotions": ["content", "calm"]
+    },
+    {
+      "id": "mf-035",
+      "text": "I actually finished the whole project, I'm proud of myself",
+      "emotions": ["proud"]
+    },
+    {
+      "id": "mf-036",
+      "text": "I just need some quiet and stillness right now",
+      "emotions": ["need_quiet"]
+    },
+    {
+      "id": "mf-037",
+      "text": "I'd like to pray for a bit",
+      "emotions": ["want_practice"]
+    },
+    {
+      "id": "mf-038",
+      "text": "I'm trying to work out why today felt so off",
+      "emotions": ["making_sense"]
+    },
+    {
+      "id": "mf-039",
+      "text": "I'm dreading the dentist on Friday",
+      "emotions": ["uneasy_ahead", "anxious"]
+    },
+    {
+      "id": "mf-040",
+      "text": "I'm frustrated and tired of trying",
+      "emotions": ["frustrated", "tired"]
+    },
+    {
+      "id": "mf-041",
+      "text": "I feel a bit wobbly and on edge",
+      "emotions": ["anxious", "uneasy_ahead"]
+    },
+    {
+      "id": "mf-042",
+      "text": "I'm exhausted and everything feels heavy",
+      "emotions": ["tired", "sad"]
+    },
+    {
+      "id": "mf-043",
+      "text": "I can't concentrate, it's like my head is full of cotton wool",
+      "emotions": ["foggy"]
+    },
+    {
+      "id": "mf-044",
+      "text": "I'm furious they cancelled again",
+      "emotions": ["angry", "frustrated"]
+    },
+    {
+      "id": "mf-045",
+      "text": "I feel guilty for resting when there's work to do",
+      "emotions": ["guilt"]
+    },
+    {
+      "id": "mf-046",
+      "text": "I'm stuck on the first line and can't get going",
+      "emotions": ["stuck_start"]
+    },
+    {
+      "id": "mf-047",
+      "text": "I feel so isolated working from home",
+      "emotions": ["lonely"]
+    },
+    {
+      "id": "mf-048",
+      "text": "I keep going back over that mistake I made",
+      "emotions": ["going_over", "shame"]
+    },
+    {
+      "id": "mf-049",
+      "text": "I'm relieved the results came back clear",
+      "emotions": ["relieved"]
+    },
+    {
+      "id": "mf-050",
+      "text": "Everything is too bright and loud and I need to get out",
+      "emotions": ["overloaded", "overwhelmed"]
+    },
+    {
+      "id": "mf-051",
+      "text": "I'm hopeful about the new job",
+      "emotions": ["hopeful", "excited"]
+    },
+    {
+      "id": "mf-052",
+      "text": "I'm restless and fidgety and can't settle",
+      "emotions": ["restless"]
+    },
+    {
+      "id": "mf-053",
+      "text": "Honestly I'm fine, just a bit meh",
+      "emotions": ["bored", "numb"]
+    },
+    {
+      "id": "mf-054",
+      "text": "I'm grieving the life I thought I'd have",
+      "emotions": ["grief", "loss"]
+    },
+    {
+      "id": "mf-055",
+      "text": "I'm excited but also nervous about moving",
+      "emotions": ["excited", "anxious"]
+    },
+    {
+      "id": "mf-056",
+      "text": "I'm proud I asked for help today",
+      "emotions": ["proud"]
+    },
+    {
+      "id": "mf-057",
+      "text": "I'm calm now after a walk",
+      "emotions": ["calm"]
+    },
+    {
+      "id": "mf-058",
+      "text": "I want to understand what happened at work",
+      "emotions": ["making_sense"]
+    },
+    {
+      "id": "mf-059",
+      "text": "My thoughts are racing and I can't switch off",
+      "emotions": ["racing_head", "anxious"]
+    },
+    {
+      "id": "mf-060",
+      "text": "I feel ashamed I couldn't do it",
+      "emotions": ["shame"]
+    }
+  ]
+}
