@@ -397,6 +397,11 @@ export const script: JsonTask<RewordInput, ReturnType<typeof scriptByTemplate>> 
   temperature: 0.7,
   maxTokens: 800,
   timeoutMs: 45_000,
+  // The opening line is what they say first: label it so when the model used another cue.
+  clean: (o) =>
+    o.lines.some((l) => l.cue === 'you') || o.lines.length === 0
+      ? o
+      : { lines: o.lines.map((l, n) => (n === 0 ? { ...l, cue: 'you' as const } : l)) },
   check: (o, i) => o.lines.every((l) => !hasBanned(l.text) && !introducesFacts(i.text, l.text)),
   fallback: (i) => scriptByTemplate(i.text),
 };

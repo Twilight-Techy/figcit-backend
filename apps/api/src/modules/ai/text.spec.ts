@@ -26,6 +26,13 @@ describe('text rules', () => {
     expect(scrub('a'.repeat(50), 10)).toHaveLength(10);
   });
 
+  it('does not take a capitalised first word for a new name', () => {
+    expect(introducesFacts('swap saturday shift', 'Sorry, no, I can’t do it. Okay, thanks.')).toBe(
+      false,
+    );
+    expect(introducesFacts('swap saturday shift', 'Ask Priya to cover it.')).toBe(true);
+  });
+
   it('removes hedges and reports what changed', () => {
     const before =
       "I'm so sorry to bother you, I was just wondering if I could get an extension on the essay?";

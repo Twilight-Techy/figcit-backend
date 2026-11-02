@@ -163,7 +163,15 @@ export function introducesFacts(input: string, output: string): boolean {
     ...(input.match(NUMBER_OR_DATE) ?? []),
     ...(input.match(NAME) ?? []).map((n) => n.toLowerCase()),
   ]);
-  const firstWords = new Set(sentences(output).map((s) => s.split(/\s+/)[0]?.toLowerCase()));
+  // A sentence's first word is capitalised anyway; compare it without its punctuation ("Sorry,").
+  const firstWords = new Set(
+    sentences(output).map((s) =>
+      s
+        .split(/\s+/)[0]
+        ?.toLowerCase()
+        .replace(/[^a-z']/g, ''),
+    ),
+  );
   const nums = output.match(NUMBER_OR_DATE) ?? [];
   const names = (output.match(NAME) ?? [])
     .map((n) => n.toLowerCase())
