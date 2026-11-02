@@ -26,7 +26,8 @@
     "eval": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/run.ts",
     "eval:speech": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/run.ts",
     "eval:speech:generate": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/generate.ts",
-    "eval:load": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/load.ts"
+    "eval:load": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/load.ts",
+    "eval:decide": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/decide.ts"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.5",
