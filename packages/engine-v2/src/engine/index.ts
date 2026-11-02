@@ -5,6 +5,9 @@ export {
   type CompareReport,
   publishChecks,
   type ExploreReport,
+  type Outcome,
+  type OutcomeCell,
+  type Query,
   PUBLISH_CHECKS,
   sweepInputs,
   type PublishCheckId,
@@ -13,6 +16,21 @@ export {
 } from './checks.js';
 export { factsFromCheckIn, type CheckInValues, type ServerFacts } from './check-in.js';
 export { compile } from './compile.js';
+export {
+  COMPUTED_FROM,
+  DEFAULT_SAMPLE,
+  DEFAULT_SEED,
+  factsRead,
+  flowInputs,
+  pairwise,
+  SAFETY_CAP,
+  safetyInputs,
+  seeded,
+  withoutRows,
+  type FlowOptions,
+  type FlowSet,
+  type SafetySet,
+} from './flows.js';
 export { checkInput } from './input.js';
 export { ENGINE_FORMATS, ENGINE_VERSION, run, type RunOptions } from './run.js';
 export { MAX_ALTERNATIVES } from './card.js';

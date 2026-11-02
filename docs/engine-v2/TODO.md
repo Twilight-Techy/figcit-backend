@@ -10,7 +10,7 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-02 | Replace every `interpreted` input mapping with the founder's confirmed value | Built from the workbook and Figma to unblock the engine | E-19; `INPUT_GAPS.md` |
 | T-03 | Resolve every exempt rule or have the Clinical Safety lead acknowledge it | Exemptions are working defaults | E-11, E-21; O-18 |
 | T-04 | ~~Point the app at the server-only engine; S81 wording~~ Done (E-53, F-23): no card is made on the phone. Left: the app still vendors `@figcit/engine` for the typed-text phrase screen (offline safety), Browse task order and a few types; move those to a small shared package (or the server) and delete `vendor/engine` and `scripts/sync-engine.mjs` | Copying the phrase screen into the app would leave two safety screens that can drift | E-01, U-01, U-02, E-53 |
-| T-05 | Retire the PWA's `/admin` screens once the staff app in the client repo covers them | Same | E-31, U-03 |
+| T-05 | ~~Retire the PWA's `/admin` screens once the staff app in the client repo covers them~~ Done (E-54, E-55) | — | E-31, U-03, E-55 |
 | T-06 | `.xlsx` import and export, with the engine columns shaded to the right of the workbook's own | Needs a spreadsheet library, chosen under the dependency rules | E-28 |
 | T-07 | Store each published version as one immutable bundle in object storage, named by its hash | The database rows and hash already prove the content; the bundle is a second copy for replay and audit | `DESIGN.md` §9 |
 | T-16 | Move the AI fallbacks (map-feeling, parse-need, suggest-drivers, split-tasks) onto the v2 options, so they only suggest offered codes | They still use the v1 lists; the app filters for now | E-44 |
@@ -24,6 +24,8 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-25 | Move the card's remaining presentation content (state names, meanings and icons; light labels, icons and colours) from the v1 content snapshot into the v2 rule set, then retire the v1 snapshot | The app's existing wording kept so nothing is invented during the switch | E-53 |
 | T-26 | Give Adapt's adaptations (environment, scope, pace …) a v2 fact, so "Adapt" re-runs with the adapted conditions (pattern 12); today it re-runs the same input | No rule reads adaptations yet | E-53 |
 | T-27 | Raise `ENGINE_VERSION` on any change to the engine's behaviour or trace once records exist outside development, and add a check that fails when the output changes without it | One unreleased engine version so far | E-52, E-53 |
+| T-28 | Owner and Clinical Safety: Red with Regulate just declined offers only "Get support now" (non-negotiable note 3 blocks the declined pathway; Red proposes nothing else). Add a Red alternative (rest, Connect) or confirm | Found by the explorer; a rule question, not the engine's to decide | E-56 |
+| T-29 | Move the explorer to the job queue if its sets grow, or many staff run it at once | Runs in the request (about 15 s at most) | E-56 |
 | T-22 | v1's timing budgets (`packages/engine/test/budget.test.ts`, p95 < 2 ms and < 1 ms) fail when `pnpm check` runs the suites in parallel on a loaded 2-core host; they pass run alone | Environment, not code; CI runs on its own runner | E-50 |
 
 ## Before launch

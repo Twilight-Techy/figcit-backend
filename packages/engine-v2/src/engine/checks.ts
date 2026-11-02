@@ -1,7 +1,7 @@
 import { valuesOf, type Catalogue } from '../format/catalogue.js';
 import { MAX_ALTERNATIVES } from './card.js';
 import { run } from './run.js';
-import type { Card, CardItem, CompiledRuleset, EngineInput } from './types.js';
+import type { Card, CardItem, CompiledRuleset, EngineInput, RunResult } from './types.js';
 
 /**
  * The workbook's fixed rules, checked on the engine's output before a version is published
@@ -133,7 +133,94 @@ export interface ExploreReport extends PublishCheckReport {
   readonly byPrimary: Readonly<Record<string, number>>;
   /** How many inputs each rule fired on; a rule that never fires is listed with 0. */
   readonly fired: Readonly<Record<string, number>>;
+  /** State × strongest feeling → the most common outcome there (DESIGN §8 outcome map). */
+  readonly map: readonly OutcomeCell[];
+  /** Cards with nothing to offer: no primary, no alternatives, not a support screen. */
+  readonly noOutcome: { readonly count: number; readonly examples: readonly EngineInput[] };
+  /** The inputs that match a query, when one is given. */
+  readonly matches?: { readonly count: number; readonly examples: readonly Outcome[] };
 }
+
+/** One input's outcome, as the explorer reports it. */
+export interface Outcome {
+  readonly input: EngineInput;
+  readonly light: string | null;
+  readonly primary: string;
+}
+
+export interface OutcomeCell {
+  /** `E2M3`, or `none` when the state wasn't given. */
+  readonly cell: string;
+  /** The highest-rated feeling family, or `none`. */
+  readonly family: string;
+  readonly n: number;
+  /** The most common light and primary here, and how many inputs gave exactly that. */
+  readonly light: string | null;
+  readonly primary: string;
+  readonly share: number;
+  /** How many different outcomes this cell and feeling gave. */
+  readonly outcomes: number;
+}
+
+/** Which inputs to pick out (DESIGN §8 query): every given part must match. */
+export interface Query {
+  readonly light?: string;
+  readonly primary?: string;
+  /** Rows (IDs) at least one of whose rules fired. */
+  readonly rows?: ReadonlySet<string>;
+}
+
+const QUERY_EXAMPLES = 25;
+
+const cellOf = (input: EngineInput): string => {
+  const e = input['state.energy'];
+  const m = input['state.mood'];
+  return typeof e === 'number' && typeof m === 'number' ? `E${String(e)}M${String(m)}` : 'none';
+};
+const familyOf = (input: EngineInput): string => {
+  const rated = Object.entries(
+    (input['family.intensity'] as Record<string, number | null> | undefined) ?? {},
+  );
+  let best: [string, number] = ['none', -1];
+  for (const [f, v] of rated) if ((v ?? 0) > best[1]) best = [f, v ?? 0];
+  return best[0];
+};
+
+/** Tallies outcomes per state and feeling, then keeps the most common one of each. */
+class OutcomeMap {
+  private readonly cells = new Map<string, Map<string, number>>();
+
+  add(input: EngineInput, light: string | null, primary: string): void {
+    const at = `${cellOf(input)}|${familyOf(input)}`;
+    const tally = this.cells.get(at) ?? new Map<string, number>();
+    const outcome = `${light ?? ''}|${primary}`;
+    tally.set(outcome, (tally.get(outcome) ?? 0) + 1);
+    this.cells.set(at, tally);
+  }
+
+  report(): OutcomeCell[] {
+    return [...this.cells.entries()]
+      .map(([at, tally]) => {
+        const [cell = 'none', family = 'none'] = at.split('|');
+        const [top = '|', share = 0] =
+          [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0] ?? [];
+        const [light = '', primary = 'none'] = top.split('|');
+        const n = [...tally.values()].reduce((x, y) => x + y, 0);
+        return { cell, family, n, light: light || null, primary, share, outcomes: tally.size };
+      })
+      .sort((a, b) => a.cell.localeCompare(b.cell) || a.family.localeCompare(b.family));
+  }
+}
+
+const matchesQuery = (
+  q: Query,
+  card: Card,
+  fired: readonly string[],
+  rowOfRule: (id: string) => string,
+): boolean =>
+  (q.light === undefined || card.light === q.light) &&
+  (q.primary === undefined || primaryKey(card) === q.primary) &&
+  (q.rows === undefined || fired.some((id) => q.rows?.has(rowOfRule(id))));
 
 const primaryKey = (card: Card): string => {
   if (card.kind === 'support_screen') return 'support_screen';
@@ -152,29 +239,80 @@ const bump = (into: Record<string, number>, key: string): void => {
 export function explore(
   ruleset: CompiledRuleset,
   inputs: readonly EngineInput[] = sweepInputs(ruleset.catalogue),
+  query?: Query,
 ): ExploreReport {
-  const violations: Violation[] = [];
-  const counts: Partial<Record<PublishCheckId, number>> = {};
-  const byLight: Record<string, number> = {};
-  const byPrimary: Record<string, number> = {};
-  const fired: Record<string, number> = Object.fromEntries(ruleset.rules.map((r) => [r.id, 0]));
-  let refused = 0;
-  for (const input of inputs) {
-    const result = run(ruleset, input);
+  const tally = new Tally(ruleset, query);
+  for (const input of inputs) tally.add(input, run(ruleset, input));
+  return tally.report(inputs.length);
+}
+
+/** What the explorer counts as it runs each input. */
+class Tally {
+  private readonly rowOfRule: ReadonlyMap<string, string>;
+  private readonly map = new OutcomeMap();
+  private readonly empty: EngineInput[] = [];
+  private readonly matched: Outcome[] = [];
+  private readonly violations: Violation[] = [];
+  private readonly counts: Partial<Record<PublishCheckId, number>> = {};
+  private readonly byLight: Record<string, number> = {};
+  private readonly byPrimary: Record<string, number> = {};
+  private readonly fired: Record<string, number>;
+  private refused = 0;
+  private emptyCount = 0;
+  private matchCount = 0;
+
+  constructor(
+    ruleset: CompiledRuleset,
+    private readonly query: Query | undefined,
+  ) {
+    this.rowOfRule = new Map(ruleset.rules.map((r) => [r.id, r.rowId]));
+    this.fired = Object.fromEntries(ruleset.rules.map((r) => [r.id, 0]));
+  }
+
+  add(input: EngineInput, result: RunResult): void {
     if (!result.ok) {
-      refused += 1;
-      continue;
+      this.refused += 1;
+      return;
     }
-    for (const id of result.trace.fired) fired[id] = (fired[id] ?? 0) + 1;
-    bump(byLight, result.card.light ?? 'none');
-    bump(byPrimary, primaryKey(result.card));
-    for (const v of broken(result.card, input)) {
-      counts[v.check] = (counts[v.check] ?? 0) + 1;
-      if ((counts[v.check] ?? 0) <= EXAMPLES_PER_CHECK)
-        violations.push({ check: v.check, input, rows: [...new Set(v.rows)] });
+    const { card } = result;
+    for (const id of result.trace.fired) this.fired[id] = (this.fired[id] ?? 0) + 1;
+    bump(this.byLight, card.light ?? 'none');
+    bump(this.byPrimary, primaryKey(card));
+    this.map.add(input, card.light, primaryKey(card));
+    if (card.kind === 'card' && !card.primary && card.alternatives.length === 0) {
+      this.emptyCount += 1;
+      if (this.empty.length < EXAMPLES_PER_CHECK) this.empty.push(input);
+    }
+    this.match(input, card, result.trace.fired);
+    for (const v of broken(card, input)) {
+      this.counts[v.check] = (this.counts[v.check] ?? 0) + 1;
+      if ((this.counts[v.check] ?? 0) <= EXAMPLES_PER_CHECK)
+        this.violations.push({ check: v.check, input, rows: [...new Set(v.rows)] });
     }
   }
-  return { ran: inputs.length, refused, byLight, byPrimary, fired, violations, counts };
+
+  private match(input: EngineInput, card: Card, fired: readonly string[]): void {
+    const q = this.query;
+    if (!q || !matchesQuery(q, card, fired, (id) => this.rowOfRule.get(id) ?? id)) return;
+    this.matchCount += 1;
+    if (this.matched.length < QUERY_EXAMPLES)
+      this.matched.push({ input, light: card.light, primary: primaryKey(card) });
+  }
+
+  report(ran: number): ExploreReport {
+    return {
+      ran,
+      refused: this.refused,
+      byLight: this.byLight,
+      byPrimary: this.byPrimary,
+      fired: this.fired,
+      violations: this.violations,
+      counts: this.counts,
+      map: this.map.report(),
+      noOutcome: { count: this.emptyCount, examples: this.empty },
+      ...(this.query ? { matches: { count: this.matchCount, examples: this.matched } } : {}),
+    };
+  }
 }
 
 /**

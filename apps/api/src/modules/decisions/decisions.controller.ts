@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import type { RunResult } from '@figcit/engine-v2';
 import type { z } from 'zod';
 import { CurrentUser, MaybeUser, type RequestUser } from '../../common/guards/request-user.js';
@@ -20,6 +20,9 @@ import {
   decisionSchema,
   exploreBodySchema,
   exploreResultSchema,
+  impactBodySchema,
+  impactResultSchema,
+  type ImpactResult,
   replayResultSchema,
   simulateBodySchema,
   simulateResultSchema,
@@ -28,6 +31,7 @@ import {
   type DecisionRecordDto,
 } from './decisions.schemas.js';
 import { DecisionsService, STAFF } from './decisions.service.js';
+import { EngineToolsService } from './engine-tools.service.js';
 
 const TAGS = ['Engine v2'];
 
@@ -103,6 +107,7 @@ export class DecisionsController {
   }
 
   @Post(':id/replay')
+  @HttpCode(200)
   @Route({
     summary: 'Re-run a decision on its own rule set and engine version and compare',
     tags: TAGS,
@@ -120,9 +125,10 @@ export class DecisionsController {
 /** The staff Simulator and explorer on any version, drafts included (E-18, DESIGN §8). */
 @Controller('rulesets')
 export class EngineToolsController {
-  constructor(private readonly decisions: DecisionsService) {}
+  constructor(private readonly tools: EngineToolsService) {}
 
   @Post(':label/simulate')
+  @HttpCode(200)
   @Route({
     summary: 'Run one input through a version, stage by stage; nothing is stored',
     tags: TAGS,
@@ -135,10 +141,11 @@ export class EngineToolsController {
     @Param('label', new ZodPipe(labelParam)) label: string,
     @Body(new ZodPipe(simulateBodySchema)) body: z.infer<typeof simulateBodySchema>,
   ): Promise<RunResult> {
-    return this.decisions.simulate(label, body.input, body.trace);
+    return this.tools.simulate(label, body.input, body.trace);
   }
 
   @Post(':label/compare')
+  @HttpCode(200)
   @Route({
     summary: 'The impact of a version: the same inputs against another version, and what changes',
     tags: TAGS,
@@ -151,13 +158,14 @@ export class EngineToolsController {
     @Param('label', new ZodPipe(labelParam)) label: string,
     @Body(new ZodPipe(compareBodySchema)) body: z.infer<typeof compareBodySchema>,
   ): Promise<CompareResult> {
-    return this.decisions.compare(label, body.against, body.inputs);
+    return this.tools.compare(label, body);
   }
 
   @Post(':label/explore')
+  @HttpCode(200)
   @Route({
     summary:
-      'Run many inputs (or the publish sweep) through a version: cards by light and primary, and the fixed-rule checks',
+      'Run a set of inputs through a version: cards by light and primary, the outcome map, fixed-rule checks, rules never fired, and the inputs matching a query',
     tags: TAGS,
     access: 'staff',
     roles: STAFF,
@@ -168,6 +176,23 @@ export class EngineToolsController {
     @Param('label', new ZodPipe(labelParam)) label: string,
     @Body(new ZodPipe(exploreBodySchema)) body: z.infer<typeof exploreBodySchema>,
   ): Promise<z.infer<typeof exploreResultSchema>> {
-    return this.decisions.explore(label, body.inputs);
+    return this.tools.explore(label, body);
+  }
+
+  @Post(':label/impact')
+  @HttpCode(200)
+  @Route({
+    summary: 'What one rule affects: the cards that change when its row is taken out',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    body: impactBodySchema,
+    response: impactResultSchema,
+  })
+  impact(
+    @Param('label', new ZodPipe(labelParam)) label: string,
+    @Body(new ZodPipe(impactBodySchema)) body: z.infer<typeof impactBodySchema>,
+  ): Promise<ImpactResult> {
+    return this.tools.impact(label, body);
   }
 }

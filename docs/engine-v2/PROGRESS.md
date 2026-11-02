@@ -52,21 +52,21 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Decision records (append-only), replay, daily replay job; unlinked on account deletion
 - [x] Staff API: simulate and explore on any version; registers were M1 (E-52)
 
-## M6 Staff app (client repo, after the restructure; E-31, E-33)
-- [ ] Viewer in the workbook layout, filters, row history
-- [ ] Simulator: pick inputs, see the output stage by stage (E-18)
-- [ ] Editor: add and edit a single rule, impact check, publish (E-12, E-20)
-- [ ] Gaps and exemptions, import and export
-- [ ] Redesigned old admin screens: content, decisions, safety events, overview, staff and roles, research, audit
+## M6 Staff app (client repo `figcit-pwa/apps/staff`; E-31, E-33, E-54)
+- [x] Viewer in the workbook layout, filters, row history
+- [x] Simulator: pick inputs, see the output stage by stage (E-18)
+- [x] Editor: add, edit, retire and restore a single rule; impact check (compare, rule impact); publish (E-12, E-20)
+- [x] Gaps and exemptions, owner decisions, import and export, rule audit log
+- [x] Redesigned old admin screens: content, decisions, safety events, overview, staff and roles, research (not connected), audit
 
-## M7 Explorer, query and impact
-- [ ] All-flows explorer, outcome maps, rules that never fire
-- [ ] Query, impact report, exhaustive check for safety rows (E-21)
+## M7 Explorer, query and impact (E-56)
+- [x] All-flows explorer (sweep, pairwise cover at every threshold edge, seeded sample), outcome maps, rules that never fire, cards with nothing to offer
+- [x] Query (light, primary, rule fired; decisions by version and day), impact report (version against version, one rule), exhaustive check for safety rows (E-21)
 
 ## M8 App
 - [x] The check-in runs on engine v2 on the server; the card contract is unchanged; the wording is rule-set data (E-53)
 - [ ] Remove the engine copy from the PWA (`vendor/engine`); Figma S81 wording (U-01, U-02)
-- [ ] Retire the PWA `/admin` screens (U-03)
+- [x] Retire the PWA `/admin` screens (U-03, E-55)
 - [ ] Squash the branch's migrations into one before the PR (E-34)
 
 ## M9 Finish

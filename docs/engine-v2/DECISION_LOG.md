@@ -559,6 +559,66 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Browse card actions:** `POST /v1/decisions/{id}/another` re-runs a Browse decision with the declined pathway just rejected and returns the app's card, recorded without an account. Browse cards are decisions, so the app no longer needs an engine of its own for "try another" or Adapt (E-01).
 - **Revert:** unpublish v2 (publish a v1-era version) and the check-in falls back to v1; the code paths stay.
 
+### E-54 The staff app (M6): one app in the client repo for rules and operations
+- **Built:** `figcit-pwa/apps/staff` (package `@figcit/staff`). A Next.js static export in its own pnpm workspace, never bundled with the user app (E-31).
+  - **Stack:** the user app's stack and versions (React Query, openapi-fetch, zustand, Tailwind). No new dependency.
+  - **Contract:** types generated from this repo's OpenAPI file. It doesn't import `@figcit/engine-v2` (E-31).
+- **Sign-in:**
+  - Password, or a staff sign-in link (`app: 'staff'`, which opens `STAFF_APP_URL`).
+  - The access token is held in memory. The refresh cookie is `SameSite=Lax`, so the app is served on the API's site, as the user app is.
+  - Every page needs a staff role and a two-step session. Menus follow roles; the API checks both on every request.
+- **Rules section (engine v2):**
+  - Versions: import, draft, submit, publish, roll back, discard, export.
+  - Tabs in workbook order, with filters. Each row shows its words, its engine columns with the interpretation, and its history across versions.
+  - The row editor for the clinical admin (E-12, E-34): words, mapping, safety mark and engine columns; retire, restore, and add a row after.
+  - The Simulator (E-18): editors are built from the format endpoint, and the trace is shown stage by stage with each proposal's fate.
+  - The Explorer (E-56), gaps and owner decisions, and the rule audit log with its chain check.
+- **Operations section:** the old `/admin` screens, redesigned (E-33).
+  - Overview, and decision records (filters, card, input, trace, replay; v1 recommendations kept read-only until T-17).
+  - Safety events, content versions, and the v1 content snapshot (still the app's presentation content, T-25).
+  - Staff roles: an admin can't untick their own admin role.
+  - The platform audit log.
+  - Research export, shown as not connected (no ethics approval or store yet).
+- **Styling:** the user app's tokens, light and dark, copied until the shared token package (E-31). The layout is a denser desktop one, responsive on mobile. Every string is in `src/messages/en/`.
+- **Checks:** typecheck, unit tests (session claims, the HTTP problem, input parsing, and that every menu entry has a page gated to the same roles) and the build. All run in the client repo's `pnpm check`.
+- **Revert:** delete `apps/staff` and restore the PWA's `/admin` (E-55).
+
+### E-55 The user app's `/admin` is retired (T-05)
+- **Decision:** the staff app covers every `/admin` screen, so the user app no longer has a staff console.
+- **Built:**
+  - Staff who sign in to the user app start at Home like anyone else.
+  - "Staff app" on Me opens `NEXT_PUBLIC_STAFF_APP_URL` (shown only when it's set, and now also for `clinical_admin`).
+  - Configuration: `apps/staff/README.md`. The API's `CORS_ORIGINS` must list the staff app's origin.
+- **Why:** E-31, E-33. Two consoles would drift.
+- **Revert:** restore `src/features/admin` and the routes from git.
+
+### E-56 The explorer, query and impact (M7)
+- **All-flows set** (`flowInputs`, DESIGN §8), built from the version itself:
+  - **The sweep:** the publish sweep.
+  - **A pairwise cover:** every input fact at each value the rules tell apart. For numbers and intensities, those are each threshold a rule compares with, the value below it, and the intensity band edges (3/4, 6/7, 8/9). Keyed facts get two keys, so rules that read two feelings at once (one of them high) are reached.
+  - **A seeded random sample:** 2,000 inputs by default. A core fact (state, feeling) is given 9 times in 10, any other 1 time in 3.
+  - A fact that needs another gets it (a timeline → a task; any re-check fact → a re-check).
+  - **On v3.3:** about 6,700 inputs in about 3 s. Every one of the 289 rules fires at least once; the sweep alone leaves 106 unfired. No fixed rule breaks.
+- **Safety set** (`safetyInputs`, E-21): every combination of the input facts the rows marked `safety` read.
+  - A computed fact counts as the inputs it is worked out from. A derived fact counts as the state, feelings and setting.
+  - A keyed fact is rated for one key at a time.
+  - **On v3.3's SF rows:** family, risk and the two day counts give 25,500 combinations (19,875 distinct) in about 3 s. No fixed rule breaks.
+  - **Over the cap (30,000):** a pairwise set over the same values instead, reported as not exhaustive.
+- **Explorer report:**
+  - The **outcome map**: state × strongest feeling → the most common light and primary, and how many different outcomes the pair gave.
+  - **Cards with nothing to offer:** no primary, no alternatives, not a support screen.
+  - **The query:** inputs by light, by primary, or by a row that fired. Rows are named by tab and reference.
+  - **Rules never fired**, and the fixed-rule checks.
+- **What one rule affects:** `POST /v1/rulesets/{label}/impact` runs the same inputs with and without the row, and reports how many inputs it fired on and which cards change.
+- **Compare:** compare (a version's impact against another) takes the same sets.
+- **Decisions by version and day:** `GET /v1/decisions?ruleset=…&since=…` ("which decisions in October used 3.3-r2").
+- **Deviation from DESIGN §8:** the explorer runs in the request, not in the job queue. The largest set takes about 15 s and nothing is stored, so a queue would only add polling. Revisit if sets grow or many staff run it at once (`TODO.md` T-29).
+- **Contract fix:** simulate, explore, compare, impact and replay return 200 (they create nothing), as the OpenAPI file already said. Nest had sent 201.
+- **Found by the explorer** (for the Owner, `TODO.md` T-28):
+  - Red, with Regulate just declined, gives a card with only "Get support now".
+  - Non-negotiable note 3 blocks re-offering the declined pathway, and Red proposes nothing else, so the app falls back to Home. Whether Red should offer something else (rest, Connect) is a rule question.
+  - Also found: a generator bug. A "not rated" level (`null`) was turned into 8, so unrated feelings were never tested. Fixed and tested.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
@@ -579,6 +639,7 @@ Rule set versions also keep their table frames, import report and checks as JSON
 | Rule changes by the general `admin` role | E-20 | Replaced: `clinical_admin` | E-34 | E-34 |
 | Client work only after the backend M2-M5 | E-32 | Changed: the check-in input is fixed now | E-39 | E-39 |
 | Optional task toggles when AI is off | Claude, 1 Nov | Dropped | E-44 | E-44 |
+| Explorer in the background job queue | `DESIGN.md` §8 | Changed: runs in the request | E-56 | E-56, `TODO.md` T-29 |
 | v1's invented feeling chips and places | v1 build (B-07, B-10) | Dropped | E-40 | E-40 |
 
 ## Open points that came out of this conversation

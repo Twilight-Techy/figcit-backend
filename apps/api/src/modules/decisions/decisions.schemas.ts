@@ -103,17 +103,64 @@ export const simulateResultSchema = z.union([
   }),
 ]);
 
+/** Which inputs the explorer runs (M7, DESIGN §8; E-56). */
+const inputSet = {
+  set: z
+    .enum(['sweep', 'flows', 'safety'])
+    .default('sweep')
+    .describe(
+      'sweep: the publish sweep; flows: the sweep, a pairwise cover of every input at each value the rules tell apart, and a random sample; safety: every combination of what the safety rows read',
+    ),
+  sample: z
+    .number()
+    .int()
+    .min(0)
+    .max(5000)
+    .optional()
+    .describe('flows: how many random inputs (default 2,000)'),
+  seed: z
+    .number()
+    .int()
+    .min(0)
+    .max(2 ** 31)
+    .optional()
+    .describe('flows: the random seed (default 1)'),
+};
+const ruleRef = z.object({ tab: z.string().max(40), ref: z.string().max(200) });
+
 export const exploreBodySchema = z
   .object({
     inputs: z
       .array(inputFacts)
       .max(5000)
       .optional()
-      .describe('Inputs to run; leave out for the publish sweep'),
+      .describe('Inputs to run; when given, `set` is ignored'),
+    ...inputSet,
+    where: z
+      .object({
+        light: z.string().max(20).optional(),
+        primary: z.string().max(60).optional(),
+        rule: ruleRef.optional().describe('Inputs this row fired on'),
+      })
+      .strict()
+      .optional()
+      .describe('Pick out matching inputs (the query)'),
   })
   .strict();
 
+const setReport = z.object({
+  name: z.enum(['inputs', 'sweep', 'flows', 'safety']),
+  parts: z
+    .object({ sweep: z.number().int(), pairwise: z.number().int(), sample: z.number().int() })
+    .optional(),
+  facts: z.array(z.string()).optional().describe('safety: the inputs the safety rows read'),
+  exhaustive: z.boolean().optional().describe('safety: every combination was run'),
+  combinations: z.number().int().optional(),
+});
+const outcome = z.object({ input: inputFacts, light: z.string().nullable(), primary: z.string() });
+
 export const exploreResultSchema = z.object({
+  set: setReport,
   ran: z.number().int(),
   refused: z.number().int(),
   rules: z.object({
@@ -128,6 +175,26 @@ export const exploreResultSchema = z.object({
       z.object({ check: z.string(), input: inputFacts, rows: z.array(z.string()) }),
     ),
   }),
+  map: z
+    .array(
+      z.object({
+        cell: z.string(),
+        family: z.string(),
+        n: z.number().int(),
+        light: z.string().nullable(),
+        primary: z.string(),
+        share: z.number().int(),
+        outcomes: z.number().int(),
+      }),
+    )
+    .describe('State × strongest feeling → the most common outcome'),
+  noOutcome: z
+    .object({ count: z.number().int(), examples: z.array(inputFacts) })
+    .describe('Cards with no primary, no alternatives and no support screen'),
+  matches: z
+    .object({ count: z.number().int(), examples: z.array(outcome) })
+    .optional()
+    .describe('The inputs that match `where`'),
 });
 export type ExploreResult = z.infer<typeof exploreResultSchema>;
 
@@ -148,6 +215,8 @@ export const decisionListQuerySchema = z
     light: z.enum(['green', 'yellow', 'amber', 'red', 'blue']).optional(),
     mode: z.enum(['signed_in', 'browse']).optional(),
     supportScreen: z.enum(['true', 'false']).optional(),
+    since: z.iso.datetime().optional().describe('At or after this time'),
+    ruleset: z.string().max(40).optional().describe('Made with this rule set version (label)'),
   })
   .strict();
 
@@ -172,19 +241,36 @@ export type DecisionList = z.infer<typeof decisionListSchema>;
 export const compareBodySchema = z
   .object({
     against: z.string().describe('The version to compare with (usually the published one)'),
-    inputs: z.array(inputFacts).max(5000).optional().describe('Leave out for the publish sweep'),
+    inputs: z.array(inputFacts).max(5000).optional().describe('When given, `set` is ignored'),
+    ...inputSet,
   })
   .strict();
 
+const change = z.object({
+  input: inputFacts,
+  before: z.object({ light: z.string().nullable(), primary: z.string() }),
+  after: z.object({ light: z.string().nullable(), primary: z.string() }),
+});
+
 export const compareResultSchema = z.object({
+  set: setReport,
   ran: z.number().int(),
   changed: z.number().int(),
-  examples: z.array(
-    z.object({
-      input: inputFacts,
-      before: z.object({ light: z.string().nullable(), primary: z.string() }),
-      after: z.object({ light: z.string().nullable(), primary: z.string() }),
-    }),
-  ),
+  examples: z.array(change),
 });
+
+/** What one rule affects: the cards that change without it (DESIGN §8 query). */
+export const impactBodySchema = z
+  .object({
+    rule: ruleRef,
+    inputs: z.array(inputFacts).max(5000).optional().describe('When given, `set` is ignored'),
+    ...inputSet,
+  })
+  .strict();
+
+export const impactResultSchema = compareResultSchema.extend({
+  rule: z.string().describe('"tab · reference"'),
+  fired: z.number().int().describe('Inputs any of its rules fired on'),
+});
+export type ImpactResult = z.infer<typeof impactResultSchema>;
 export type CompareResult = z.infer<typeof compareResultSchema>;

@@ -23,6 +23,10 @@ export interface Runnable {
   readonly patternOf: ReadonlyMap<string, number>;
   /** Rule ID → "tab · reference", to name the rules that fired. */
   readonly refOf: ReadonlyMap<string, string>;
+  /** Rows (record IDs) marked `safety` (E-21, E-25): the safety impact set reads these. */
+  readonly safetyRows: ReadonlySet<string>;
+  /** "tab|reference" → the row's record ID, for picking a rule by its workbook reference. */
+  readonly rowByRef: ReadonlyMap<string, string>;
 }
 
 /** Versions that can no longer change, so their compiled form is kept. */
@@ -88,6 +92,7 @@ export class EngineRuntimeService {
         role: true,
         frame: true,
         columns: true,
+        safety: true,
       },
     });
     const live = rows.map((r) => ({ ...r, columns: r.columns as unknown as WorkbookCell[] }));
@@ -103,7 +108,15 @@ export class EngineRuntimeService {
       }),
     );
     const refOf = new Map(ruleset.rules.map((r) => [r.id, r.ref]));
-    const runnable: Runnable = { ...v, ruleset, copy: copyOf(live), patternOf, refOf };
+    const runnable: Runnable = {
+      ...v,
+      ruleset,
+      copy: copyOf(live),
+      patternOf,
+      refOf,
+      safetyRows: new Set(rows.filter((r) => r.safety).map((r) => r.recordId)),
+      rowByRef: new Map(rows.map((r) => [`${r.tab}|${r.sourceRef}`, r.recordId])),
+    };
     // A draft or a version in review can still change; a frozen one is kept (its hash proves it).
     if (FROZEN.includes(v.status)) this.compiled.set(id, runnable);
     return runnable;

@@ -217,7 +217,7 @@ describe('decisions (engine v2)', () => {
       card: Decision['card'];
       trace: { stages: unknown[] };
     }>('POST', `/rulesets/${label}/simulate`, { token: admin, body });
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
     expect(res.body.card.light).toBe('red');
     expect(res.body.trace.stages.length).toBeGreaterThan(0);
@@ -243,6 +243,19 @@ describe('decisions (engine v2)', () => {
       { token: admin },
     );
     expect(support.body.items.every((i) => i.supportScreen)).toBe(true);
+    const byVersion = await api.req<{ items: { ruleset: string }[] }>(
+      'GET',
+      `/decisions?ruleset=${label}&since=2000-01-01T00:00:00.000Z&limit=10`,
+      { token: admin },
+    );
+    expect(byVersion.body.items.length).toBeGreaterThan(0);
+    expect(byVersion.body.items.every((i) => i.ruleset === label)).toBe(true);
+    const future = await api.req<{ items: unknown[] }>(
+      'GET',
+      `/decisions?since=2999-01-01T00:00:00.000Z`,
+      { token: admin },
+    );
+    expect(future.body.items).toEqual([]);
   });
 
   it('compares two versions on the same inputs (impact)', async () => {
@@ -254,7 +267,7 @@ describe('decisions (engine v2)', () => {
         body: { against: label, inputs: [{ 'state.energy': 2, 'state.mood': 2 }] },
       },
     );
-    expect(res.body).toEqual({ ran: 1, changed: 0, examples: [] });
+    expect(res.body).toEqual({ set: { name: 'inputs' }, ran: 1, changed: 0, examples: [] });
   });
 
   it('explores many inputs on a version, with the fixed-rule checks', async () => {
@@ -274,6 +287,72 @@ describe('decisions (engine v2)', () => {
     expect(res.body.checks.counts).toEqual({});
     expect(res.body.rules.total).toBeGreaterThan(250);
     expect(res.body.rules.neverFired.length).toBeGreaterThan(0);
+  });
+
+  it('explores the all-flows set, maps outcomes and answers a query (M7)', async () => {
+    const res = await api.req<{
+      set: { name: string; parts: { sweep: number; pairwise: number; sample: number } };
+      ran: number;
+      refused: number;
+      map: { cell: string; family: string; n: number }[];
+      matches: { count: number; examples: { light: string | null }[] };
+      rules: { neverFired: string[] };
+      checks: { counts: object };
+    }>('POST', `/rulesets/${label}/explore`, {
+      token: admin,
+      body: { set: 'flows', sample: 50, where: { light: 'red' } },
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.set).toMatchObject({ name: 'flows', parts: { sweep: 3468, sample: 50 } });
+    expect(res.body.refused).toBe(0);
+    expect(res.body.checks.counts).toEqual({});
+    expect(res.body.map.reduce((n, c) => n + c.n, 0)).toBe(res.body.ran);
+    expect(res.body.matches.count).toBeGreaterThan(0);
+    expect(res.body.matches.examples.every((m) => m.light === 'red')).toBe(true);
+    // The pairwise cover reaches far more rules than the sweep alone.
+    expect(res.body.rules.neverFired.length).toBeLessThan(20);
+  }, 60_000);
+
+  it('runs every combination the safety rows read (E-21)', async () => {
+    const res = await api.req<{
+      set: { name: string; facts: string[]; exhaustive: boolean; combinations: number };
+      ran: number;
+      checks: { counts: object };
+    }>('POST', `/rulesets/${label}/explore`, { token: admin, body: { set: 'safety' } });
+    expect(res.status).toBe(200);
+    expect(res.body.set.name).toBe('safety');
+    expect(res.body.set.facts).toContain('family.intensity');
+    expect(res.body.ran).toBeGreaterThan(0);
+    expect(res.body.checks.counts).toEqual({});
+  }, 120_000);
+
+  it('shows what one rule affects, and refuses a rule the version lacks', async () => {
+    const res = await api.req<{ rule: string; fired: number; ran: number; changed: number }>(
+      'POST',
+      `/rulesets/${label}/impact`,
+      {
+        token: admin,
+        body: {
+          rule: { tab: 'bands', ref: 'Very Constrained' },
+          inputs: [
+            { 'state.energy': 1, 'state.mood': 1 },
+            { 'state.energy': 4, 'state.mood': 4 },
+          ],
+        },
+      },
+    );
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      rule: 'bands · Very Constrained',
+      fired: 1,
+      ran: 2,
+      changed: 1,
+    });
+    const none = await api.req('POST', `/rulesets/${label}/impact`, {
+      token: admin,
+      body: { rule: { tab: 'bands', ref: 'No such row' } },
+    });
+    expect(none.status).toBe(404);
   });
 
   it('sends staff sign-in links to the staff app only when its address is set (E-31)', async () => {

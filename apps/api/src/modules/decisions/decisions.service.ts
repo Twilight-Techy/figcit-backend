@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   canonicalJson,
-  compare,
   ENGINE_VERSION,
-  explore,
   factsFromCheckIn,
   run,
   type Card,
@@ -12,17 +10,10 @@ import {
   type EngineInput,
   type Trace,
   type JsonValue,
-  type RunResult,
 } from '@figcit/engine-v2';
 import { Prisma, type DecisionRecord } from '@prisma/client';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
-import {
-  AppError,
-  BadInput,
-  Forbidden,
-  NotConfigured,
-  NotFound,
-} from '../../common/errors/errors.js';
+import { AppError, Forbidden, NotConfigured, NotFound } from '../../common/errors/errors.js';
 import { demandTimeline, validateOptions } from '../checkin/checkin.mapper.js';
 import type { CheckInInput } from '../checkin/checkin.schemas.js';
 import { SignalsService } from '../recommendation/signals.service.js';
@@ -32,10 +23,8 @@ import { daysInRed, lastFact, recheckFacts, signalFacts } from './decision-facts
 import type {
   DecideBody,
   DecisionDto,
-  CompareResult,
   DecisionList,
   DecisionRecordDto,
-  ExploreResult,
   ReplayResult,
 } from './decisions.schemas.js';
 import { EngineRuntimeService, type Runnable } from './engine-runtime.service.js';
@@ -281,23 +270,6 @@ export class DecisionsService {
   }
 
   /** The impact of a version against another on the same inputs (M7). */
-  async compare(
-    label: string,
-    against: string,
-    inputs: readonly EngineInput[] | undefined,
-  ): Promise<CompareResult> {
-    const [after, before] = await Promise.all([
-      this.runtime.byLabel(label),
-      this.runtime.byLabel(against),
-    ]);
-    const r = compare(before.ruleset, after.ruleset, inputs);
-    return {
-      ran: r.ran,
-      changed: r.changed,
-      examples: r.examples.map((e) => ({ ...e, input: { ...e.input } })),
-    };
-  }
-
   /** Decision records, newest first, for staff (filters by light, mode, support screen). */
   async list(q: {
     limit: number;
@@ -305,10 +277,17 @@ export class DecisionsService {
     light?: string | undefined;
     mode?: 'signed_in' | 'browse' | undefined;
     supportScreen?: 'true' | 'false' | undefined;
+    since?: string | undefined;
+    ruleset?: string | undefined;
   }): Promise<DecisionList> {
     const rows = await this.prisma.decisionRecord.findMany({
       where: {
-        ...(q.before ? { createdAt: { lt: new Date(q.before) } } : {}),
+        // "Which decisions in October used version 3.3-r2" (DESIGN §8 query).
+        createdAt: {
+          ...(q.before ? { lt: new Date(q.before) } : {}),
+          ...(q.since ? { gte: new Date(q.since) } : {}),
+        },
+        ...(q.ruleset ? { version: { label: q.ruleset } } : {}),
         ...(q.light ? { light: q.light } : {}),
         ...(q.mode ? { mode: q.mode } : {}),
         ...(q.supportScreen ? { supportScreen: q.supportScreen === 'true' } : {}),
@@ -353,32 +332,6 @@ export class DecisionsService {
   }
 
   /** A version's engine on given input facts, nothing stored (the staff Simulator, E-18). */
-  async simulate(label: string, input: EngineInput, trace: 'light' | 'full'): Promise<RunResult> {
-    const engine = await this.runtime.byLabel(label);
-    return run(engine.ruleset, input, { trace });
-  }
-
-  /** A version's engine over many inputs, or the publish sweep (the staff explorer, DESIGN §8). */
-  async explore(label: string, inputs: readonly EngineInput[] | undefined): Promise<ExploreResult> {
-    const engine = await this.runtime.byLabel(label);
-    if (inputs?.length === 0) throw new BadInput('Give at least one input, or none for the sweep.');
-    const r = explore(engine.ruleset, inputs);
-    const neverFired = engine.ruleset.rules
-      .filter((rule) => (r.fired[rule.id] ?? 0) === 0)
-      .map((rule) => `${rule.ref} #${rule.id.split('#')[1] ?? '0'}`);
-    return {
-      ran: r.ran,
-      refused: r.refused,
-      rules: { total: engine.ruleset.rules.length, neverFired },
-      byLight: r.byLight,
-      byPrimary: r.byPrimary,
-      checks: {
-        counts: r.counts,
-        violations: r.violations.map((v) => ({ ...v, rows: [...v.rows] })),
-      },
-    };
-  }
-
   assertStaff(roles: readonly string[]): void {
     if (!staffOf(roles)) throw new Forbidden('Staff only.');
   }
