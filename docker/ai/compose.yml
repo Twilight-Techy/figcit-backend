@@ -1,0 +1,45 @@
+# The AI server: llama-server (language) and whisper-server (speech). Runs on its own VPS and listens
+# only on the private WireGuard address (AI_BIND); it takes no traffic from the internet (§11).
+#   ./fetch-models.sh && AI_TOKEN=... AI_BIND=10.8.0.2 docker compose -f docker/ai/compose.yml up -d
+name: figcit-ai
+
+x-hardened: &hardened
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ['no-new-privileges:true']
+
+services:
+  llama:
+    <<: *hardened
+    build: { context: ., dockerfile: llama.Dockerfile }
+    environment:
+      MODEL_FILE: /models/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf
+      MODEL_SHA256: 9ed150d4367e68df0ac8e1540f6ddc65b42d0ee26378329d1ecbca60f93fc5f8
+      AI_TOKEN: ${AI_TOKEN:?set AI_TOKEN}
+      AI_PARALLEL: ${AI_PARALLEL:-4}
+    volumes: ['./models:/models:ro']
+    ports: ['${AI_BIND:-127.0.0.1}:8080:8080']
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'bash',
+          '-c',
+          'exec 3<>/dev/tcp/127.0.0.1/8080 && printf "GET /health HTTP/1.0\r\n\r\n" >&3 && grep -q "200 OK" <&3',
+        ]
+      interval: 15s
+      start_period: 60s
+
+  whisper:
+    <<: *hardened
+    build: { context: ., dockerfile: whisper.Dockerfile }
+    environment:
+      WHISPER_MODEL: /models/ggml-small.en.bin
+      WHISPER_SHA256: c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d
+      VAD_MODEL: /models/ggml-silero-v5.1.2.bin
+      VAD_SHA256: 29940d98d42b91fbd05ce489f3ecf7c72f0a42f027e4875919a28fb4c04ea2cf
+    volumes: ['./models:/models:ro']
+    # whisper-server has no auth of its own: it must only be reachable on the private network.
+    ports: ['${AI_BIND:-127.0.0.1}:8090:8090']
