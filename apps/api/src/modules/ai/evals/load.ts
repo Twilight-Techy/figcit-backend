@@ -13,7 +13,13 @@ import type { Snapshot } from '@figcit/engine';
 import { z } from 'zod';
 import type { Env } from '../../../common/config/env.js';
 import { AiClient, AiUnavailable } from '../ai.client.js';
-import { breakDownTask, parseNeed, suggestDrivers, type JsonTask } from '../ai.tasks.js';
+import {
+  breakDownTask,
+  parseNeed,
+  suggestDrivers,
+  type DecisionTask,
+  type JsonTask,
+} from '../ai.tasks.js';
 import { scrub } from '../text.js';
 import { percentile } from './score.js';
 import { loadSet } from './sets.js';
@@ -44,11 +50,11 @@ const snapshot = JSON.parse(
 ) as Snapshot;
 
 interface Call {
-  readonly task: JsonTask<unknown, unknown>;
+  readonly task: JsonTask<unknown, unknown> | DecisionTask<unknown, unknown>;
   readonly input: unknown;
 }
-const widen = <I, O>(task: JsonTask<I, O>, input: I): Call => ({
-  task: task as unknown as JsonTask<unknown, unknown>,
+const widen = <I, O>(task: JsonTask<I, O> | DecisionTask<I, O>, input: I): Call => ({
+  task: task as unknown as Call['task'],
   input,
 });
 
@@ -81,9 +87,24 @@ interface Sample {
 }
 
 async function once({ task, input }: Call): Promise<Sample> {
-  const schema = task.schema(input);
   const started = performance.now();
   let ok = false;
+  if ('labels' in task) {
+    try {
+      const p = await new AiClient(env).decide({
+        system: task.system(input),
+        user: scrub(task.text(input), task.maxChars),
+        labels: task.labels(input),
+        timeoutMs: WAIT_MS,
+      });
+      ok = task.check(task.decode(p, input), input);
+    } catch (error) {
+      if (!(error instanceof AiUnavailable)) throw error;
+    }
+    const ms = Math.round(performance.now() - started);
+    return { task: task.name, ms, ok: ok && ms <= task.timeoutMs };
+  }
+  const schema = task.schema(input);
   try {
     const res = await new AiClient(env).chat({
       system: task.system(input),

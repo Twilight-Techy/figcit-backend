@@ -8,7 +8,14 @@ import { mapFeelingByRules } from './fallbacks/map-feeling.js';
 import { parseNeedByRules } from './fallbacks/parse-need.js';
 import { splitTasksByRules } from './fallbacks/split-tasks.js';
 import { bucketFor } from './fallbacks/sort-dump.js';
-import { breakDownTask, parseNeed, simplify, sortDump, suggestDrivers } from './ai.tasks.js';
+import {
+  breakDownTask,
+  mapFeeling,
+  parseNeed,
+  simplify,
+  sortDump,
+  suggestDrivers,
+} from './ai.tasks.js';
 import { changes, introducesFacts, scrub, simplifyByRules, words } from './text.js';
 
 const snapshot = JSON.parse(
@@ -186,16 +193,22 @@ describe('fallbacks', () => {
     ).toBe(false);
   });
 
-  it('drops repeated drivers and need codes shown as heard chips', () => {
-    expect(
-      suggestDrivers.clean?.(
-        {
-          drivers: ['challenge', 'challenge', 'routine'],
-          demandCharacteristics: ['focus', 'focus'],
-        },
-        { title: 'x' },
-      ),
-    ).toEqual({ drivers: ['challenge', 'routine'], demandCharacteristics: ['focus'] });
+  it('decodes feeling chips: probability is the confidence, weak chips dropped', () => {
+    // A = the first chip (anxious), B = sad, C = tired.
+    const { matches } = mapFeeling.decode({ A: 0.72, B: 0.2, C: 0.05 }, { text: 'x', snapshot });
+    expect(matches).toEqual([
+      { code: 'anxious', confidence: 0.72 },
+      { code: 'sad', confidence: 0.2 },
+    ]);
+  });
+
+  it('decodes drivers and drops need codes shown as heard chips', () => {
+    // Decision scoring: drivers at or above 0.20, best first, at most three; never "none".
+    const p = { A: 0.05, B: 0.5, C: 0.25, D: 0.0, E: 0.0, F: 0.0, G: 0.0, H: 0.2 };
+    expect(suggestDrivers.decode(p, { title: 'Weekly team meeting' }).drivers).toEqual([
+      'challenge',
+      'routine',
+    ]);
     const heard = parseNeed.clean?.(
       {
         needs: ['feel_calmer'],
