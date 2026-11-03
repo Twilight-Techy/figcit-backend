@@ -8,6 +8,7 @@ import { DecisionsService } from '../src/modules/decisions/decisions.service.js'
 import type {
   CompareResult,
   ExploreResult,
+  GridResult,
   ImpactResult,
 } from '../src/modules/decisions/decisions.schemas.js';
 import { ExplorationsService } from '../src/modules/decisions/explorations.service.js';
@@ -56,6 +57,7 @@ interface Results {
   explore: ExploreResult;
   compare: CompareResult;
   impact: ImpactResult;
+  grid: GridResult;
 }
 
 /** An explorer run (E-57): queued by the API (202), run as the worker would, then read back. */
@@ -351,6 +353,37 @@ describe('decisions (engine v2)', () => {
     // The pairwise cover reaches far more rules than the sweep alone.
     expect(res.rules.neverFired.length).toBeLessThan(20);
   }, 60_000);
+
+  it('explores check-ins the app could send, and says why a rule never fires (E-61)', async () => {
+    const res = await explored('explore', { sample: 100, where: { light: 'red' } });
+    expect(res.set.name).toBe('checkins');
+    expect(Object.keys(res.set.parts ?? {}).sort()).toEqual(['core', 'pairwise', 'sample']);
+    expect(res.refused).toBe(0);
+    expect(res.noOutcome.count).toBe(0);
+    expect(res.checks.counts).toEqual({});
+    const red = res.matches?.examples[0];
+    expect(red?.from?.checkIn).toHaveProperty('state');
+    const reasons = new Set(res.rules.neverFired.map((n) => n.reason));
+    expect(reasons.has(null)).toBe(false);
+    const never = res.rules.neverFired.find((n) => n.reason === 'no_option');
+    expect(never?.values.length).toBeGreaterThan(0);
+  }, 120_000);
+
+  it('draws the state grid for a feeling, against another version too (E-61)', async () => {
+    const grid = await explored('grid', { feeling: 'anxious', intensity: 7, against: label });
+    expect(grid.cells.map((c) => c.cell)).toHaveLength(16);
+    for (const c of grid.cells) {
+      expect(c.outcome?.label).toBeTruthy();
+      expect(c.before).toEqual(c.outcome);
+      expect(c.case.checkIn).toMatchObject({ emotions: [{ code: 'anxious', intensity: 7 }] });
+    }
+    expect(grid.cells.some((c) => c.changes.length > 0)).toBe(true);
+    const bad = await api.req('POST', `/rulesets/${label}/grid`, {
+      token: admin,
+      body: { feeling: 'not_a_feeling' },
+    });
+    expect(bad.status).toBe(400);
+  }, 120_000);
 
   it('runs every combination the safety rows read (E-21)', async () => {
     const res = await explored('explore', { set: 'safety' });

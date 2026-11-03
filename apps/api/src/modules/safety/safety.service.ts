@@ -44,6 +44,17 @@ export class SafetyService {
     return (await this.screenFor()).screen.check(present);
   }
 
+  /**
+   * Words the risk check matches, from the safety lexicon: the explorer's check-ins with a risk
+   * use them, so the Simulator's own check gives the same answer (E-61). Null without a lexicon.
+   */
+  async sampleRiskWords(): Promise<string | null> {
+    const { screen, snapshot } = await this.screenFor();
+    for (const group of snapshot.safety.phrases)
+      for (const phrase of group.phrases) if (screen.check([phrase])) return phrase;
+    return null;
+  }
+
   async record(event: {
     userId: string | null;
     sourceModule: string;

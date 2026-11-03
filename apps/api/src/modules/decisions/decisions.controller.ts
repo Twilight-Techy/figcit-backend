@@ -21,6 +21,7 @@ import {
   decisionSchema,
   exploreBodySchema,
   explorationSchema,
+  gridBodySchema,
   impactBodySchema,
   type ExplorationDto,
   replayResultSchema,
@@ -245,6 +246,26 @@ export class EngineToolsController {
     @Body(new ZodPipe(impactBodySchema)) body: z.infer<typeof impactBodySchema>,
   ): Promise<ExplorationDto> {
     return this.explorations.queue('impact', label, body, user.id);
+  }
+
+  @Post(':label/grid')
+  @HttpCode(202)
+  @Route({
+    summary:
+      'Queue the state grid: for a feeling picked, the card of each cell and every single answer that changes it, against another version too (poll the exploration)',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    body: gridBodySchema,
+    response: explorationSchema,
+    status: 202,
+  })
+  grid(
+    @CurrentUser() user: RequestUser,
+    @Param('label', new ZodPipe(labelParam)) label: string,
+    @Body(new ZodPipe(gridBodySchema)) body: z.infer<typeof gridBodySchema>,
+  ): Promise<ExplorationDto> {
+    return this.explorations.queue('grid', label, body, user.id);
   }
 
   @Get('explorations/:id')

@@ -1,4 +1,8 @@
--- The staff Simulator's saved scenarios and their runs (DECISION_LOG E-61).
+-- The staff Simulator's saved scenarios and their runs, and the explorer's state grid (DECISION_LOG E-61).
+
+-- AlterEnum
+ALTER TYPE "exploration_kind" ADD VALUE 'grid';
+
 -- CreateTable
 CREATE TABLE "sim_scenarios" (
     "id" UUID NOT NULL,

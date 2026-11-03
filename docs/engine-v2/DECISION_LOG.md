@@ -712,8 +712,26 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - `GET /v1/ai/status`
   - `POST /v1/ai/try/parse-need` and `POST /v1/ai/try/suggest-drivers`
   - `GET|POST /v1/rulesets/scenarios`, `GET|DELETE /v1/rulesets/scenarios/{id}` and `POST /v1/rulesets/scenarios/{id}/run`
-  - Migration `20261103000000_sim_scenarios`.
+  - `POST /v1/rulesets/{label}/grid`; the explorer's `set` defaults to `checkins`.
+  - Migration `20261103000000_sim_scenarios` (the scenario tables and the `grid` exploration kind).
+- **The Explorer asks three questions (Owner, 3 Nov):**
+  1. What changes if I publish this draft? (compare, with the state grid side by side)
+  2. What does this rule affect? (impact)
+  3. Does every check-in get a sensible card? (the state grid, then every check-in)
+  - **Check-ins, not facts, by default.** The new `checkins` set is made of check-ins the app could send, each answer one of the version's options. It turns each into engine input through `factsFromCheckIn`, with a new user's signals or Browse, as a real check-in. It holds:
+    - every state with every feeling at each level the rules tell apart, with nothing else;
+    - a pairwise cover of every answer of every screen, the plan, each signal, the risk words and "Try another";
+    - a seeded sample.
+  - The fact-level sets (all flows, the publish sweep, the safety set, your own inputs) stay as developer options. The publish checks still use the sweep.
+  - **Why a rule never fired.** Each never-fired rule gets one of three reasons:
+    - it needs a re-check;
+    - no option gives a value it needs, so it can never fire from the app (`unreachable`, with the values);
+    - it is possible, but no check-in had the answers it needs together.
+  - **The state grid replaces the outcome map.** For a feeling picked as the user picks it, each of the 16 states shows its light and its main button in the app's words. Picking a state lists every single other answer that changes its card. Against another version, changed states are marked. It runs as an exploration job (`POST /v1/rulesets/{label}/grid`; the kind `grid` is in the same migration).
+  - **Every check-in the Explorer shows opens in the Simulator**, screen by screen.
 - **Found while building it:**
+  - On 3.3-r2, 26 rules can never fire from the app: 25 read a feeling family no option maps to, and one needs "Get urgent help", which v2 doesn't offer. T-32 records this.
+  - "Calm" in Hibernate gives a Red card with a reset. That is the workbook's rule: Tab 10 says the State Grid sets the baseline band, and feelings never raise it within a check-in. Hibernate is Very Constrained, which is Red.
   - The card's "After that: …" lowercased the next step's first letter, which broke "AI body double". Acronyms and the word "I" now keep their case.
   - After "Try another", the card says "Because of how your energy and mood are right now…" even when the user named feelings: the rerun passes no feelings to the presenter. The Simulator shows this as the app does. T-31 records it.
   - The AI's task characteristics are v1 codes (`first_time`, `multi_step`…) that the v2 catalogue doesn't have, so no AI-suggested characteristic ever reaches the engine. T-16 now records this.

@@ -44,6 +44,7 @@ enum ExplorationKind {
   explore
   compare
   impact
+  grid
 
   @@map("exploration_kind")
 }

@@ -6,7 +6,7 @@ import { FACTS, type FactSpec } from '../format/registry.js';
 import type { Condition } from '../format/types.js';
 import { canonicalJson, type JsonValue } from '../ruleset/canonical.js';
 import { sweepInputs } from './checks.js';
-import type { CompiledRuleset, EngineInput } from './types.js';
+import type { CompiledRule, CompiledRuleset, EngineInput } from './types.js';
 
 /** The input facts a computed fact is worked out from (`RunState.computed`). */
 export const COMPUTED_FROM: Readonly<Record<string, readonly string[]>> = {
@@ -361,19 +361,33 @@ export interface SafetySet {
 /** About 15 s at 0.5 ms a run: still a request a reviewer waits for. */
 export const SAFETY_CAP = 30_000;
 
+/** The input facts one rule reads, directly or through computed and derived facts. */
+export function ruleReads(rule: CompiledRule): Set<string> {
+  const out = new Set<string>();
+  for (const c of comparisons(rule.when)) {
+    const spec = SPEC.get(c.fact);
+    if (!spec) continue;
+    if (spec.derived) for (const f of DERIVED_FROM) out.add(f);
+    else for (const f of COMPUTED_FROM[c.fact] ?? [c.fact]) out.add(f);
+  }
+  return out;
+}
+
 /** The input facts a set of rules reads. */
 export function factsRead(ruleset: CompiledRuleset, rowIds: ReadonlySet<string>): string[] {
   const out = new Set<string>();
-  for (const rule of ruleset.rules) {
-    if (!rowIds.has(rule.rowId)) continue;
-    for (const c of comparisons(rule.when)) {
-      const spec = SPEC.get(c.fact);
-      if (!spec) continue;
-      if (spec.derived) for (const f of DERIVED_FROM) out.add(f);
-      else for (const f of COMPUTED_FROM[c.fact] ?? [c.fact]) out.add(f);
-    }
-  }
+  for (const rule of ruleset.rules)
+    if (rowIds.has(rule.rowId)) for (const f of ruleReads(rule)) out.add(f);
   return [...out].sort();
+}
+
+/** The numbers worth testing a number or intensity fact at: each threshold a rule uses, the one below it. */
+export function edgesOf(ruleset: CompiledRuleset, fact: string): number[] {
+  const spec = SPEC.get(fact);
+  if (!spec) return [];
+  return [...(thresholds(ruleset).get(fact) ?? [])]
+    .filter((n) => within(spec, n))
+    .sort((a, b) => a - b);
 }
 
 /**

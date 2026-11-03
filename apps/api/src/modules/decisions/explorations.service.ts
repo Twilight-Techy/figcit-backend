@@ -8,14 +8,17 @@ import type {
   compareBodySchema,
   exploreBodySchema,
   ExplorationDto,
+  gridBodySchema,
   impactBodySchema,
 } from './decisions.schemas.js';
 import { EngineToolsService } from './engine-tools.service.js';
+import { GridService } from './grid.service.js';
 
 type Requests = {
   explore: z.infer<typeof exploreBodySchema>;
   compare: z.infer<typeof compareBodySchema>;
   impact: z.infer<typeof impactBodySchema>;
+  grid: z.infer<typeof gridBodySchema>;
 };
 type Request = Requests[keyof Requests];
 
@@ -34,6 +37,7 @@ export class ExplorationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tools: EngineToolsService,
+    private readonly grids: GridService,
     private readonly jobs: JobsService,
   ) {}
 
@@ -109,11 +113,13 @@ export class ExplorationsService {
   private compute(kind: ExplorationKind, label: string, request: Request): Promise<unknown> {
     switch (kind) {
       case 'explore':
-        return this.tools.explore(label, request);
+        return this.tools.explore(label, request as Requests['explore']);
       case 'compare':
         return this.tools.compare(label, request as Requests['compare']);
       case 'impact':
         return this.tools.impact(label, request as Requests['impact']);
+      case 'grid':
+        return this.grids.grid(label, request as Requests['grid']);
     }
   }
 }
@@ -133,5 +139,6 @@ function dto(row: EngineExploration): ExplorationDto {
     explore: row.kind === 'explore' ? (result as ExplorationDto['explore']) : null,
     compare: row.kind === 'compare' ? (result as ExplorationDto['compare']) : null,
     impact: row.kind === 'impact' ? (result as ExplorationDto['impact']) : null,
+    grid: row.kind === 'grid' ? (result as ExplorationDto['grid']) : null,
   };
 }

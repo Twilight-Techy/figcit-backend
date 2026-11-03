@@ -75,7 +75,7 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] AI steps: by hand, the real AI (off while it isn't ready), or what the app gets now
 - [x] Replay: "Try another" and re-check, step by step
 - [x] Saved scenarios: shared, run on any version with the run kept, deletes audited
-- [ ] Explorer: check-ins instead of facts, the three questions, the state grid in place of the outcome map, open any check-in in the Simulator
+- [x] Explorer: check-ins instead of facts, the three questions, the state grid in place of the outcome map, why each rule never fired, open any check-in in the Simulator
 
 ## M9 Finish
 - [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0005 for the exceptions (E-23, E-57)

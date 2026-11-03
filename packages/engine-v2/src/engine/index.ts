@@ -37,10 +37,24 @@ export {
   safetyInputs,
   seeded,
   withoutRows,
+  ruleReads,
   type FlowOptions,
   type FlowSet,
   type SafetySet,
 } from './flows.js';
+export {
+  checkInCases,
+  stateGrid,
+  type Account,
+  type CaseCheckIn,
+  type CaseContext,
+  type CaseSet,
+  type CheckInCase,
+  type GridCell,
+  type GridChoice,
+  type GridOutcome,
+} from './checkin-cases.js';
+export { producible, unreachable, type Producible } from './reach.js';
 export { checkInput } from './input.js';
 export { ENGINE_FORMATS, ENGINE_VERSION, run, type RunOptions } from './run.js';
 export { MAX_ALTERNATIVES } from './card.js';

@@ -118,19 +118,43 @@ function rationaleOf(
   return [head + next, ...extra].join(' ');
 }
 
+/**
+ * What the card leads with: its primary, else the first option the user hasn't just declined (the
+ * engine forbids a declined pathway as the primary; promoting one would undo that). The other
+ * options, always-visible actions first, follow.
+ */
+export function leadOf(
+  v2: Card,
+  rejected: readonly string[],
+): { lead: CardItem | null; options: CardItem[] } {
+  const visible = v2.visible.filter(
+    (i) => !('action' in i.target && i.target.action === 'get_support_now'),
+  );
+  const options = [...visible, ...v2.alternatives];
+  const promotable = options.findIndex((i) => !rejected.includes(i.pathway ?? ''));
+  const lead = v2.primary ?? (promotable >= 0 ? (options.splice(promotable, 1)[0] ?? null) : null);
+  return { lead, options };
+}
+
+/** The main button's words as the user sees them, and the tool it opens (the grid, E-61). */
+export function shownLead(
+  v2: Card,
+  copy: Presentation['copy'],
+  rejected: readonly string[] = [],
+): { label: string; tool: string | null } {
+  if (v2.kind === 'support_screen')
+    return { label: copy.get('card.support.cta') ?? '', tool: null };
+  const { lead } = leadOf(v2, rejected);
+  if (!lead) return { label: copy.get('action.open_home') ?? '', tool: null };
+  return { label: fill(labelOf(lead, copy), { task: 'your task' }), tool: lead.tool };
+}
+
 /** The card's buttons: the primary, two options (always-visible actions first), the next step. */
 function actionsOf(
   v2: Card,
   p: Presentation,
 ): { lead: CardItem | null; primary: Action; alternatives: Action[]; queued: Action | null } {
-  const visible = v2.visible.filter(
-    (i) => !('action' in i.target && i.target.action === 'get_support_now'),
-  );
-  const options = [...visible, ...v2.alternatives];
-  // With no primary, the first option the user hasn't just declined leads (the engine forbids a
-  // declined pathway as the primary; promoting one would undo that).
-  const promotable = options.findIndex((i) => !p.rejected.includes(i.pathway ?? ''));
-  const lead = v2.primary ?? (promotable >= 0 ? (options.splice(promotable, 1)[0] ?? null) : null);
+  const { lead, options } = leadOf(v2, p.rejected);
   const primary: Action = lead
     ? toAction(lead, p, v2.minutesCap)
     : { kind: 'open_home', label: p.copy.get('action.open_home') ?? '' };

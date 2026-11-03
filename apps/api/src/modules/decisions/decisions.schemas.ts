@@ -115,10 +115,10 @@ export const simulateResultSchema = z.union([
 /** Which inputs the explorer runs (M7, DESIGN §8; E-56). */
 const inputSet = {
   set: z
-    .enum(['sweep', 'flows', 'safety'])
-    .default('sweep')
+    .enum(['checkins', 'sweep', 'flows', 'safety'])
+    .default('checkins')
     .describe(
-      'sweep: the publish sweep; flows: the sweep, a pairwise cover of every input at each value the rules tell apart, and a random sample; safety: every combination of what the safety rows read',
+      'checkins: check-ins the app could send (every state with every feeling at each level, a pairwise cover of every answer, the plan and signals, and a random sample; E-61); sweep: the publish sweep; flows: engine facts, pairwise at every threshold edge, and a random sample; safety: every combination of what the safety rows read',
     ),
   sample: z
     .number()
@@ -126,14 +126,14 @@ const inputSet = {
     .min(0)
     .max(5000)
     .optional()
-    .describe('flows: how many random inputs (default 2,000)'),
+    .describe('checkins and flows: how many random inputs (default 2,000)'),
   seed: z
     .number()
     .int()
     .min(0)
     .max(2 ** 31)
     .optional()
-    .describe('flows: the random seed (default 1)'),
+    .describe('checkins and flows: the random seed (default 1)'),
 };
 const ruleRef = z.object({ tab: z.string().max(40), ref: z.string().max(200) });
 
@@ -157,16 +157,33 @@ export const exploreBodySchema = z
   })
   .strict();
 
+/** A check-in the app could send, as the Simulator takes it (E-61). */
+export const caseSchema = z
+  .object({
+    checkIn: z.record(z.string(), z.unknown()),
+    account: z.enum(['browse', 'free', 'plus']),
+    signals: z.record(z.string(), z.unknown()).describe("Changes to a new user's signals"),
+    declined: z.array(z.string()).describe('Tools declined with "Try another"'),
+  })
+  .describe('The check-in an input came from (the checkins set only)');
+const from = { from: caseSchema.optional() };
+
 const setReport = z.object({
-  name: z.enum(['inputs', 'sweep', 'flows', 'safety']),
+  name: z.enum(['inputs', 'checkins', 'sweep', 'flows', 'safety']),
   parts: z
-    .object({ sweep: z.number().int(), pairwise: z.number().int(), sample: z.number().int() })
-    .optional(),
+    .record(z.string(), z.number().int())
+    .optional()
+    .describe('How many inputs each part of the set gave'),
   facts: z.array(z.string()).optional().describe('safety: the inputs the safety rows read'),
   exhaustive: z.boolean().optional().describe('safety: every combination was run'),
   combinations: z.number().int().optional(),
 });
-const outcome = z.object({ input: inputFacts, light: z.string().nullable(), primary: z.string() });
+const outcome = z.object({
+  input: inputFacts,
+  light: z.string().nullable(),
+  primary: z.string(),
+  ...from,
+});
 
 export const exploreResultSchema = z.object({
   set: setReport,
@@ -174,14 +191,27 @@ export const exploreResultSchema = z.object({
   refused: z.number().int(),
   rules: z.object({
     total: z.number().int(),
-    neverFired: z.array(z.string()).describe('Rules ("tab · reference #n") no input fired'),
+    neverFired: z
+      .array(
+        z.object({
+          rule: z.string().describe('"tab · reference #n"'),
+          reason: z
+            .enum(['needs_recheck', 'no_option', 'not_tried'])
+            .nullable()
+            .describe(
+              'checkins only: needs a re-check (not in the set); no option of the check-in gives a value it needs (it can never fire from the app); or possible, but no check-in tried the answers it needs together',
+            ),
+          values: z.array(z.string()).describe('no_option: the values no option gives'),
+        }),
+      )
+      .describe('Rules no input fired'),
   }),
   byLight: z.record(z.string(), z.number().int()),
   byPrimary: z.record(z.string(), z.number().int()),
   checks: z.object({
     counts: z.record(z.string(), z.number().int()),
     violations: z.array(
-      z.object({ check: z.string(), input: inputFacts, rows: z.array(z.string()) }),
+      z.object({ check: z.string(), input: inputFacts, rows: z.array(z.string()), ...from }),
     ),
   }),
   map: z
@@ -198,7 +228,10 @@ export const exploreResultSchema = z.object({
     )
     .describe('State × strongest feeling → the most common outcome'),
   noOutcome: z
-    .object({ count: z.number().int(), examples: z.array(inputFacts) })
+    .object({
+      count: z.number().int(),
+      examples: z.array(z.object({ input: inputFacts, ...from })),
+    })
     .describe('Cards with no primary, no alternatives and no support screen'),
   matches: z
     .object({ count: z.number().int(), examples: z.array(outcome) })
@@ -257,6 +290,7 @@ export const compareBodySchema = z
 
 const change = z.object({
   input: inputFacts,
+  ...from,
   before: z.object({ light: z.string().nullable(), primary: z.string() }),
   after: z.object({ light: z.string().nullable(), primary: z.string() }),
 });
@@ -284,10 +318,57 @@ export const impactResultSchema = compareResultSchema.extend({
 export type ImpactResult = z.infer<typeof impactResultSchema>;
 export type CompareResult = z.infer<typeof compareResultSchema>;
 
+/** The state grid (E-61): for a feeling picked, the card of each cell and what changes it. */
+export const gridBodySchema = z
+  .object({
+    feeling: z.string().max(48).nullable().default(null).describe('A feeling option, or none'),
+    intensity: z.number().int().min(0).max(10).nullable().default(null),
+    account: z.enum(['browse', 'free', 'plus']).default('free'),
+    against: z
+      .string()
+      .max(40)
+      .optional()
+      .describe('Another version: each cell shows its card there too'),
+  })
+  .strict();
+
+const gridOutcome = z.object({
+  light: z.string().nullable(),
+  kind: z.enum(['card', 'support_screen']),
+  label: z.string().describe('The main button as the user sees it'),
+  tool: z.string().nullable(),
+});
+
+export const gridResultSchema = z.object({
+  feeling: z.string().nullable(),
+  intensity: z.number().int().nullable(),
+  account: z.string(),
+  against: z.string().nullable(),
+  cells: z.array(
+    z.object({
+      cell: z.string().describe('E1M1 … E4M4'),
+      case: caseSchema,
+      outcome: gridOutcome.nullable().describe('Null when the engine refused the input'),
+      before: gridOutcome
+        .nullable()
+        .describe('The card in the version compared against (null without one)'),
+      changes: z
+        .array(
+          z.object({
+            answer: z.object({ input: z.string(), code: z.string().optional() }),
+            outcome: gridOutcome,
+          }),
+        )
+        .describe('Each single other answer that gives a different card'),
+    }),
+  ),
+});
+export type GridResult = z.infer<typeof gridResultSchema>;
+
 /** An explorer run (M7, E-57): queued, run by the worker, its result once done. */
 export const explorationSchema = z.object({
   id: z.uuid(),
-  kind: z.enum(['explore', 'compare', 'impact']),
+  kind: z.enum(['explore', 'compare', 'impact', 'grid']),
   status: z.enum(['queued', 'running', 'done', 'failed']),
   label: z.string(),
   request: z.record(z.string(), z.unknown()).describe('The request as sent'),
@@ -298,5 +379,6 @@ export const explorationSchema = z.object({
   explore: exploreResultSchema.nullable().describe('The result of an explore, once done'),
   compare: compareResultSchema.nullable().describe('The result of a compare, once done'),
   impact: impactResultSchema.nullable().describe('The result of an impact, once done'),
+  grid: gridResultSchema.nullable().describe('The result of a state grid, once done'),
 });
 export type ExplorationDto = z.infer<typeof explorationSchema>;

@@ -222,7 +222,8 @@ const matchesQuery = (
   (q.primary === undefined || primaryKey(card) === q.primary) &&
   (q.rows === undefined || fired.some((id) => q.rows?.has(rowOfRule(id))));
 
-const primaryKey = (card: Card): string => {
+/** The card's main suggestion as a code: its tool, action or pathway; `support_screen`; `none`. */
+export const primaryKey = (card: Card): string => {
   if (card.kind === 'support_screen') return 'support_screen';
   const p = card.primary;
   if (!p) return 'none';
