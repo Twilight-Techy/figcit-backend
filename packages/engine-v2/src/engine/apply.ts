@@ -32,6 +32,12 @@ export class Material {
   readonly excluded = new Map<string, string>();
   readonly prefers: (Origin & { readonly tools: readonly string[] })[] = [];
   readonly tiers = new Map<string, Set<string>>();
+  /** Free tool → its fuller Advanced version (Tab 6d section A, E-62). */
+  readonly versions = new Map<string, string>();
+  /** Tiers whose fuller versions take a tool's place (a plan that has them, E-62). */
+  readonly upgrades: (Origin & { tier: string })[] = [];
+  /** One tool of a tier offered beside the card's suggestion (E-62). */
+  readonly offers: (Origin & { tier: string })[] = [];
   readonly tierLimits: (Origin & { tier: string; max: number; slot: string | null })[] = [];
   readonly tierRequires: (Origin & { tier: string; slot: string })[] = [];
   readonly keepOnly: (Origin & { drivers: readonly string[] })[] = [];
@@ -119,12 +125,29 @@ function applyToChoice(e: Effect, origin: Origin, m: Material): boolean {
     case 'tools.prefer':
       m.prefers.push({ ...origin, tools: list(e, 'tools') });
       return true;
+    default:
+      return applyToTiers(e, origin, m);
+  }
+}
+
+/** Effects about tool tiers: which tools are of a tier, versions, upgrades, offers, limits. */
+function applyToTiers(e: Effect, origin: Origin, m: Material): boolean {
+  switch (e.kind) {
     case 'tools.tier': {
       const set = m.tiers.get(str(e, 'tier')) ?? new Set<string>();
       for (const t of list(e, 'tools')) set.add(t);
       m.tiers.set(str(e, 'tier'), set);
       return true;
     }
+    case 'tools.version':
+      if (!m.versions.has(str(e, 'tool'))) m.versions.set(str(e, 'tool'), str(e, 'version'));
+      return true;
+    case 'tools.upgrade':
+      m.upgrades.push({ ...origin, tier: str(e, 'tier') });
+      return true;
+    case 'tier.offer':
+      m.offers.push({ ...origin, tier: str(e, 'tier') });
+      return true;
     case 'tier.limit':
       m.tierLimits.push({ ...origin, tier: str(e, 'tier'), max: num(e, 'max'), slot: slotOf(e) });
       return true;

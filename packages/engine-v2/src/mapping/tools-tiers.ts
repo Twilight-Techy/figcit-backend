@@ -12,15 +12,23 @@ const tier = (name: 'advanced' | 'floor', tools: readonly string[]): Effect =>
   set('tools.tier', { tier: name, tools });
 const ref = (reason: string): RowMapping => ({ mapping: 'reference', reason });
 
-/** A section A row: its Advanced tools and its safety floor; every other tool of it is free. */
+/**
+ * A section A row: its Advanced tools and its safety floor (every other tool of it is free), and
+ * which Advanced tool is the fuller version of which free one, where the row names it so ("Advanced
+ * Movement" for Move; E-62).
+ */
 function pathwayRow(m: {
   readonly advanced: readonly string[];
   readonly floor: readonly string[];
+  readonly versions?: Readonly<Record<string, string>>;
   readonly reason: string;
 }): RowMapping {
   const effects = [
     tier('advanced', m.advanced),
     ...(m.floor.length > 0 ? [tier('floor', m.floor)] : []),
+    ...Object.entries(m.versions ?? {}).map(([tool, version]) =>
+      set('tools.version', { tool, version }),
+    ),
   ];
   return mapped({ stage: 'entitlements', rules: [rule(null, effects)], reason: m.reason });
 }
@@ -31,7 +39,8 @@ const PATHWAYS: NonNullable<TabMapping['rows']> = {
   Regulate: pathwayRow({
     advanced: toolsOf('regulate', ['breathe', 'ground', 'move', 'sounds', 'step_out', 'rest']),
     floor: ['breathe', 'ground', 'move', 'sounds', 'step_out', 'rest'],
-    reason: `Every free Regulate tool is the floor. "Discreet public variants" and "tap-only mode" are ways the free tools run, not tools. ${TIERS}`,
+    versions: { sounds: 'sounds_plus', move: 'movement_plus' },
+    reason: `Every free Regulate tool is the floor. "Advanced Sounds" and "Advanced Movement" are the fuller versions of Sounds and Move (E-62). "Discreet public variants" and "tap-only mode" are ways the free tools run, not tools. ${TIERS}`,
   }),
   Express: pathwayRow({
     advanced: toolsOf('express', ['simplify_rewrite', 'comm_cards', 'help_templates']),
@@ -47,12 +56,14 @@ const PATHWAYS: NonNullable<TabMapping['rows']> = {
       'focus_timer',
     ]),
     floor: ['smallest_step'],
-    reason: `The floor is the smallest step; "the timeline cap always free" is Tab 4's step cap, a rule. ${TIERS}`,
+    versions: { breakdown: 'full_breakdown' },
+    reason: `The full breakdown is the fuller version of the basic breakdown (E-62). The floor is the smallest step; "the timeline cap always free" is Tab 4's step cap, a rule. ${TIERS}`,
   }),
   Dump: pathwayRow({
     advanced: toolsOf('dump', ['dump_text', 'dump_voice', 'dump_sort', 'dump_to_task']),
     floor: ['dump_text', 'dump_voice'],
-    reason: `The floor is text and voice capture; the voice time allowance is billing. ${TIERS}`,
+    versions: { dump_voice: 'long_voice', dump_sort: 'ai_sort', dump_to_task: 'one_tap_convert' },
+    reason: `Longer voice notes, AI sorting and one-tap convert are the fuller versions of voice capture, manual sorting and moving an item by hand (E-62). The floor is text and voice capture; the voice time allowance is billing. ${TIERS}`,
   }),
   Adapt: pathwayRow({
     advanced: toolsOf('adapt', ['adaptation_library', 'stop_points', 'rerun']),
@@ -94,7 +105,7 @@ const PATHWAYS: NonNullable<TabMapping['rows']> = {
 const FEATURES: NonNullable<TabMapping['rows']> = {
   'Onboarding, check-in, experience, context, need, demand': ref('All free: no rule gates them.'),
   'Engine and Recommendation Card': ref(
-    'Same rules for every user; "one labelled Advanced alternative in Green, Yellow or Blue" is ENT-3.',
+    'Same rules for every user; "one labelled Advanced alternative in Green, Yellow or Blue" is the Green, Yellow and Blue rows (E-62) within ENT-3.',
   ),
   'Help/SOS, safety override, Support Plan': ref(
     'Always free (ENT-2); nothing in the engine charges.',
@@ -169,14 +180,36 @@ const floorCard = (light: string, extra: readonly Effect[] = []): RowMapping =>
     mapping: 'exact',
   });
 
+/**
+ * A calm card (Green, Yellow, Blue): a plan that has Advanced tools gets the fuller version of a
+ * suggested tool ("the best-fit tool the user's plan includes"); and, not under strain, one
+ * Advanced tool is offered beside the suggestion ("Advanced alternative? Yes, at most one,
+ * labelled"). ENT-1 and ENT-3 still bind: without the plan it is never the primary, never more
+ * than one, never under strain. The Owner's reading, 3 Nov 2026 (E-62).
+ */
+const calmCard = (light: string, reason: string): RowMapping =>
+  mapped({
+    stage: 'entitlements',
+    rules: [
+      rule(all(lights(light), ENTITLED), [set('tools.upgrade', { tier: 'advanced' })]),
+      rule(all(lights(light), not(NO_UPSELL)), [set('tier.offer', { tier: 'advanced' })]),
+    ],
+    reason: `${reason} The best fit is the fuller version where Tab 6d names one; the offered tool is one of a new kind first (E-62).`,
+  });
+
 const CARD: NonNullable<TabMapping['rows']> = {
-  'Green (Available)': ref(
+  'Green (Available)': calmCard(
+    'green',
     'ENT-1 (a primary the plan includes) and ENT-3 (one labelled Advanced alternative).',
   ),
-  'Yellow (Conditional)': ref(
-    'ENT-1 and ENT-3; "only at Mild/Moderate" is ENT-3\'s High+ condition.',
+  'Yellow (Conditional)': calmCard(
+    'yellow',
+    'ENT-1 and ENT-3; "only at Mild/Moderate" is ENT-3\'s High+ condition, which keeps the offer away.',
   ),
-  'Blue (Recovery)': ref('ENT-1 and ENT-3; the "gentle step" is the Blue rules (RC-2).'),
+  'Blue (Recovery)': calmCard(
+    'blue',
+    'ENT-1 and ENT-3; the "gentle step" is the Blue rules (RC-2).',
+  ),
   'Amber (Constrained)': floorCard('amber'),
   'Red (Very Constrained)': floorCard('red', [set('support.show')]),
 };

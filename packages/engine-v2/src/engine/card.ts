@@ -74,7 +74,7 @@ export class CardBuilder {
     const primary = this.primary();
     // The queue is the plan after the primary, so it is filled before the options beside it.
     const queued = this.queued(primary.item);
-    const alternatives = this.alternatives(primary.losers);
+    const alternatives = this.offer(primary.item, this.alternatives(primary.losers));
     return {
       kind: 'card',
       band: (this.state.fact('band.final') as string | undefined) ?? null,
@@ -298,15 +298,79 @@ export class CardBuilder {
       (t) => this.toolAllowed(t, slot) && ('tool' in target || !this.toolPlaced(t)),
     );
     if (tool === undefined) return null;
+    const used = this.upgraded(tool, slot);
     return {
       target,
       pathway,
-      tool,
-      advanced: this.inTier(tool, 'advanced'),
+      tool: used,
+      advanced: this.inTier(used, 'advanced'),
       copy: null,
       tone: this.toneFor(slot, from),
       from,
     };
+  }
+
+  /**
+   * A plan that has a tier gets a tool's fuller version of that tier in its place (Movement+ for
+   * Move), when the card allows it: in Amber and Red the floor rows keep the free tool (E-62).
+   */
+  private upgraded(tool: string, slot: string): string {
+    const version = this.m.versions.get(tool);
+    if (version === undefined || this.toolPlaced(version)) return tool;
+    const by = this.m.upgrades.find((u) => this.inTier(version, u.tier));
+    if (!by || !this.toolAllowed(version, slot)) return tool;
+    this.notes.push(`${by.rule.ref}: ${version} in place of ${tool}`);
+    return version;
+  }
+
+  /**
+   * One tool of an offered tier beside the card's suggestion (Tab 6d: "one labelled Advanced
+   * alternative"; E-62), when the card has none of that tier yet. From the pathway of the card's
+   * first tool: a tool of a new kind first (Create, Scripts), then a fuller version of a tool not
+   * on the card; never the paid version of the tool beside it. It takes a free alternative place,
+   * else the place of an action; never a support option's. The one it replaces is noted.
+   */
+  private offer(primary: CardItem | null, alternatives: CardItem[]): CardItem[] {
+    const o = this.m.offers[0];
+    const items = [primary, ...alternatives].filter((i): i is CardItem => i !== null);
+    if (!o || items.some((i) => i.tool !== null && this.inTier(i.tool, o.tier)))
+      return alternatives;
+    const anchor = items.find((i) => i.tool !== null && i.pathway !== null);
+    if (!anchor?.pathway) return alternatives;
+    const versions = new Set(this.m.versions.values());
+    const onCard = new Set(items.flatMap((i) => (i.tool ? [this.m.versions.get(i.tool)] : [])));
+    const own = (this.toolsByPathway.get(anchor.pathway) ?? []).filter(
+      (t) => this.inTier(t, o.tier) && !onCard.has(t),
+    );
+    // A free place, else the place of an action ("Check in again"): never of a support option,
+    // since money never decides whether someone gets support (Tab 6d; E-62).
+    const full = alternatives.length >= MAX_ALTERNATIVES;
+    const gone = full ? alternatives.filter((a) => 'action' in a.target).slice(-1) : [];
+    if (full && gone.length === 0) return alternatives;
+    const kept = alternatives.filter((a) => !gone.includes(a));
+    for (const g of gone) this.unplace(g);
+    const tool = [
+      ...own.filter((t) => !versions.has(t)),
+      ...own.filter((t) => versions.has(t)),
+    ].find((t) => !this.toolPlaced(t) && this.toolAllowed(t, 'alternative'));
+    if (tool === undefined) {
+      for (const g of gone) this.place(g, 'alternative');
+      return alternatives;
+    }
+    const item: CardItem = {
+      target: { tool },
+      pathway: anchor.pathway,
+      tool,
+      advanced: this.inTier(tool, 'advanced'),
+      copy: null,
+      tone: this.toneFor('alternative', o.rule.id),
+      from: o.rule.id,
+    };
+    this.place(item, 'alternative');
+    this.notes.push(
+      `${o.rule.ref} offers ${tool}${gone.length ? ` in place of ${gone.map((g) => keyOf(g.target)).join(', ')}` : ''}`,
+    );
+    return [...kept, item];
   }
 
   private preferred(pathway: string): string[] {
@@ -372,6 +436,12 @@ export class CardBuilder {
 
   private place(item: CardItem, slot: string): void {
     this.placed.push({ item, slot });
+  }
+
+  /** An alternative that gave way to the offered tool leaves the card. */
+  private unplace(item: CardItem): void {
+    const at = this.placed.findIndex((p) => p.item === item && p.slot === 'alternative');
+    if (at >= 0) this.placed.splice(at, 1);
   }
 
   /** Wording of a required target: the best proposal of the same target that has wording. */

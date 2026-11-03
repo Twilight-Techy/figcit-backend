@@ -736,6 +736,27 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - After "Try another", the card says "Because of how your energy and mood are right now…" even when the user named feelings: the rerun passes no feelings to the presenter. The Simulator shows this as the app does. T-31 records it.
   - The AI's task characteristics are v1 codes (`first_time`, `multi_step`…) that the v2 catalogue doesn't have, so no AI-suggested characteristic ever reaches the engine. T-16 now records this.
 
+### E-62 Advanced tools are offered, not only held back (Owner, 3 Nov 2026)
+- **Found (T-33):** ENT-1, ENT-3 and the Amber and Red card rows held for every check-in on every plan, but nothing chose an Advanced tool. A pathway resolved to its first allowed tool, and the free tools come first. Only 2 of 44 Advanced tools ever reached a card, and the workbook's scenarios ENT.2 and ENT.4 didn't hold.
+- **Decision (Owner):**
+  1. **The fuller version.** A plan with Advanced tools gets the fuller version of a suggested tool where Tab 6d names one: Move → Advanced Movement, Sounds → Advanced Sounds, basic → full breakdown, voice capture → longer voice notes, manual → AI sorting, moving an item by hand → one-tap convert. This applies on Green, Yellow and Blue. In Amber and Red the floor rows keep the free tool.
+  2. **The offer.** A calm card (Green, Yellow, Blue; not under strain as ENT-3 defines it) offers one Advanced tool from the pathway of the card's first tool, when the card has none yet. It is a tool of a new kind first, then a fuller version of a tool not on the card. It is never the paid version of the tool beside it.
+  3. **The place it takes.** A free alternative place, else the place of an action. Never a support option's: replacing whatever came last pushed out a free support option in 1,018 of 2,218 cases ("Money never decides whether someone gets support", Tab 6d).
+- **For the founder:** `OWNER_DISCUSSION.md` O-20 explains each choice, the numbers, and how to change it.
+- **Engine (format 3, additive; no format 3 rule set has left the development databases, as with E-48):**
+  - Three effects: `tools.version` (on the Tab 6d pathway rows), and `tools.upgrade` and `tier.offer` (on the Green, Yellow and Blue card rows, now `interpreted` instead of `reference`).
+  - The card builder swaps in the fuller version when it is allowed, and adds the offered tool after the alternatives. The trace notes each.
+- **Not built:** ENT.4's Plus column (Self-advocacy prep, then Scripts) reads the context (a meeting). No general rule gives it, and building it from the example would fit the engine to an example (E-01). It is a `todo` test and part of O-20.
+- **Tests:**
+  - ENT.1, ENT.2, ENT.4 (Free) and ENT.6.
+  - The versions stay within a pathway.
+  - No offer under strain.
+  - For every check-in, the offer never removes a support option.
+  - ENT-1 and ENT-3 still hold over every check-in on every plan.
+- **Effect over the explorer's check-ins:**
+  - **Free:** an Advanced tool on 33% of cards (54% of calm ones), never first.
+  - **Plus:** on 36%, first on 71 cards, with 14 different tools.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

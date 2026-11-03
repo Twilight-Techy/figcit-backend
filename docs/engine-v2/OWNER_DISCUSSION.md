@@ -23,6 +23,7 @@
 | O-16 | What the public API returns (trace, export) | Owner | API contract |
 | O-17 | Where data ends and code begins | Owner, workbook author | Rule format |
 | O-18 | What the engine does while a rule is exempt | Owner, Clinical Safety | Import and publish |
+| O-20 | How Advanced (Plus) tools are offered on the card | Founder | Confirming E-62 |
 
 Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, and listed in `DECISION_LOG.md`.
 
@@ -305,3 +306,77 @@ Owner rulings of 1 Nov 2026 are filled in on O-01, O-03, O-05 and O-09 below, an
 - **Constraints:** a skipped rating must never read as mild for a harder feeling. A prompt must not shame or alarm.
 - **Recommendation:** keep the three choices until the Clinical Safety lead rules on them, then change the data and the engine rule.
 - **Decision:** ________
+
+## O-20 How Advanced (Plus) tools are offered on the card
+
+*Decided by the Owner on 3 Nov 2026 (DECISION_LOG E-62). Written for the founder, to confirm or change.*
+
+### In plain terms
+
+Every pathway has free tools and Advanced (paid) tools. The workbook (Tab 6d) says two things about them on the recommendation card:
+
+1. **Holding back.** Without a paid plan, an Advanced tool is never the main suggestion. Under strain (Amber, Red, a hard feeling at High or above, a recent safety event, during a session) no Advanced tool is shown at all. Otherwise at most one, labelled "Advanced", with the upgrade shown only if the user taps it (ENT-1, ENT-3). In Amber and Red every plan gets only the free safety-floor tools.
+2. **Offering.** A Plus user gets "the best-fit tool the user's plan includes". On a calm card (Green, Yellow, Blue) "Advanced tools may appear as ONE labelled alternative". The workbook's examples show it: in ENT.2 (Full Flow, restless, at home) the Free user sees "Move, with Create [Advanced] as an alternative", and the Plus user may get "Create or Advanced Movement" first.
+
+### What we found
+
+- **Holding back worked.** Tested over about 8,000 check-ins on every plan, it was never broken.
+- **Offering had never been built.** Inside a pathway, the engine always took the first tool on the list, and the free tools come first. So a Plus user got the same card as a Free user. Only 2 of the 44 Advanced tools ever appeared (on about 1 Plus card in 100), and the Free user's labelled Advanced alternative appeared on 19 cards in about 9,600.
+
+### What the Owner decided (3 Nov 2026)
+
+1. **Plus gets the fuller version of a suggested tool.** Where Tab 6d names an Advanced tool as the fuller version of a free one, a Plus user gets it in the free one's place:
+
+   | Free tool | Fuller version (Plus) |
+   |---|---|
+   | Move | Advanced Movement |
+   | Sounds | Advanced Sounds |
+   | Basic breakdown | Full breakdown |
+   | Voice capture | Longer voice notes |
+   | Manual sorting | AI sorting |
+   | Move an item to a task by hand | One-tap convert |
+
+   - **Why:** "best fit" isn't defined in the workbook. The only reading that doesn't guess is the one the workbook spells out: these Advanced tools are the same thing with more depth.
+   - **Not in Amber or Red:** there the safety floor stays, for every plan.
+   - **Not the guided settles:** the 10 and 20 minute settles are longer, not fuller, and how long a session lasts is a clinical choice (the minutes cap).
+2. **A calm card offers one Advanced tool beside the suggestion.** This applies on Green, Yellow and Blue, and never under strain.
+   - **For Free users** it is the labelled taster ("Advanced", upgrade on tap).
+   - **For Plus users** it is simply another of their tools, and only when the card has no Advanced tool yet.
+   - **Which tool:** one from the same pathway as the suggestion, a tool of a new kind first (Create, Scripts, Photo capture). A fuller version comes next, but never the paid version of the tool already beside it.
+     - **Why:** a Free user who sees Move next to "Advanced Movement" is being sold more of the same thing. A different kind of tool shows what Plus adds. This is also what ENT.2 shows: Move, with Create.
+3. **The Advanced tool never pushes out a support option.** It takes a free alternative place. If both are taken, it may replace a navigation action such as "Check in again", but never a support tool or pathway.
+   - **Why:** our first version replaced whatever was last. It then pushed out a free support option in 1,018 of 2,218 cases, including free Regulate tools (569), Connect (73) and the user's own practice. Tab 6d opens with "Money never decides whether someone gets support", so that was wrong. A test now checks this for every check-in.
+
+### What it gives
+
+| Workbook scenario | Free | Plus | As the workbook? |
+|---|---|---|---|
+| ENT.1 Ground First (Amber), overwhelm 7, at work | Safety-floor tools only | Same as Free | Yes |
+| ENT.2 Full Flow (Green), restless, at home | Move, with **Create [Advanced]** | **Advanced Movement** in place of Move | Yes |
+| ENT.4 Flow Entering (Yellow), adjustment meeting T2 | Simplify, with one Advanced Express tool (Draft) | Same as Free | Free yes; **Plus no** (see below) |
+| ENT.6 Red, distress 9 | Safety floor and "Get support now" | Same as Free | Yes |
+
+**How often, over the explorer's check-ins:**
+- **Free:** an Advanced tool on 33% of cards (54% of calm cards), never as the main suggestion.
+- **Plus:** an Advanced tool on 36% of cards (58% of calm cards), as the main suggestion on 71. 14 different Advanced tools appear, where 2 did before.
+
+### What is not built, and why
+
+**ENT.4's Plus column** (Self-advocacy prep, then Express Scripts) comes from reading the context: the task is an adjustment meeting, so Scripts "for meetings, calls and presentations" fits. No general rule gives that. Building it from the one example would mean fitting the engine to an example table, which is what made engine v1 break the workbook's rules (E-01, ADR 0004). If the founder wants context-based picks, they need rules such as "a task about a meeting: Scripts first in Express". Those can be added as rule rows.
+
+### If the founder wants it differently
+
+Each choice is rule data in the Tab 6d rows. The clinical admin can change it in the staff app (Rules → a draft version → the `tools_tiers` tab), check it in the Simulator and the Explorer, and publish. Nothing needs a release, except where marked.
+
+| Choice | Today | Other ways | How to change |
+|---|---|---|---|
+| Which Advanced tool is a "fuller version" | The six pairs above | Add pairs (e.g. the 10 minute settle for the 5 minute one), or remove some | Edit the pathway rows of Tab 6d (`tools.version`) |
+| When Plus gets the fuller version | Green, Yellow and Blue | Also at High intensity, or never | Edit the Green, Yellow and Blue rows (`tools.upgrade`) |
+| When the one Advanced alternative is offered | Calm cards, not under strain | Less often (only Green), or for Free users only | Edit the same rows (`tier.offer`) |
+| Which Advanced tool is offered | A new kind first, from the suggestion's pathway | The pathway's fuller version first; the workbook's list order | Engine change (E-62) |
+| What it may replace | A free place, or a navigation action; never support | A free place only (fewer offers) | Engine change (E-62) |
+| Context picks (ENT.4) | None | Rules per context, e.g. a meeting means Scripts | New rule rows, written with the founder |
+
+- **Recommendation:** keep the three choices. Decide whether Plus should differ from Free more strongly; today the main difference is the fuller versions and the main suggestion.
+- **Decision:** Owner, 3 Nov 2026: as above. Founder: ________
+

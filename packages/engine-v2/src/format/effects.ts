@@ -231,6 +231,27 @@ export const EFFECTS: readonly EffectSpec[] = [
       "The slot's tool must be of this tier (Tab 6d D: a safety-floor tool in Amber and Red)",
   }),
   effect({
+    kind: 'tools.version',
+    class: 'modifier',
+    params: { tool: { type: 'enum', domain: 'tool' }, version: { type: 'enum', domain: 'tool' } },
+    description:
+      "This Advanced tool is the fuller version of that free one (Tab 6d section A: 'Advanced Movement' for Move)",
+  }),
+  effect({
+    kind: 'tools.upgrade',
+    class: 'requirement',
+    params: { tier: { type: 'enum', domain: 'tier' } },
+    description:
+      "Use a tool's fuller version of this tier in its place, where one exists and the card allows it (Tab 6d: the best-fit tool the plan includes; E-62)",
+  }),
+  effect({
+    kind: 'tier.offer',
+    class: 'requirement',
+    params: { tier: { type: 'enum', domain: 'tier' } },
+    description:
+      "Offer one tool of this tier from the card's suggested pathway as an alternative (Tab 6d: one labelled Advanced alternative in Green, Yellow or Blue; E-62)",
+  }),
+  effect({
     kind: 'copy.use',
     class: 'modifier',
     params: { slot: { type: 'slot' }, key: { type: 'key' } },

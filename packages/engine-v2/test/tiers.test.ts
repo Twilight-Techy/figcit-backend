@@ -39,12 +39,13 @@ describe('Tab 6d tiers', () => {
 
   it('is covered row by row', () => {
     const { report } = applyMappings(imported.records, catalogueOf(imported.records).catalogue);
+    // Green, Yellow and Blue are interpreted since E-62 (the best fit and the offered tool).
     expect(report.byTab.tools_tiers).toEqual({
       rules: 33,
       exact: 2,
-      interpreted: 10,
+      interpreted: 13,
       unresolved: 0,
-      reference: 21,
+      reference: 18,
       pending: 0,
     });
   });
