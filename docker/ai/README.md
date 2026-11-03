@@ -1,5 +1,10 @@
 # AI server
 
+**Now on Modal (ADR 0009).** The AI server runs as the Modal app in `modal/figcit_ai.py`: on CPUs, in
+the EU, scaling to zero. See that file's header for deploying it. The Docker setup below is for
+self-hosting it on a server of our own instead.
+
+
 llama-server (language, Ministral 3 3B) and whisper-server (speech, Whisper small.en with VAD) on one
 CPU host, reachable only over the private network (SYSTEM_DESIGN §4.3, §11; ADR 0002–0004).
 

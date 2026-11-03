@@ -67,7 +67,7 @@ Places where the source documents, the Figma designs and the live website disagr
 | [D-37](#d-37-build-plan-vs-other-plans-in-drive) | Build plan vs other plans in Drive | P1 | Founder |
 | [D-38](#d-38-ai-model-per-task) | Which open model per task | P2 | Tech lead, after speed tests |
 | [D-39](#d-39-support-without-a-check-in) | Support without a check-in | P1 | Founder, Clinical Safety |
-| [D-40](#d-40-serverless-gpu-for-ai) | Serverless GPU (Modal) for AI | P2 | Founder, tech lead |
+| [D-40](#d-40-serverless-gpu-for-ai) | Serverless GPU (Modal) for AI: now Modal CPU in the EU (ADR 0009) | P2 | Founder, tech lead |
 
 ---
 
@@ -397,3 +397,4 @@ Each of these is a paid (Advanced) feature in PRD 1.9 / Workbook Tab 6d but show
   - Decision scoring (ADR 0005, ADR 0006) cuts the classification calls to about 0.4 s, which multiplies what that server handles.
   - If `ai_calls` shows a GPU is needed, add an always-on UK/EU GPU server that we run. Not serverless: its capacity waits are unbounded, and it would need a data processing agreement and a privacy-notice change.
   - Modal stays allowed for evals with synthetic data only.
+- **Updated 3 Nov 2026 (Twilight-Techy, ADR 0009):** the AI server now runs on Modal, on CPUs, in the EU, scaling to zero. Requests enter through Modal's Dublin proxy and the containers run in the European Economic Area. A GPU stays out. Before real users: a data processing agreement with Modal, an updated privacy notice, and speech uploads kept under 2 MiB, because Modal keeps larger requests in US storage.
