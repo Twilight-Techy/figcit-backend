@@ -21,13 +21,16 @@ export interface Api {
   close(): Promise<void>;
 }
 
-export async function bootApi(overrides: Record<string, string> = {}): Promise<Api> {
+/** Boots the API; an override of `undefined` unsets that variable (the local .env may set it). */
+export async function bootApi(overrides: Record<string, string | undefined> = {}): Promise<Api> {
   process.env['NODE_ENV'] = 'test';
   process.env['DEV_MAILBOX'] = 'true';
   process.env['RATE_LIMIT_ENABLED'] = 'false';
   process.env['LOG_LEVEL'] = 'error';
   loadDotEnv();
-  Object.assign(process.env, overrides);
+  for (const [k, v] of Object.entries(overrides))
+    if (v === undefined) Reflect.deleteProperty(process.env, k);
+    else process.env[k] = v;
   const { createApp } = await import('../src/app.factory.js');
   const app = await createApp(loadEnv(), { logger: false });
   await app.init();

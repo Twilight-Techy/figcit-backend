@@ -44,6 +44,11 @@ export class AiClient {
     return this.env.AI_BASE_URL !== undefined;
   }
 
+  /** Calls are refused for a while after the model server kept failing. */
+  get circuitOpen(): boolean {
+    return Date.now() < this.openUntil;
+  }
+
   get model(): string {
     return this.env.AI_MODEL;
   }

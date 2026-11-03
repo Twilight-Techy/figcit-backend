@@ -22,6 +22,8 @@ export interface CheckInOptions {
 }
 
 const CACHE_MS = 30_000;
+/** Versions that can no longer change, so their options are kept once built. */
+const FROZEN = new Set(['published', 'retired']);
 
 /**
  * The check-in's options from the published rule set (DECISION_LOG E-40), cached for 30 s so a
@@ -32,6 +34,7 @@ const CACHE_MS = 30_000;
 export class CheckInOptionsService {
   private readonly logger = new Logger('CheckInOptions');
   private cached: { at: number; value: CheckInOptions | null } | undefined;
+  private readonly frozen = new Map<string, CheckInOptions | null>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -48,6 +51,23 @@ export class CheckInOptionsService {
           ? await this.build(version.id, version.label, version.hash)
           : null;
     this.cached = { at: Date.now(), value };
+    return value;
+  }
+
+  /**
+   * Any version's options, drafts included (the staff Simulator, E-61). A draft is built on each
+   * call, since it can still change; a published or retired version is kept.
+   */
+  async ofVersion(versionId: string): Promise<CheckInOptions | null> {
+    const kept = this.frozen.get(versionId);
+    if (kept !== undefined) return kept;
+    const v = await this.prisma.rulesetVersion.findUnique({
+      where: { id: versionId },
+      select: { id: true, label: true, hash: true, status: true },
+    });
+    if (!v) return null;
+    const value = await this.build(v.id, v.label, v.hash ?? '');
+    if (FROZEN.has(v.status)) this.frozen.set(v.id, value);
     return value;
   }
 

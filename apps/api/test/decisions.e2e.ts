@@ -400,10 +400,12 @@ describe('decisions (engine v2)', () => {
   });
 
   it('sends staff sign-in links to the staff app only when its address is set (E-31)', async () => {
-    const off = await api.req('POST', '/auth/magic-link', {
+    const unset = await bootApi({ STAFF_APP_URL: undefined });
+    const off = await unset.req('POST', '/auth/magic-link', {
       body: { email: 'staff-e2e@example.com', app: 'staff' },
     });
     expect(off.status).toBe(501);
+    await unset.close();
     const on = await bootApi({ STAFF_APP_URL: 'http://staff.example' });
     const res = await on.req('POST', '/auth/magic-link', {
       body: { email: 'staff-e2e@example.com', app: 'staff' },

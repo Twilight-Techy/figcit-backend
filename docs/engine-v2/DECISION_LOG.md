@@ -685,6 +685,39 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Tests:** a Red card after one, two or three declines (with and without a task, at T0 and T3) always offers something and keeps "Get support now". The Amber "Get started" case keeps Execute off the primary. The all-flows set over three seeds has no card with nothing to offer and no fixed rule broken.
 - **Mapping status:** both band rows stay `interpreted`. Clinical Safety confirms the Red order with the other safety rows (T-11).
 
+### E-61 The Simulator runs a check-in, screen by screen (Owner, 2-3 Nov 2026)
+- **Why:** the first Simulator (E-18) took engine facts typed by hand. DESIGN §8 asked for inputs "in the order of the check-in". The Owner and the clinical admin need to see each step: what each screen adds, what the server adds, what the engine reads, the run and the card the user sees.
+- **Decision (Owner):**
+  - **One Simulator page.** It shows the check-in screens in the app's order, with plain controls. Full, Quick (starts at Need) and Re-check change which screens appear. Each screen shows what it adds to the check-in, what the engine reads from it, and what it leaves out and why.
+  - **The result, in the order a check-in goes:**
+    1. The check-in as the app sends it.
+    2. The engine input, each fact with where it came from.
+    3. The engine run.
+    4. The card as the app receives it.
+  - **Who:** Browse, or signed in on Free, Plus or Institution. A signed-in user starts with a new user's history. A collapsed "Account history" panel changes the signals. It is not a simulation of users.
+  - **Edited by hand:** the engine input can be edited as JSON for testing one rule. The result is then marked as an input the app can't send. The old fact-only form is removed.
+  - **The AI steps** (parse-need on the Need screen, suggest-drivers on the Task screen):
+    - picked by hand by default;
+    - "Run the real AI", turned off while the model isn't ready (not configured, or its circuit is open);
+    - "What the app gets now", the model or its rule-based fallback, labelled as such.
+  - **Replay:** "Try another" declines the main suggestion's tool, as the app's rerun does. "Re-check" checks in again about the card shown, with "They finished what was offered". Each step is listed.
+  - **Saved scenarios:** a scenario keeps the answers and what it runs. Scenarios are shared by the staff who use the Simulator. Each run keeps the version, who ran it and the card it gave. A run that gives a different card from the run before is marked. Saving and deleting go on the rules audit chain, and deleting needs a reason.
+- **The same code as a real check-in:**
+  - `factsFromCheckIn` now folds `explainCheckIn`, so the explanation and the engine input can't differ.
+  - The Simulator route runs the check-in's own steps on any version, drafts included: the options check, the risk check on the four texts, `factsFromCheckIn`, the engine and the presenter. A test checks that its engine input equals what a real new user's check-in records.
+  - Nothing is stored. A risk match makes no safety event, and the AI steps count against no user's limit.
+- **Routes (staff):**
+  - `GET /v1/rulesets/{label}/check-in-options`
+  - `POST /v1/rulesets/{label}/simulate-check-in`
+  - `GET /v1/ai/status`
+  - `POST /v1/ai/try/parse-need` and `POST /v1/ai/try/suggest-drivers`
+  - `GET|POST /v1/rulesets/scenarios`, `GET|DELETE /v1/rulesets/scenarios/{id}` and `POST /v1/rulesets/scenarios/{id}/run`
+  - Migration `20261103000000_sim_scenarios`.
+- **Found while building it:**
+  - The card's "After that: …" lowercased the next step's first letter, which broke "AI body double". Acronyms and the word "I" now keep their case.
+  - After "Try another", the card says "Because of how your energy and mood are right now…" even when the user named feelings: the rerun passes no feelings to the presenter. The Simulator shows this as the app does. T-31 records it.
+  - The AI's task characteristics are v1 codes (`first_time`, `multi_step`…) that the v2 catalogue doesn't have, so no AI-suggested characteristic ever reaches the engine. T-16 now records this.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

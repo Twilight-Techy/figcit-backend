@@ -5,8 +5,11 @@ import { CurrentUser, MaybeUser, type RequestUser } from '../../common/guards/re
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import { cardSchema, type CardDto } from '../recommendation/recommendation.schemas.js';
+import { checkInOptionsSchema } from '../rulesets/checkin-options.schemas.js';
+import type { CheckInOptionsDto } from '../rulesets/checkin-options.service.js';
 import { labelParam } from '../rulesets/rulesets.schemas.js';
 import { CardBridgeService } from './card-bridge.service.js';
+import { CheckInSimulatorService } from './checkin-simulator.service.js';
 import {
   anotherBodySchema,
   compareBodySchema,
@@ -30,6 +33,12 @@ import {
 import { DecisionsService, STAFF } from './decisions.service.js';
 import { EngineToolsService } from './engine-tools.service.js';
 import { ExplorationsService } from './explorations.service.js';
+import {
+  simulateCheckInBodySchema,
+  simulateCheckInResultSchema,
+  type SimulateCheckInBody,
+  type SimulateCheckInResult,
+} from './simulator.schemas.js';
 
 const TAGS = ['Engine v2'];
 
@@ -126,7 +135,40 @@ export class EngineToolsController {
   constructor(
     private readonly tools: EngineToolsService,
     private readonly explorations: ExplorationsService,
+    private readonly simulator: CheckInSimulatorService,
   ) {}
+
+  @Get(':label/check-in-options')
+  @Route({
+    summary: "A version's check-in options, drafts included (the staff Simulator's sections)",
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    response: checkInOptionsSchema,
+  })
+  async checkInOptions(
+    @Param('label', new ZodPipe(labelParam)) label: string,
+  ): Promise<CheckInOptionsDto> {
+    return (await this.simulator.optionsOf(label)).dto;
+  }
+
+  @Post(':label/simulate-check-in')
+  @HttpCode(200)
+  @Route({
+    summary:
+      'Run a check-in, as the app sends it, through a version: what each answer gives, what the server adds, the engine run and the card as the app gets it; nothing is stored',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    body: simulateCheckInBodySchema,
+    response: simulateCheckInResultSchema,
+  })
+  simulateCheckIn(
+    @Param('label', new ZodPipe(labelParam)) label: string,
+    @Body(new ZodPipe(simulateCheckInBodySchema)) body: SimulateCheckInBody,
+  ): Promise<SimulateCheckInResult> {
+    return this.simulator.simulate(label, body);
+  }
 
   @Post(':label/simulate')
   @HttpCode(200)

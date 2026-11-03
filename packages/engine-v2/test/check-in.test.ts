@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   checkInOptionsOf,
   checkInput,
+  explainCheckIn,
   factsFromCheckIn,
+  foldContributions,
   type CheckInValues,
 } from '../src/index.js';
 import { imported } from './fixtures.js';
@@ -88,6 +90,96 @@ describe('check-in to engine input', () => {
       catalogue,
     );
     expect(cardFor(facts).card.kind).toBe('support_screen');
+  });
+});
+
+describe('the check-in explained answer by answer (E-61)', () => {
+  const checkIn: CheckInValues = {
+    ...base,
+    emotions: [
+      { code: 'overwhelmed', intensity: 8 },
+      { code: 'tired', intensity: 4 },
+    ],
+    sensations: [{ code: 'looping', intensity: 6 }, { code: 'bright_lights' }],
+    context: { environment: 'work', supports: ['headphones'] },
+    needs: ['clear_head'],
+    justSupport: false,
+    demand: { traits: ['not_a_value'], puttingOff: true },
+  };
+
+  it('says which answer gave each piece of input', () => {
+    const { contributions } = explainCheckIn(checkIn, options, catalogue, 'T2');
+    expect(contributions).toContainEqual({
+      kind: 'rating',
+      from: { input: 'emotions', code: 'overwhelmed' },
+      fact: 'family.intensity',
+      key: 'distress_overwhelm',
+      value: 8,
+    });
+    expect(contributions).toContainEqual({
+      kind: 'rating',
+      from: { input: 'sensations', code: 'looping' },
+      fact: 'sensation.intensity',
+      key: 'racing',
+      value: 6,
+    });
+    expect(contributions).toContainEqual({
+      kind: 'value',
+      from: { input: 'context.environment', code: 'work' },
+      fact: 'context.setting',
+      value: 'work',
+    });
+    expect(contributions).toContainEqual({
+      kind: 'member',
+      from: { input: 'demand.puttingOff' },
+      fact: 'demand.characteristics',
+      value: 'long_avoided_task',
+    });
+    expect(contributions).toContainEqual({
+      kind: 'value',
+      from: { input: 'demand.timeline', code: 'T2' },
+      fact: 'demand.timeline',
+      value: 'T2',
+    });
+  });
+
+  it('lists the answers that give nothing, and why', () => {
+    expect(explainCheckIn(checkIn, options, catalogue).unmapped).toEqual([
+      { from: { input: 'emotions', code: 'tired' }, why: 'maps_to_nothing' },
+      { from: { input: 'sensations', code: 'bright_lights' }, why: 'maps_to_nothing' },
+      { from: { input: 'demand.traits', code: 'not_a_value' }, why: 'not_a_value' },
+    ]);
+    const supportOnly = explainCheckIn(
+      { ...base, justSupport: true, demand: {} },
+      options,
+      catalogue,
+    );
+    expect(supportOnly.unmapped).toEqual([{ from: { input: 'demand' }, why: 'support_only' }]);
+    const unknown = explainCheckIn({ ...base, needs: ['nope'] }, options, catalogue);
+    expect(unknown.unmapped).toEqual([
+      { from: { input: 'needs', code: 'nope' }, why: 'not_offered' },
+    ]);
+  });
+
+  it('is exactly what the engine gets: folded, it gives the input facts', () => {
+    const server = { timeline: 'T2', facts: { 'signals.plan': 'plus' } };
+    const { contributions } = explainCheckIn(checkIn, options, catalogue, server.timeline);
+    expect({ ...foldContributions(contributions), ...server.facts }).toEqual(
+      factsFromCheckIn(checkIn, options, catalogue, server),
+    );
+  });
+
+  it('keeps the strongest rating of a key, and a set without repeats', () => {
+    const from = { input: 'emotions' };
+    expect(
+      foldContributions([
+        { kind: 'rating', from, fact: 'family.intensity', key: 'a', value: null },
+        { kind: 'rating', from, fact: 'family.intensity', key: 'a', value: 4 },
+        { kind: 'rating', from, fact: 'family.intensity', key: 'a', value: 2 },
+        { kind: 'member', from, fact: 'needs', value: 'x' },
+        { kind: 'member', from, fact: 'needs', value: 'x' },
+      ]),
+    ).toEqual({ 'family.intensity': { a: 4 }, needs: ['x'] });
   });
 });
 

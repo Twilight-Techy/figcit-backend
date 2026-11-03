@@ -46,7 +46,9 @@ const ACTION_KIND: Readonly<Record<string, ActionKind>> = {
 
 const fill = (text: string, values: Readonly<Record<string, string>>): string =>
   text.replace(/\{(\w+)\}/g, (_m, k: string) => values[k] ?? '');
-const lower = (s: string): string => s.charAt(0).toLowerCase() + s.slice(1);
+/** A label inside a sentence: "Start the reset" → "start the reset"; "AI body double" and "I'll try it anyway" stay. */
+export const lowerFirst = (s: string): string =>
+  /^(?:[A-Z][A-Z]|I\b)/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1);
 const list = (items: readonly string[]): string =>
   items.length <= 1
     ? (items[0] ?? '')
@@ -110,7 +112,7 @@ function rationaleOf(
       ? fill(p.copy.get('card.because') ?? '', { said: `you feel ${list(p.said)}`, suggestion })
       : fill(p.copy.get('card.because.state') ?? '', { suggestion });
   const next = queued
-    ? ` ${fill(p.copy.get('card.after') ?? '', { next: lower(queued.label) })}`
+    ? ` ${fill(p.copy.get('card.after') ?? '', { next: lowerFirst(queued.label) })}`
     : '';
   const extra = prompts.map((key) => p.copy.get(key)).filter((t): t is string => Boolean(t));
   return [head + next, ...extra].join(' ');

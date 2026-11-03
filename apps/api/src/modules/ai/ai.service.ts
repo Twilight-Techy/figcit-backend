@@ -153,6 +153,16 @@ export class AiService {
     return { blocked: false, data: task.fallback(input), source: 'fallback', limited: false };
   }
 
+  /** Whether a call would reach the model now (the staff Simulator, E-61). */
+  status(): { configured: boolean; circuitOpen: boolean; model: string | null } {
+    const configured = this.client.configured;
+    return {
+      configured,
+      circuitOpen: this.client.circuitOpen,
+      model: configured ? this.client.model : null,
+    };
+  }
+
   /** Screens first; returns the match, or null when the text may go on to `stream`. */
   screen(texts: readonly string[]): Promise<SafetyMatch | null> {
     return this.safety.check(texts);

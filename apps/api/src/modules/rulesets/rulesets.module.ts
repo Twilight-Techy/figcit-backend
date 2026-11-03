@@ -20,6 +20,6 @@ import { RulesetsService } from './rulesets.service.js';
     RulesetRecordsService,
     RulesetsService,
   ],
-  exports: [CheckInOptionsService, RulesetsService],
+  exports: [CheckInOptionsService, RulesetAuditService, RulesetsService],
 })
 export class RulesetsModule {}

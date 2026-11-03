@@ -13,7 +13,7 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-05 | ~~Retire the PWA's `/admin` screens once the staff app in the client repo covers them~~ Done (E-54, E-55) | — | E-31, U-03, E-55 |
 | T-06 | `.xlsx` import and export, with the engine columns shaded to the right of the workbook's own | Needs a spreadsheet library, chosen under the dependency rules | E-28 |
 | T-07 | Store each published version as one immutable bundle in object storage, named by its hash | The database rows and hash already prove the content; the bundle is a second copy for replay and audit | `DESIGN.md` §9 |
-| T-16 | Move the AI fallbacks (map-feeling, parse-need, suggest-drivers, split-tasks) onto the v2 options, so they only suggest offered codes | They still use the v1 lists; the app filters for now | E-44 |
+| T-16 | Move the AI steps and their fallbacks (map-feeling, parse-need, suggest-drivers, split-tasks) onto the v2 options and catalogue, so they only suggest offered codes | They still use the v1 lists. The app filters needs, but not task characteristics: suggest-drivers gives v1 codes (`first_time`, `multi_step`…) that the v2 catalogue doesn't have, so none reaches the engine (found by the Simulator, E-61) | E-44, E-61 |
 | T-17 | Remove the temporary v2 → v1 check-in adapter when the v2 engine runs | The v2 engine is M4 | E-39 |
 | T-19 | The PWA's CSP script reads `NEXT_PUBLIC_API_URL` from the shell, not from `.env.production.local`; a build without it exported blocks every API call | Found while redeploying the test server | — |
 | T-08 | Clinical Safety lead confirms or changes every row marked `safety` on import | Marked from a list to unblock the publish gate | E-25 |
@@ -26,6 +26,8 @@ Things deliberately left simple or deferred during early development, to be tigh
 | T-27 | Raise `ENGINE_VERSION` on any change to the engine's behaviour or trace once records exist outside development, and add a check that fails when the output changes without it | One unreleased engine version so far | E-52, E-53 |
 | T-28 | ~~Red with Regulate declined offered only support~~ Decided and built (E-60) from the workbook, PRD and Activity Tables: Red offers Regulate, then Dump, then Connect. Clinical Safety confirms with the safety rows (T-11) | — | E-56, E-60 |
 | T-29 | ~~Move the explorer to the job queue~~ Done (E-57): it runs in the worker | — | E-56, E-57 |
+| T-30 | After the Simulator is tested (Owner, 3 Nov): the API accepts the task kinds and timelines the published `input_mappings` offers, not its own fixed lists; the fixed values both sides need (energy and mood 1-4, the drivers, the answer limits) are generated from `openapi.json` into one package in the client repo, replacing the apps' hand-typed copies | Agreed to follow the Simulator | E-61 |
+| T-31 | "Try another" (and Adapt) present the rerun card without the user's feelings, so "Because you said…" becomes "Because of how your energy and mood are right now"; pass the check-in's feelings to the rerun's presenter, or confirm it is intended | Found by the Simulator; the app's behaviour is unchanged until decided | E-61 |
 | T-22 | v1's timing budgets (`packages/engine/test/budget.test.ts`, p95 < 2 ms and < 1 ms) fail when `pnpm check` runs the suites in parallel on a loaded 2-core host; they pass run alone | Environment, not code; CI runs on its own runner | E-50 |
 
 ## Before launch

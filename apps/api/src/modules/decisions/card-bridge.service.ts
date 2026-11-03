@@ -29,7 +29,7 @@ export interface V2Trace {
 }
 
 /** The input with the declined tool's pathway marked as just rejected (Tab 7 non-negotiables). */
-function withRejected(
+export function withRejected(
   input: EngineInput,
   engine: Runnable,
   declinedTool: string | null,
@@ -61,6 +61,28 @@ const FEELING_WORD: Readonly<Record<string, string>> = {
   high: 'strong',
   very_high: 'very strong',
 };
+
+/** The feelings the user picked, in their own chip words with a strength word (E-47). */
+export function saidOf(
+  body: Pick<CheckInInput, 'emotions'>,
+  p: Pick<Prepared, 'offered' | 'engine'>,
+): string[] {
+  const labels = new Map(p.offered.options.feeling.map((o) => [o.code, o.label]));
+  const bands = valuesOf(p.engine.ruleset.catalogue, 'intensity_band');
+  return body.emotions.flatMap((e) => {
+    const label = labels.get(e.code);
+    if (!label) return [];
+    const band =
+      e.intensity === null
+        ? undefined
+        : bands.find(
+            (b) =>
+              e.intensity !== null && e.intensity >= (b.from ?? 0) && e.intensity <= (b.to ?? 10),
+          );
+    const word = band ? FEELING_WORD[band.code] : undefined;
+    return [`${label.toLowerCase()}${word ? ` (${word})` : ''}`];
+  });
+}
 
 export interface Made {
   readonly id: string;
@@ -119,7 +141,7 @@ export class CardBridgeService {
       parentId: null,
       origin: a.body.origin,
       recheckOfId: previous?.decisionId ?? null,
-      said: this.said(a.body, prepared),
+      said: saidOf(a.body, prepared),
       taskTitle: a.taskTitle,
       now: a.now,
     });
@@ -143,7 +165,7 @@ export class CardBridgeService {
     const shown = present(
       card,
       await this.presentation(prepared.engine, prepared.input, trace, {
-        said: this.said(body, prepared),
+        said: saidOf(body, prepared),
         taskTitle: body.demand?.title ?? null,
       }),
       ids,
@@ -329,26 +351,8 @@ export class CardBridgeService {
     return { decisionId: rec.trace.decisionId, completed: rec.sessions[0]?.completed ?? false };
   }
 
-  /** The feelings the user picked, in their own chip words with a strength word (E-47). */
-  private said(body: CheckInInput, p: Prepared): string[] {
-    const labels = new Map(p.offered.options.feeling.map((o) => [o.code, o.label]));
-    const bands = valuesOf(p.engine.ruleset.catalogue, 'intensity_band');
-    return body.emotions.flatMap((e) => {
-      const label = labels.get(e.code);
-      if (!label) return [];
-      const band =
-        e.intensity === null
-          ? undefined
-          : bands.find(
-              (b) =>
-                e.intensity !== null && e.intensity >= (b.from ?? 0) && e.intensity <= (b.to ?? 10),
-            );
-      const word = band ? FEELING_WORD[band.code] : undefined;
-      return [`${label.toLowerCase()}${word ? ` (${word})` : ''}`];
-    });
-  }
-
-  private async presentation(
+  /** What the card needs besides the engine's output: wording, the state, crisis routes. */
+  async presentation(
     engine: Runnable,
     input: EngineInput,
     trace: Trace,

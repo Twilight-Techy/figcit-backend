@@ -14,7 +14,17 @@ export {
   type PublishCheckReport,
   type Violation,
 } from './checks.js';
-export { factsFromCheckIn, type CheckInValues, type ServerFacts } from './check-in.js';
+export {
+  explainCheckIn,
+  factsFromCheckIn,
+  foldContributions,
+  type AnswerRef,
+  type CheckInExplained,
+  type CheckInValues,
+  type Contribution,
+  type ServerFacts,
+  type Unmapped,
+} from './check-in.js';
 export { compile } from './compile.js';
 export {
   COMPUTED_FROM,

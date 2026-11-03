@@ -77,3 +77,37 @@ model EngineExploration {
   @@index([createdAt])
   @@map("engine_explorations")
 }
+
+/// A Simulator scenario (E-61): a check-in staff saved to play again on any version, shared by
+/// the staff who can use the Simulator. Made-up answers for testing, never a user's.
+model SimScenario {
+  id        String           @id @default(uuid(7)) @db.Uuid
+  name      String           @db.VarChar(120)
+  // The Simulator's answers, to show its screens as they were (the staff app's own shape).
+  answers   Json
+  // What it runs: the check-in as the app sends it, and what the server adds.
+  request   Json
+  createdBy String           @map("created_by") @db.Uuid
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  runs      SimScenarioRun[]
+
+  @@index([createdAt])
+  @@map("sim_scenarios")
+}
+
+/// One run of a scenario: the version it ran on, who ran it, and the card it gave then.
+model SimScenarioRun {
+  id         String      @id @default(uuid(7)) @db.Uuid
+  scenarioId String      @map("scenario_id") @db.Uuid
+  scenario   SimScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  // The label is kept as well: a discarded draft's runs still say what they ran on.
+  versionId  String      @map("version_id") @db.Uuid
+  label      String      @db.VarChar(40)
+  ranBy      String      @map("ran_by") @db.Uuid
+  ranAt      DateTime    @default(now()) @map("ran_at") @db.Timestamptz(3)
+  // The light, band, card kind, main suggestion and alternatives: codes and labels only.
+  outcome    Json
+
+  @@index([scenarioId, ranAt])
+  @@map("sim_scenario_runs")
+}

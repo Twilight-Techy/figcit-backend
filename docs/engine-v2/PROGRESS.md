@@ -70,6 +70,13 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Retire the PWA `/admin` screens (U-03, E-55)
 - [x] Squash the branch's migrations into one before the PR (E-34, E-58)
 
+## M10 Check-in Simulator and explorer (E-61)
+- [x] Simulator: the check-in screen by screen (Full, Quick, Re-check), what each screen adds and what the engine reads, the check-in, the engine input by source, the run and the card as the app gets it; Browse or a plan, a new user's history (E-61)
+- [x] AI steps: by hand, the real AI (off while it isn't ready), or what the app gets now
+- [x] Replay: "Try another" and re-check, step by step
+- [x] Saved scenarios: shared, run on any version with the run kept, deletes audited
+- [ ] Explorer: check-ins instead of facts, the three questions, the state grid in place of the outcome map, open any check-in in the Simulator
+
 ## M9 Finish
 - [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0005 for the exceptions (E-23, E-57)
 - [ ] Merge to `main`

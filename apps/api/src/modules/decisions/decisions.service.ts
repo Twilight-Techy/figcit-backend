@@ -38,8 +38,21 @@ export interface Prepared {
   readonly risk: SafetyMatch | null;
 }
 
+/**
+ * The free text the server's risk check reads (E-04, SF-1): the same texts as v1 screened. Free
+ * text never reaches the engine; the engine gets the answer as `safety.risk`.
+ */
+export const screenedTexts = (
+  body: Pick<CheckInInput, 'ownWords' | 'ownFeeling' | 'context' | 'demand'>,
+): { readonly input: string; readonly text: string | undefined }[] => [
+  { input: 'ownWords', text: body.ownWords },
+  { input: 'ownFeeling', text: body.ownFeeling },
+  { input: 'context.environmentOther', text: body.context.environmentOther },
+  { input: 'demand.title', text: body.demand?.title },
+];
+
 /** Browse has no profile, so no time zone: the UK, where the service runs (E-46). */
-const BROWSE_ZONE = 'Europe/London';
+export const BROWSE_ZONE = 'Europe/London';
 /** JSONB doesn't keep key order, so values are compared as canonical JSON (RFC 8785). */
 const same = (a: unknown, b: unknown): boolean =>
   canonicalJson(a as JsonValue) === canonicalJson(b as JsonValue);
@@ -114,14 +127,7 @@ export class DecisionsService {
     const server = userId
       ? await this.serverFacts(userId, engine.ruleset.catalogue, now)
       : { zone: BROWSE_ZONE, facts: { 'signals.plan': 'free' } };
-    // Free text never reaches the engine; the server's safety screen reads it and the engine gets
-    // its answer as safety.risk (E-04, SF-1). The same texts as v1 screened.
-    const risk = await this.safety.check([
-      body.ownWords,
-      body.ownFeeling,
-      body.context.environmentOther,
-      body.demand?.title,
-    ]);
+    const risk = await this.safety.check(screenedTexts(body).map((t) => t.text));
     const input = factsFromCheckIn(body, offered.options, engine.ruleset.catalogue, {
       timeline: demandTimeline(body.demand, now, server.zone),
       facts: { ...server.facts, ...recheck, 'safety.risk': risk !== null },
