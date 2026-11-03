@@ -37,7 +37,42 @@ const breakDownCase = z.object({
   strained: z.boolean(),
 });
 
+const feelingCase = z.object({
+  id,
+  text: z.string().min(1).max(500),
+  /** Feeling chips the words describe; the first match and every confident match must be one. */
+  emotions: z.array(z.string()).min(1),
+});
+const splitCase = z.object({
+  id,
+  text: z.string().min(1).max(300),
+  /** Accepted task counts; two when the sentence honestly reads either way. */
+  counts: z.array(z.number().int().min(1).max(5)).min(1),
+});
+const dumpCase = z.object({
+  id,
+  items: z
+    .array(
+      z.object({
+        id: z.string(),
+        text: z.string().min(1),
+        bucket: z.enum(['ideas', 'notes', 'worries', 'todo']),
+      }),
+    )
+    .min(1),
+});
+const expressCase = z.object({
+  id,
+  text: z.string().min(1).max(2000),
+  level: z.enum(['gentle', 'clear', 'shortest']),
+  purpose: z.string().optional(),
+});
+
 export type ParseNeedCase = z.infer<typeof parseNeedCase>;
+export type FeelingCase = z.infer<typeof feelingCase>;
+export type SplitCase = z.infer<typeof splitCase>;
+export type DumpCase = z.infer<typeof dumpCase>;
+export type ExpressCase = z.infer<typeof expressCase>;
 export type DriversCase = z.infer<typeof driversCase>;
 export type BreakDownCase = z.infer<typeof breakDownCase>;
 
@@ -52,6 +87,14 @@ export const SETS = {
   parseNeed: { file: 'parse-need.json', schema: set(parseNeedCase) },
   suggestDrivers: { file: 'suggest-drivers.json', schema: set(driversCase) },
   breakDownTask: { file: 'break-down-task.json', schema: set(breakDownCase) },
+  mapFeeling: { file: 'map-feeling.json', schema: set(feelingCase) },
+  splitTasks: { file: 'split-tasks.json', schema: set(splitCase) },
+  sortDump: { file: 'sort-dump.json', schema: set(dumpCase) },
+  simplify: { file: 'simplify.json', schema: set(expressCase) },
+  rewrite: { file: 'rewrite.json', schema: set(expressCase) },
+  draft: { file: 'draft.json', schema: set(expressCase) },
+  structure: { file: 'structure.json', schema: set(expressCase) },
+  script: { file: 'script.json', schema: set(expressCase) },
 } as const;
 
 export type EvalTask = keyof typeof SETS;

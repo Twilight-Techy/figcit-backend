@@ -218,7 +218,8 @@ describe('check-in Simulator', () => {
     const model = await startFakeModel();
     const on = await bootApi({ AI_BASE_URL: model.url });
     try {
-      model.reply(JSON.stringify({ drivers: ['routine'], demandCharacteristics: [] }));
+      // Decision scoring (main's ADR 0005): C is routine, H none.
+      model.decide({ C: 0.9, H: 0.1 });
       const drivers = await on.req<{ source: string; drivers: string[] }>(
         'POST',
         '/ai/try/suggest-drivers',

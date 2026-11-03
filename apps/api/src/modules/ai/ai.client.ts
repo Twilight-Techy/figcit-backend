@@ -16,6 +16,14 @@ export interface ChatResult {
   readonly outputTokens: number | null;
 }
 
+export interface DecideRequest {
+  readonly system: string;
+  readonly user: string;
+  /** Single-token option labels; the answer is a probability for each. */
+  readonly labels: readonly string[];
+  readonly timeoutMs: number;
+}
+
 export class AiUnavailable extends Error {
   constructor(readonly reason: 'not_configured' | 'circuit_open' | 'timeout' | 'error') {
     super(reason);
@@ -23,6 +31,25 @@ export class AiUnavailable extends Error {
 }
 
 const FAILURES_TO_OPEN = 3;
+
+interface TopLogprob {
+  readonly token: string;
+  readonly logprob: number;
+}
+
+/** The labels' share of the probability, renormalised so they sum to 1 (0 when none appear). */
+export function labelProbabilities(
+  top: readonly TopLogprob[],
+  labels: readonly string[],
+): Record<string, number> {
+  const p: Record<string, number> = Object.fromEntries(labels.map((l) => [l, 0]));
+  for (const t of top) {
+    const label = t.token.trim();
+    if (label in p) p[label] = (p[label] ?? 0) + Math.exp(t.logprob);
+  }
+  const total = Object.values(p).reduce((n, x) => n + x, 0);
+  return total > 0 ? Object.fromEntries(Object.entries(p).map(([k, v]) => [k, v / total])) : p;
+}
 /** The schema grammar still allows indentation, which can use up max_tokens before the JSON closes. */
 export const COMPACT_JSON =
   'Reply with compact JSON on a single line: no indentation and no line breaks.';
@@ -113,6 +140,45 @@ export class AiClient {
         inputTokens: json.usage?.prompt_tokens ?? null,
         outputTokens: json.usage?.completion_tokens ?? null,
       };
+    } catch (error) {
+      throw this.failed(error);
+    }
+  }
+
+  /**
+   * Decision scoring (ADR 0005): the model writes one token, and the probabilities of the option
+   * labels among its top alternatives are the answer, renormalised over the labels. No text is
+   * generated, so a classification takes a fraction of a second even on CPU.
+   */
+  async decide(req: DecideRequest): Promise<Record<string, number>> {
+    const base = this.guard();
+    try {
+      const res = await fetch(`${base}/v1/chat/completions`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          model: this.env.AI_MODEL,
+          messages: [
+            { role: 'system', content: req.system },
+            { role: 'user', content: `<user_words>\n${req.user}\n</user_words>` },
+          ],
+          max_tokens: 1,
+          temperature: 0,
+          logprobs: true,
+          top_logprobs: 40,
+          chat_template_kwargs: { enable_thinking: false },
+        }),
+        signal: AbortSignal.timeout(req.timeoutMs),
+      });
+      if (!res.ok) throw new Error(`model server ${String(res.status)}`);
+      const json = (await res.json()) as {
+        choices?: { logprobs?: { content?: { top_logprobs?: TopLogprob[] }[] } }[];
+      };
+      this.failures = 0;
+      return labelProbabilities(
+        json.choices?.[0]?.logprobs?.content?.[0]?.top_logprobs ?? [],
+        req.labels,
+      );
     } catch (error) {
       throw this.failed(error);
     }

@@ -9,16 +9,39 @@ import type { Snapshot } from '@figcit/engine';
 import { z } from 'zod';
 import type { Env } from '../../../common/config/env.js';
 import { AiClient, AiUnavailable } from '../ai.client.js';
-import { breakDownTask, parseNeed, suggestDrivers, type JsonTask } from '../ai.tasks.js';
+import {
+  breakDownTask,
+  draft,
+  mapFeeling,
+  parseNeed,
+  rewrite,
+  script,
+  simplify,
+  sortDump,
+  splitTasks,
+  structure,
+  suggestDrivers,
+  type DecisionTask,
+  type JsonTask,
+  type TextTask,
+} from '../ai.tasks.js';
 import { scrub } from '../text.js';
 import {
   anyBanned,
   breakDownWithinCap,
+  dumpKeepsWorries,
   failedBars,
   pct,
   scoreBreakDown,
   scoreDrivers,
+  scoreDump,
+  scoreFeeling,
   scoreParseNeed,
+  scoreScript,
+  scoreSimplify,
+  scoreSplit,
+  scoreStructure,
+  scoreText,
   summarise,
   type CaseResult,
   type Outcome,
@@ -52,7 +75,8 @@ const snapshot = JSON.parse(
 ) as Snapshot;
 
 interface Plan<C, I, O> {
-  readonly task: JsonTask<I, O>;
+  /** A JSON task (schema-constrained) or a text task (streamed in the app; whole here). */
+  readonly task: JsonTask<I, O> | TextTask<I> | DecisionTask<I, O>;
   readonly input: (c: C) => I;
   readonly score: (out: O, c: C) => boolean;
   /** The hard rule, judged on whatever the model returned, even when it then failed a check. */
@@ -60,6 +84,7 @@ interface Plan<C, I, O> {
 }
 
 type Case<T extends EvalTask> = ReturnType<typeof loadSet<T>>['cases'][number];
+const express = (c: Case<'simplify'>) => ({ text: c.text, level: c.level, purpose: c.purpose });
 type AnyPlan = Plan<{ id: string }, unknown, unknown>;
 /** Typed per task, then widened so the runner can treat every task alike. */
 const plan = <C, I, O>(p: Plan<C, I, O>): AnyPlan => p as unknown as AnyPlan;
@@ -89,6 +114,27 @@ const PLANS: Record<EvalTask, AnyPlan> = {
       return Array.isArray(steps) ? breakDownWithinCap(steps, c) : true;
     },
   }),
+  mapFeeling: plan({
+    task: mapFeeling,
+    input: (c: Case<'mapFeeling'>) => ({ text: c.text, snapshot }),
+    score: scoreFeeling,
+  }),
+  splitTasks: plan({
+    task: splitTasks,
+    input: (c: Case<'splitTasks'>) => ({ text: c.text }),
+    score: scoreSplit,
+  }),
+  sortDump: plan({
+    task: sortDump,
+    input: (c: Case<'sortDump'>) => ({ items: c.items.map(({ id, text }) => ({ id, text })) }),
+    score: scoreDump,
+    rule: dumpKeepsWorries,
+  }),
+  simplify: plan({ task: simplify, input: express, score: scoreSimplify }),
+  rewrite: plan({ task: rewrite, input: express, score: scoreText }),
+  draft: plan({ task: draft, input: express, score: scoreText }),
+  structure: plan({ task: structure, input: express, score: scoreStructure }),
+  script: plan({ task: script, input: express, score: scoreScript }),
 };
 
 function runRules(p: AnyPlan, c: { id: string }): CaseResult {
@@ -120,6 +166,8 @@ async function callModel(
   input: unknown,
 ): Promise<{ outcome: Outcome; raw: unknown; outputTokens: number | null }> {
   const { task } = p;
+  if ('labels' in task) return callDecision(task, input);
+  if (!('schema' in task)) return callText(task, input);
   const schema = task.schema(input);
   try {
     const res = await new AiClient(env).chat({
@@ -136,6 +184,51 @@ async function callModel(
     const raw = task.clean?.(parsed.data, input) ?? parsed.data;
     const outcome = task.check(raw, input) ? 'ok' : 'invalid';
     return { outcome, raw, outputTokens: res.outputTokens };
+  } catch (error) {
+    const timeout = error instanceof AiUnavailable && error.reason === 'timeout';
+    return { outcome: timeout ? 'timeout' : 'error', raw: null, outputTokens: null };
+  }
+}
+
+/** A decision task, as AiService.decide calls it: one token, label probabilities, decode, check. */
+async function callDecision(
+  task: DecisionTask<unknown, unknown>,
+  input: unknown,
+): Promise<{ outcome: Outcome; raw: unknown; outputTokens: number | null }> {
+  try {
+    const p = await new AiClient(env).decide({
+      system: task.system(input),
+      user: scrub(task.text(input), task.maxChars),
+      labels: task.labels(input),
+      timeoutMs: Math.max(task.timeoutMs, EVAL_TIMEOUT_MS),
+    });
+    const raw = task.decode(p, input);
+    return { outcome: task.check(raw, input) ? 'ok' : 'invalid', raw, outputTokens: 1 };
+  } catch (error) {
+    const timeout = error instanceof AiUnavailable && error.reason === 'timeout';
+    return { outcome: timeout ? 'timeout' : 'error', raw: null, outputTokens: null };
+  }
+}
+
+/** A text task, as AiService streams it: no schema, then the task's checks on the whole text. */
+async function callText(
+  task: TextTask<unknown>,
+  input: unknown,
+): Promise<{ outcome: Outcome; raw: unknown; outputTokens: number | null }> {
+  try {
+    const res = await new AiClient(env).chat({
+      system: task.system(input),
+      user: scrub(task.text(input), task.maxChars),
+      temperature: task.temperature,
+      maxTokens: task.maxTokens,
+      timeoutMs: Math.max(task.timeoutMs, EVAL_TIMEOUT_MS),
+    });
+    const raw = res.content.trim();
+    return {
+      outcome: task.check(raw, input) ? 'ok' : 'invalid',
+      raw,
+      outputTokens: res.outputTokens,
+    };
   } catch (error) {
     const timeout = error instanceof AiUnavailable && error.reason === 'timeout';
     return { outcome: timeout ? 'timeout' : 'error', raw: null, outputTokens: null };

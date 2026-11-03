@@ -207,32 +207,27 @@ describe('AI with a model server', () => {
       selected: string[];
       ask: { options: { code: string; label: string }[] } | null;
     };
-    model.reply(JSON.stringify({ matches: [{ code: 'anxious', confidence: 0.92 }] }));
+    // Decision scoring: labels follow the chip order (A = anxious, C = tired, E = overwhelmed).
+    model.decide({ A: 0.92, B: 0.08 });
     const sure = await api.req<Mapped>('POST', '/ai/map-feeling', {
       token,
       body: { text: 'My chest is tight and I keep worrying' },
     });
     expect(sure.body).toMatchObject({ source: 'ai', selected: ['anxious'], ask: null });
-    model.reply(
-      JSON.stringify({
-        matches: [
-          { code: 'overwhelmed', confidence: 0.55 },
-          { code: 'tired', confidence: 0.5 },
-        ],
-      }),
-    );
+    model.decide({ E: 0.55, C: 0.45 });
     const unsure = await api.req<Mapped>('POST', '/ai/map-feeling', {
       token,
       body: { text: 'just a lot today' },
     });
     expect(unsure.body.selected).toEqual([]);
     expect(unsure.body.ask?.options.map((o) => o.code)).toEqual(['overwhelmed', 'tired']);
-    model.reply(JSON.stringify({ matches: [{ code: 'made_up', confidence: 0.9 }] }));
-    const invalid = await api.req<Mapped>('POST', '/ai/map-feeling', {
+    // The model server failing: the keyword rules answer instead.
+    model.fail(500);
+    const down = await api.req<Mapped>('POST', '/ai/map-feeling', {
       token,
       body: { text: 'I feel anxious' },
     });
-    expect(invalid.body).toMatchObject({ source: 'fallback', selected: ['anxious'] });
+    expect(down.body).toMatchObject({ source: 'fallback', selected: ['anxious'] });
   });
 
   it("splits tasks only into the user's own words (Tab 11 layer 6)", async () => {
@@ -252,7 +247,8 @@ describe('AI with a model server', () => {
   });
 
   it('suggests drivers in Browse mode', async () => {
-    model.reply(JSON.stringify({ drivers: ['routine'], demandCharacteristics: ['done_before'] }));
+    // Decision scoring: A novelty, B challenge, C routine … H none.
+    model.decide({ C: 0.9, H: 0.1 });
     const res = await api.req<{ drivers: string[]; source: string }>(
       'POST',
       '/ai/suggest-drivers',

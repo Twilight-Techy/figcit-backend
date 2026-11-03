@@ -75,7 +75,7 @@ export class AiTryController {
     body: z.infer<typeof trySuggestDriversRequestSchema>,
   ): Promise<z.infer<typeof trySuggestDriversResponseSchema>> {
     this.ready(body.real);
-    return shown(await this.ai.json(suggestDrivers, { title: body.title, kind: body.kind }, {}));
+    return shown(await this.ai.decide(suggestDrivers, { title: body.title, kind: body.kind }, {}));
   }
 
   /** "The real AI" refuses while the model can't be reached, instead of falling back. */

@@ -67,6 +67,7 @@ Places where the source documents, the Figma designs and the live website disagr
 | [D-37](#d-37-build-plan-vs-other-plans-in-drive) | Build plan vs other plans in Drive | P1 | Founder |
 | [D-38](#d-38-ai-model-per-task) | Which open model per task | P2 | Tech lead, after speed tests |
 | [D-39](#d-39-support-without-a-check-in) | Support without a check-in | P1 | Founder, Clinical Safety |
+| [D-40](#d-40-serverless-gpu-for-ai) | Serverless GPU (Modal) for AI | P2 | Founder, tech lead |
 
 ---
 
@@ -383,4 +384,16 @@ Each of these is a paid (Advanced) feature in PRD 1.9 / Workbook Tab 6d but show
 - **Still open:** which open model per task. It depends on speed on the real AI server and on the eval sets (4.3.8).
 - **Options:** Qwen3.5-4B or Gemma 4 E4B for everything (tested head-to-head); Qwen3.5-2B for the classification tasks if those are too slow; Ministral 3 3B (Mistral AI, European) if neither runs reliably on llama.cpp; a GPU server with vLLM later if CPU speed holds back the Express tasks.
 - **Speech:** Whisper small.en (default), or Gemma 4 E4B's built-in speech recognition if it matches Whisper on the speech test, which would mean one model instead of two.
-- **Decision:** Ministral 3 3B on llama.cpp for every language task, with Qwen3.5-4B as the alternative. On server-sized hardware (8 CPUs) the two were equally accurate, but Ministral met every timeout and Qwen3.5-4B didn't: its architecture can't reuse the cached system prompt. Whisper small.en with VAD stays for speech: Gemma 4 E4B was less accurate and wrote text on every clip with no speech. Timeouts were set from the 8-CPU runs (tech lead, 1 Nov 2026). See ADR 0001, ADR 0002 and ADR 0003.
+- **Decision:** Ministral 3 3B on llama.cpp for every language task, with Qwen3.5-4B as the alternative. On server-sized hardware (8 CPUs) the two were equally accurate, but Ministral met every timeout and Qwen3.5-4B didn't: its architecture can't reuse the cached system prompt. Whisper small.en with VAD stays for speech: Gemma 4 E4B was less accurate and wrote text on every clip with no speech. Timeouts were set from the 8-CPU runs (tech lead, 1 Nov 2026). See ADR 0001, ADR 0002 and ADR 0003. **Updated 2 Nov 2026 (Twilight-Techy):** suggestDrivers and mapFeeling answer by decision scoring (one token, option probabilities); every other task generates. Every AI task now has an eval set and a measured timeout. See ADR 0005 and ADR 0006.
+
+### D-40 Serverless GPU for AI
+- **Question:** may a serverless GPU host (Modal) process user text, as a burst layer in front of the CPU AI server (#109)?
+- **Facts (ADR 0004):**
+  - **Capacity:** one 8-CPU server answers about 12 AI calls a minute in time; one L4 GPU about 115.
+  - **Cold starts:** a cold Modal GPU answered in 7 to 11 s when an L4 was free, but the first cold call **waited 796 s** for one.
+  - **Cost:** it adds cost on top of the CPU server.
+  - **Data:** Modal would be a new processor of user text. It ran in the US by default.
+- **Decision:** No serverless GPU for production (Twilight-Techy, 2 Nov 2026). Launch on the UK/EU CPU server (ADR 0004).
+  - Decision scoring (ADR 0005, ADR 0006) cuts the classification calls to about 0.4 s, which multiplies what that server handles.
+  - If `ai_calls` shows a GPU is needed, add an always-on UK/EU GPU server that we run. Not serverless: its capacity waits are unbounded, and it would need a data processing agreement and a privacy-notice change.
+  - Modal stays allowed for evals with synthetic data only.

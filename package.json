@@ -30,7 +30,9 @@
     "db:worktree": "node scripts/db-worktree.mjs",
     "eval": "pnpm --filter @figcit/api eval",
     "eval:speech": "pnpm --filter @figcit/api eval:speech",
-    "eval:speech:generate": "pnpm --filter @figcit/api eval:speech:generate"
+    "eval:speech:generate": "pnpm --filter @figcit/api eval:speech:generate",
+    "eval:load": "pnpm --filter @figcit/api eval:load",
+    "eval:decide": "pnpm --filter @figcit/api eval:decide"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

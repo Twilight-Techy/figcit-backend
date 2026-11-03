@@ -8,7 +8,14 @@ import { mapFeelingByRules } from './fallbacks/map-feeling.js';
 import { parseNeedByRules } from './fallbacks/parse-need.js';
 import { splitTasksByRules } from './fallbacks/split-tasks.js';
 import { bucketFor } from './fallbacks/sort-dump.js';
-import { breakDownTask, parseNeed, simplify, sortDump, suggestDrivers } from './ai.tasks.js';
+import {
+  breakDownTask,
+  mapFeeling,
+  parseNeed,
+  simplify,
+  sortDump,
+  suggestDrivers,
+} from './ai.tasks.js';
 import { changes, introducesFacts, scrub, simplifyByRules, words } from './text.js';
 
 const snapshot = JSON.parse(
@@ -24,6 +31,13 @@ describe('text rules', () => {
       'mail me at [email] or [number] [link]',
     );
     expect(scrub('a'.repeat(50), 10)).toHaveLength(10);
+  });
+
+  it('does not take a capitalised first word for a new name', () => {
+    expect(introducesFacts('swap saturday shift', 'Sorry, no, I can’t do it. Okay, thanks.')).toBe(
+      false,
+    );
+    expect(introducesFacts('swap saturday shift', 'Ask Priya to cover it.')).toBe(true);
   });
 
   it('removes hedges and reports what changed', () => {
@@ -144,6 +158,23 @@ describe('fallbacks', () => {
     ).toBe(true);
   });
 
+  it('keeps steps to five minutes for someone who is strained', () => {
+    const strained = { title: 'Clean the kitchen', stepCap: 5, strained: true };
+    const step = (minutes: number) => ({ text: 'Clear the worktop', minutes });
+    expect(
+      breakDownTask.schema(strained).safeParse({ steps: [step(10)], estimatedDemand: 'low' })
+        .success,
+    ).toBe(false);
+    expect(breakDownTask.check({ steps: [step(5)], estimatedDemand: 'low' }, strained)).toBe(true);
+    expect(breakDownTask.check({ steps: [step(6)], estimatedDemand: 'low' }, strained)).toBe(false);
+    expect(
+      breakDownTask.check(
+        { steps: [step(20)], estimatedDemand: 'low' },
+        { ...strained, strained: false },
+      ),
+    ).toBe(true);
+  });
+
   it('buckets dump items and never makes worries into todos', () => {
     expect(bucketFor('What if I fail the exam')).toBe('worries');
     expect(bucketFor('Call the dentist')).toBe('todo');
@@ -162,16 +193,22 @@ describe('fallbacks', () => {
     ).toBe(false);
   });
 
-  it('drops repeated drivers and need codes shown as heard chips', () => {
-    expect(
-      suggestDrivers.clean?.(
-        {
-          drivers: ['challenge', 'challenge', 'routine'],
-          demandCharacteristics: ['focus', 'focus'],
-        },
-        { title: 'x' },
-      ),
-    ).toEqual({ drivers: ['challenge', 'routine'], demandCharacteristics: ['focus'] });
+  it('decodes feeling chips: probability is the confidence, weak chips dropped', () => {
+    // A = the first chip (anxious), B = sad, C = tired.
+    const { matches } = mapFeeling.decode({ A: 0.72, B: 0.2, C: 0.05 }, { text: 'x', snapshot });
+    expect(matches).toEqual([
+      { code: 'anxious', confidence: 0.72 },
+      { code: 'sad', confidence: 0.2 },
+    ]);
+  });
+
+  it('decodes drivers and drops need codes shown as heard chips', () => {
+    // Decision scoring: drivers at or above 0.20, best first, at most three; never "none".
+    const p = { A: 0.05, B: 0.5, C: 0.25, D: 0.0, E: 0.0, F: 0.0, G: 0.0, H: 0.2 };
+    expect(suggestDrivers.decode(p, { title: 'Weekly team meeting' }).drivers).toEqual([
+      'challenge',
+      'routine',
+    ]);
     const heard = parseNeed.clean?.(
       {
         needs: ['feel_calmer'],

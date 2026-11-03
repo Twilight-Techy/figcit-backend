@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "status": "draft",
+  "cases": [
+    {
+      "id": "su-001",
+      "text": "need extension on essay, was ill, can hand in next friday",
+      "level": "clear"
+    },
+    {
+      "id": "su-002",
+      "text": "work from home friday, deliveries coming, will be online all day",
+      "level": "clear"
+    },
+    {
+      "id": "su-003",
+      "text": "charged twice order 4471, want refund of duplicate",
+      "level": "clear"
+    },
+    {
+      "id": "su-004",
+      "text": "can't come to meeting tomorrow, clash with appointment, can send notes",
+      "level": "clear"
+    },
+    {
+      "id": "su-005",
+      "text": "rent late by 3 days, payday moved, will pay on the 31st",
+      "level": "clear"
+    },
+    {
+      "id": "su-006",
+      "text": "boiler not heating water since monday, need repair",
+      "level": "clear"
+    },
+    {
+      "id": "su-007",
+      "text": "don't understand question 2 of brief, can we meet",
+      "level": "clear"
+    },
+    {
+      "id": "su-008",
+      "text": "swap saturday shift, family event, can do sunday instead",
+      "level": "clear"
+    },
+    {
+      "id": "su-009",
+      "text": "want slides from lecture, missed some notes",
+      "level": "clear"
+    },
+    {
+      "id": "su-010",
+      "text": "prefer written notes after meetings, helps me focus",
+      "level": "clear"
+    },
+    {
+      "id": "su-011",
+      "text": "running 10 minutes late, train delayed",
+      "level": "clear"
+    },
+    {
+      "id": "su-012",
+      "text": "music too loud after 11, can't sleep",
+      "level": "clear"
+    }
+  ]
+}

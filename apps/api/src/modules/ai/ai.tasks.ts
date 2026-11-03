@@ -30,7 +30,22 @@ export interface JsonTask<I, O> {
   readonly fallback: (input: I) => O;
 }
 
-const distinct = <T>(xs: readonly T[]): T[] => [...new Set(xs)];
+/** A classification answered by decision scoring (ADR 0005): options under single-token labels. */
+export interface DecisionTask<I, O> {
+  readonly name: string;
+  readonly promptVersion: string;
+  readonly system: (input: I) => string;
+  readonly text: (input: I) => string;
+  readonly labels: (input: I) => readonly string[];
+  /** Turns the label probabilities into the task's answer. */
+  readonly decode: (p: Record<string, number>, input: I) => O;
+  readonly maxChars: number;
+  readonly timeoutMs: number;
+  readonly check: (out: O, input: I) => boolean;
+  readonly fallback: (input: I) => O;
+}
+
+const LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export interface TextTask<I> {
   readonly name: string;
@@ -96,24 +111,27 @@ export interface MapFeelingInput {
   readonly snapshot: Snapshot;
 }
 export type MapFeelingOutput = { matches: { code: string; confidence: number }[] };
-export const mapFeeling: JsonTask<MapFeelingInput, MapFeelingOutput> = {
+/** 40 chips: upper-case labels, then lower-case (each a single token). */
+const CHIP_LABELS = [...LABELS, ...'abcdefghijklmnopqrstuvwxyz'.split('')];
+/** Chips below this probability are not offered at all (ADR 0006). */
+const FEELING_FLOOR = 0.1;
+export const mapFeeling: DecisionTask<MapFeelingInput, MapFeelingOutput> = {
   name: 'mapFeeling',
-  promptVersion: 'map-feeling@1',
-  schema: (i) => {
-    const codes = i.snapshot.emotions.map((e) => e.code) as [string, ...string[]];
-    return z.object({
-      matches: z
-        .array(z.object({ code: z.enum(codes), confidence: z.number().min(0).max(1) }))
-        .max(3),
-    });
-  },
+  promptVersion: 'map-feeling@2',
   system: (i) =>
-    `Match how someone describes their feelings to the closest feeling chips. ${DATA_ONLY}\nChips:\n${i.snapshot.emotions.map((e) => `${e.code}: ${e.label}`).join('\n')}\nReturn up to 3 chips with a confidence from 0 to 1. Use a low confidence when the words are vague or could mean two things. Never add a feeling the words do not describe.`,
+    `Match how someone describes their feelings to the closest feeling chip. ${DATA_ONLY}\nChips:\n${i.snapshot.emotions.map((e, n) => `${CHIP_LABELS[n] ?? '?'}: ${e.label}`).join('\n')}\nReply with the letter of the chip that fits best.`,
   text: (i) => i.text,
+  labels: (i) => i.snapshot.emotions.map((_, n) => CHIP_LABELS[n] ?? '?'),
+  // The probability is the confidence: >= 0.7 shows pre-selected, below asks "more like X or Y?".
+  decode: (p, i) => ({
+    matches: i.snapshot.emotions
+      .map((e, n) => ({ code: e.code, confidence: p[CHIP_LABELS[n] ?? ''] ?? 0 }))
+      .filter((m) => m.confidence >= FEELING_FLOOR)
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 3),
+  }),
   maxChars: 500,
-  temperature: 0.1,
-  maxTokens: 120,
-  timeoutMs: 6000,
+  timeoutMs: 8000,
   check: (o) => new Set(o.matches.map((m) => m.code)).size === o.matches.length,
   fallback: (i) => mapFeelingByRules(i.text, i.snapshot),
 };
@@ -157,26 +175,6 @@ const DRIVERS = [
   'collaboration',
   'exploration',
 ] as const;
-const TRAITS = [
-  'first_time',
-  'consequence',
-  'multi_step',
-  'done_before',
-  'enjoy',
-  'matters',
-  'with_others',
-  'research',
-  'communication',
-  'focus',
-  'imposed',
-  'transition',
-  'stopping',
-  'ask_adjustment',
-  'recurring_practice',
-  'reflective_work',
-  'event_prep',
-  'start_day',
-] as const;
 /** The driver definitions from the PRD (NUCRIPCE table). Urgency is left out: it comes from the timeline. */
 const DRIVER_MEANING: Record<(typeof DRIVERS)[number], string> = {
   novelty: 'the activity is new, unfamiliar, different, or offers a new experience',
@@ -192,25 +190,28 @@ export type DriversOutput = {
   drivers: (typeof DRIVERS)[number][];
   demandCharacteristics: string[];
 };
-export const suggestDrivers: JsonTask<DriversInput, DriversOutput> = {
+/** A driver is suggested when its probability reaches this (ADR 0005: chosen on half the set,
+ * held on the other half). */
+const DRIVER_THRESHOLD = 0.2;
+const DRIVER_OPTIONS = [...DRIVERS, 'none'] as const;
+export const suggestDrivers: DecisionTask<DriversInput, DriversOutput> = {
   name: 'suggestDrivers',
-  promptVersion: 'suggest-drivers@2',
-  schema: () =>
-    z.object({
-      drivers: z.array(z.enum(DRIVERS)).max(3),
-      demandCharacteristics: z.array(z.enum(TRAITS)).max(4),
-    }),
+  promptVersion: 'suggest-drivers@3',
   system: () =>
-    `Tag a task with what might make it engaging (drivers) and what kind of demand it is. Never tag urgency. ${DATA_ONLY}\nDrivers:\n${DRIVERS.map((d) => `${d}: ${DRIVER_MEANING[d]}`).join('\n')}\nGive 0 to 3 drivers that clearly fit, each at most once, the best fit first. Give none rather than guess. List each demand characteristic at most once.`,
+    `Tag a task with what might make it engaging. ${DATA_ONLY} Never tag urgency.\nOptions:\n${DRIVER_OPTIONS.map((d, n) => `${LABELS[n] ?? '?'}: ${d === 'none' ? 'none of these fit clearly' : `${d}: ${DRIVER_MEANING[d]}`}`).join('\n')}\nReply with the letter of the option that fits best.`,
   text: (i) => (i.kind ? `${i.title} (${i.kind})` : i.title),
-  maxChars: 200,
-  temperature: 0.2,
-  maxTokens: 100,
-  timeoutMs: 4000,
-  clean: (o) => ({
-    drivers: distinct(o.drivers),
-    demandCharacteristics: distinct(o.demandCharacteristics),
+  labels: () => DRIVER_OPTIONS.map((_, n) => LABELS[n] ?? '?'),
+  decode: (p, i) => ({
+    drivers: DRIVERS.map((d, n) => [d, p[LABELS[n] ?? ''] ?? 0] as const)
+      .filter(([, v]) => v >= DRIVER_THRESHOLD)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([d]) => d),
+    // Demand characteristics are Tab 6 codes; the rules find them.
+    demandCharacteristics: suggestDriversByRules(i.title).demandCharacteristics,
   }),
+  maxChars: 200,
+  timeoutMs: 4000,
   check: () => true,
   fallback: (i) => suggestDriversByRules(i.title),
 };
@@ -227,14 +228,24 @@ export type BreakDownOutput = {
   estimatedDemand: 'low' | 'moderate' | 'heavy';
 };
 const BLAME = /\b(finally|should have|just do it|lazy)\b/i;
+/** Someone who is strained (Amber) only gets steps of five minutes or less. */
+const STRAINED_MINUTES = 5;
 export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
   name: 'breakDownTask',
-  promptVersion: 'break-down@2',
+  promptVersion: 'break-down@3',
   schema: (i) =>
     z.object({
       steps: z
         .array(
-          z.object({ text: z.string().min(2).max(80), minutes: z.number().int().min(1).max(30) }),
+          z.object({
+            text: z.string().min(2).max(80),
+            // In the schema, so the model's grammar can't produce a longer step.
+            minutes: z
+              .number()
+              .int()
+              .min(1)
+              .max(i.strained ? STRAINED_MINUTES : 30),
+          }),
         )
         .min(1)
         .max(i.stepCap),
@@ -246,10 +257,14 @@ export const breakDownTask: JsonTask<BreakDownInput, BreakDownOutput> = {
   maxChars: 200,
   temperature: 0.4,
   maxTokens: 300,
-  timeoutMs: 16_000,
-  check: (o) =>
+  timeoutMs: 24_000,
+  check: (o, i) =>
     o.steps.every(
-      (s) => !BLAME.test(s.text) && !hasBanned(s.text) && !/\band then\b/i.test(s.text),
+      (s) =>
+        !BLAME.test(s.text) &&
+        !hasBanned(s.text) &&
+        !/\band then\b/i.test(s.text) &&
+        (!i.strained || s.minutes <= STRAINED_MINUTES),
     ),
   fallback: (i) => breakDownByRules(i.title, i.stepCap, i.strained),
 };
@@ -327,9 +342,9 @@ export const rewrite: TextTask<RewordInput> = {
 export const draft: TextTask<RewordInput> = {
   ...simplify,
   name: 'draft',
-  promptVersion: 'draft@1',
+  promptVersion: 'draft@2',
   system: (i) =>
-    `Write a short, polite message from these notes.${i.purpose ? ` It is for: ${i.purpose}.` : ''} Never invent names, dates or numbers. Reply with the message only. ${DATA_ONLY}`,
+    `Write a short, polite message from these notes, in the first person, as the person who wrote them.${i.purpose ? ` It is for: ${i.purpose}.` : ''} Use only facts in the notes: never invent names, dates or numbers. No greeting name, no sign-off and no placeholders such as [Name]. Reply with the message only. ${DATA_ONLY}`,
   maxTokens: 800,
   check: (o, i) => o.trim().length > 0 && !introducesFacts(i.text, o) && !hasBanned(o),
   fallback: (i) => draftByTemplate(i.text, i.purpose),
@@ -338,7 +353,7 @@ export const draft: TextTask<RewordInput> = {
 // --- structure / script (JSON) ---------------------------------------------------------------
 export const structure: JsonTask<RewordInput, ReturnType<typeof structureByTemplate>> = {
   name: 'structure',
-  promptVersion: 'structure@1',
+  promptVersion: 'structure@2',
   schema: () =>
     z.object({
       sections: z
@@ -352,7 +367,7 @@ export const structure: JsonTask<RewordInput, ReturnType<typeof structureByTempl
         .max(6),
     }),
   system: () =>
-    `Organise the notes into sections: what they ask, why, what they offer, and a close. ${DATA_ONLY}`,
+    `Turn the notes into the message the person will send, in the first person, as them, split into sections. Roles: ask = what they are asking for; why = their reason; offer = what they can do in return; close = a short polite ending; other = anything else in the notes. Use only facts in the notes: never invent names, dates, amounts or numbers. Do not describe or analyse the notes. ${DATA_ONLY}`,
   text: (i) => i.text,
   maxChars: 2000,
   temperature: 0.7,
@@ -363,7 +378,7 @@ export const structure: JsonTask<RewordInput, ReturnType<typeof structureByTempl
 };
 export const script: JsonTask<RewordInput, ReturnType<typeof scriptByTemplate>> = {
   name: 'script',
-  promptVersion: 'script@1',
+  promptVersion: 'script@2',
   schema: () =>
     z.object({
       lines: z
@@ -377,12 +392,17 @@ export const script: JsonTask<RewordInput, ReturnType<typeof scriptByTemplate>> 
         .max(8),
     }),
   system: () =>
-    `Write a short script for saying this out loud: what to say, what to say if asked why, if the answer is no, and how to end. ${DATA_ONLY}`,
+    `Write a short script the person can say out loud, in the first person, as them. Cues: you = what they say first, their ask; if_asked_why = what they say if asked why; if_none_free = what they say if the answer is no; to_end = how they end the conversation. Start with a you line. Use only facts in the notes: never invent names, dates, amounts or numbers, and never ask the other person for details. ${DATA_ONLY}`,
   text: (i) => i.text,
   maxChars: 2000,
   temperature: 0.7,
   maxTokens: 800,
   timeoutMs: 45_000,
+  // The opening line is what they say first: label it so when the model used another cue.
+  clean: (o) =>
+    o.lines.some((l) => l.cue === 'you') || o.lines.length === 0
+      ? o
+      : { lines: o.lines.map((l, n) => (n === 0 ? { ...l, cue: 'you' as const } : l)) },
   check: (o, i) => o.lines.every((l) => !hasBanned(l.text) && !introducesFacts(i.text, l.text)),
   fallback: (i) => scriptByTemplate(i.text),
 };
