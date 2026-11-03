@@ -8,12 +8,21 @@ import {
   explore,
   factsFromCheckIn,
   producible,
+  run,
   stateGrid,
   unreachable,
+  type Card,
   type CaseContext,
   type Condition,
+  type EngineInput,
 } from '../src/index.js';
 import { imported } from './fixtures.js';
+
+/** The last value a fact had in a full trace (the facts after each stage). */
+function lastFact(trace: unknown, name: string): unknown {
+  const stages = (trace as { stages?: { facts: Record<string, unknown> }[] }).stages ?? [];
+  return [...stages].reverse().find((s) => name in s.facts)?.facts[name];
+}
 import { ruleset } from './support/engine.js';
 
 const { options, catalogue } = checkInOptionsOf(imported.records);
@@ -82,6 +91,49 @@ describe('the check-ins the explorer runs', () => {
     expect(report.noOutcome.count).toBe(0);
     expect(report.violations).toEqual([]);
   }, 30_000);
+});
+
+const HIGH = 7;
+const amberRed = (card: Card): boolean => card.light === 'amber' || card.light === 'red';
+
+/** ENT-3's "under strain": Amber or Red, a harder feeling at High+, a safety event, a session. */
+function strained(card: Card, input: EngineInput, trace: unknown): boolean {
+  const peak = lastFact(trace, 'peak.negative');
+  return (
+    amberRed(card) ||
+    (typeof peak === 'number' && peak >= HIGH) ||
+    ['signals.safety_event_recently', 'signals.in_session', 'signals.advanced_dismissed'].some(
+      (f) => input[f] === true,
+    )
+  );
+}
+
+const advancedOn = (card: Card): unknown[] =>
+  [card.primary, ...card.alternatives, ...card.queued, ...card.visible].filter((i) => i?.advanced);
+
+/** The card's Advanced tools against the plan's rules; whether a plan with them got one first. */
+function checkAdvanced(input: EngineInput): boolean {
+  const r = run(ruleset, input, { trace: 'full' });
+  if (!r.ok) return false;
+  const entitled = ['plus', 'institution'].includes(String(input['signals.plan']));
+  const advanced = advancedOn(r.card);
+  if (amberRed(r.card)) expect(advanced).toEqual([]);
+  if (entitled) return r.card.primary?.advanced === true;
+  expect(r.card.primary?.advanced ?? false).toBe(false);
+  expect(advanced.length).toBeLessThanOrEqual(strained(r.card, input, r.trace) ? 0 : 1);
+  return false;
+}
+
+describe('Advanced tools on every plan (Tab 6d: ENT-1, ENT-3, the Amber and Red card rows)', () => {
+  it('never first without a plan that has them, none under strain, at most one otherwise, none in Amber or Red', () => {
+    let entitledFirst = 0;
+    for (const c of set.cases)
+      for (const plan of ['free', 'plus', 'institution'])
+        if (checkAdvanced(c.account === 'browse' ? c.input : { ...c.input, 'signals.plan': plan }))
+          entitledFirst += 1;
+    // A plan with Advanced tools does get one first, somewhere.
+    expect(entitledFirst).toBeGreaterThan(0);
+  }, 60_000);
 });
 
 describe('rules no check-in can reach', () => {

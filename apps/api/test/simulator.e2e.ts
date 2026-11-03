@@ -132,6 +132,9 @@ describe('check-in Simulator', () => {
     expect(free.card.primary?.tool).toBe('my_patterns');
     expect(plus.card.primary?.tool).toBe('pattern_review');
     expect(plus.card.primary?.advanced).toBe(true);
+    // The card as the app receives it carries the flag, so the app labels it "Advanced".
+    expect(plus.shown.primary).toMatchObject({ toolId: 'pattern_review', advanced: true });
+    expect(free.shown.primary.advanced).toBeUndefined();
     const browse = (await simulate({ checkIn, account: 'browse' })).body;
     expect(browse.server).toEqual([
       { fact: 'signals.plan', value: 'free', source: 'account' },
