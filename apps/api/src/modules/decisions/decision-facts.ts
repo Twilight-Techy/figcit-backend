@@ -3,7 +3,7 @@ import { valuesOf, type Card, type Catalogue, type EngineInput } from '@figcit/e
 
 /**
  * The v1 signal loader's answers as engine v2 facts (M5, E-52). What v2 has no fact for is left
- * out: per-topic rumination (deferred, ADR 0004), trusted contacts and tool scores (no rule reads
+ * out: per-topic rumination (deferred, ADR 0007), trusted contacts and tool scores (no rule reads
  * them).
  */
 export function signalFacts(s: UserSignals, catalogue: Catalogue): EngineInput {

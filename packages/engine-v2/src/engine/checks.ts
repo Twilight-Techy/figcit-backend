@@ -16,7 +16,7 @@ export const PUBLISH_CHECKS = [
   { id: 'no_task_first_amber_red', rule: 'Tab 10: in Amber and Red the task is never the primary' },
   {
     id: 'hopeless_override',
-    rule: 'SF-1, ADR 0004 §7: the Hopeless chip shows the support screen',
+    rule: 'SF-1, ADR 0007 §7: the Hopeless chip shows the support screen',
   },
   { id: 'no_reflect_amber_red', rule: 'RF-1: Reflect is not offered in Amber or Red' },
 ] as const;

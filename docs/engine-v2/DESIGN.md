@@ -5,7 +5,7 @@
 - **Decisions after this draft:** the Owner's rulings of 1 Nov 2026 are in `DECISION_LOG.md` (E-08 onwards). Where the log and this document differ, the log wins; sections below are marked where they were changed.
 - **Related:**
   - `DECISION_LOG.md`: every decision, drop and deviation, with the reason and how to revert.
-  - `docs/adr/0004-engine-follows-workbook-rules.md`: rulings on rule order and the workbook's gaps.
+  - `docs/adr/0007-engine-follows-workbook-rules.md`: rulings on rule order and the workbook's gaps.
   - `INPUT_GAPS.md`: input items and values that are not yet standardised.
   - `OWNER_DISCUSSION.md`: points to settle with the Owner and the Clinical Safety lead.
 
@@ -94,8 +94,8 @@ The workbook's own columns stay exactly as written. Only the shaded columns are 
 
 ### 3.4 Rules the workbook doesn't contain
 
-The engine needs some things the workbook doesn't state, such as the order between patterns (ADR 0004 §2).
-- These are stored as **additions**, in an `additions` table or as extra rows, with a source of `ADR 0004`, or a later decision record.
+The engine needs some things the workbook doesn't state, such as the order between patterns (ADR 0007 §2).
+- These are stored as **additions**, in an `additions` table or as extra rows, with a source of `ADR 0007`, or a later decision record.
 - They are shaded and labelled as not from the workbook.
 - They are never mixed into workbook text.
 - If the workbook later covers the same point, the addition is retired.
@@ -114,7 +114,7 @@ The engine needs some things the workbook doesn't state, such as the order betwe
 |---|---|---|
 | **Gaps** | A rule that can't be represented, a contradiction between rules, an undefined term, a missing number, inputs no rule covers, two rules that fire together with different outcomes, and input values that aren't standardised (`INPUT_GAPS.md`). Each entry links the records involved and an example input that shows the problem. | Founder and Clinical Safety lead |
 | ~~**Drift**~~ | Dropped 1 Nov 2026 (`DECISION_LOG.md` E-10). The examples are not run. Exempted rules are tracked in the Gaps register instead. | — |
-| **Decisions** | Rulings that fill a gap (e.g. ADR 0004), each linked to the gap it closes | Owner / Clinical Safety lead |
+| **Decisions** | Rulings that fill a gap (e.g. ADR 0007), each linked to the gap it closes | Owner / Clinical Safety lead |
 
 ## 4. How the rules are written for the engine
 
@@ -170,7 +170,7 @@ Every effect is one of two types:
 
 This is how the workbook's own wording works: Tab 10 "Red: intervention forced immediately; demand deferred" is a requirement, and Tab 7 patterns propose. It makes the Red-task-first bug impossible by design.
 
-Ranking between proposals uses the layers in ADR 0004 §2 (stored as an addition, section 3.4), then the pattern's position within its layer. Within a layer, the proposal whose feeling is felt most strongly comes first (Tab 2: "use the HIGHEST intensity"). The full set of card rules is in `DECISION_LOG.md` E-51.
+Ranking between proposals uses the layers in ADR 0007 §2 (stored as an addition, section 3.4), then the pattern's position within its layer. Within a layer, the proposal whose feeling is felt most strongly comes first (Tab 2: "use the HIGHEST intensity"). The full set of card rules is in `DECISION_LOG.md` E-51.
 
 ### 4.5 Safety lexicon
 
@@ -279,7 +279,7 @@ A separate staff app, with the existing staff sign-in, roles and MFA. Every acti
 
 - Free text, voice, task splitting and mapping words to values (E-04). The other team's tool sends standard values to the engine.
 - Personalisation by outcomes (Tab 11 layer 12) beyond the rule set's own re-ordering rule. Kept for later.
-- Everything listed as deferred in ADR 0004.
+- Everything listed as deferred in ADR 0007.
 
 ## 12. Order of work (when building is approved)
 

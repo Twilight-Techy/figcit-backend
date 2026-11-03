@@ -126,7 +126,7 @@ const tags = (
   },
 });
 const DEFERRED =
-  'Deferred in the MVP (ADR 0004, deferred list): the characteristic is recorded but changes nothing yet.';
+  'Deferred in the MVP (ADR 0007, deferred list): the characteristic is recorded but changes nothing yet.';
 
 export const DEMAND_CHARACTERISTICS: TabMapping = {
   rows: {

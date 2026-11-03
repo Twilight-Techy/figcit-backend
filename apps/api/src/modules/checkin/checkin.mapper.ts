@@ -156,7 +156,7 @@ function engineDemand(d: Demand, timeline: TimelineCode): NonNullable<EngineInpu
 }
 
 // TEMPORARY v2 -> v1 adapter (DECISION_LOG E-39, TODO T-17): the check-in now carries v2 standard
-// input; until the v2 engine runs, these choices feed the v1 engine as E-42 and ADR 0004 §7 say.
+// input; until the v2 engine runs, these choices feed the v1 engine as E-42 and ADR 0007 §7 say.
 const UNRATED_HARDER = 7;
 const UNRATED_LIGHTER = 2;
 const RISK = 10;

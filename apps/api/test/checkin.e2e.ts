@@ -67,7 +67,7 @@ describe('check-in → card', () => {
     expect(res.status).toBe(201);
     expect(res.body.card.light).toBe('red');
     expect(res.body.card.taskId).toBeTruthy();
-    // Red defers the task (Tab 10; ADR 0004 §3): care first, never the task.
+    // Red defers the task (Tab 10; ADR 0007 §3): care first, never the task.
     expect(res.body.card.primary.pathway).not.toBe('execute');
     expect(res.body.card.crisisRoutes.length).toBeGreaterThan(0);
     // When the task can lead, its step opens that task.

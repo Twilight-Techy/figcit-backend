@@ -80,7 +80,7 @@ export const STAGES = [
 ] as const;
 export type StageKey = (typeof STAGES)[number]['key'];
 
-/** Precedence layers for proposals, highest first (ADR 0004 §2). */
+/** Precedence layers for proposals, highest first (ADR 0007 §2). */
 export const LAYERS = [
   { key: 'safety', label: 'Safety override' },
   { key: 'guard', label: 'Guards (shutdown, sensory overload, meditation, rumination)' },

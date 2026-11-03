@@ -127,7 +127,7 @@ export const NEEDS: TabMapping = {
           then: [propose('queued', path('execute'))],
         },
       ],
-      'Adapt (pace), then the next task if there is one. Using a saved ritual for the transition is deferred (ADR 0004).',
+      'Adapt (pace), then the next task if there is one. Using a saved ritual for the transition is deferred (ADR 0007).',
     ),
     'Rest without guilt': need(
       'rest_without_guilt',
@@ -155,7 +155,7 @@ export const NEEDS: TabMapping = {
           then: [propose('primary', path('adapt')), propose('queued', path('execute'))],
         },
       ],
-      'Adapt (plan the setting), then Execute; Green, Yellow and Blue (ADR 0004 consequences).',
+      'Adapt (plan the setting), then Execute; Green, Yellow and Blue (ADR 0007 consequences).',
     ),
     'Recover after an event': need(
       'recover_after_an_event',
@@ -266,7 +266,7 @@ export const NEEDS: TabMapping = {
           ],
         },
       ],
-      'Meditate (opening or closing ritual), the end-of-day close optional; Routine. Morning vs evening is deferred (ADR 0004).',
+      'Meditate (opening or closing ritual), the end-of-day close optional; Routine. Morning vs evening is deferred (ADR 0007).',
     ),
     'Feel connected to something bigger': need(
       'feel_connected_to_something_bigger',

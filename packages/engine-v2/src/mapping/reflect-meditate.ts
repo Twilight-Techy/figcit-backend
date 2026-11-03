@@ -155,7 +155,7 @@ const GATES: NonNullable<TabMapping['rows']> = {
       ),
     ],
     reason:
-      'Blocked with rumination present, or when the re-check after Reflect is worse (harder feelings up, ADR 0004 §8). Blocking "that topic for 7 days" and "3+ times in 7 days" need topics, deferred (ADR 0004); until then it holds for this check-in. The route is pattern 40.',
+      'Blocked with rumination present, or when the re-check after Reflect is worse (harder feelings up, ADR 0007 §8). Blocking "that topic for 7 days" and "3+ times in 7 days" need topics, deferred (ADR 0007); until then it holds for this check-in. The route is pattern 40.',
   }),
   'RF-3': ref(
     'How a Reflect session runs (3 prompts, stop any time, no streaks): the tool, not the engine.',

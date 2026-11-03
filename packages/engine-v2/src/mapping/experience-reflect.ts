@@ -23,11 +23,11 @@ import { trigger } from './experience.js';
 import type { TabMapping } from './types.js';
 
 // Tab 2 rows 27 to 34: the v3.2 Reflect and Meditate rows (shaded lilac) and the rumination row
-// (M3, E-50). Their Reflect and Meditate proposals rank as optional offers (ADR 0004 §2 step 6),
+// (M3, E-50). Their Reflect and Meditate proposals rank as optional offers (ADR 0007 §2 step 6),
 // so a task due now goes first, and every one of them still passes the Tab 6c gates (RF, MD).
 
 const OFFER =
-  'Ranked as an optional Reflect or Meditate offer (ADR 0004 §2): a task due now goes first.';
+  'Ranked as an optional Reflect or Meditate offer (ADR 0007 §2): a task due now goes first.';
 /** Settings where a practice may not be possible as it is (Tab 3b ALL row's classes). */
 export const SHARED_SETTING: Condition = containsAny('context.classes', [
   'public',
@@ -68,7 +68,7 @@ export const EXPERIENCE_REFLECT: NonNullable<TabMapping['rows']> = {
         set('tools.prefer', { tools: ['my_patterns'] }),
       ]),
     ],
-    reason: `Nothing forced: Reflect offered, saving what helped to My Patterns. Energy Very Low or Low (1-2): rest first and Reflect saved for later (ADR 0004: relief at low energy rests first). ${OFFER}`,
+    reason: `Nothing forced: Reflect offered, saving what helped to My Patterns. Energy Very Low or Low (1-2): rest first and Reflect saved for later (ADR 0007: relief at low energy rests first). ${OFFER}`,
   }),
   'Recurring struggle noticed (SYSTEM-LED + user confirms) · n/a (pattern)': mapped({
     stage: 'orchestration',
@@ -101,7 +101,7 @@ export const EXPERIENCE_REFLECT: NonNullable<TabMapping['rows']> = {
         set('tools.prefer', { tools: ['breathe', 'ground'] }),
       ]),
     ],
-    reason: `A settling practice, "3-10 min" read as the 3, 5 and 10 minute settles; eyes-open and headphone variants in public come from the context filters (Tab 3b, Tab 6c D). With a task, Adapt then Execute (the "Prepare for an event" route). At High+ Regulate (Breathe, Ground) first; the Meditate alternative there is deferred (ADR 0004). ${OFFER}`,
+    reason: `A settling practice, "3-10 min" read as the 3, 5 and 10 minute settles; eyes-open and headphone variants in public come from the context filters (Tab 3b, Tab 6c D). With a task, Adapt then Execute (the "Prepare for an event" route). At High+ Regulate (Breathe, Ground) first; the Meditate alternative there is deferred (ADR 0007). ${OFFER}`,
   }),
   'Need for stillness / inner quiet · Any (not shutdown)': trigger({
     when: all(

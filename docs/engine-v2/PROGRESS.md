@@ -81,5 +81,5 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] One Owner of the staff app: only they give Admin and Clinical admin and act on admins; first from OWNER_EMAIL; handover; recovery command (E-64)
 
 ## M9 Finish
-- [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0005 for the exceptions (E-23, E-57)
+- [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0008 for the exceptions (E-23, E-57)
 - [ ] Merge to `main`

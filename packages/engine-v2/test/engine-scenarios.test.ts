@@ -1,5 +1,5 @@
-// The engine on the real v3.3 rule set (M4): the cases ADR 0004 settles and the guards, checked
-// against the rules, never against the workbook's example tables (ADR 0004 §1).
+// The engine on the real v3.3 rule set (M4): the cases ADR 0007 settles and the guards, checked
+// against the rules, never against the workbook's example tables (ADR 0007 §1).
 import { describe, expect, it } from 'vitest';
 import type { CardItem } from '../src/index.js';
 import { cardFor, ruleset } from './support/engine.js';
@@ -16,7 +16,7 @@ describe('the engine on the v3.3 rule set', () => {
     expect(ruleset.rules.length).toBeGreaterThan(250);
   });
 
-  it('shows the support screen for the Hopeless chip at any rating (ADR 0004 §7)', () => {
+  it('shows the support screen for the Hopeless chip at any rating (ADR 0007 §7)', () => {
     for (const rating of [null, 0, 9]) {
       const { card } = cardFor({
         ...green,
@@ -27,14 +27,14 @@ describe('the engine on the v3.3 rule set', () => {
     }
   });
 
-  it('shows "Get support now" with distress at High+ in any band (ADR 0004 §7)', () => {
+  it('shows "Get support now" with distress at High+ in any band (ADR 0007 §7)', () => {
     const { card } = cardFor({ ...green, 'family.intensity': { distress_overwhelm: 8 } });
     expect(card.band).toBe('conditional');
     expect(card.supportVisible).toBe(true);
     expect(card.primary?.pathway).toBe('regulate');
   });
 
-  it('Red with a task due now: a 1-minute reset, the smallest step queued, support (ADR 0004 §3)', () => {
+  it('Red with a task due now: a 1-minute reset, the smallest step queued, support (ADR 0007 §3)', () => {
     const { card } = cardFor({ 'state.energy': 1, 'state.mood': 1, ...task('T0') });
     expect(card.light).toBe('red');
     expect(card.primary?.pathway).toBe('regulate');
@@ -50,7 +50,7 @@ describe('the engine on the v3.3 rule set', () => {
     expect(all.some((i) => i?.pathway === 'execute')).toBe(false);
   });
 
-  it('Amber with a task and no feeling: a reset, "Start small" and "try anyway" (ADR 0004 §4)', () => {
+  it('Amber with a task and no feeling: a reset, "Start small" and "try anyway" (ADR 0007 §4)', () => {
     const { card } = cardFor({ 'state.energy': 1, 'state.mood': 3, ...task('T3') });
     expect(card.light).toBe('amber');
     expect(card.primary?.pathway).toBe('regulate');
@@ -59,7 +59,7 @@ describe('the engine on the v3.3 rule set', () => {
     expect(card.drivers.map((d) => d.code)).not.toContain('urgency');
   });
 
-  it('Amber keeps Urgency at T1 (ADR 0004 §9)', () => {
+  it('Amber keeps Urgency at T1 (ADR 0007 §9)', () => {
     const { card } = cardFor({ 'state.energy': 1, 'state.mood': 3, ...task('T1') });
     expect(card.drivers.map((d) => d.code)).toContain('urgency');
   });
@@ -75,14 +75,14 @@ describe('the engine on the v3.3 rule set', () => {
     expect(card.primary?.tool).toBe('dump_text');
   });
 
-  it('Yellow, no feeling, a non-routine task: an optional 2-minute reset and "Skip to task" (ADR 0004 §5)', () => {
+  it('Yellow, no feeling, a non-routine task: an optional 2-minute reset and "Skip to task" (ADR 0007 §5)', () => {
     const { card } = cardFor({ 'state.energy': 2, 'state.mood': 3, ...task('T3') });
     expect(card.primary?.copy).toBe('card.p4.cta');
     expect(card.minutesCap).toBe(2);
     expect(card.visible.map(show)).toContain('skip_to_task');
   });
 
-  it('keeps mild anxiety in Green an alternative, with the task first (ADR 0004)', () => {
+  it('keeps mild anxiety in Green an alternative, with the task first (ADR 0007)', () => {
     const { card } = cardFor({
       ...green,
       'family.intensity': { anxious_fearful: 2 },

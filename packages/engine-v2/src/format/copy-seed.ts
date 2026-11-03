@@ -141,7 +141,7 @@ const PATTERN_WORDING: readonly Row[] = [
     'Take care of it now',
     P(29),
     'interpreted',
-    '"[I\'ve sorted it]" is the button after the break; this one opens the rest timer (labels match the tool, ADR 0004).',
+    '"[I\'ve sorted it]" is the button after the break; this one opens the rest timer (labels match the tool, ADR 0007).',
   ],
   ['card.p29.alt.remind', 'Remind me in 10 minutes', P(29), 'exact'],
   ['card.p30.title', "No problem - I'll stay out of your way", P(30), 'exact'],
@@ -185,7 +185,7 @@ const PATTERN_WORDING: readonly Row[] = [
     'Want to start or close the day your way?',
     P(39),
     'interpreted',
-    'Opening and closing wording are deferred (ADR 0004), so one line covers both.',
+    'Opening and closing wording are deferred (ADR 0007), so one line covers both.',
   ],
   [
     'card.p39.cta',

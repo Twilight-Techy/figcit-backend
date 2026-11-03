@@ -45,7 +45,7 @@ export interface EngineRule {
  */
 export interface EngineColumns {
   readonly stage: StageKey;
-  /** Precedence of the row's proposals (ADR 0004 §2); required when it proposes anything. */
+  /** Precedence of the row's proposals (ADR 0007 §2); required when it proposes anything. */
   readonly layer?: LayerKey;
   readonly rules: readonly EngineRule[];
   /** How the text was read; required when the mapping is `interpreted`. */

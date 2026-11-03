@@ -125,7 +125,7 @@ export class RunState {
     return this.bandOrder(this.baseline) > this.bandOrder(previous);
   }
 
-  /** Now minus then, on the harder feelings only (ADR 0004 §8); none felt now counts as 0. */
+  /** Now minus then, on the harder feelings only (ADR 0007 §8); none felt now counts as 0. */
   private intensityChange(): number | undefined {
     const before = this.input['recheck.previous_peak'];
     const now = this.peakNegative();

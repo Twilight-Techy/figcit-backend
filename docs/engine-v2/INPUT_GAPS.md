@@ -205,7 +205,7 @@ Figma S12 offers Study, Work, Health, Social, Home & other. The workbook and PRD
 
 ### IG-18 Stored interests and values: Not standard
 
-Tab 6 ("cross-reference with user's stored interests") and Tab 11 layer 7 ("stored interests and values") refer to a profile field that no source defines. Already deferred (ADR 0004). Confirm it's out of the MVP.
+Tab 6 ("cross-reference with user's stored interests") and Tab 11 layer 7 ("stored interests and values") refer to a profile field that no source defines. Already deferred (ADR 0007). Confirm it's out of the MVP.
 
 ### IG-19 Entry route: Standard
 
@@ -216,7 +216,7 @@ Tab 6 ("cross-reference with user's stored interests") and Tab 11 layer 7 ("stor
 - **Workbook:** SF-1: "Immediate risk language (selected option or free-text flag)". Tab 2: hopelessness, not wanting to be here, self-harm thoughts. Tab 6b: the "Get urgent help" need.
 - **Figma:** a Help button on every screen; a "Hopeless" chip (S07).
 - **Gaps:**
-  1. **Which selectable options count as a "selected option"** for SF-1: the Hopeless chip, a Help tap, a dedicated "I need help now" option? (Related: CONFLICTS D-07; ADR 0004 §7 interim.)
+  1. **Which selectable options count as a "selected option"** for SF-1: the Hopeless chip, a Help tap, a dedicated "I need help now" option? (Related: CONFLICTS D-07; ADR 0007 §7 interim.)
   2. **The free-text risk flag comes from outside the engine** (E-04). The flag's form needs agreeing: a yes/no, the matched category, and the lexicon version used. See OWNER_DISCUSSION O-03.
 
 ### IG-21 System signals: Partly standard

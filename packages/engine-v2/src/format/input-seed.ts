@@ -43,7 +43,7 @@ export const INPUT_SEED: readonly InputSeed[] = [
         'Hopeless',
         'harder',
         'family:immediate_risk_language',
-        'Tab 2: hopelessness is immediate risk language; safety override at any intensity (ADR 0004 §7, E-43)',
+        'Tab 2: hopelessness is immediate risk language; safety override at any intensity (ADR 0007 §7, E-43)',
       ],
       ['grief', 'Grief', 'harder', 'family:grief_loss'],
       ['loss', 'Loss', 'harder', 'family:grief_loss'],

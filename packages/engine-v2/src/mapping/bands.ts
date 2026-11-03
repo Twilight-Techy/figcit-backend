@@ -117,7 +117,7 @@ export const BANDS: TabMapping = {
         },
       ],
       reason:
-        '"Intervention is the forced primary": a task step is never the primary, task or not, and a short reset is the default one with "Start small" as an alternative (ADR 0004 §4; a feeling picks first, E-51). "Demand capped to Routine": only Routine is kept, with Urgency only at T0/T1 as pattern 5 and Tab 9 say (ADR 0004 §9). "I\'ll try the task anyway" is never hidden.',
+        '"Intervention is the forced primary": a task step is never the primary, task or not, and a short reset is the default one with "Start small" as an alternative (ADR 0007 §4; a feeling picks first, E-51). "Demand capped to Routine": only Routine is kept, with Urgency only at T0/T1 as pattern 5 and Tab 9 say (ADR 0007 §9). "I\'ll try the task anyway" is never hidden.',
       mapping: 'interpreted',
     }),
     'Very Constrained': bandRow({
@@ -152,7 +152,7 @@ export const BANDS: TabMapping = {
         },
       ],
       reason:
-        '"Intervention forced immediately; demand deferred; Support visible throughout": no task step anywhere on the card, except at T0, where only its smallest step is queued after the reset (ADR 0004 §3). "Try anyway" is never shown in Red. A reset is the default primary, then Dump, then Connect, the Red pathways of Tab 7 patterns 6-8; a declined one gives way to the next, and a feeling that leads to Dump or Connect picks first (E-51, E-60).',
+        '"Intervention forced immediately; demand deferred; Support visible throughout": no task step anywhere on the card, except at T0, where only its smallest step is queued after the reset (ADR 0007 §3). "Try anyway" is never shown in Red. A reset is the default primary, then Dump, then Connect, the Red pathways of Tab 7 patterns 6-8; a declined one gives way to the next, and a feeling that leads to Dump or Connect picks first (E-51, E-60).',
       mapping: 'interpreted',
     }),
     'Recovery (overlay, not a band)': {
@@ -232,7 +232,7 @@ export const BAND_RULES: TabMapping = {
     E4M1: {
       mapping: 'interpreted',
       reason:
-        'Baseline Conditional; one modifier takes it to Constrained. With both EX-1 and CX-1 it stops at Constrained (ADR 0004 §8), read as a floor.',
+        'Baseline Conditional; one modifier takes it to Constrained. With both EX-1 and CX-1 it stops at Constrained (ADR 0007 §8), read as a floor.',
       engine: {
         stage: 'state',
         rules: [
@@ -279,7 +279,7 @@ export const BAND_RULES: TabMapping = {
     'RC-1': {
       mapping: 'interpreted',
       reason:
-        'Runs at capacity fit, so on a re-check Blue applies to this card; Blue is an overlay on the band\'s light (E-51). "Better cell" read as a higher baseline band than the re-checked one\'s baseline (cell against cell, before modifiers; E-53); "intensity down by 2+" on the harder feelings only (ADR 0004 §8); "intervention completed" as the support session being finished.',
+        'Runs at capacity fit, so on a re-check Blue applies to this card; Blue is an overlay on the band\'s light (E-51). "Better cell" read as a higher baseline band than the re-checked one\'s baseline (cell against cell, before modifiers; E-53); "intensity down by 2+" on the harder feelings only (ADR 0007 §8); "intervention completed" as the support session being finished.',
       engine: {
         stage: 'capacity_fit',
         rules: [
@@ -384,14 +384,14 @@ export const BAND_RULES: TabMapping = {
 
 /**
  * Tab 1: the four cells whose lean says "regulate first" get a reset even with no feeling picked
- * (ADR 0004 §6). Each row checks its own cell (E-51: the first version left the cell out, so it
+ * (ADR 0007 §6). Each row checks its own cell (E-51: the first version left the cell out, so it
  * fired for every cell).
  */
 function leanFirst(cell: string): RowMapping {
   return {
     mapping: 'interpreted',
     reason:
-      'Default lean "Regulate first", for this cell only (ADR 0004 §6): a reset is proposed when no feeling is picked.',
+      'Default lean "Regulate first", for this cell only (ADR 0007 §6): a reset is proposed when no feeling is picked.',
     engine: {
       stage: 'orchestration',
       layer: 'band',
@@ -415,6 +415,6 @@ export const STATE_GRID: TabMapping = {
   all: {
     mapping: 'reference',
     reason:
-      "The cell's band comes from the Tab 10 band rows. Its default lean's NUCRIPCE, Reflect and Meditate hints are not used in the MVP (ADR 0004 §6).",
+      "The cell's band comes from the Tab 10 band rows. Its default lean's NUCRIPCE, Reflect and Meditate hints are not used in the MVP (ADR 0007 §6).",
   },
 };
