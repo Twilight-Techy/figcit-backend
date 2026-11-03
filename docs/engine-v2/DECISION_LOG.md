@@ -777,6 +777,23 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - `POST /v1/admin/staff/{userId}/remove|suspend|reinstate`.
 - **Still open:** T-01, who may grant `clinical_admin` (today any admin) and the approval split.
 
+### E-64 One Owner of the staff app (Owner, 3 Nov 2026; answers T-01's first question)
+- **Why:** every admin was equal. One admin could strip or suspend all the others, and any admin could grant Clinical admin, the role that changes the rules users receive (T-01).
+- **Decision (Owner):**
+  - **One Owner,** a named person's own account with the two-step sign-in; never a shared login. The database keeps it to one (`staff_owner`, a single row).
+  - **Only the Owner:**
+    - gives or takes **Admin** and **Clinical admin**;
+    - suspends, removes or reinstates an **admin**;
+    - hands ownership on.
+  - **Admins** keep the everyday work: inviting staff and managing the ordinary roles (content editor, safety reviewer, institution supporter), and suspending or removing staff who aren't admins.
+  - **Nobody acts on the Owner's account.** Ownership passes only by **handover**, to an active admin who has set up the two-step sign-in. The old Owner stays an admin.
+  - **The first Owner comes from `OWNER_EMAIL`,** and only while there is none. On start-up, that account becomes the Owner and an admin (a new account if needed, with the "sign in to the staff app" email). If an Owner exists and the variable differs, a warning is logged and nothing changes. So whoever can edit the server's settings can't take ownership by restarting it, and a handover isn't undone.
+  - **Recovery** (the Owner lost their authenticator, left, or can't be reached): a server command, run with database access: `pnpm --filter @figcit/api staff:owner -- --email <email> --reason "<why>"` (or `node dist/cli/staff-owner.js …` from a build). It is deliberately not in the app, so a stolen admin account can't use it.
+  - **Audit:** all of it goes on the platform audit log. The Owner's actions are recorded with the role `owner`; `staff.owner.bootstrap`, `staff.owner.handover` and `staff.owner.recover` record each change of Owner.
+  - **No Owner set:** nobody can give or take Admin or Clinical admin, and the staff app says how to set one.
+- **Migration:** `20261103120000_staff_owner` (the table, and a check constraint that keeps it to one row).
+- **Still open (T-01):** a separate editor role, Product Owner approval of every rule change, Clinical Safety co-approval of `safety` rows, and nobody approving their own change.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

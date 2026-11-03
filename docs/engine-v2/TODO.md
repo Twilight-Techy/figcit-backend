@@ -6,7 +6,7 @@ Things deliberately left simple or deferred during early development, to be tigh
 
 | # | To do | Why deferred | Recorded in |
 |---|---|---|---|
-| T-01 | Decide who may grant `clinical_admin` (E-34); separate editor role; Product Owner approval of every change; Clinical Safety co-approval of `safety` rows; nobody approves their own change | Early development: one clinical admin for now | `DECISION_LOG.md` E-20; `OWNER_DISCUSSION.md` O-07 |
+| T-01 | ~~Decide who may grant `clinical_admin`~~ Decided (E-64): only the Owner gives or takes Admin and Clinical admin. Still open: a separate editor role; Product Owner approval of every change; Clinical Safety co-approval of `safety` rows; nobody approves their own change | Early development: one clinical admin for now | `DECISION_LOG.md` E-20, E-64; `OWNER_DISCUSSION.md` O-07 |
 | T-02 | Replace every `interpreted` input mapping with the founder's confirmed value | Built from the workbook and Figma to unblock the engine | E-19; `INPUT_GAPS.md` |
 | T-03 | Resolve every exempt rule or have the Clinical Safety lead acknowledge it | Exemptions are working defaults | E-11, E-21; O-18 |
 | T-04 | ~~Remove the app's engine copy~~ Done (E-59): the server runs the only engine; the app's typed-text check and Browse task order call it; `vendor/engine` is deleted | — | E-01, U-01, U-02, E-53, E-59 |

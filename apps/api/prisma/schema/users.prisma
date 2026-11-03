@@ -77,6 +77,7 @@ model User {
   preferences          Preferences?
   authIdentities       AuthIdentity[]
   sessions             Session[]
+  staffOwner           StaffOwner?
   magicLinks           MagicLink[]
   passwordResets       PasswordReset[]
   mfaFactors           MfaFactor[]
@@ -160,3 +161,17 @@ model Preferences {
 
   @@map("preferences")
 }
+
+/// The platform's one Owner (E-64): the only person who gives or takes Admin and Clinical admin,
+/// suspends or removes an admin, and hands ownership on. One row at most (the migration's check
+/// constraint). Set first from OWNER_EMAIL; recovered only by the server command `staff:owner`.
+model StaffOwner {
+  id     Int      @id @default(1)
+  userId String   @unique @map("user_id") @db.Uuid
+  since  DateTime @default(now()) @db.Timestamptz(3)
+  // The Owner hands over before their account can be deleted.
+  user   User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("staff_owner")
+}
+

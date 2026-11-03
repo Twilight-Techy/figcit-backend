@@ -1,131 +1,76 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import type { Prisma, UserRole } from '@prisma/client';
-import { ENV, type Env } from '../../common/config/env.js';
-import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { BadInput, NotConfigured, NotFound } from '../../common/errors/errors.js';
 import { STAFF_ROLES } from '../../common/guards/auth.guard.js';
 import type { RequestUser } from '../../common/guards/request-user.js';
-import { layout, MailService } from '../../platform/mail/mail.service.js';
 import { AuditService } from '../audit/audit.service.js';
-import { UsersRepository } from '../users/users.repository.js';
+import { OwnerService } from './owner.service.js';
+import {
+  isStaff,
+  staffDto,
+  staffSelect as select,
+  StaffAccountsService,
+  type StaffRow as Row,
+} from './staff-accounts.service.js';
 import type { StaffMember } from './staff.schemas.js';
 
 const STAFF: readonly string[] = STAFF_ROLES;
-const isStaff = (roles: readonly string[]): boolean => roles.some((r) => STAFF.includes(r));
-const select = {
-  id: true,
-  email: true,
-  roles: true,
-  status: true,
-  lastActiveAt: true,
-  createdAt: true,
-  deletedAt: true,
-  _count: { select: { mfaFactors: true } },
-} as const;
-
-type Row = {
-  id: string;
-  email: string | null;
-  roles: string[];
-  status: StaffMember['status'];
-  lastActiveAt: Date | null;
-  createdAt: Date;
-  deletedAt: Date | null;
-  _count: { mfaFactors: number };
-};
-const dto = (r: Row): StaffMember => ({
-  id: r.id,
-  email: r.email,
-  roles: r.roles,
-  status: r.status,
-  mfa: r._count.mfaFactors > 0,
-  lastActiveAt: r.lastActiveAt?.toISOString() ?? null,
-  createdAt: r.createdAt.toISOString(),
-});
+const staffRoles = (roles: readonly string[]): string[] => roles.filter((r) => STAFF.includes(r));
 
 /**
- * Staff accounts (E-63), by an admin only, never on their own account, all on the audit log:
- * - invite: an email gets staff roles (a new account if it has none) and is told to sign in to
- *   the staff app, where the usual sign-in link and the two-step set-up follow;
- * - roles: change them; remove: take every staff role away and end their staff sessions;
- * - suspend: the account can't sign in anywhere and every session ends; reinstate undoes it.
- * The last active admin can't be removed, suspended or lose the admin role.
+ * Staff accounts (E-63, E-64), by an admin, never on their own account, all on the audit log:
+ * invite, change roles, remove (every staff role goes, staff sessions end), suspend (no sign-in
+ * anywhere, every session ends) and reinstate. Only the Owner gives or takes Admin and Clinical
+ * admin, or acts on an admin; nobody acts on the Owner (OwnerService).
  */
 @Injectable()
 export class StaffService {
   constructor(
-    @Inject(ENV) private readonly env: Env,
     private readonly prisma: PrismaService,
-    private readonly users: UsersRepository,
-    private readonly crypto: CryptoService,
-    private readonly mail: MailService,
     private readonly audit: AuditService,
+    private readonly owner: OwnerService,
+    private readonly accounts: StaffAccountsService,
   ) {}
 
   async list(): Promise<StaffMember[]> {
-    const rows = await this.prisma.user.findMany({
-      where: { roles: { hasSome: [...STAFF_ROLES] }, deletedAt: null },
-      orderBy: { createdAt: 'asc' },
-      select,
-      take: 200,
-    });
-    return rows.map(dto);
+    const [rows, owner] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { roles: { hasSome: [...STAFF_ROLES] }, deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+        select,
+        take: 200,
+      }),
+      this.owner.ownerId(),
+    ]);
+    return rows.map((r) => staffDto(r, owner));
   }
 
   async invite(
-    admin: RequestUser,
+    actor: RequestUser,
     body: { email: string; roles: readonly string[]; reason: string },
   ): Promise<StaffMember & { existing: boolean }> {
-    const base = this.env.STAFF_APP_URL;
-    if (!base) throw new NotConfigured('The staff app address (STAFF_APP_URL) is not set.');
-    const found = await this.prisma.user.findUnique({ where: { email: body.email }, select });
-    if (found && (found.status === 'deleted' || found.deletedAt))
-      throw new BadInput('That account is closed; it cannot be made staff.');
+    if (!this.accounts.canTell())
+      throw new NotConfigured('The staff app address (STAFF_APP_URL) is not set.');
+    const found = await this.accounts.find(body.email);
     if (found && isStaff(found.roles))
       throw new BadInput('That person is already staff: change their roles instead.');
-    const id =
-      found?.id ??
-      (
-        await this.users.create({
-          email: body.email,
-          dataKeyEnc: this.crypto.newWrappedKey(),
-          emailVerified: false,
-        })
-      ).id;
-    const roles = [...new Set([...(found?.roles ?? ['customer']), ...body.roles])] as UserRole[];
-    const row = await this.prisma.user.update({ where: { id }, data: { roles }, select });
-    await this.audit.record({
-      actorId: admin.id,
-      actorRole: 'admin',
-      action: 'staff.invite',
-      targetType: 'user',
-      targetId: id,
-      reason: body.reason,
-      meta: { roles: [...body.roles], existing: found !== null },
+    await this.owner.check(actor, null, { before: [], after: body.roles });
+    const { row, existing } = await this.accounts.enlist(body.email, body.roles);
+    await this.log(actor, 'staff.invite', row.id, body.reason, {
+      roles: [...body.roles],
+      existing,
     });
-    await this.mail.send({
-      to: body.email,
-      subject: 'You have been added to FigCit staff',
-      ...layout(
-        'You have been added to FigCit staff',
-        [
-          `Your roles: ${body.roles.join(', ')}.`,
-          'Open the staff app and choose "Email me a sign-in link" with this address. The first time, you will set up a two-step sign-in with an authenticator app.',
-          "If you weren't expecting this, you can ignore this email.",
-        ],
-        { label: 'Open the staff app', url: `${base}/sign-in/` },
-      ),
-    });
-    return { ...dto(row), existing: found !== null };
+    return { ...staffDto(row, await this.owner.ownerId()), existing };
   }
 
   async setRoles(
-    admin: RequestUser,
+    actor: RequestUser,
     userId: string,
     roles: readonly string[],
   ): Promise<StaffMember> {
-    const user = await this.staffMember(admin, userId);
+    const user = await this.staffMember(actor, userId);
+    await this.owner.check(actor, user, { before: staffRoles(user.roles), after: roles });
     if (!roles.includes('admin')) await this.keepAnAdmin(user);
     const kept = user.roles.filter((r) => !STAFF.includes(r));
     const next = [...new Set([...kept, ...roles])] as UserRole[];
@@ -134,20 +79,14 @@ export class StaffService {
       data: { roles: next },
       select,
     });
-    await this.audit.record({
-      actorId: admin.id,
-      actorRole: 'admin',
-      action: 'staff.roles',
-      targetType: 'user',
-      targetId: userId,
-      meta: { roles: [...roles] },
-    });
-    return dto(row);
+    await this.log(actor, 'staff.roles', userId, null, { roles: [...roles] });
+    return staffDto(row, await this.owner.ownerId());
   }
 
   /** No longer staff: every staff role goes, and their staff sessions end now. */
-  async remove(admin: RequestUser, userId: string, reason: string): Promise<StaffMember> {
-    const user = await this.staffMember(admin, userId);
+  async remove(actor: RequestUser, userId: string, reason: string): Promise<StaffMember> {
+    const user = await this.staffMember(actor, userId);
+    await this.owner.check(actor, user, { before: staffRoles(user.roles), after: [] });
     await this.keepAnAdmin(user);
     const roles = user.roles.filter((r) => !STAFF.includes(r)) as UserRole[];
     const [row] = await this.prisma.$transaction([
@@ -161,14 +100,15 @@ export class StaffService {
         data: { revokedAt: new Date(), revokeReason: 'staff_removed' },
       }),
     ]);
-    await this.log(admin, 'staff.remove', userId, reason, { roles: user.roles });
-    return dto(row);
+    await this.log(actor, 'staff.remove', userId, reason, { roles: user.roles });
+    return staffDto(row, await this.owner.ownerId());
   }
 
   /** The account can't sign in anywhere and every session ends; the roles stay for reinstating. */
-  async suspend(admin: RequestUser, userId: string, reason: string): Promise<StaffMember> {
-    const user = await this.staffMember(admin, userId);
+  async suspend(actor: RequestUser, userId: string, reason: string): Promise<StaffMember> {
+    const user = await this.staffMember(actor, userId);
     if (user.status === 'suspended') throw new BadInput('That account is already suspended.');
+    await this.owner.check(actor, user, { before: [], after: [] });
     await this.keepAnAdmin(user);
     const [row] = await this.prisma.$transaction([
       this.prisma.user.update({ where: { id: userId }, data: { status: 'suspended' }, select }),
@@ -177,25 +117,32 @@ export class StaffService {
         data: { revokedAt: new Date(), revokeReason: 'suspended' },
       }),
     ]);
-    await this.log(admin, 'staff.suspend', userId, reason);
-    return dto(row);
+    await this.log(actor, 'staff.suspend', userId, reason);
+    return staffDto(row, await this.owner.ownerId());
   }
 
-  async reinstate(admin: RequestUser, userId: string, reason: string): Promise<StaffMember> {
-    const user = await this.staffMember(admin, userId);
+  async reinstate(actor: RequestUser, userId: string, reason: string): Promise<StaffMember> {
+    const user = await this.staffMember(actor, userId);
     if (user.status !== 'suspended') throw new BadInput('That account is not suspended.');
+    await this.owner.check(actor, user, { before: [], after: [] });
     const row = await this.prisma.user.update({
       where: { id: userId },
       data: { status: 'active' },
       select,
     });
-    await this.log(admin, 'staff.reinstate', userId, reason);
-    return dto(row);
+    await this.log(actor, 'staff.reinstate', userId, reason);
+    return staffDto(row, await this.owner.ownerId());
   }
 
-  /** A staff member other than the admin acting. */
-  private async staffMember(admin: RequestUser, userId: string): Promise<Row> {
-    if (userId === admin.id)
+  /** The Owner hands ownership to another active admin (E-64). */
+  async handover(actor: RequestUser, userId: string, reason: string): Promise<StaffMember[]> {
+    await this.owner.handover(actor, userId, reason);
+    return this.list();
+  }
+
+  /** A staff member other than the one acting. */
+  private async staffMember(actor: RequestUser, userId: string): Promise<Row> {
+    if (userId === actor.id)
       throw new BadInput("You can't do this to your own staff account; ask another admin.");
     const user = await this.prisma.user.findFirst({
       where: { id: userId, deletedAt: null },
@@ -216,19 +163,19 @@ export class StaffService {
   }
 
   private async log(
-    admin: RequestUser,
+    actor: RequestUser,
     action: string,
     userId: string,
-    reason: string,
+    reason: string | null,
     meta?: Prisma.InputJsonValue,
   ): Promise<void> {
     await this.audit.record({
-      actorId: admin.id,
-      actorRole: 'admin',
+      actorId: actor.id,
+      actorRole: actor.id === (await this.owner.ownerId()) ? 'owner' : 'admin',
       action,
       targetType: 'user',
       targetId: userId,
-      reason,
+      ...(reason ? { reason } : {}),
       ...(meta ? { meta } : {}),
     });
   }

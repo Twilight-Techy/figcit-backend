@@ -21,11 +21,16 @@ export const inviteSchema = z
 
 export const reasonSchema = z.object({ reason }).strict();
 
+export const handoverSchema = z
+  .object({ userId: z.uuid().describe('An active admin with the two-step sign-in set up'), reason })
+  .strict();
+
 export const staffMemberSchema = z.object({
   id: z.uuid(),
   email: z.string().nullable(),
   roles: z.array(z.string()),
   status: z.enum(['active', 'suspended', 'deleted']),
+  owner: z.boolean().describe('The Owner (E-64): the only one who gives Admin and Clinical admin'),
   mfa: z.boolean().describe('Has set up the two-step sign-in (false: invited, not yet signed in)'),
   lastActiveAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),

@@ -4,6 +4,7 @@ import { CurrentUser, type RequestUser } from '../../common/guards/request-user.
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import {
+  handoverSchema,
   inviteResultSchema,
   inviteSchema,
   reasonSchema,
@@ -18,7 +19,10 @@ const TAGS = ['Admin'];
 const ADMIN = ['admin'] as const;
 const userIdParam = new ParseUUIDPipe();
 
-/** Staff accounts (E-63): admins only, never on their own account, all on the audit log. */
+/**
+ * Staff accounts (E-63, E-64): admins, never on their own account, all on the audit log; only the
+ * Owner gives or takes Admin and Clinical admin, acts on an admin, or hands over.
+ */
 @Controller('admin/staff')
 export class StaffController {
   constructor(private readonly staff: StaffService) {}
@@ -51,6 +55,23 @@ export class StaffController {
     @Body(new ZodPipe(inviteSchema)) body: z.infer<typeof inviteSchema>,
   ): Promise<z.infer<typeof inviteResultSchema>> {
     return this.staff.invite(admin, body);
+  }
+
+  @Post('owner')
+  @HttpCode(200)
+  @Route({
+    summary: 'Hand ownership to another active admin (the Owner only)',
+    tags: TAGS,
+    access: 'staff',
+    roles: ADMIN,
+    body: handoverSchema,
+    response: staffListSchema,
+  })
+  async handover(
+    @CurrentUser() actor: RequestUser,
+    @Body(new ZodPipe(handoverSchema)) body: z.infer<typeof handoverSchema>,
+  ): Promise<z.infer<typeof staffListSchema>> {
+    return { items: await this.staff.handover(actor, body.userId, body.reason) };
   }
 
   @Patch(':userId')

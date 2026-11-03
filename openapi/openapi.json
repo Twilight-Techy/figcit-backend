@@ -991,6 +991,10 @@
                               "deleted"
                             ]
                           },
+                          "owner": {
+                            "type": "boolean",
+                            "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                          },
                           "mfa": {
                             "type": "boolean",
                             "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
@@ -1018,6 +1022,7 @@
                           "email",
                           "roles",
                           "status",
+                          "owner",
                           "mfa",
                           "lastActiveAt",
                           "createdAt"
@@ -1040,6 +1045,7 @@
                         "Example roles"
                       ],
                       "status": "active",
+                      "owner": true,
                       "mfa": true,
                       "lastActiveAt": "2026-01-15T09:30:00.000Z",
                       "createdAt": "2026-01-15T09:30:00.000Z"
@@ -1161,6 +1167,10 @@
                         "deleted"
                       ]
                     },
+                    "owner": {
+                      "type": "boolean",
+                      "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                    },
                     "mfa": {
                       "type": "boolean",
                       "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
@@ -1192,6 +1202,7 @@
                     "email",
                     "roles",
                     "status",
+                    "owner",
                     "mfa",
                     "lastActiveAt",
                     "createdAt",
@@ -1206,6 +1217,7 @@
                     "Example roles"
                   ],
                   "status": "active",
+                  "owner": true,
                   "mfa": true,
                   "lastActiveAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z",
@@ -1321,6 +1333,10 @@
                         "deleted"
                       ]
                     },
+                    "owner": {
+                      "type": "boolean",
+                      "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                    },
                     "mfa": {
                       "type": "boolean",
                       "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
@@ -1348,6 +1364,7 @@
                     "email",
                     "roles",
                     "status",
+                    "owner",
                     "mfa",
                     "lastActiveAt",
                     "createdAt"
@@ -1361,6 +1378,7 @@
                     "Example roles"
                   ],
                   "status": "active",
+                  "owner": true,
                   "mfa": true,
                   "lastActiveAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z"
@@ -1465,6 +1483,10 @@
                         "deleted"
                       ]
                     },
+                    "owner": {
+                      "type": "boolean",
+                      "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                    },
                     "mfa": {
                       "type": "boolean",
                       "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
@@ -1492,6 +1514,7 @@
                     "email",
                     "roles",
                     "status",
+                    "owner",
                     "mfa",
                     "lastActiveAt",
                     "createdAt"
@@ -1505,6 +1528,7 @@
                     "Example roles"
                   ],
                   "status": "active",
+                  "owner": true,
                   "mfa": true,
                   "lastActiveAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z"
@@ -1609,6 +1633,10 @@
                         "deleted"
                       ]
                     },
+                    "owner": {
+                      "type": "boolean",
+                      "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                    },
                     "mfa": {
                       "type": "boolean",
                       "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
@@ -1636,6 +1664,7 @@
                     "email",
                     "roles",
                     "status",
+                    "owner",
                     "mfa",
                     "lastActiveAt",
                     "createdAt"
@@ -1649,6 +1678,7 @@
                     "Example roles"
                   ],
                   "status": "active",
+                  "owner": true,
                   "mfa": true,
                   "lastActiveAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z"
@@ -1753,6 +1783,10 @@
                         "deleted"
                       ]
                     },
+                    "owner": {
+                      "type": "boolean",
+                      "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                    },
                     "mfa": {
                       "type": "boolean",
                       "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
@@ -1780,6 +1814,7 @@
                     "email",
                     "roles",
                     "status",
+                    "owner",
                     "mfa",
                     "lastActiveAt",
                     "createdAt"
@@ -1793,9 +1828,174 @@
                     "Example roles"
                   ],
                   "status": "active",
+                  "owner": true,
                   "mfa": true,
                   "lastActiveAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/staff/owner": {
+      "post": {
+        "operationId": "Staff_handover",
+        "summary": "Hand ownership to another active admin (the Owner only)",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "description": "An active admin with the two-step sign-in set up"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 500,
+                    "description": "Why (kept on the audit log)"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "userId": "00000000-0000-4000-8000-000000000001",
+                "reason": "Example reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "email": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "roles": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "active",
+                              "suspended",
+                              "deleted"
+                            ]
+                          },
+                          "owner": {
+                            "type": "boolean",
+                            "description": "The Owner (E-64): the only one who gives Admin and Clinical admin"
+                          },
+                          "mfa": {
+                            "type": "boolean",
+                            "description": "Has set up the two-step sign-in (false: invited, not yet signed in)"
+                          },
+                          "lastActiveAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "email",
+                          "roles",
+                          "status",
+                          "owner",
+                          "mfa",
+                          "lastActiveAt",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "email": "Example email",
+                      "roles": [
+                        "Example roles"
+                      ],
+                      "status": "active",
+                      "owner": true,
+                      "mfa": true,
+                      "lastActiveAt": "2026-01-15T09:30:00.000Z",
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
                 }
               }
             }

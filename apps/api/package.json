@@ -25,7 +25,8 @@
     "db:seed:personas": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/run-personas.ts",
     "eval": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/run.ts",
     "eval:speech": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/run.ts",
-    "eval:speech:generate": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/generate.ts"
+    "eval:speech:generate": "node --conditions=development --import @swc-node/register/esm-register src/modules/speech/evals/generate.ts",
+    "staff:owner": "node --conditions=development --import @swc-node/register/esm-register src/cli/staff-owner.ts"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.5",
