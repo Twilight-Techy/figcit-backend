@@ -757,6 +757,26 @@ Rule set versions also keep their table frames, import report and checks as JSON
   - **Free:** an Advanced tool on 33% of cards (54% of calm ones), never first.
   - **Plus:** on 36%, first on 71 cards, with 14 different tools.
 
+### E-63 Staff accounts: invite, remove, suspend (Owner, 3 Nov 2026)
+- **Found:** the staff app could only change the roles of people who were already staff. Nobody could be added from the app, since the page listed only staff. Nobody could be suspended. A removed role still worked for up to 15 minutes, because staff routes trusted the roles inside the access token.
+- **Decision (Owner):**
+  - **Invite:** an admin enters an email and the roles. The account gets the roles (a new account if the email has none). The email tells the person to sign in to the staff app with that address. It carries no link that signs them in: the usual 10-minute sign-in link and the two-step set-up follow there.
+  - **Remove from staff:** every staff role goes and their staff sessions end. The account stays, as a user of the app.
+  - **Suspend / reinstate:** the account can't sign in anywhere, and every session ends. The roles are kept for reinstating.
+  - **Safeguards:**
+    - only admins can do these;
+    - never on the admin's own account;
+    - the last active admin can't be removed, suspended or lose the admin role;
+    - removing, suspending and reinstating need a reason;
+    - all of it goes on the platform audit log (`staff.invite`, `staff.roles`, `staff.remove`, `staff.suspend`, `staff.reinstate`).
+  - **At once:** staff routes now read the session and the person's roles from the database on every request, not from the token. A removed role, a removal or a suspension takes effect on the next request. Staff traffic is small, and this is one indexed read.
+- **Routes (admin):**
+  - `GET /v1/admin/staff` (now with status and last active);
+  - `POST /v1/admin/staff` (invite);
+  - `PATCH /v1/admin/staff/{userId}` (roles);
+  - `POST /v1/admin/staff/{userId}/remove|suspend|reinstate`.
+- **Still open:** T-01, who may grant `clinical_admin` (today any admin) and the approval split.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { z } from 'zod';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
@@ -22,21 +22,6 @@ const decisionsQuery = z
   })
   .strict();
 const daysQuery = z.object({ days: z.coerce.number().int().min(1).max(90).default(14) }).strict();
-const rolesSchema = z
-  .object({
-    roles: z
-      .array(
-        z.enum([
-          'admin',
-          'safety_reviewer',
-          'content_editor',
-          'institution_supporter',
-          'clinical_admin',
-        ]),
-      )
-      .max(5),
-  })
-  .strict();
 const contentQuery = z.object({ kind: z.string().max(24).optional() }).strict();
 const contentSchema = z
   .object({
@@ -184,35 +169,6 @@ export class AdminController {
   @Route({ summary: 'Service metrics', tags: ['Admin'], access: 'staff', response: any })
   metrics(): Promise<unknown> {
     return this.admin.metrics();
-  }
-
-  @Get('staff')
-  @Route({
-    summary: 'Staff and their roles',
-    tags: ['Admin'],
-    access: 'staff',
-    roles: ['admin'],
-    response: list,
-  })
-  async staff(): Promise<{ items: unknown[] }> {
-    return { items: await this.admin.staff() };
-  }
-
-  @Patch('staff/:userId')
-  @Route({
-    summary: 'Change staff roles',
-    tags: ['Admin'],
-    access: 'staff',
-    roles: ['admin'],
-    body: rolesSchema,
-    response: any,
-  })
-  roles(
-    @CurrentUser() staff: RequestUser,
-    @Param('userId', ParseUUIDPipe) userId: string,
-    @Body(new ZodPipe(rolesSchema)) body: z.infer<typeof rolesSchema>,
-  ): Promise<unknown> {
-    return this.admin.setRoles(staff, userId, body.roles);
   }
 
   @Get('content')

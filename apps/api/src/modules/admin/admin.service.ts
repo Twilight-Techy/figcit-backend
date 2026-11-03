@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma, UserRole } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../common/db/prisma.service.js';
-import { BadInput, Forbidden, NotFound } from '../../common/errors/errors.js';
-import { STAFF_ROLES } from '../../common/guards/auth.guard.js';
+import { Forbidden, NotFound } from '../../common/errors/errors.js';
 import type { RequestUser } from '../../common/guards/request-user.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ContentService } from '../content/content.service.js';
@@ -154,47 +153,6 @@ export class AdminService {
         avgLatencyMs: Math.round(a._avg.latencyMs ?? 0),
       })),
     };
-  }
-
-  async staff(): Promise<{ id: string; email: string | null; roles: string[]; mfa: boolean }[]> {
-    const rows = await this.prisma.user.findMany({
-      where: { roles: { hasSome: [...STAFF_ROLES] }, deletedAt: null },
-      select: { id: true, email: true, roles: true, _count: { select: { mfaFactors: true } } },
-      take: 200,
-    });
-    return rows.map((r) => ({
-      id: r.id,
-      email: r.email,
-      roles: r.roles,
-      mfa: r._count.mfaFactors > 0,
-    }));
-  }
-
-  async setRoles(
-    admin: RequestUser,
-    userId: string,
-    roles: readonly string[],
-  ): Promise<{ id: string; roles: string[] }> {
-    if (!admin.roles.includes('admin')) throw new Forbidden('Only an admin changes roles.');
-    if (admin.id === userId && !roles.includes('admin'))
-      throw new BadInput("You can't remove your own admin role.");
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { roles: true },
-    });
-    if (!user) throw new NotFound('user');
-    const kept = user.roles.filter((r) => !(STAFF_ROLES as readonly string[]).includes(r));
-    const next = [...new Set([...kept, ...roles])] as UserRole[];
-    await this.prisma.user.update({ where: { id: userId }, data: { roles: next } });
-    await this.audit.record({
-      actorId: admin.id,
-      actorRole: 'admin',
-      action: 'staff.roles',
-      targetType: 'user',
-      targetId: userId,
-      meta: { roles: [...roles] },
-    });
-    return { id: userId, roles: next };
   }
 
   async contentItems(kind: string | undefined): Promise<unknown[]> {

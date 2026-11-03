@@ -77,6 +77,7 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 - [x] Saved scenarios: shared, run on any version with the run kept, deletes audited
 - [x] Explorer: check-ins instead of facts, the three questions, the state grid in place of the outcome map, why each rule never fired, open any check-in in the Simulator
 - [x] Advanced tools offered as Tab 6d describes: the fuller version for Plus, one labelled Advanced alternative on calm cards, never in place of support (E-62; for the founder: O-20)
+- [x] Staff accounts: invite by email, remove, suspend and reinstate, effective at once (E-63)
 
 ## M9 Finish
 - [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0005 for the exceptions (E-23, E-57)
