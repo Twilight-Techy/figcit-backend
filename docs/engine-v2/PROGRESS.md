@@ -82,4 +82,4 @@ The full build described in `DESIGN.md` and settled in `DECISION_LOG.md`. Tick i
 
 ## M9 Finish
 - [x] Full tests (engine v1 284, engine v2 185, API 59 unit and 111 e2e), coverage, performance budgets, ADR 0008 for the exceptions (E-23, E-57)
-- [ ] Merge to `main`
+- [x] Merge to `main`: both branches fast-forwarded into `main` and deleted (3 Nov 2026; backend `5d439a2`, client `b602b3c`)
