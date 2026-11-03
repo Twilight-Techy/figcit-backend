@@ -4879,6 +4879,13 @@
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 4
+                            },
+                            "asksStrength": {
+                              "type": "string",
+                              "enum": [
+                                "pain",
+                                "overstimulation"
+                              ]
                             }
                           },
                           "required": [
@@ -24925,6 +24932,13 @@
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 4
+                            },
+                            "asksStrength": {
+                              "type": "string",
+                              "enum": [
+                                "pain",
+                                "overstimulation"
+                              ]
                             }
                           },
                           "required": [

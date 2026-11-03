@@ -19,7 +19,11 @@ export interface PublicOption {
   readonly needsTask?: true;
   /** A Not-sure picture's level on the State Grid axis (energy or mood, 1-4), for the suggestion. */
   readonly level?: number;
+  /** A sensation whose strength a rule reads: the app asks how strong it is, per kind. */
+  readonly asksStrength?: StrengthKind;
 }
+
+type StrengthKind = 'pain' | 'overstimulation';
 
 export interface PublicCell {
   readonly id: string;
@@ -53,6 +57,19 @@ export interface OptionsRow {
 
 const CELL = /^E([1-4])M([1-4])$/;
 
+/** The sensation groups whose number a rule compares against a threshold, as the app names them. */
+const STRENGTH_KINDS: Readonly<Record<string, StrengthKind>> = {
+  pain: 'pain',
+  sensory_overload: 'overstimulation',
+};
+
+function strengthKind(input: InputKind, o: InputOption): StrengthKind | undefined {
+  const to = o.mapsTo && 'domain' in o.mapsTo ? o.mapsTo : null;
+  return input === 'sensation' && to?.domain === 'sensation_group'
+    ? STRENGTH_KINDS[to.code]
+    : undefined;
+}
+
 function publicOption(input: InputKind, o: InputOption, catalogue: Catalogue): PublicOption {
   const to = o.mapsTo && 'domain' in o.mapsTo ? o.mapsTo : null;
   const risk =
@@ -60,6 +77,7 @@ function publicOption(input: InputKind, o: InputOption, catalogue: Catalogue): P
   const needsTask =
     to?.domain === 'need' &&
     (catalogue.get('need') ?? []).some((v) => v.code === to.code && v.group === 'task_needed');
+  const asksStrength = strengthKind(input, o);
   return {
     code: o.code,
     label: o.label,
@@ -67,6 +85,7 @@ function publicOption(input: InputKind, o: InputOption, catalogue: Catalogue): P
     ...(risk ? { risk: true as const } : {}),
     ...(needsTask ? { needsTask: true as const } : {}),
     ...(o.mapsTo && 'axis' in o.mapsTo ? { level: o.mapsTo.level } : {}),
+    ...(asksStrength ? { asksStrength } : {}),
   };
 }
 

@@ -9,6 +9,7 @@ const option = z.object({
   risk: z.literal(true).optional(),
   needsTask: z.literal(true).optional(),
   level: z.number().int().min(1).max(4).optional(),
+  asksStrength: z.enum(['pain', 'overstimulation']).optional(),
 });
 export const checkInOptionsSchema = z.object({
   version: z.string(),

@@ -1,6 +1,6 @@
 {
   "version": "bundled",
-  "hash": "9b000cafc5159bb554738e6ae933762148c7431cd10d15a9a456876207035bb2",
+  "hash": "18c7d7e7c4ef1a251f41037ac426a900e03243a9e7d5fcf2982888436dde09fc",
   "inputs": {
     "feeling": [
       {
@@ -204,7 +204,8 @@
       {
         "code": "overstimulated",
         "label": "Overstimulated",
-        "group": "sensory"
+        "group": "sensory",
+        "asksStrength": "overstimulation"
       },
       {
         "code": "visual_clutter",
@@ -299,7 +300,8 @@
       {
         "code": "aches",
         "label": "Aches",
-        "group": "body"
+        "group": "body",
+        "asksStrength": "pain"
       },
       {
         "code": "teeth_grinding",
@@ -319,17 +321,20 @@
       {
         "code": "sharp_pain",
         "label": "Sharp pain",
-        "group": "body"
+        "group": "body",
+        "asksStrength": "pain"
       },
       {
         "code": "dull_pain",
         "label": "Dull pain",
-        "group": "body"
+        "group": "body",
+        "asksStrength": "pain"
       },
       {
         "code": "throbbing",
         "label": "Throbbing",
-        "group": "body"
+        "group": "body",
+        "asksStrength": "pain"
       },
       {
         "code": "hot_flashes",
@@ -349,7 +354,8 @@
       {
         "code": "contractions",
         "label": "Contractions",
-        "group": "body"
+        "group": "body",
+        "asksStrength": "pain"
       },
       {
         "code": "words_stuck",
@@ -539,7 +545,8 @@
       {
         "code": "pain_hard_to_locate",
         "label": "Pain hard to locate",
-        "group": "interoception"
+        "group": "interoception",
+        "asksStrength": "pain"
       },
       {
         "code": "calm_inside",

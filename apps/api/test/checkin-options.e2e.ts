@@ -10,6 +10,7 @@ interface Option {
   group: string | null;
   risk?: true;
   needsTask?: true;
+  asksStrength?: 'pain' | 'overstimulation';
 }
 interface Options {
   version: string;
@@ -59,6 +60,11 @@ describe('check-in options (E-40)', () => {
     expect(inputs['feeling']?.find((o) => o.code === 'hopeless')?.risk).toBe(true);
     expect(inputs['need']?.find((o) => o.code === 'get_started')?.needsTask).toBe(true);
     expect(inputs['need']?.find((o) => o.code === 'feel_calmer')?.needsTask).toBeUndefined();
+    const strengthOf = (code: string): Option['asksStrength'] =>
+      inputs['sensation']?.find((o) => o.code === code)?.asksStrength;
+    expect(strengthOf('aches')).toBe('pain');
+    expect(strengthOf('overstimulated')).toBe('overstimulation');
+    expect(strengthOf('tension')).toBeUndefined();
     expect(inputs['place']?.filter((o) => o.group === 'common')).toHaveLength(10);
     expect(res.body.cells.find((c) => c.id === 'E2M2')?.name).toBe('Slow Warm');
     expect(inputs['not_sure_comfort']?.map((o) => (o as Option & { level: number }).level)).toEqual(
