@@ -34,16 +34,7 @@ export const STARTERS: readonly Starter[] = [
   { code: 'hard_time', text: "I'm having a hard time. Could you check on me?", kind: 'ask' },
 ];
 
-export const RELATIONSHIPS = [
-  'friend',
-  'family',
-  'partner',
-  'study_buddy',
-  'colleague',
-  'mentor',
-  'professional',
-  'other',
-] as const;
+export const RELATIONSHIPS = ['friend', 'family', 'partner', 'study_buddy'] as const;
 
 /** Links that open the phone's own apps with the message ready. Nothing is sent by NUCCESS. */
 export function sendLinks(
