@@ -44,6 +44,17 @@ export const crisisRouteSchema = z.object({
   kind: z.enum(['call', 'text', 'link']),
 });
 
+/**
+ * How a practice offered on this card may run (the engine's `practice.limit`: Tab 6c MD-2, MD-4 and
+ * section D). A tool it names, or every Reflect and Meditate tool when `tools` is null, runs only in
+ * these modes and for at most `maxMinutes`.
+ */
+export const practiceLimitSchema = z.object({
+  modes: z.array(z.string()),
+  maxMinutes: z.number().int().nullable(),
+  tools: z.array(z.string()).nullable(),
+});
+
 export const cardSchema = z.object({
   id: z.uuid(),
   checkInId: z.uuid(),
@@ -72,6 +83,8 @@ export const cardSchema = z.object({
   timeline: z.object({ code: z.string(), stepCap: z.number().int() }).nullable(),
   taskId: z.uuid().nullable(),
   origin: z.enum(['online', 'offline']),
+  /** Absent on cards stored before this field, and on engine v1's. */
+  practiceLimits: z.array(practiceLimitSchema).optional(),
 });
 export type CardDto = z.infer<typeof cardSchema>;
 

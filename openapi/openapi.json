@@ -5916,6 +5916,51 @@
                             "online",
                             "offline"
                           ]
+                        },
+                        "practiceLimits": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "modes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "maxMinutes": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "tools": {
+                                "anyOf": [
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "modes",
+                              "maxMinutes",
+                              "tools"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -6036,7 +6081,18 @@
                       "stepCap": 1
                     },
                     "taskId": "00000000-0000-4000-8000-000000000001",
-                    "origin": "online"
+                    "origin": "online",
+                    "practiceLimits": [
+                      {
+                        "modes": [
+                          "Example modes"
+                        ],
+                        "maxMinutes": 1,
+                        "tools": [
+                          "Example tools"
+                        ]
+                      }
+                    ]
                   }
                 }
               }
@@ -6773,6 +6829,51 @@
                                 "online",
                                 "offline"
                               ]
+                            },
+                            "practiceLimits": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "modes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "maxMinutes": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tools": {
+                                    "anyOf": [
+                                      {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "modes",
+                                  "maxMinutes",
+                                  "tools"
+                                ],
+                                "additionalProperties": false
+                              }
                             }
                           },
                           "required": [
@@ -6898,7 +6999,18 @@
                       "stepCap": 1
                     },
                     "taskId": "00000000-0000-4000-8000-000000000001",
-                    "origin": "online"
+                    "origin": "online",
+                    "practiceLimits": [
+                      {
+                        "modes": [
+                          "Example modes"
+                        ],
+                        "maxMinutes": 1,
+                        "tools": [
+                          "Example tools"
+                        ]
+                      }
+                    ]
                   }
                 }
               }
@@ -11100,6 +11212,51 @@
                         "online",
                         "offline"
                       ]
+                    },
+                    "practiceLimits": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "modes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "maxMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "tools": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "modes",
+                          "maxMinutes",
+                          "tools"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -11196,7 +11353,18 @@
                     "stepCap": 1
                   },
                   "taskId": "00000000-0000-4000-8000-000000000001",
-                  "origin": "online"
+                  "origin": "online",
+                  "practiceLimits": [
+                    {
+                      "modes": [
+                        "Example modes"
+                      ],
+                      "maxMinutes": 1,
+                      "tools": [
+                        "Example tools"
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -21448,6 +21616,51 @@
                         "online",
                         "offline"
                       ]
+                    },
+                    "practiceLimits": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "modes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "maxMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "tools": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "modes",
+                          "maxMinutes",
+                          "tools"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -21544,7 +21757,18 @@
                     "stepCap": 1
                   },
                   "taskId": "00000000-0000-4000-8000-000000000001",
-                  "origin": "online"
+                  "origin": "online",
+                  "practiceLimits": [
+                    {
+                      "modes": [
+                        "Example modes"
+                      ],
+                      "maxMinutes": 1,
+                      "tools": [
+                        "Example tools"
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -21994,6 +22218,51 @@
                                 "online",
                                 "offline"
                               ]
+                            },
+                            "practiceLimits": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "modes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "maxMinutes": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tools": {
+                                    "anyOf": [
+                                      {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "modes",
+                                  "maxMinutes",
+                                  "tools"
+                                ],
+                                "additionalProperties": false
+                              }
                             }
                           },
                           "required": [
@@ -22117,7 +22386,18 @@
                       "stepCap": 1
                     },
                     "taskId": "00000000-0000-4000-8000-000000000001",
-                    "origin": "online"
+                    "origin": "online",
+                    "practiceLimits": [
+                      {
+                        "modes": [
+                          "Example modes"
+                        ],
+                        "maxMinutes": 1,
+                        "tools": [
+                          "Example tools"
+                        ]
+                      }
+                    ]
                   },
                   "quietUntil": "2026-01-15T09:30:00.000Z"
                 }
@@ -22580,6 +22860,51 @@
                         "online",
                         "offline"
                       ]
+                    },
+                    "practiceLimits": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "modes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "maxMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "tools": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "modes",
+                          "maxMinutes",
+                          "tools"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -22676,7 +23001,18 @@
                     "stepCap": 1
                   },
                   "taskId": "00000000-0000-4000-8000-000000000001",
-                  "origin": "online"
+                  "origin": "online",
+                  "practiceLimits": [
+                    {
+                      "modes": [
+                        "Example modes"
+                      ],
+                      "maxMinutes": 1,
+                      "tools": [
+                        "Example tools"
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -34582,6 +34918,51 @@
                                     "online",
                                     "offline"
                                   ]
+                                },
+                                "practiceLimits": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "modes": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "maxMinutes": {
+                                        "anyOf": [
+                                          {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "tools": {
+                                        "anyOf": [
+                                          {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "modes",
+                                      "maxMinutes",
+                                      "tools"
+                                    ],
+                                    "additionalProperties": false
+                                  }
                                 }
                               },
                               "required": [
@@ -34887,7 +35268,18 @@
                         "stepCap": 1
                       },
                       "taskId": "00000000-0000-4000-8000-000000000001",
-                      "origin": "online"
+                      "origin": "online",
+                      "practiceLimits": [
+                        {
+                          "modes": [
+                            "Example modes"
+                          ],
+                          "maxMinutes": 1,
+                          "tools": [
+                            "Example tools"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -40290,6 +40682,51 @@
                                         "online",
                                         "offline"
                                       ]
+                                    },
+                                    "practiceLimits": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "modes": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "maxMinutes": {
+                                            "anyOf": [
+                                              {
+                                                "type": "integer",
+                                                "minimum": -9007199254740991,
+                                                "maximum": 9007199254740991
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
+                                          "tools": {
+                                            "anyOf": [
+                                              {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "modes",
+                                          "maxMinutes",
+                                          "tools"
+                                        ],
+                                        "additionalProperties": false
+                                      }
                                     }
                                   },
                                   "required": [
@@ -40623,7 +41060,18 @@
                           "stepCap": 1
                         },
                         "taskId": "00000000-0000-4000-8000-000000000001",
-                        "origin": "online"
+                        "origin": "online",
+                        "practiceLimits": [
+                          {
+                            "modes": [
+                              "Example modes"
+                            ],
+                            "maxMinutes": 1,
+                            "tools": [
+                              "Example tools"
+                            ]
+                          }
+                        ]
                       }
                     }
                   }

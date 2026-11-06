@@ -13,6 +13,7 @@ interface Card {
   crisisRoutes: unknown[];
   state: { cellId: string; confirmed: boolean };
   taskId: string | null;
+  practiceLimits?: { modes: string[]; maxMinutes: number | null; tools: string[] | null }[];
 }
 interface Result {
   checkIn: { id: string; light: string; cellId: string };
@@ -152,6 +153,49 @@ describe('check-in → card', () => {
       token: other.token,
     });
     expect(rec.status).toBe(404);
+  });
+});
+
+describe("a card's practice limits, on the real rule set", () => {
+  const steady = { state: { kind: 'grid', energy: 3, mood: 3 } };
+  const eyesOpenFor = (c: Card, tool: string): boolean =>
+    (c.practiceLimits ?? []).some(
+      (l) => l.modes.includes('eyes_open') && (l.tools === null || l.tools.includes(tool)),
+    );
+
+  it('sends none when nothing limits a practice', async () => {
+    const res = await checkIn({ ...steady, needs: ['find_stillness'] });
+    expect(res.status).toBe(201);
+    expect(res.body.card.practiceLimits).toEqual([]);
+  });
+
+  it('sends eyes-open for "Feel detached or unreal" (MD-2)', async () => {
+    const res = await checkIn({
+      ...steady,
+      needs: ['find_stillness'],
+      sensations: [{ code: 'detached' }],
+    });
+    expect(res.status).toBe(201);
+    expect(eyesOpenFor(res.body.card, 'stillness')).toBe(true);
+  });
+
+  it('sends eyes-open for Numb (MD-2)', async () => {
+    const res = await checkIn({
+      ...steady,
+      emotions: [{ code: 'numb', intensity: null }],
+    });
+    expect(res.status).toBe(201);
+    expect(eyesOpenFor(res.body.card, 'stillness')).toBe(true);
+  });
+
+  it('sends silent, eyes-open, headphones and 3 minutes in a public place (MD-4)', async () => {
+    const res = await checkIn({ ...steady, context: { environment: 'public' } });
+    expect(res.status).toBe(201);
+    const limits = res.body.card.practiceLimits ?? [];
+    expect(eyesOpenFor(res.body.card, 'stillness')).toBe(true);
+    expect(limits.every((l) => l.maxMinutes === 3)).toBe(true);
+    const md4 = limits.find((l) => l.modes.includes('silent'));
+    expect(md4?.modes).toEqual(expect.arrayContaining(['silent', 'eyes_open', 'headphones']));
   });
 });
 

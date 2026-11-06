@@ -224,6 +224,11 @@ export function present(v2: Card, p: Presentation, ids: CardIds): { card: CardDt
     patterns: [...p.patterns],
     taskId: ids.taskId,
     origin: ids.origin,
+    practiceLimits: v2.practice.map((l) => ({
+      modes: [...l.modes],
+      maxMinutes: l.maxMinutes,
+      tools: l.tools ? [...l.tools] : null,
+    })),
   };
   if (support) {
     const title = p.copy.get('card.support.title') ?? '';

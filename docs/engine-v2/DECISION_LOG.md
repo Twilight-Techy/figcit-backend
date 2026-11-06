@@ -794,6 +794,13 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Migration:** `20261103120000_staff_owner` (the table, and a check constraint that keeps it to one row).
 - **Still open (T-01):** a separate editor role, Product Owner approval of every rule change, Clinical Safety co-approval of `safety` rows, and nobody approving their own change.
 
+
+### E-65 Practice limits reach the app (Owner, 4 Nov 2026)
+- **Why:** the engine works out how an offered practice may run (`practice.limit`: Tab 6c MD-2, MD-4 and section D), but the API left that off the card. So a card made under MD-2 could offer "Start stillness", and it opened with Eyes-open off.
+- **Decision (Owner):** the card carries the engine's limits as `practiceLimits`, and the app applies eyes-open when a practice is started from that card. No rule or engine logic changes, and the server does not reject sessions.
+- **Not applied yet:** `maxMinutes` is sent but the app ignores it (PWA F-125). As built it would stop someone's own practice at a place of worship after 3 minutes, which waits for Clinical Safety and the place-of-worship inference (IG-07).
+- **Not decided here (Clinical Safety):** direct entry to Meditate, body-scan gating, the "never suggest meditation" copy and the card's wording.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |
