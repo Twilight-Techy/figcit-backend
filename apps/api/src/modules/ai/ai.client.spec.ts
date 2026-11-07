@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { labelProbabilities } from './ai.client.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { Env } from '../../common/config/env.js';
+import { AiClient, labelProbabilities } from './ai.client.js';
 
 describe('decision scoring', () => {
   it('renormalises the label probabilities and ignores other tokens', () => {
@@ -21,5 +22,49 @@ describe('decision scoring', () => {
       A: 0,
       B: 0,
     });
+  });
+});
+
+describe('circuit breaker', () => {
+  const req = { system: 's', user: 'u', temperature: 0, maxTokens: 1, timeoutMs: 1000 };
+  const client = (): AiClient =>
+    new AiClient({ AI_BASE_URL: 'http://model.test', AI_MODEL: 'm' } as Env);
+  const answering = (status: number): void => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status })));
+  };
+  const failTimes = async (c: AiClient, n: number): Promise<void> => {
+    for (let i = 0; i < n; i += 1) await c.chat(req).catch(() => undefined);
+  };
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it('opens after three failures in a row', async () => {
+    answering(500);
+    const c = client();
+    await failTimes(c, 3);
+    expect(c.circuitOpen).toBe(true);
+  });
+
+  it('does not count a model that is still loading', async () => {
+    answering(503);
+    const c = client();
+    await failTimes(c, 10);
+    expect(c.circuitOpen).toBe(false);
+  });
+
+  it('needs three more failures to open again', async () => {
+    vi.useFakeTimers();
+    answering(500);
+    const c = client();
+    await failTimes(c, 3);
+    vi.advanceTimersByTime(60_001);
+    expect(c.circuitOpen).toBe(false);
+    await failTimes(c, 2);
+    expect(c.circuitOpen).toBe(false);
+    await failTimes(c, 1);
+    expect(c.circuitOpen).toBe(true);
   });
 });

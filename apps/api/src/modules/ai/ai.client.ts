@@ -32,6 +32,12 @@ export class AiUnavailable extends Error {
 
 const FAILURES_TO_OPEN = 3;
 
+/** A 503 from a model that is still loading: expected after scaling to zero, not a server failing. */
+class ModelLoading extends Error {}
+
+const serverError = (status: number): Error =>
+  status === 503 ? new ModelLoading() : new Error(`model server ${String(status)}`);
+
 interface TopLogprob {
   readonly token: string;
   readonly logprob: number;
@@ -110,9 +116,12 @@ export class AiClient {
   }
 
   private failed(error: unknown): AiUnavailable {
+    if (error instanceof ModelLoading) return new AiUnavailable('error');
     this.failures += 1;
     if (this.failures >= FAILURES_TO_OPEN) {
       this.openUntil = Date.now() + OPEN_MS;
+      // A fresh count once it closes, or one more failure would open it straight away.
+      this.failures = 0;
       this.logger.warn('model server failing; circuit open for 60s');
     }
     const timeout =
@@ -129,7 +138,7 @@ export class AiClient {
         body: this.body(req, false),
         signal: AbortSignal.timeout(req.timeoutMs),
       });
-      if (!res.ok) throw new Error(`model server ${String(res.status)}`);
+      if (!res.ok) throw serverError(res.status);
       const json = (await res.json()) as {
         choices?: { message?: { content?: string } }[];
         usage?: { prompt_tokens?: number; completion_tokens?: number };
@@ -170,7 +179,7 @@ export class AiClient {
         }),
         signal: AbortSignal.timeout(req.timeoutMs),
       });
-      if (!res.ok) throw new Error(`model server ${String(res.status)}`);
+      if (!res.ok) throw serverError(res.status);
       const json = (await res.json()) as {
         choices?: { logprobs?: { content?: { top_logprobs?: TopLogprob[] }[] } }[];
       };
@@ -195,7 +204,7 @@ export class AiClient {
         body: this.body(req, true),
         signal: AbortSignal.timeout(req.timeoutMs),
       });
-      if (!res.ok || !res.body) throw new Error(`model server ${String(res.status)}`);
+      if (!res.ok || !res.body) throw serverError(res.status);
     } catch (error) {
       throw this.failed(error);
     }

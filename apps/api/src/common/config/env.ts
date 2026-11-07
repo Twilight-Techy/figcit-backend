@@ -33,6 +33,8 @@ const envSchema = z.object({
   STAFF_SESSION_HOURS: z.coerce.number().int().min(1).default(8),
   // Encryption (SOPS + age in production; see SYSTEM_DESIGN §9.3)
   MASTER_KEYS: z.string().min(1),
+  // Jobs: run them in the API process with no polling, so an idle database can sleep (ADR 0010).
+  JOBS_ON_DEMAND: bool.default(false),
   // Email
   DEV_MAILBOX: bool.default(false),
   MAIL_FROM: z.string().default('FigCit <hello@figcit.co.uk>'),

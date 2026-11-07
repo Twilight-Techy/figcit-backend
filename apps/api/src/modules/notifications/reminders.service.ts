@@ -5,6 +5,7 @@ import { CryptoService, type UserCipher } from '../../common/crypto/crypto.servi
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { BadInput, NotFound } from '../../common/errors/errors.js';
 import { nextOccurrence, parseRule } from '../../common/time/rrule.js';
+import { JobsService } from '../../platform/jobs/jobs.service.js';
 import type { ReminderCreate, ReminderDto, reminderUpdateSchema } from './notifications.schemas.js';
 
 const MAX = 100;
@@ -40,6 +41,7 @@ export class RemindersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly crypto: CryptoService,
+    private readonly jobs: JobsService,
   ) {}
 
   private async tz(userId: string): Promise<string> {
@@ -111,6 +113,7 @@ export class RemindersService {
         nextRunAt: nextRun({ at, rrule }, now, await this.tz(userId)),
       },
     });
+    this.jobs.scheduleTick(row.nextRunAt);
     return toDto(row, c);
   }
 
@@ -137,6 +140,7 @@ export class RemindersService {
         nextRunAt: active ? nextRun({ at, rrule }, new Date(), await this.tz(userId)) : null,
       },
     });
+    this.jobs.scheduleTick(row.nextRunAt);
     return toDto(row, c);
   }
 
