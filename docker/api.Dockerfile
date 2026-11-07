@@ -2,6 +2,7 @@
 # non-root, and built to run with a read-only filesystem except /tmp:
 #   docker run --read-only --tmpfs /tmp figcit-api            # API
 #   docker run --read-only --tmpfs /tmp figcit-api worker     # pg-boss worker
+#   docker run --read-only --tmpfs /tmp figcit-api all        # both, on one instance (Render's free plan)
 # NODE_IMAGE lets CI or a mirror supply the same official image (e.g. mirror.gcr.io/library/node:22-slim).
 ARG NODE_IMAGE=node:22-slim
 
@@ -14,12 +15,14 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY patches/ patches/
 COPY apps/api/package.json apps/api/
 COPY packages/engine/package.json packages/engine/
+COPY packages/engine-v2/package.json packages/engine-v2/
 COPY packages/rules-compiler/package.json packages/rules-compiler/
 # An optional build secret `ca` (an extra CA bundle) is for builds behind a TLS proxy; CI needs none.
 RUN --mount=type=secret,id=ca NODE_EXTRA_CA_CERTS=/run/secrets/ca pnpm install --frozen-lockfile
 COPY . .
 RUN --mount=type=secret,id=ca NODE_EXTRA_CA_CERTS=/run/secrets/ca pnpm --filter @figcit/api db:generate \
   && pnpm --filter @figcit/engine build \
+  && pnpm --filter @figcit/engine-v2 build \
   && pnpm --filter @figcit/rules-compiler build \
   && pnpm --filter @figcit/api build \
   && pnpm deploy --legacy --filter @figcit/api --prod /out \
