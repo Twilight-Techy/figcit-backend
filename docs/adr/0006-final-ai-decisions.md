@@ -23,7 +23,7 @@ limits, logging and rule fallback. Accuracy and timing are on 8 CPUs.
 
 | Feature | Task | Mode | Accuracy | p50 / p95 | Timeout | When AI fails or is slow |
 | --- | --- | --- | --- | --- | --- | --- |
-| "In your own words" (S91) | `parseNeed` | Generate JSON | 86.2% (bar 85%) | 3.8 s / 4.8 s | 8 s | Need list |
+| "In your own words" (S91) | `parseNeed` | Generate JSON | 86.2% (bar 85%) | 3.8 s / 4.8 s | 20 s (8 s until 7 Nov 2026: too tight on Modal, ADR 0009) | Need list |
 | Task card drivers | `suggestDrivers` | **Decision** | **78.0%** (was 50%) | 0.43 s / 0.46 s | 4 s | Keyword rules |
 | Feeling chips from words | `mapFeeling` | **Decision** | **83.3%** (was 81.7%) | 0.45 s / 0.50 s | 8 s | Keyword rules |
 | Break it down | `breakDownTask` | Generate JSON | 98.0%, 100% within cap | 12.9 s / 19.4 s | **24 s** | Step templates, shown at once |
