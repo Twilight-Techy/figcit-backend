@@ -15,6 +15,8 @@ const envSchema = z.object({
   APP_URL: z.url().default('http://localhost:3000'),
   // The staff app's address (E-31, E-35): staff sign-in links open there. Unset: no staff links.
   STAFF_APP_URL: z.url().optional(),
+  // Pinged every 14 minutes so a host that sleeps when idle stays up. Unset: no pings.
+  KEEP_ALIVE_URL: z.url().optional(),
   // The first Owner of the staff app (E-64), used only while there is none.
   OWNER_EMAIL: z.email().optional(),
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
