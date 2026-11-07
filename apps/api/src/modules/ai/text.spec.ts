@@ -223,4 +223,10 @@ describe('fallbacks', () => {
     ).heard;
     expect(heard).toEqual([{ label: 'racing heart', kind: 'feeling' }]);
   });
+
+  it('gives parseNeed time on CPU, inside the limit every call is capped at', () => {
+    const cap = 8000 * 3; // AI_TIMEOUT_MS's default, as AiService applies it
+    expect(parseNeed.timeoutMs).toBeGreaterThan(8000);
+    expect(parseNeed.timeoutMs).toBeLessThanOrEqual(cap);
+  });
 });

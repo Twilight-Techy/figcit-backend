@@ -95,7 +95,8 @@ export const parseNeed: JsonTask<ParseNeedInput, ParsedNeed> = {
   maxChars: 500,
   temperature: 0.2,
   maxTokens: 200,
-  timeoutMs: 8000,
+  // About 5 s warm on CPU, and only 95% inside 8 s (ADR 0009). The screen doesn't wait for this.
+  timeoutMs: 20_000,
   // A chip that only repeats a need code tells the user nothing; drop it, keep the answer.
   clean: (o, i) => ({
     ...o,
