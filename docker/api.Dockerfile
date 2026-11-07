@@ -2,7 +2,7 @@
 # non-root, and built to run with a read-only filesystem except /tmp:
 #   docker run --read-only --tmpfs /tmp figcit-api            # API
 #   docker run --read-only --tmpfs /tmp figcit-api worker     # pg-boss worker
-#   docker run --read-only --tmpfs /tmp figcit-api all        # both, on one instance (Render's free plan)
+#   docker run --read-only --tmpfs /tmp -e JOBS_ON_DEMAND=true figcit-api   # both, in one process (ADR 0010)
 # NODE_IMAGE lets CI or a mirror supply the same official image (e.g. mirror.gcr.io/library/node:22-slim).
 ARG NODE_IMAGE=node:22-slim
 

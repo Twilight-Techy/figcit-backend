@@ -104,6 +104,14 @@ export class WorkerRunner implements OnApplicationBootstrap {
         'analytics.rollup': '20 1 * * *',
         'institutions.aggregate': '40 1 * * *',
       },
+      async () => {
+        const next = await this.prisma.reminder.findFirst({
+          where: { active: true, deletedAt: null, nextRunAt: { not: null } },
+          orderBy: { nextRunAt: 'asc' },
+          select: { nextRunAt: true },
+        });
+        return next?.nextRunAt ?? null;
+      },
     );
   }
 }

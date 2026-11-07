@@ -3,6 +3,7 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
+import type { Type } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module.js';
@@ -17,7 +18,7 @@ const WORKBOOK_LIMIT = 8 * 1024 * 1024; // local storage driver only (audio uplo
 /** Builds the HTTP app. Used by main.ts, the e2e tests and the OpenAPI generator. */
 export async function createApp(
   env: Env = loadEnv(),
-  options: { logger?: boolean } = {},
+  options: { logger?: boolean; module?: Type } = {},
 ): Promise<NestFastifyApplication> {
   const adapter = new FastifyAdapter({
     bodyLimit: DEFAULT_BODY_LIMIT,
@@ -36,9 +37,13 @@ export async function createApp(
             ],
           },
   });
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, adapter, {
-    logger: options.logger === false ? false : ['error', 'warn', 'log'],
-  });
+  const app = await NestFactory.create<NestFastifyApplication>(
+    options.module ?? AppModule,
+    adapter,
+    {
+      logger: options.logger === false ? false : ['error', 'warn', 'log'],
+    },
+  );
   const fastify = app.getHttpAdapter().getInstance();
 
   // The workbook uploads are the JSON bodies allowed to be large (staff only).
