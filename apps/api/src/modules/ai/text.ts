@@ -35,6 +35,26 @@ export function hasBanned(text: string): boolean {
   return BANNED.some((b) => t.includes(b));
 }
 
+/**
+ * An answer that talks to the writer instead of being their message (owner review, 12 Nov 2026):
+ * it agrees to help, presents "your message", or reacts to what they wrote. Such a reply means the
+ * model followed or answered the notes; the rule-based result is used instead.
+ */
+const TALKS_TO_WRITER = [
+  /^(sure|of course|certainly|absolutely|okay|ok|great|no problem)\b[!,.]/i,
+  /^(here('s| is| are)|below is)\b/i,
+  /^(i('d| would) (be )?(happy|glad|love) to|i can help|i('ll| will) help|let me help)\b/i,
+  /^(as an ai|i('m| am) (an ai|a language model|sorry,? but i))/i,
+  /^(it sounds like|that sounds|thank you for sharing|thanks for sharing)\b/i,
+  /\byour (message|draft|notes|text)\b/i,
+  /\b(rewritten|reworded|simplified) (version|message)\b/i,
+];
+
+export function talksToWriter(text: string): boolean {
+  const t = text.trim();
+  return TALKS_TO_WRITER.some((r) => r.test(t));
+}
+
 /** Hedging and apology phrases removed by simplify, longest first (Figma S115 "What we changed"). */
 export const HEDGES = [
   "i completely understand if this isn't possible at all",

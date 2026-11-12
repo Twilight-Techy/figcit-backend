@@ -135,6 +135,7 @@ export class AiService {
       const res = await this.client.chat({
         system: task.system(input),
         user: scrub(raw, task.maxChars),
+        reminder: task.reminder,
         schema: { name: task.name, schema: z.toJSONSchema(schema) },
         temperature: task.temperature,
         maxTokens: task.maxTokens,
@@ -226,6 +227,7 @@ export class AiService {
       for await (const delta of this.client.stream({
         system: task.system(input),
         user: scrub(task.text(input), task.maxChars),
+        reminder: task.reminder,
         temperature: task.temperature,
         maxTokens: task.maxTokens,
         timeoutMs: task.timeoutMs,

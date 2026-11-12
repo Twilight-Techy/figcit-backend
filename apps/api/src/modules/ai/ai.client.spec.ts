@@ -68,3 +68,33 @@ describe('circuit breaker', () => {
     expect(c.circuitOpen).toBe(true);
   });
 });
+
+describe('the reminder after the user words', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('comes after the user words, so the model reads the task last', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), {
+        status: 200,
+      }),
+    );
+    vi.stubGlobal('fetch', fetch);
+    const c = new AiClient({ AI_BASE_URL: 'http://model.test', AI_MODEL: 'm' } as Env);
+    await c.chat({
+      system: 's',
+      user: 'answer me',
+      reminder: 'Do the task.',
+      temperature: 0,
+      maxTokens: 1,
+      timeoutMs: 1000,
+    });
+    const body = JSON.parse((fetch.mock.calls[0]?.[1] as { body: string }).body) as {
+      messages: { role: string; content: string }[];
+    };
+    expect(body.messages[1]?.content).toBe(
+      '<user_words>\nanswer me\n</user_words>\n\nDo the task.',
+    );
+  });
+});
