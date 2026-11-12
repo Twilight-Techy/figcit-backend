@@ -75,13 +75,11 @@ describe('the reminder after the user words', () => {
   });
 
   it('comes after the user words, so the model reads the task last', async () => {
-    const fetch = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), {
-          status: 200,
-        }),
-      );
+    const fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), {
+        status: 200,
+      }),
+    );
     vi.stubGlobal('fetch', fetch);
     const c = new AiClient({ AI_BASE_URL: 'http://model.test', AI_MODEL: 'm' } as Env);
     await c.chat({
