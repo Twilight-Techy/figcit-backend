@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 
 const id = z.string().regex(/^[a-z]{2}-\d{3}$/);
-const kind = z.enum(['study', 'work', 'health', 'social', 'home']).optional();
+const kind = z.enum(['study', 'work', 'health', 'social', 'home', 'other']).optional();
 
 const parseNeedCase = z.object({
   id,

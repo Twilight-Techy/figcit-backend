@@ -83,6 +83,9 @@ model CheckInContext {
   supports         String[] @default([]) // several at once (E-45)
   sensitivityFlags String[] @default([]) @map("sensitivity_flags")
   customTagIds     String[] @default([]) @map("custom_tag_ids") @db.Uuid
+  // What has been happening in the user's life (owner review, 12 Nov 2026); their words encrypted.
+  lifeEvents       String[] @default([]) @map("life_events")
+  ownLifeEventEnc  Bytes?   @map("own_life_event_enc")
 
   checkIn CheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
 

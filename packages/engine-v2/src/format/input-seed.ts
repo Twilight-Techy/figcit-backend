@@ -15,6 +15,9 @@ interface InputSeed {
 }
 
 const NO_FAMILY = 'No Tab 2 family; information only';
+const SENSES =
+  'Carries the sensitivity flag the senses question gave; the app asks this here now (owner review, 12 Nov 2026)';
+const EVENT = 'Information only: no rule reads life events yet (owner review, 12 Nov 2026)';
 
 export const INPUT_SEED: readonly InputSeed[] = [
   {
@@ -46,7 +49,6 @@ export const INPUT_SEED: readonly InputSeed[] = [
         'Tab 2: hopelessness is immediate risk language; safety override at any intensity (ADR 0007 §7, E-43)',
       ],
       ['grief', 'Grief', 'harder', 'family:grief_loss'],
-      ['loss', 'Loss', 'harder', 'family:grief_loss'],
       ['shame', 'Shame', 'harder', 'family:shame_guilt'],
       ['guilt', 'Guilt', 'harder', 'family:shame_guilt'],
       ['uneasy_ahead', "Uneasy about what's coming", 'harder', 'family:anticipatory_unease_dread'],
@@ -78,16 +80,28 @@ export const INPUT_SEED: readonly InputSeed[] = [
     input: 'sensation',
     source: 'Figma S09, S09a-S09e (167:483, 167:1797, 167:1852, 167:1905, 167:1956, 167:2009)',
     rows: [
-      ['bright_lights', 'Bright lights', 'sensory', ''],
-      ['flickering', 'Flickering', 'sensory', ''],
-      ['glare', 'Glare', 'sensory', ''],
-      ['loud_sound', 'Loud sound', 'sensory', ''],
-      ['sudden_noise', 'Sudden noise', 'sensory', ''],
-      ['ringing', 'Ringing', 'sensory', ''],
-      ['background_hum', 'Background hum', 'sensory', ''],
-      ['strong_smells', 'Strong smells', 'sensory', ''],
-      ['scratchy_fabric', 'Scratchy fabric', 'sensory', ''],
-      ['tight_clothing', 'Tight clothing', 'sensory', ''],
+      ['bright_lights', 'Bright lights', 'sensory', 'sensitivity_flag:lights', SENSES],
+      ['flickering', 'Flickering', 'sensory', 'sensitivity_flag:lights', SENSES],
+      ['glare', 'Glare', 'sensory', 'sensitivity_flag:lights', SENSES],
+      ['loud_sound', 'Loud sound', 'sensory', 'sensitivity_flag:sound', SENSES],
+      [
+        'noise',
+        'Noise',
+        'sensory',
+        'sensitivity_flag:noise',
+        `Replaces "Sudden noise" and "Ringing" (owner review, 12 Nov 2026). ${SENSES}`,
+      ],
+      ['background_hum', 'Background hum', 'sensory', 'sensitivity_flag:noise', SENSES],
+      [
+        'crowded',
+        'Crowded',
+        'sensory',
+        'sensitivity_flag:crowd',
+        `Added for the crowd flag (owner review, 12 Nov 2026). ${SENSES}`,
+      ],
+      ['strong_smells', 'Strong smells', 'sensory', 'sensitivity_flag:smell', SENSES],
+      ['scratchy_fabric', 'Scratchy fabric', 'sensory', 'sensitivity_flag:touch_texture', SENSES],
+      ['tight_clothing', 'Tight clothing', 'sensory', 'sensitivity_flag:touch_texture', SENSES],
       [
         'too_hot',
         'Too hot',
@@ -103,7 +117,7 @@ export const INPUT_SEED: readonly InputSeed[] = [
         'Workbook puts too hot/cold under Interoception',
       ],
       ['overstimulated', 'Overstimulated', 'sensory', 'sensation_group:sensory_overload'],
-      ['visual_clutter', 'Visual clutter', 'sensory', ''],
+      ['visual_clutter', 'Visual clutter', 'sensory', 'sensitivity_flag:visual_clutter', SENSES],
       ['brain_fog', 'Brain fog', 'cognitive', ''],
       ['racing_thoughts', 'Racing thoughts', 'cognitive', 'sensation_group:racing'],
       ['looping', 'Looping', 'cognitive', 'sensation_group:racing'],
@@ -156,12 +170,16 @@ export const INPUT_SEED: readonly InputSeed[] = [
       ['pacing', 'Pacing', 'movement', 'sensation_group:restless'],
       ['leg_bouncing', 'Leg bouncing', 'movement', ''],
       ['hand_flapping', 'Hand-flapping', 'movement', ''],
-      ['need_to_stim', 'Need to stim', 'movement', ''],
-      ['cant_sit_still', "Can't sit still", 'movement', 'sensation_group:restless'],
-      ['frozen', 'Frozen / stuck', 'movement', 'sensation_group:shutdown'],
+      ['need_to_stim', 'Stimming', 'movement', ''],
+      ['frozen', 'Frozen', 'movement', 'sensation_group:shutdown'],
+      [
+        'stuck',
+        'Stuck',
+        'movement',
+        'sensation_group:shutdown',
+        'Split from "Frozen / stuck" (owner review, 12 Nov 2026)',
+      ],
       ['heavy_limbs', 'Heavy limbs', 'movement', ''],
-      ['craving_pressure', 'Craving pressure', 'movement', ''],
-      ['craving_movement', 'Craving movement', 'movement', 'sensation_group:restless'],
       ['tapping', 'Tapping', 'movement', ''],
       ['hungry', 'Hungry', 'interoception', 'sensation_group:interoception_unmet'],
       ['not_sure_hungry', 'Not sure if hungry', 'interoception', ''],
@@ -197,10 +215,6 @@ export const INPUT_SEED: readonly InputSeed[] = [
         '',
         'Physical warning sign; no rule yet (IG-05, Clinical Safety)',
       ],
-      ['tired_wired', 'Tired but wired', 'interoception', 'sensation_group:interoception_unmet'],
-      ['cant_tell', "Can't tell how I feel (that's okay)", 'interoception', ''],
-      ['pain_hard_to_locate', 'Pain hard to locate', 'interoception', 'sensation_group:pain'],
-      ['calm_inside', 'Calm inside', 'interoception', ''],
     ],
   },
   {
@@ -334,6 +348,25 @@ export const INPUT_SEED: readonly InputSeed[] = [
     ],
   },
   {
+    input: 'life_event',
+    source: 'Owner review, 12 Nov 2026: "What has happened to you?" ends the check-in',
+    rows: [
+      ['bereavement', 'Someone died', '', '', EVENT],
+      ['breakup', 'Heartbreak or a breakup', '', '', EVENT],
+      ['job_loss', 'Lost my job', '', '', EVENT],
+      ['unemployed', 'Looking for work', '', '', EVENT],
+      ['money', 'Money worries', '', '', EVENT],
+      ['illness', 'Illness or injury', '', '', EVENT],
+      ['exams', 'Exams or deadlines', '', '', EVENT],
+      ['new_start', 'A new job, school or home', '', '', EVENT],
+      ['family_conflict', 'Trouble at home or in the family', '', '', EVENT],
+      ['friendship', 'Falling out with a friend', '', '', EVENT],
+      ['caring', 'Caring for someone', '', '', EVENT],
+      ['unfair_treatment', 'Bullying or unfair treatment', '', '', EVENT],
+      ['moved', 'Moving or a big change', '', '', EVENT],
+    ],
+  },
+  {
     input: 'need',
     source: 'Figma S11 (292:2); "More needs" from workbook Tab 6b',
     rows: [
@@ -379,7 +412,8 @@ export const INPUT_SEED: readonly InputSeed[] = [
       ['work', 'Work', '', ''],
       ['health', 'Health', '', ''],
       ['social', 'Social', '', ''],
-      ['home', 'Home & other', '', ''],
+      ['home', 'Home', '', ''],
+      ['other', 'Other', '', '', 'Split from "Home & other" (owner review, 12 Nov 2026)'],
     ],
   },
   {

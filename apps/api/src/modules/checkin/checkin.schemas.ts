@@ -30,7 +30,7 @@ export const demandInputSchema = z
   .object({
     taskId: z.uuid().optional(),
     title: z.string().trim().min(1).max(200).optional(),
-    kind: z.enum(['study', 'work', 'health', 'social', 'home']).optional(),
+    kind: z.enum(['study', 'work', 'health', 'social', 'home', 'other']).optional(),
     dueAt: z.iso.datetime().optional(),
     timeline: z.enum(['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'TX', 'TR']).optional(),
     traits: z.array(code).max(10).optional(),
@@ -94,6 +94,10 @@ export const checkInInputSchema = z
       })
       .strict()
       .default({}),
+    // What has been happening in the user's life (owner review, 12 Nov 2026): stored, not read by
+    // any rule yet. Their own words are encrypted and screened like every free text.
+    lifeEvents: z.array(code).max(13).optional(),
+    ownLifeEvent: freeText.optional(),
     needs: z.array(code).max(3).default([]),
     ownWords: freeText.optional(),
     parsedNeedCodes: z.array(code).max(3).optional(),

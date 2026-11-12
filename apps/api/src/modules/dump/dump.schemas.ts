@@ -33,7 +33,7 @@ export const itemAddSchema = z
 export const toTaskSchema = z
   .object({
     title: z.string().trim().min(1).max(200).optional(),
-    kind: z.enum(['study', 'work', 'health', 'social', 'home']).optional(),
+    kind: z.enum(['study', 'work', 'health', 'social', 'home', 'other']).optional(),
     dueAt: z.iso.datetime().optional(),
     timeline: z.enum(TIMELINES).optional(),
   })

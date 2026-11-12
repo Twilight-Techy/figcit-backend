@@ -25,6 +25,8 @@ export function producible(options: InputOptions, catalogue: Catalogue): Produci
   via('place', 'context', 'context.setting');
   via('support', 'support', 'context.supports');
   via('sense', 'sensitivity_flag', 'sensitivity.flags');
+  // Sensory sensations carry the flags the senses question gave (owner review, 12 Nov 2026).
+  via('sensation', 'sensitivity_flag', 'sensitivity.flags');
   via('need', 'need', 'needs');
   via('timeline', 'timeline', 'demand.timeline');
   // The task's characteristics are any catalogue value (the AI step, treated as working: E-44).

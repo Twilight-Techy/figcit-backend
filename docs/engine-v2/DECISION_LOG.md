@@ -801,6 +801,17 @@ Rule set versions also keep their table frames, import report and checks as JSON
 - **Not applied yet:** `maxMinutes` is sent but the app ignores it (PWA F-125). As built it would stop someone's own practice at a place of worship after 3 minutes, which waits for Clinical Safety and the place-of-worship inference (IG-07).
 - **Not decided here (Clinical Safety):** direct entry to Meditate, body-scan gating, the "never suggest meditation" copy and the card's wording.
 
+### E-66 The check-in after the owner's app review (Owner, 12 Nov 2026)
+
+The owner reviewed the deployed app and changed what the check-in asks:
+
+- **The check-in ends with life events.** A new input, `life_event` ("What has been happening?"), with common events (someone died, a breakup, losing a job, money worries and others) and the user's own words, replaces the senses question as the last step. The card follows straight after: the need and task questions leave the check-in (they stay on "I need help with…"). Life events are stored with the check-in, the user's words encrypted and screened like any free text, but **no rule reads them yet**: a rule that does needs Clinical Safety sign-off.
+- **Sensory sensations carry the sensitivity flags.** With the senses question gone, the sensory options of the body step give the flags it gave (noise, sound, lights, smell, touch, visual clutter), and a new "Crowded" option gives the crowd flag. The engine reads a sensation's `sensitivity_flag` mapping as a member of `sensitivity.flags`. "Too hot" and "Too cold" keep their interoception mapping, so the temperature flag is no longer given.
+- **Options removed or changed:** "Loss" (feeling); "Sudden noise" and "Ringing" become "Noise"; "Need to stim" reads "Stimming"; "Craving pressure", "Craving movement" and "Can't sit still" go; "Frozen / stuck" splits into "Frozen" and "Stuck"; "Can't tell how I feel", "Pain hard to locate", "Calm inside" and "Tired but wired" go; the task kind "Home & other" splits into "Home" and "Other". Removed options are retired in the rule set, not deleted, so older check-ins still read.
+- **No sensation strength.** The app stops asking how strong a sensation is, so rules on pain or overstimulation strength (High+) only fire from a rating the app no longer sends. Up to two feelings are picked (the API still takes three from older clients).
+
+Production gets these through `pnpm --filter @figcit/api db:sync-inputs`, which makes the published rule set's input mappings match the input seed as one new version, each change audited.
+
 ## Dropped or changed from earlier proposals (one list)
 
 | Idea | By | Status | Reason | Where recorded |

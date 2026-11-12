@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { queryBool } from '../../common/http/query.js';
 
 export const TIMELINES = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'TX', 'TR'] as const;
-export const KINDS = ['study', 'work', 'health', 'social', 'home'] as const;
+export const KINDS = ['study', 'work', 'health', 'social', 'home', 'other'] as const;
 const DRIVER = z.enum([
   'novelty',
   'urgency',

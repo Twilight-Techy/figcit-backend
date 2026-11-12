@@ -52,6 +52,7 @@ export {
   type StageKey,
 } from './format/registry.js';
 export { EFFECTS, type EffectSpec, type ParamSpec } from './format/effects.js';
+export { INPUT_SEED } from './format/input-seed.js';
 export {
   CATALOGUE_FILE,
   INPUT_MAPPINGS_FILE,
