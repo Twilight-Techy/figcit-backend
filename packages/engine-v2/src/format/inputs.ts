@@ -14,6 +14,7 @@ export const INPUTS = [
   'time',
   'support',
   'sense',
+  'life_event',
   'need',
   'task_kind',
   'timeline',

@@ -37,7 +37,7 @@ describe('the bundled check-in options', () => {
     for (const o of view.inputs.sensation)
       expect(o.asksStrength).toBe(expected[groupOf.get(o.code) ?? '']);
     const flagged = view.inputs.sensation.filter((o) => o.asksStrength);
-    expect(flagged.map((o) => o.code)).toContain('pain_hard_to_locate');
+    expect(flagged.map((o) => o.code)).toContain('sharp_pain');
     expect(flagged.map((o) => o.code)).toContain('overstimulated');
     for (const [input, list] of Object.entries(view.inputs))
       if (input !== 'sensation') expect(list.filter((o) => o.asksStrength)).toEqual([]);

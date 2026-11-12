@@ -103,8 +103,14 @@ export class ExportBuilder {
       }),
     ]);
     return {
-      checkIns: checkIns.map(({ need, userId: _u, ...ci }) => ({
+      checkIns: checkIns.map(({ need, context, userId: _u, ...ci }) => ({
         ...ci,
+        context: context
+          ? (({ ownLifeEventEnc, ...rest }) => ({
+              ...rest,
+              ownLifeEvent: c.decOpt(ownLifeEventEnc),
+            }))(context)
+          : null,
         need: need
           ? {
               needCode: need.needCode,

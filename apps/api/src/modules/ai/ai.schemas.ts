@@ -7,7 +7,7 @@ export const parseNeedRequestSchema = z
 export const suggestDriversRequestSchema = z
   .object({
     title: z.string().trim().min(1).max(200),
-    kind: z.enum(['study', 'work', 'health', 'social', 'home']).optional(),
+    kind: z.enum(['study', 'work', 'health', 'social', 'home', 'other']).optional(),
   })
   .strict();
 

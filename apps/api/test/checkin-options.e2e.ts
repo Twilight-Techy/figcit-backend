@@ -56,7 +56,7 @@ describe('check-in options (E-40)', () => {
     const res = await api.req<Options>('GET', '/check-in/options');
     expect(res.status).toBe(200);
     const { inputs } = res.body;
-    expect(inputs['feeling']?.filter((o) => o.group === 'harder')).toHaveLength(18);
+    expect(inputs['feeling']?.filter((o) => o.group === 'harder')).toHaveLength(17);
     expect(inputs['feeling']?.find((o) => o.code === 'hopeless')?.risk).toBe(true);
     expect(inputs['need']?.find((o) => o.code === 'get_started')?.needsTask).toBe(true);
     expect(inputs['need']?.find((o) => o.code === 'feel_calmer')?.needsTask).toBeUndefined();
@@ -120,6 +120,22 @@ describe('the check-in input (E-41, E-45)', () => {
       'can’t both be picked'.replace('’', "'"),
     );
     expect(await bad({ needs: ['get_started'], justSupport: true })).toContain('the task step can');
+  });
+
+  it('takes life events and sensory sensations, and refuses an event not offered', async () => {
+    const res = await checkIn(
+      {
+        sensations: [{ code: 'noise' }, { code: 'crowded' }],
+        lifeEvents: ['job_loss', 'money'],
+        ownLifeEvent: 'My contract ended last week',
+        justSupport: true,
+      },
+      user,
+    );
+    expect(res.status).toBe(201);
+    const bad = await checkIn({ lifeEvents: ['lottery_win'] }, user);
+    expect(bad.status).toBe(400);
+    expect(bad.body.detail).toBe('Unknown life event: lottery_win');
   });
 
   it('takes a skipped state from quick entry', async () => {

@@ -91,6 +91,7 @@ function checkOffered(input: CheckInInput, o: OptionLists['options']): void {
   offered('time', one(c.time), o.time);
   offered('support', supportsOf(input), o.support);
   offered('sense', c.sensitivity ?? [], o.sense);
+  offered('life event', input.lifeEvents ?? [], o.life_event);
   offered('need', [...input.needs, ...(input.parsedNeedCodes ?? [])], o.need);
   offered('task kind', one(input.demand?.kind), o.task_kind);
   offered('timeline', one(input.demand?.timeline), o.timeline);
@@ -191,6 +192,7 @@ export function toEngineInput(
   const freeText = [
     input.ownWords,
     input.ownFeeling,
+    input.ownLifeEvent,
     input.context.environmentOther,
     d?.title,
   ].filter((t): t is string => !!t);
@@ -260,7 +262,10 @@ function needData(
   };
 }
 
-function contextData(input: CheckInInput): Prisma.CheckInContextCreateWithoutCheckInInput {
+function contextData(
+  input: CheckInInput,
+  ctx: RowContext,
+): Prisma.CheckInContextCreateWithoutCheckInInput {
   const c = input.context;
   return {
     environment: c.environment ?? null,
@@ -270,6 +275,8 @@ function contextData(input: CheckInInput): Prisma.CheckInContextCreateWithoutChe
     supports: supportsOf(input),
     sensitivityFlags: c.sensitivity ?? [],
     customTagIds: c.customTagIds ?? [],
+    lifeEvents: input.lifeEvents ?? [],
+    ownLifeEventEnc: ctx.cipher.encOpt(input.ownLifeEvent),
   };
 }
 
@@ -310,7 +317,7 @@ export function checkInData(
         bodyRegions: s.bodyRegions ?? [],
       })),
     },
-    context: { create: contextData(input) },
+    context: { create: contextData(input, ctx) },
     need: { create: needData(input, ctx) },
   };
 }

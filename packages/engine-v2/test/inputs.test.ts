@@ -15,9 +15,10 @@ describe('check-in options (E-40)', () => {
 
   it('fills every option from Figma, each pointing at a real catalogue value', () => {
     expect(issues).toEqual([]);
-    expect(codesOf('feeling')).toHaveLength(27);
-    expect(options.feeling.filter((o) => o.group === 'harder')).toHaveLength(18);
-    expect(codesOf('sensation')).toHaveLength(81);
+    expect(codesOf('feeling')).toHaveLength(26);
+    expect(options.feeling.filter((o) => o.group === 'harder')).toHaveLength(17);
+    expect(codesOf('sensation')).toHaveLength(75);
+    expect(codesOf('life_event')).toHaveLength(13);
     expect(options.place.filter((o) => o.group === 'common').map((o) => o.label)).toEqual([
       'Home',
       'School',

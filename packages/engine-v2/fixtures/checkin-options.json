@@ -1,6 +1,6 @@
 {
   "version": "bundled",
-  "hash": "18c7d7e7c4ef1a251f41037ac426a900e03243a9e7d5fcf2982888436dde09fc",
+  "hash": "b8ee9c968bdfe55c6c101bc229f8e8a340741715de3f130611bd255324da3bce",
   "inputs": {
     "feeling": [
       {
@@ -67,11 +67,6 @@
       {
         "code": "grief",
         "label": "Grief",
-        "group": "harder"
-      },
-      {
-        "code": "loss",
-        "label": "Loss",
         "group": "harder"
       },
       {
@@ -162,18 +157,18 @@
         "group": "sensory"
       },
       {
-        "code": "sudden_noise",
-        "label": "Sudden noise",
-        "group": "sensory"
-      },
-      {
-        "code": "ringing",
-        "label": "Ringing",
+        "code": "noise",
+        "label": "Noise",
         "group": "sensory"
       },
       {
         "code": "background_hum",
         "label": "Background hum",
+        "group": "sensory"
+      },
+      {
+        "code": "crowded",
+        "label": "Crowded",
         "group": "sensory"
       },
       {
@@ -449,32 +444,22 @@
       },
       {
         "code": "need_to_stim",
-        "label": "Need to stim",
-        "group": "movement"
-      },
-      {
-        "code": "cant_sit_still",
-        "label": "Can't sit still",
+        "label": "Stimming",
         "group": "movement"
       },
       {
         "code": "frozen",
-        "label": "Frozen / stuck",
+        "label": "Frozen",
+        "group": "movement"
+      },
+      {
+        "code": "stuck",
+        "label": "Stuck",
         "group": "movement"
       },
       {
         "code": "heavy_limbs",
         "label": "Heavy limbs",
-        "group": "movement"
-      },
-      {
-        "code": "craving_pressure",
-        "label": "Craving pressure",
-        "group": "movement"
-      },
-      {
-        "code": "craving_movement",
-        "label": "Craving movement",
         "group": "movement"
       },
       {
@@ -530,27 +515,6 @@
       {
         "code": "dizzy",
         "label": "Dizzy",
-        "group": "interoception"
-      },
-      {
-        "code": "tired_wired",
-        "label": "Tired but wired",
-        "group": "interoception"
-      },
-      {
-        "code": "cant_tell",
-        "label": "Can't tell how I feel (that's okay)",
-        "group": "interoception"
-      },
-      {
-        "code": "pain_hard_to_locate",
-        "label": "Pain hard to locate",
-        "group": "interoception",
-        "asksStrength": "pain"
-      },
-      {
-        "code": "calm_inside",
-        "label": "Calm inside",
         "group": "interoception"
       }
     ],
@@ -789,6 +753,73 @@
         "group": null
       }
     ],
+    "life_event": [
+      {
+        "code": "bereavement",
+        "label": "Someone died",
+        "group": null
+      },
+      {
+        "code": "breakup",
+        "label": "Heartbreak or a breakup",
+        "group": null
+      },
+      {
+        "code": "job_loss",
+        "label": "Lost my job",
+        "group": null
+      },
+      {
+        "code": "unemployed",
+        "label": "Looking for work",
+        "group": null
+      },
+      {
+        "code": "money",
+        "label": "Money worries",
+        "group": null
+      },
+      {
+        "code": "illness",
+        "label": "Illness or injury",
+        "group": null
+      },
+      {
+        "code": "exams",
+        "label": "Exams or deadlines",
+        "group": null
+      },
+      {
+        "code": "new_start",
+        "label": "A new job, school or home",
+        "group": null
+      },
+      {
+        "code": "family_conflict",
+        "label": "Trouble at home or in the family",
+        "group": null
+      },
+      {
+        "code": "friendship",
+        "label": "Falling out with a friend",
+        "group": null
+      },
+      {
+        "code": "caring",
+        "label": "Caring for someone",
+        "group": null
+      },
+      {
+        "code": "unfair_treatment",
+        "label": "Bullying or unfair treatment",
+        "group": null
+      },
+      {
+        "code": "moved",
+        "label": "Moving or a big change",
+        "group": null
+      }
+    ],
     "need": [
       {
         "code": "feel_calmer",
@@ -923,7 +954,12 @@
       },
       {
         "code": "home",
-        "label": "Home & other",
+        "label": "Home",
+        "group": null
+      },
+      {
+        "code": "other",
+        "label": "Other",
         "group": null
       }
     ],

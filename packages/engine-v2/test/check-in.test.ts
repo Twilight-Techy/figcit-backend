@@ -124,6 +124,12 @@ describe('the check-in explained answer by answer (E-61)', () => {
       value: 6,
     });
     expect(contributions).toContainEqual({
+      kind: 'member',
+      from: { input: 'sensations', code: 'bright_lights' },
+      fact: 'sensitivity.flags',
+      value: 'lights',
+    });
+    expect(contributions).toContainEqual({
       kind: 'value',
       from: { input: 'context.environment', code: 'work' },
       fact: 'context.setting',
@@ -146,7 +152,6 @@ describe('the check-in explained answer by answer (E-61)', () => {
   it('lists the answers that give nothing, and why', () => {
     expect(explainCheckIn(checkIn, options, catalogue).unmapped).toEqual([
       { from: { input: 'emotions', code: 'tired' }, why: 'maps_to_nothing' },
-      { from: { input: 'sensations', code: 'bright_lights' }, why: 'maps_to_nothing' },
       { from: { input: 'demand.traits', code: 'not_a_value' }, why: 'not_a_value' },
     ]);
     const supportOnly = explainCheckIn(

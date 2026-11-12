@@ -2723,7 +2723,8 @@
                       "work",
                       "health",
                       "social",
-                      "home"
+                      "home",
+                      "other"
                     ]
                   }
                 },
@@ -3099,7 +3100,8 @@
                       "work",
                       "health",
                       "social",
-                      "home"
+                      "home",
+                      "other"
                     ]
                   },
                   "real": {
@@ -5261,6 +5263,19 @@
                     },
                     "additionalProperties": false
                   },
+                  "lifeEvents": {
+                    "maxItems": 13,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 48
+                    }
+                  },
+                  "ownLifeEvent": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
                   "needs": {
                     "default": [],
                     "maxItems": 3,
@@ -5308,7 +5323,8 @@
                           "work",
                           "health",
                           "social",
-                          "home"
+                          "home",
+                          "other"
                         ]
                       },
                       "dueAt": {
@@ -5409,6 +5425,10 @@
                 "ownFeeling": "Example ownFeeling",
                 "sensations": [],
                 "context": {},
+                "lifeEvents": [
+                  "Example lifeEvents"
+                ],
+                "ownLifeEvent": "Example ownLifeEvent",
                 "needs": [],
                 "ownWords": "Example ownWords",
                 "parsedNeedCodes": [
@@ -8188,6 +8208,19 @@
                     },
                     "additionalProperties": false
                   },
+                  "lifeEvents": {
+                    "maxItems": 13,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 48
+                    }
+                  },
+                  "ownLifeEvent": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
                   "needs": {
                     "default": [],
                     "maxItems": 3,
@@ -8235,7 +8268,8 @@
                           "work",
                           "health",
                           "social",
-                          "home"
+                          "home",
+                          "other"
                         ]
                       },
                       "dueAt": {
@@ -8337,6 +8371,10 @@
                 "ownFeeling": "Example ownFeeling",
                 "sensations": [],
                 "context": {},
+                "lifeEvents": [
+                  "Example lifeEvents"
+                ],
+                "ownLifeEvent": "Example ownLifeEvent",
                 "needs": [],
                 "ownWords": "Example ownWords",
                 "parsedNeedCodes": [
@@ -13353,7 +13391,8 @@
                       "work",
                       "health",
                       "social",
-                      "home"
+                      "home",
+                      "other"
                     ]
                   },
                   "dueAt": {
@@ -33382,6 +33421,19 @@
                         },
                         "additionalProperties": false
                       },
+                      "lifeEvents": {
+                        "maxItems": 13,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        }
+                      },
+                      "ownLifeEvent": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
                       "needs": {
                         "default": [],
                         "maxItems": 3,
@@ -33429,7 +33481,8 @@
                               "work",
                               "health",
                               "social",
-                              "home"
+                              "home",
+                              "other"
                             ]
                           },
                           "dueAt": {
@@ -33638,6 +33691,10 @@
                   "ownFeeling": "Example ownFeeling",
                   "sensations": [],
                   "context": {},
+                  "lifeEvents": [
+                    "Example lifeEvents"
+                  ],
+                  "ownLifeEvent": "Example ownLifeEvent",
                   "needs": [],
                   "ownWords": "Example ownWords",
                   "parsedNeedCodes": [
@@ -38193,6 +38250,19 @@
                             },
                             "additionalProperties": false
                           },
+                          "lifeEvents": {
+                            "maxItems": 13,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 48
+                            }
+                          },
+                          "ownLifeEvent": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
                           "needs": {
                             "default": [],
                             "maxItems": 3,
@@ -38240,7 +38310,8 @@
                                   "work",
                                   "health",
                                   "social",
-                                  "home"
+                                  "home",
+                                  "other"
                                 ]
                               },
                               "dueAt": {
@@ -38461,6 +38532,10 @@
                     "ownFeeling": "Example ownFeeling",
                     "sensations": [],
                     "context": {},
+                    "lifeEvents": [
+                      "Example lifeEvents"
+                    ],
+                    "ownLifeEvent": "Example ownLifeEvent",
                     "needs": [],
                     "ownWords": "Example ownWords",
                     "parsedNeedCodes": [
@@ -44970,7 +45045,8 @@
                       "work",
                       "health",
                       "social",
-                      "home"
+                      "home",
+                      "other"
                     ]
                   },
                   "dueAt": {
@@ -45670,7 +45746,8 @@
                           "work",
                           "health",
                           "social",
-                          "home"
+                          "home",
+                          "other"
                         ]
                       },
                       {

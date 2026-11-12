@@ -153,7 +153,10 @@ function state(c: CheckInValues, x: Explainer): void {
   x.value(from, 'state.mood', Number(cell[2]));
 }
 
-/** Feelings by family; sensations by group. Only the strongest rating per key is kept. */
+/**
+ * Feelings by family; sensations by group, or by the sensitivity flag a sensory one carries. Only
+ * the strongest rating per key is kept.
+ */
 function feelings(c: CheckInValues, options: InputOptions, x: Explainer): void {
   const chips = meanings(options, 'feeling');
   for (const e of c.emotions)
@@ -171,6 +174,8 @@ function feelings(c: CheckInValues, options: InputOptions, x: Explainer): void {
       { input: 'sensations', code: s.code },
       {
         sensation_group: { as: 'rating', fact: 'sensation.intensity', rating: s.intensity ?? null },
+        // A sensory sensation can carry a sensitivity flag, as the senses question did.
+        sensitivity_flag: { as: 'member', fact: 'sensitivity.flags' },
       },
     );
 }
