@@ -4,6 +4,11 @@ import { ENV, type Env } from '../../common/config/env.js';
 export interface ChatRequest {
   readonly system: string;
   readonly user: string;
+  /**
+   * The task again, after the user's words: a small model follows what it read last, so a draft
+   * that asks a question or gives an order is reworked, not answered (owner review, 12 Nov 2026).
+   */
+  readonly reminder?: string | undefined;
   readonly schema?: { readonly name: string; readonly schema: unknown };
   readonly temperature: number;
   readonly maxTokens: number;
@@ -98,7 +103,10 @@ export class AiClient {
       model: this.env.AI_MODEL,
       messages: [
         { role: 'system', content: req.schema ? `${req.system}\n${COMPACT_JSON}` : req.system },
-        { role: 'user', content: `<user_words>\n${req.user}\n</user_words>` },
+        {
+          role: 'user',
+          content: `<user_words>\n${req.user}\n</user_words>${req.reminder ? `\n\n${req.reminder}` : ''}`,
+        },
       ],
       ...(req.schema ? { response_format: { type: 'json_schema', json_schema: req.schema } } : {}),
       temperature: req.temperature,
