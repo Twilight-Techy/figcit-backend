@@ -75,7 +75,7 @@ export async function bootApi(overrides: Record<string, string | undefined> = {}
   const prisma = app.get(PrismaService);
   const grantPlus: Api['grantPlus'] = async (userId) => {
     await prisma.entitlement.create({
-      data: { userId, planCode: 'plus_monthly', source: 'web', status: 'active' },
+      data: { userId, planCode: 'prime_monthly', source: 'web', status: 'active' },
     });
   };
 

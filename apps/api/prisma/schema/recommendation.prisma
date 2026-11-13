@@ -12,35 +12,35 @@ enum RecommendationActionType {
 
 // Every engine decision, with inputs and trace, so it can be replayed exactly (§5.4).
 model Recommendation {
-  id                     String    @id @default(uuid(7)) @db.Uuid
-  userId                 String    @map("user_id") @db.Uuid
-  checkInId              String    @map("check_in_id") @db.Uuid
-  taskId                 String?   @map("task_id") @db.Uuid
-  parentId               String?   @map("parent_id") @db.Uuid // re-run after Adapt or "correct"
-  band                   String    @db.VarChar(24)
-  light                  Light
-  cellId                 String    @map("cell_id") @db.VarChar(8)
-  primary                Json
-  alternatives           Json
-  queuedStep             Json?     @map("queued_step")
-  patterns               String[]  @default([])
-  gates                  String[]  @default([])
-  rationaleTemplateId    String?   @map("rationale_template_id") @db.VarChar(64)
-  safetyTriggered        Boolean   @default(false) @map("safety_triggered")
-  trace                  Json
-  engineVersion          String    @map("engine_version") @db.VarChar(32)
-  snapshotVersion        String    @map("snapshot_version") @db.VarChar(32)
-  origin                 Origin    @default(online)
-  differsFromDevice      Boolean?  @map("differs_from_device")
-  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  id                  String   @id @default(uuid(7)) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  checkInId           String   @map("check_in_id") @db.Uuid
+  taskId              String?  @map("task_id") @db.Uuid
+  parentId            String?  @map("parent_id") @db.Uuid // re-run after Adapt or "correct"
+  band                String   @db.VarChar(24)
+  light               Light
+  cellId              String   @map("cell_id") @db.VarChar(8)
+  primary             Json
+  alternatives        Json
+  queuedStep          Json?    @map("queued_step")
+  patterns            String[] @default([])
+  gates               String[] @default([])
+  rationaleTemplateId String?  @map("rationale_template_id") @db.VarChar(64)
+  safetyTriggered     Boolean  @default(false) @map("safety_triggered")
+  trace               Json
+  engineVersion       String   @map("engine_version") @db.VarChar(32)
+  snapshotVersion     String   @map("snapshot_version") @db.VarChar(32)
+  origin              Origin   @default(online)
+  differsFromDevice   Boolean? @map("differs_from_device")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  user     User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  checkIn  CheckIn                @relation(fields: [checkInId], references: [id], onDelete: Cascade)
-  task     Task?                  @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  parent   Recommendation?        @relation("RecommendationRerun", fields: [parentId], references: [id], onDelete: SetNull)
-  reruns   Recommendation[]       @relation("RecommendationRerun")
-  actions  RecommendationAction[]
-  sessions PathwaySession[]
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIn     CheckIn                @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  task        Task?                  @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  parent      Recommendation?        @relation("RecommendationRerun", fields: [parentId], references: [id], onDelete: SetNull)
+  reruns      Recommendation[]       @relation("RecommendationRerun")
+  actions     RecommendationAction[]
+  sessions    PathwaySession[]
   adaptations Adaptation[]
 
   @@index([userId, createdAt(sort: Desc)])

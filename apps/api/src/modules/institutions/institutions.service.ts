@@ -51,6 +51,14 @@ export class InstitutionsService {
         'You are already linked to an institution',
         'Leave it first in Settings.',
       );
+    // An organisation code gives Premium straight away (ENT-7, T-22): its seat plan, or the
+    // six-week pilot, which ends by itself and then the user chooses.
+    const planCode = invite.tenant.seatsPlanCode ?? 'org_seat';
+    const plan = await this.prisma.plan.findUnique({
+      where: { code: planCode },
+      select: { lengthDays: true },
+    });
+    const endsAt = plan?.lengthDays ? new Date(Date.now() + plan.lengthDays * DAY) : null;
     await this.prisma.$transaction([
       this.prisma.tenantMembership.upsert({
         where: { tenantId_userId: { tenantId: invite.tenantId, userId } },
@@ -65,10 +73,11 @@ export class InstitutionsService {
       this.prisma.entitlement.create({
         data: {
           userId,
-          planCode: 'institution',
+          planCode,
           source: 'institution',
           status: 'active',
           tenantId: invite.tenantId,
+          endsAt,
         },
       }),
     ]);

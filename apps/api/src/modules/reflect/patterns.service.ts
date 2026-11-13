@@ -233,8 +233,7 @@ export class PatternsService implements OnModuleInit {
     month: string | undefined,
     now = new Date(),
   ): Promise<z.infer<typeof monthlySchema>> {
-    if ((await this.entitlements.tierFor(userId)) !== 'plus')
-      throw new NotEntitled('The monthly summary');
+    if (!(await this.entitlements.paid(userId))) throw new NotEntitled('The monthly summary');
     const m = month ?? now.toISOString().slice(0, 7);
     const start = new Date(`${m}-01T00:00:00Z`);
     const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));

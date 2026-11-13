@@ -24,7 +24,7 @@ export class ProgressController {
 
   /** 30 days are free; longer history is Advanced (SYSTEM_DESIGN §4.2 ProgressModule). */
   private async allow(userId: string, range: number): Promise<void> {
-    if (range > 30 && (await this.entitlements.tierFor(userId)) !== 'plus')
+    if (range > 30 && !(await this.entitlements.paid(userId)))
       throw new NotEntitled('Progress beyond 30 days');
   }
 

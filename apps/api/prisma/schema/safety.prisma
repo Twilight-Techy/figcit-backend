@@ -1,8 +1,8 @@
 enum SafetyTrigger {
-  button     // the user opened Help
-  phrase     // free text matched a safety phrase
-  option     // a risk option was chosen
-  sustained  // sustained Red over time (SF-2)
+  button // the user opened Help
+  phrase // free text matched a safety phrase
+  option // a risk option was chosen
+  sustained // sustained Red over time (SF-2)
 
   @@map("safety_trigger")
 }
@@ -27,14 +27,14 @@ model SafetyEvent {
 }
 
 model SupportPlan {
-  userId             String   @id @map("user_id") @db.Uuid
-  preferredRoutes    String[] @default([]) @map("preferred_routes")
-  signsEnc           Bytes?   @map("signs_enc")
-  whatHelpsEnc       Bytes?   @map("what_helps_enc")
-  whatToAvoidEnc     Bytes?   @map("what_to_avoid_enc")
-  messagesEnc        Bytes?   @map("messages_enc") // pre-written messages
-  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-  clientUpdatedAt    DateTime @default(now()) @map("client_updated_at") @db.Timestamptz(3)
+  userId          String   @id @map("user_id") @db.Uuid
+  preferredRoutes String[] @default([]) @map("preferred_routes")
+  signsEnc        Bytes?   @map("signs_enc")
+  whatHelpsEnc    Bytes?   @map("what_helps_enc")
+  whatToAvoidEnc  Bytes?   @map("what_to_avoid_enc")
+  messagesEnc     Bytes?   @map("messages_enc") // pre-written messages
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  clientUpdatedAt DateTime @default(now()) @map("client_updated_at") @db.Timestamptz(3)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

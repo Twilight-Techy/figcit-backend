@@ -95,3 +95,63 @@ describe('your details (S04a) and the age rule', () => {
     expect(await prisma.user.findUnique({ where: { id: u.userId } })).toBeNull();
   });
 });
+
+describe('organisation codes (ENT-7, T-22)', () => {
+  type Org = { id: string; plan: string; seatsUsed: number; codes: { code: string }[] };
+
+  it('staff add an organisation and issue a code; joining gives Premium at once', async () => {
+    const admin = await api.staff(['admin']);
+    const made = await api.req<Org>('POST', '/admin/organisations', {
+      token: admin.token,
+      body: { name: 'Northgate College', kind: 'college' },
+    });
+    expect(made.status).toBe(201);
+    const code = await api.req<{ code: string }>(
+      'POST',
+      `/admin/organisations/${made.body.id}/codes`,
+      {
+        token: admin.token,
+        body: { maxUses: 50 },
+      },
+    );
+    expect(code.body.code).toMatch(/^[A-Z2-9]{8}$/);
+    const u = await api.signIn();
+    await api.req('POST', '/institutions/join', { token: u.token, body: { code: code.body.code } });
+    const ent = await api.req<{ level: string }>('GET', '/me/entitlements', { token: u.token });
+    expect(ent.body.level).toBe('premium');
+    const list = await api.req<{ items: Org[] }>('GET', '/admin/organisations', {
+      token: admin.token,
+    });
+    expect(list.body.items.find((o) => o.id === made.body.id)?.seatsUsed).toBe(1);
+  });
+
+  it('the pilot gives Premium for six weeks, then the person chooses', async () => {
+    const admin = await api.staff(['admin']);
+    const pilot = await api.req<Org>('POST', '/admin/organisations', {
+      token: admin.token,
+      body: { name: 'Launch cohort', kind: 'programme', plan: 'pilot' },
+    });
+    const code = await api.req<{ code: string }>(
+      'POST',
+      `/admin/organisations/${pilot.body.id}/codes`,
+      {
+        token: admin.token,
+        body: {},
+      },
+    );
+    const u = await api.signIn();
+    await api.req('POST', '/institutions/join', { token: u.token, body: { code: code.body.code } });
+    const row = await prisma.entitlement.findFirstOrThrow({
+      where: { userId: u.userId, source: 'institution' },
+    });
+    expect(row.planCode).toBe('pilot');
+    const days = ((row.endsAt?.getTime() ?? 0) - Date.now()) / 86_400_000;
+    expect(Math.round(days)).toBe(42);
+  });
+
+  it('is for staff admins only', async () => {
+    const u = await api.signIn();
+    const r = await api.req('GET', '/admin/organisations', { token: u.token });
+    expect(r.status).toBe(403);
+  });
+});

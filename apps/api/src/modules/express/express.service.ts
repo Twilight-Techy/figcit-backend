@@ -177,7 +177,7 @@ export class ExpressService {
     id: string,
     req: AssistRequest,
   ): Promise<{ text: string; purpose: string | undefined; blocked: AssistResult | null }> {
-    if (ADVANCED.has(req.mode) && (await this.entitlements.tierFor(userId)) !== 'plus')
+    if (ADVANCED.has(req.mode) && !(await this.entitlements.paid(userId)))
       throw new NotEntitled(`${req.mode[0]?.toUpperCase() ?? ''}${req.mode.slice(1)}`);
     const row = await this.row(userId, id);
     const c = await this.crypto.forUser(userId);

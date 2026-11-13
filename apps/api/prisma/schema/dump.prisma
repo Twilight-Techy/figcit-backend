@@ -48,8 +48,8 @@ model DumpItem {
   updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
   deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz(3)
 
-  dump  Dump  @relation(fields: [dumpId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dump  Dump   @relation(fields: [dumpId], references: [id], onDelete: Cascade)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks Task[]
 
   @@index([dumpId, position])

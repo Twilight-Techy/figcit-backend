@@ -68,7 +68,10 @@ export const meSchema = z.object({
   detailsDone: z.boolean(),
   productUpdates: z.boolean(),
   hasPassword: z.boolean(),
+  /** @deprecated Use `tier`: any paid plan reads as `plus` here. */
   plan: z.enum(['free', 'plus']),
+  /** Free, Prime or Premium (organisation seats and the pilot are Premium). */
+  tier: z.enum(['free', 'prime', 'premium']),
   tenant: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   createdAt: z.iso.datetime(),
   preferences: preferencesSchema,

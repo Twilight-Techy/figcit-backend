@@ -17,12 +17,7 @@ beforeAll(async () => {
 afterAll(() => api.close());
 
 describe('plans and billing (fake provider)', () => {
-  it('buys Plus, unlocks Advanced, cancels at period end and handles webhooks', async () => {
-    const plans = await api.req<{ items: { code: string; priceMinor: number | null }[] }>(
-      'GET',
-      '/plans',
-    );
-    expect(plans.body.items.map((p) => p.code)).toContain('plus_monthly');
+  it('buys Prime, unlocks Advanced, cancels at period end and handles webhooks', async () => {
     const { token, userId } = await api.signIn();
     expect((await api.req<{ tier: string }>('GET', '/me/entitlements', { token })).body.tier).toBe(
       'free',
@@ -30,7 +25,7 @@ describe('plans and billing (fake provider)', () => {
     // ENT-8: only a confirmed adult can buy.
     const unconfirmed = await api.req<{ code: string }>('POST', '/billing/checkout', {
       token,
-      body: { planCode: 'plus_monthly' },
+      body: { planCode: 'prime_monthly' },
     });
     expect(unconfirmed.status).toBe(403);
     expect(unconfirmed.body.code).toBe('age_unconfirmed');
@@ -39,24 +34,27 @@ describe('plans and billing (fake provider)', () => {
         .status,
     ).toBe(201);
     expect(
-      (await api.req('POST', '/billing/checkout', { token, body: { planCode: 'plus_concession' } }))
+      (await api.req('POST', '/billing/checkout', { token, body: { planCode: 'org_seat' } }))
         .status,
     ).toBe(400);
-    const co = await api.req<{ sessionId: string; url: string }>('POST', '/billing/checkout', {
-      token,
-      body: { planCode: 'plus_monthly' },
-    });
+    const co = await api.req<{ sessionId: string; url: string; totalMinor: number }>(
+      'POST',
+      '/billing/checkout',
+      { token, body: { planCode: 'prime_monthly' } },
+    );
     expect(co.body.url).toContain('/plans/checkout/?session=');
+    expect(co.body).toMatchObject({ subtotalMinor: 700, vatMinor: 140, totalMinor: 840 });
     await api.req('POST', '/billing/fake/complete', {
       token,
       body: { sessionId: co.body.sessionId },
     });
-    expect((await api.req<{ tier: string }>('GET', '/me/entitlements', { token })).body.tier).toBe(
-      'plus',
-    );
+    const now = await api.req<{ tier: string; level: string }>('GET', '/me/entitlements', {
+      token,
+    });
+    expect(now.body).toMatchObject({ tier: 'plus', level: 'prime' });
     expect((await api.req('GET', '/progress?range=90', { token })).status).toBe(200);
     expect(
-      (await api.req('POST', '/billing/checkout', { token, body: { planCode: 'plus_yearly' } }))
+      (await api.req('POST', '/billing/checkout', { token, body: { planCode: 'prime_monthly' } }))
         .status,
     ).toBe(409);
 
@@ -402,7 +400,7 @@ describe('age (D-02)', () => {
     expect(ok.body).toMatchObject({ ageBand: 'minor_institution', ageConfirmed: true });
     const buy = await api.req('POST', '/billing/checkout', {
       token: teen.token,
-      body: { planCode: 'plus_monthly' },
+      body: { planCode: 'prime_monthly' },
     });
     expect(buy.status).toBe(403);
   });

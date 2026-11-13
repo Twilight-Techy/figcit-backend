@@ -24,11 +24,11 @@ model Reflection {
 
 // Roll-up of reflections per topic for the rumination gate (RF-2). Rebuilt by the worker.
 model UserTopicCount {
-  userId    String   @map("user_id") @db.Uuid
-  topicTag  String   @map("topic_tag") @db.VarChar(48)
-  count7d   Int      @default(0) @map("count_7d") @db.SmallInt
-  countAll  Int      @default(0) @map("count_all")
-  lastAt    DateTime @map("last_at") @db.Timestamptz(3)
+  userId   String   @map("user_id") @db.Uuid
+  topicTag String   @map("topic_tag") @db.VarChar(48)
+  count7d  Int      @default(0) @map("count_7d") @db.SmallInt
+  countAll Int      @default(0) @map("count_all")
+  lastAt   DateTime @map("last_at") @db.Timestamptz(3)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

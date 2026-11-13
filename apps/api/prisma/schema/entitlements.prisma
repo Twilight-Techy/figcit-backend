@@ -18,9 +18,16 @@ enum EntitlementStatus {
 }
 
 model Plan {
-  code       String   @id @db.VarChar(24) // free | advanced_monthly | advanced_yearly | institution
+  code       String   @id @db.VarChar(24) // free | prime_monthly | prime_yearly | premium_… | org_seat | pilot
   name       String   @db.VarChar(48)
-  priceMinor Int?     @map("price_minor") // pence; null for free / institution
+  // What the plan unlocks (business plan): free, prime or premium. Organisation seats are premium.
+  tier       String   @default("free") @db.VarChar(8)
+  // Pence before VAT (prices are configuration, ENT-10); null when the user doesn't pay.
+  priceMinor Int?     @map("price_minor")
+  // Bought by the user on the web (Prime, Premium), or arranged with an organisation (seats, pilot).
+  buyable    Boolean  @default(false)
+  // How long a plan lasts from joining, when it ends by itself (the six-week pilot).
+  lengthDays Int?     @map("length_days") @db.SmallInt
   currency   String   @default("GBP") @db.Char(3)
   interval   String?  @db.VarChar(8) // month | year
   features   String[] @default([])

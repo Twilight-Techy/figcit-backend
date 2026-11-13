@@ -48,18 +48,18 @@ model PathwaySession {
 
 // "Did it help?" after a tool, plus the re-check and Blue recovery window (RC-1–RC-5).
 model Feedback {
-  id                 String          @id @default(uuid(7)) @db.Uuid
-  sessionId          String          @unique @map("session_id") @db.Uuid
-  userId             String          @map("user_id") @db.Uuid
+  id                 String         @id @default(uuid(7)) @db.Uuid
+  sessionId          String         @unique @map("session_id") @db.Uuid
+  userId             String         @map("user_id") @db.Uuid
   outcome            SessionOutcome
-  helpful            Int?            @db.SmallInt // 1–5
-  effort             Int?            @db.SmallInt // 1–5
-  recheckCheckInId   String?         @map("recheck_check_in_id") @db.Uuid
-  recheckRule        String?         @map("recheck_rule") @db.VarChar(8) // RC-1…RC-5
-  recoveryStartedAt  DateTime?       @map("recovery_started_at") @db.Timestamptz(3)
-  recoveryEndsAt     DateTime?       @map("recovery_ends_at") @db.Timestamptz(3)
-  nextStepReleasedAt DateTime?       @map("next_step_released_at") @db.Timestamptz(3)
-  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  helpful            Int?           @db.SmallInt // 1–5
+  effort             Int?           @db.SmallInt // 1–5
+  recheckCheckInId   String?        @map("recheck_check_in_id") @db.Uuid
+  recheckRule        String?        @map("recheck_rule") @db.VarChar(8) // RC-1…RC-5
+  recoveryStartedAt  DateTime?      @map("recovery_started_at") @db.Timestamptz(3)
+  recoveryEndsAt     DateTime?      @map("recovery_ends_at") @db.Timestamptz(3)
+  nextStepReleasedAt DateTime?      @map("next_step_released_at") @db.Timestamptz(3)
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
 
   session        PathwaySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)

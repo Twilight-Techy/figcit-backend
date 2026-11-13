@@ -250,7 +250,7 @@ export async function seedPersonas(s: Seeder): Promise<Record<string, string>> {
   await s.prisma.entitlement.create({
     data: {
       userId: ids['ada'],
-      planCode: 'plus_monthly',
+      planCode: 'prime_monthly',
       source: 'web',
       status: 'active',
       renewsAt: new Date(Date.now() + 18 * DAY),
@@ -319,12 +319,12 @@ async function seedOthers(s: Seeder): Promise<Record<string, string>> {
   });
   await history(s, ids['hana'], { days: 14, seed: 7, hardEvery: 3 });
 
-  // Fin: Plus yearly, cancelled, ends in 10 days. Gus: asked to delete, in the grace period.
+  // Fin: Premium yearly, cancelled, ends in 10 days. Gus: asked to delete, in the grace period.
   ids['fin'] = await s.user(email('fin'), { nickname: 'Fin' });
   await s.prisma.entitlement.create({
     data: {
       userId: ids['fin'],
-      planCode: 'plus_yearly',
+      planCode: 'premium_yearly',
       source: 'web',
       status: 'active',
       endsAt: new Date(Date.now() + 10 * DAY),

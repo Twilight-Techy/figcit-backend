@@ -8,7 +8,7 @@ model AuditEvent {
   targetType String   @map("target_type") @db.VarChar(32)
   targetId   String?  @map("target_id") @db.VarChar(64)
   reason     String?  @db.VarChar(200)
-  meta       Json?    // codes only, never personal text
+  meta       Json? // codes only, never personal text
   at         DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([targetType, targetId, at(sort: Desc)])

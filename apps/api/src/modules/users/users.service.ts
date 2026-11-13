@@ -72,7 +72,7 @@ export class UsersService {
   async me(userId: string): Promise<MeDto> {
     const row = await this.repo.findMe(userId);
     if (!row) throw new NotFound('user');
-    const plan = await this.entitlements.tierFor(userId);
+    const tier = await this.entitlements.tierFor(userId);
     return {
       id: row.id,
       email: row.email,
@@ -91,7 +91,8 @@ export class UsersService {
         row.nickname !== null && row.ageConfirmedAt !== null && row.termsAcceptedAt !== null,
       productUpdates: row.productUpdates,
       hasPassword: row.passwordHash !== null,
-      plan,
+      plan: tier === 'free' ? 'free' : 'plus',
+      tier,
       tenant: row.tenant,
       createdAt: row.createdAt.toISOString(),
       preferences: preferencesDto(row.preferences),
