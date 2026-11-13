@@ -493,3 +493,14 @@ describe('web sessions', () => {
     expect(res.body.accessToken).toBeTruthy();
   });
 });
+
+describe('sign-in methods (Developer Brief BUG-02, SU-2, SU-10)', () => {
+  it('says Google is off when it is not set up, and its start goes back to the app', async () => {
+    const methods = await api.req('GET', '/auth/methods');
+    expect(methods.status).toBe(200);
+    expect(methods.body).toEqual({ password: true, emailCode: true, google: false });
+    const start = await api.req('GET', '/auth/google/start');
+    expect(start.status).toBe(302);
+    expect(start.headers['location']).toMatch(/\/enter\/\?error=google$/);
+  });
+});

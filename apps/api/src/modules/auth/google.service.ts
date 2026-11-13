@@ -24,6 +24,11 @@ export class GoogleService {
     private readonly crypto: CryptoService,
   ) {}
 
+  /** Whether Google sign-in can work here: the app hides the button when it can't (SU-2). */
+  get configured(): boolean {
+    return Boolean(this.env.GOOGLE_CLIENT_ID && this.env.GOOGLE_CLIENT_SECRET);
+  }
+
   private get redirectUri(): string {
     return `${this.env.API_URL}/v1/auth/google/callback`;
   }

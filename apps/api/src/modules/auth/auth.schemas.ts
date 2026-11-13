@@ -58,3 +58,10 @@ export const sessionsListSchema = z.object({
     }),
   ),
 });
+
+/** The sign-in methods that work on this server (SU-2): the app hides the rest. */
+export const authMethodsSchema = z.object({
+  password: z.boolean(),
+  emailCode: z.boolean(),
+  google: z.boolean(),
+});

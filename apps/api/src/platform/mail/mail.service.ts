@@ -49,6 +49,11 @@ export class MailService {
         : undefined;
   }
 
+  /** Whether mail actually leaves: the app hides email sign-in methods when it doesn't (SU-2). */
+  get delivers(): boolean {
+    return this.sends && !this.env.DEV_MAILBOX;
+  }
+
   private get sends(): boolean {
     return Boolean(this.env.BREVO_API_KEY) || this.transport !== undefined;
   }

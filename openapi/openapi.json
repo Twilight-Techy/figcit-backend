@@ -3566,6 +3566,61 @@
         "x-access": "public"
       }
     },
+    "/v1/auth/methods": {
+      "get": {
+        "operationId": "Auth_methods",
+        "summary": "The sign-in methods that work here (SU-2): the app shows only these",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "password": {
+                      "type": "boolean"
+                    },
+                    "emailCode": {
+                      "type": "boolean"
+                    },
+                    "google": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "password",
+                    "emailCode",
+                    "google"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "password": true,
+                  "emailCode": true,
+                  "google": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "x-access": "public"
+      }
+    },
     "/v1/auth/mfa/enrol": {
       "post": {
         "operationId": "Auth_enrol",
