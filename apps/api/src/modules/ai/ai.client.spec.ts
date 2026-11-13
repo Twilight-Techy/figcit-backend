@@ -108,9 +108,11 @@ describe('a hosted OpenAI-style API (AI_PROVIDER=openai)', () => {
   const reply = (content: string): void => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 }),
-      ),
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 }),
+        ),
     );
   };
   afterEach(() => {
