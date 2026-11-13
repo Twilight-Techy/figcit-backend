@@ -130,7 +130,9 @@ export class AiClient {
 
   /** llama-server's switch for thinking models; hosted APIs may reject unknown fields. */
   private extras(): Record<string, unknown> {
-    return this.hosted ? {} : { chat_template_kwargs: { enable_thinking: false } };
+    if (!this.hosted) return { chat_template_kwargs: { enable_thinking: false } };
+    const effort = this.env.AI_REASONING_EFFORT;
+    return effort ? { reasoning_effort: effort } : {};
   }
 
   private body(req: ChatRequest, stream: boolean): string {
@@ -257,6 +259,7 @@ export class AiClient {
           ],
           max_tokens: 8,
           temperature: 0,
+          ...this.extras(),
         }),
         signal: AbortSignal.timeout(req.timeoutMs),
       });

@@ -148,6 +148,17 @@ describe('a hosted OpenAI-style API (AI_PROVIDER=openai)', () => {
     expect(sent()['logprobs']).toBeUndefined();
   });
 
+  it('sends the reasoning effort when set', async () => {
+    reply('A');
+    await new AiClient({ ...env, AI_REASONING_EFFORT: 'none' } as Env).decide({
+      system: 'Pick.',
+      user: 'x',
+      labels: ['A', 'B'],
+      timeoutMs: 1000,
+    });
+    expect(sent()['reasoning_effort']).toBe('none');
+  });
+
   it('gives no answer when the model names no label', () => {
     expect(labelFromText('maybe', ['A', 'B'])).toEqual({ A: 0, B: 0 });
   });

@@ -51,6 +51,9 @@ const envSchema = z.object({
   // (ADR 0009); `openai`: any hosted OpenAI-style API, e.g. Groq at https://api.groq.com/openai.
   AI_PROVIDER: z.enum(['llama', 'openai']).default('llama'),
   AI_BASE_URL: z.url().optional(),
+  // Hosted thinking models: how much to think before answering (`none` on Groq's Qwen 3 turns it
+  // off, which our short timeouts need). Sent only with AI_PROVIDER=openai.
+  AI_REASONING_EFFORT: z.string().max(16).optional(),
   AI_MODEL: z.string().default('ministral-3-3b-instruct-q4_k_m'),
   AI_TOKEN: z.string().optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(100).default(8000),
