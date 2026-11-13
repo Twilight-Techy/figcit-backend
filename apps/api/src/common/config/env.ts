@@ -35,7 +35,9 @@ const envSchema = z.object({
   MASTER_KEYS: z.string().min(1),
   // Jobs: run them in the API process with no polling, so an idle database can sleep (ADR 0010).
   JOBS_ON_DEMAND: bool.default(false),
-  // Email
+  // Email. BREVO_API_KEY sends through Brevo's HTTPS API (port 443), for hosts that block SMTP
+  // (Render's free plan, owner's choice 12 Nov 2026); it wins over SMTP_URL when both are set.
+  BREVO_API_KEY: z.string().optional(),
   DEV_MAILBOX: bool.default(false),
   MAIL_FROM: z.string().default('FigCit <hello@figcit.co.uk>'),
   SMTP_URL: z.string().optional(),

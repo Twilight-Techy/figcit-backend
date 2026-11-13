@@ -15,9 +15,22 @@ export interface DevMail extends Mail {
 
 const DEV_LIMIT = 50;
 
+const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
+/** A sign-in email can't wait long: the request that sends it is waiting too. */
+const SEND_TIMEOUT_MS = 15_000;
+
+/** "FigCit <hello@figcit.co.uk>" or a bare address, as Brevo's sender object. */
+export function sender(from: string): { name?: string; email: string } {
+  const m = /^\s*(.*?)\s*<([^>]+)>\s*$/.exec(from);
+  if (!m) return { email: from.trim() };
+  const name = (m[1] ?? '').replace(/^"|"$/g, '');
+  return name ? { name, email: m[2] ?? '' } : { email: m[2] ?? '' };
+}
+
 /**
- * Email over SMTP through nodemailer (SYSTEM_DESIGN §10). Without SMTP_URL, mail goes to a dev
- * mailbox (bounded, in memory) that local tools and e2e tests read through `GET /v1/dev/mailbox`.
+ * Email (SYSTEM_DESIGN §10): through Brevo's HTTPS API when BREVO_API_KEY is set, else over SMTP
+ * through nodemailer. With neither, mail goes to a dev mailbox (bounded, in memory) that local
+ * tools and e2e tests read through `GET /v1/dev/mailbox`.
  */
 @Injectable()
 export class MailService {
@@ -26,19 +39,49 @@ export class MailService {
   private readonly mailbox: DevMail[] = [];
 
   constructor(@Inject(ENV) private readonly env: Env) {
-    this.transport = env.SMTP_URL ? nodemailer.createTransport(env.SMTP_URL) : undefined;
+    this.transport =
+      env.SMTP_URL && !env.BREVO_API_KEY
+        ? nodemailer.createTransport(env.SMTP_URL, {
+            connectionTimeout: SEND_TIMEOUT_MS,
+            greetingTimeout: SEND_TIMEOUT_MS,
+            socketTimeout: SEND_TIMEOUT_MS,
+          })
+        : undefined;
+  }
+
+  private get sends(): boolean {
+    return Boolean(this.env.BREVO_API_KEY) || this.transport !== undefined;
+  }
+
+  private async viaBrevo(key: string, mail: Mail): Promise<void> {
+    const res = await fetch(BREVO_URL, {
+      method: 'POST',
+      headers: { 'api-key': key, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({
+        sender: sender(this.env.MAIL_FROM),
+        to: [{ email: mail.to }],
+        subject: mail.subject,
+        htmlContent: mail.html,
+        textContent: mail.text,
+      }),
+      signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
+    });
+    // The body may name the cause (an unverified sender, a bad key); never the address.
+    if (!res.ok)
+      throw new Error(`brevo ${String(res.status)}: ${(await res.text()).slice(0, 200)}`);
   }
 
   async send(mail: Mail): Promise<void> {
-    if (this.env.DEV_MAILBOX || !this.transport) {
+    if (this.env.DEV_MAILBOX || !this.sends) {
       this.mailbox.unshift({ ...mail, at: new Date().toISOString() });
       if (this.mailbox.length > DEV_LIMIT) this.mailbox.pop();
-      if (!this.transport) {
+      if (!this.sends) {
         this.logger.log(`dev mail to ${mail.to.replace(/(.).+@/, '$1***@')}: ${mail.subject}`);
         return;
       }
     }
-    await this.transport.sendMail({ from: this.env.MAIL_FROM, ...mail });
+    if (this.env.BREVO_API_KEY) await this.viaBrevo(this.env.BREVO_API_KEY, mail);
+    else await this.transport?.sendMail({ from: this.env.MAIL_FROM, ...mail });
   }
 
   devMailbox(to?: string): readonly DevMail[] {
