@@ -8,15 +8,15 @@ enum ContentStatus {
 }
 
 enum ContentKind {
-  copy // screen wording
-  tool_script // Breathe steps, Ground prompts, Move routines
+  copy          // screen wording
+  tool_script   // Breathe steps, Ground prompts, Move routines
   reflect_prompt
-  practice // neutral practice library
-  starter // Connect message starters
-  adaptation // Adapt library
-  comm_card // communication cards (always free)
-  help_route // crisis routes per region
-  card_wording // recommendation card wording and rationale templates
+  practice      // neutral practice library
+  starter       // Connect message starters
+  adaptation    // Adapt library
+  comm_card     // communication cards (always free)
+  help_route    // crisis routes per region
+  card_wording  // recommendation card wording and rationale templates
   pattern_template
   ai_prompt
 

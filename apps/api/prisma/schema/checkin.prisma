@@ -32,15 +32,15 @@ model CheckIn {
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   deletedAt         DateTime?     @map("deleted_at") @db.Timestamptz(3)
 
-  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recheckOf        CheckIn?           @relation("Recheck", fields: [recheckOfId], references: [id], onDelete: SetNull)
-  rechecks         CheckIn[]          @relation("Recheck")
-  emotions         CheckInEmotion[]
-  sensations       CheckInSensation[]
-  context          CheckInContext?
-  need             NeedSelection?
-  recommendations  Recommendation[]
-  feedbackRechecks Feedback[]         @relation("FeedbackRecheck")
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recheckOf       CheckIn?           @relation("Recheck", fields: [recheckOfId], references: [id], onDelete: SetNull)
+  rechecks        CheckIn[]          @relation("Recheck")
+  emotions        CheckInEmotion[]
+  sensations      CheckInSensation[]
+  context         CheckInContext?
+  need            NeedSelection?
+  recommendations Recommendation[]
+  feedbackRechecks Feedback[]        @relation("FeedbackRecheck")
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([recheckOfId])

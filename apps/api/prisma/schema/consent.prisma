@@ -1,5 +1,5 @@
 enum ConsentPurpose {
-  wellbeing_data // special-category processing needed for the service
+  wellbeing_data       // special-category processing needed for the service
   personalisation
   analytics
   research

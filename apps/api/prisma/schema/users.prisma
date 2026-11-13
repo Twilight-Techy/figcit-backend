@@ -76,59 +76,59 @@ model User {
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
   deletedAt       DateTime?  @map("deleted_at") @db.Timestamptz(3)
 
-  tenant             Tenant?                @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  preferences        Preferences?
-  authIdentities     AuthIdentity[]
-  sessions           Session[]
-  staffOwner         StaffOwner?
-  magicLinks         MagicLink[]
-  passwordResets     PasswordReset[]
-  mfaFactors         MfaFactor[]
-  signInEvents       SignInEvent[]
-  consents           Consent[]
-  checkIns           CheckIn[]
-  customTags         CustomTag[]
-  tasks              Task[]
-  recommendations    Recommendation[]
-  recommendationActs RecommendationAction[]
-  pathwaySessions    PathwaySession[]
-  feedback           Feedback[]
-  safetyEvents       SafetyEvent[]
-  supportPlan        SupportPlan?
-  trustedContacts    TrustedContact[]
-  dumps              Dump[]
-  dumpItems          DumpItem[]
-  drafts             Draft[]
-  assistUsage        AssistUsage[]
-  adaptations        Adaptation[]
-  savedAdaptations   SavedAdaptation[]
-  savedStarters      SavedStarter[]
-  connectGroups      ConnectGroup[]
-  reflections        Reflection[]
-  topicCounts        UserTopicCount[]
-  struggleAnswers    StruggleConfirmation[]
-  practices          Practice[]
-  reminders          Reminder[]
-  pushSubscriptions  PushSubscription[]
-  inboxItems         InboxItem[]
-  notificationLogs   NotificationLog[]
-  shares             Share[]
-  entitlements       Entitlement[]
-  billingCustomer    BillingCustomer?
-  transcriptions     Transcription[]
-  files              StoredFile[]
-  exportJobs         ExportJob[]
-  deletionRequest    DeletionRequest?
-  syncOperations     SyncOperation[]
-  idempotencyKeys    IdempotencyKey[]
-  tenantMemberships  TenantMembership[]
-  outreachRequests   OutreachRequest[]
-  handledOutreach    OutreachRequest[]      @relation("OutreachHandler")
-  snapshotsCreated   RuleSnapshot[]         @relation("SnapshotCreator")
-  snapshotsReviewed  RuleSnapshot[]         @relation("SnapshotReviewer")
-  snapshotsSigned    RuleSnapshot[]         @relation("SnapshotSafetySigner")
-  contentAuthored    ContentItem[]          @relation("ContentAuthor")
-  contentReviewed    ContentItem[]          @relation("ContentReviewer")
+  tenant               Tenant?               @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  preferences          Preferences?
+  authIdentities       AuthIdentity[]
+  sessions             Session[]
+  staffOwner           StaffOwner?
+  magicLinks           MagicLink[]
+  passwordResets       PasswordReset[]
+  mfaFactors           MfaFactor[]
+  signInEvents         SignInEvent[]
+  consents             Consent[]
+  checkIns             CheckIn[]
+  customTags           CustomTag[]
+  tasks                Task[]
+  recommendations      Recommendation[]
+  recommendationActs   RecommendationAction[]
+  pathwaySessions      PathwaySession[]
+  feedback             Feedback[]
+  safetyEvents         SafetyEvent[]
+  supportPlan          SupportPlan?
+  trustedContacts      TrustedContact[]
+  dumps                Dump[]
+  dumpItems            DumpItem[]
+  drafts               Draft[]
+  assistUsage          AssistUsage[]
+  adaptations          Adaptation[]
+  savedAdaptations     SavedAdaptation[]
+  savedStarters        SavedStarter[]
+  connectGroups        ConnectGroup[]
+  reflections          Reflection[]
+  topicCounts          UserTopicCount[]
+  struggleAnswers      StruggleConfirmation[]
+  practices            Practice[]
+  reminders            Reminder[]
+  pushSubscriptions    PushSubscription[]
+  inboxItems           InboxItem[]
+  notificationLogs     NotificationLog[]
+  shares               Share[]
+  entitlements         Entitlement[]
+  billingCustomer      BillingCustomer?
+  transcriptions       Transcription[]
+  files                StoredFile[]
+  exportJobs           ExportJob[]
+  deletionRequest      DeletionRequest?
+  syncOperations       SyncOperation[]
+  idempotencyKeys      IdempotencyKey[]
+  tenantMemberships    TenantMembership[]
+  outreachRequests     OutreachRequest[]
+  handledOutreach      OutreachRequest[]     @relation("OutreachHandler")
+  snapshotsCreated     RuleSnapshot[]        @relation("SnapshotCreator")
+  snapshotsReviewed    RuleSnapshot[]        @relation("SnapshotReviewer")
+  snapshotsSigned      RuleSnapshot[]        @relation("SnapshotSafetySigner")
+  contentAuthored      ContentItem[]         @relation("ContentAuthor")
+  contentReviewed      ContentItem[]         @relation("ContentReviewer")
 
   @@index([tenantId])
   @@index([status, deletedAt])
@@ -138,27 +138,27 @@ model User {
 // Comfort and notification settings. Sync is last-write-wins per field (SYSTEM_DESIGN §8):
 // `fieldUpdatedAt` maps field name → client time of its last change.
 model Preferences {
-  userId            String            @id @map("user_id") @db.Uuid
-  textSize          Int               @default(0) @map("text_size") @db.SmallInt // steps 0–3: A, A+, A++, A+++
-  theme             Theme             @default(fig_citrus)
-  followSystemTheme Boolean           @default(true) @map("follow_system_theme")
-  highContrast      Boolean           @default(false) @map("high_contrast")
-  reduceMotion      Boolean           @default(false) @map("reduce_motion")
-  sound             Boolean           @default(true)
-  haptics           Boolean           @default(true)
-  dyslexicFont      Boolean           @default(false) @map("dyslexic_font")
-  lowStimulation    Boolean           @default(false) @map("low_stimulation")
-  notificationStyle NotificationStyle @default(gentle) @map("notification_style")
-  quietHoursStart   Int?              @map("quiet_hours_start") @db.SmallInt // minutes after midnight, local
-  quietHoursEnd     Int?              @map("quiet_hours_end") @db.SmallInt
-  inWorship         Boolean           @default(false) @map("in_worship")
-  inWorshipUntil    DateTime?         @map("in_worship_until") @db.Timestamptz(3)
-  taskNudgesPerDay  Int               @default(2) @map("task_nudges_per_day") @db.SmallInt
-  notifyCategories  String[]          @default(["checkin", "tasks", "practices", "recheck"]) @map("notify_categories")
-  patternPrompts    Boolean           @default(true) @map("pattern_prompts")
-  personalisation   Boolean           @default(true)
-  fieldUpdatedAt    Json              @default("{}") @map("field_updated_at")
-  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  userId              String            @id @map("user_id") @db.Uuid
+  textSize            Int               @default(0) @map("text_size") @db.SmallInt // steps 0–3: A, A+, A++, A+++
+  theme               Theme             @default(fig_citrus)
+  followSystemTheme   Boolean           @default(true) @map("follow_system_theme")
+  highContrast        Boolean           @default(false) @map("high_contrast")
+  reduceMotion        Boolean           @default(false) @map("reduce_motion")
+  sound               Boolean           @default(true)
+  haptics             Boolean           @default(true)
+  dyslexicFont        Boolean           @default(false) @map("dyslexic_font")
+  lowStimulation      Boolean           @default(false) @map("low_stimulation")
+  notificationStyle   NotificationStyle @default(gentle) @map("notification_style")
+  quietHoursStart     Int?              @map("quiet_hours_start") @db.SmallInt // minutes after midnight, local
+  quietHoursEnd       Int?              @map("quiet_hours_end") @db.SmallInt
+  inWorship           Boolean           @default(false) @map("in_worship")
+  inWorshipUntil      DateTime?         @map("in_worship_until") @db.Timestamptz(3)
+  taskNudgesPerDay    Int               @default(2) @map("task_nudges_per_day") @db.SmallInt
+  notifyCategories    String[]          @default(["checkin", "tasks", "practices", "recheck"]) @map("notify_categories")
+  patternPrompts      Boolean           @default(true) @map("pattern_prompts")
+  personalisation     Boolean           @default(true)
+  fieldUpdatedAt      Json              @default("{}") @map("field_updated_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -177,3 +177,4 @@ model StaffOwner {
 
   @@map("staff_owner")
 }
+
