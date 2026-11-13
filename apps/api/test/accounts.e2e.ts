@@ -155,3 +155,46 @@ describe('organisation codes (ENT-7, T-22)', () => {
     expect(r.status).toBe(403);
   });
 });
+
+describe('Me and Life right now (ME-1 to ME-6)', () => {
+  type View = { promptDue: boolean; lifeNow: string[]; pronouns: string | null };
+
+  it('keeps the optional profile private, and prompts only after a first check-in', async () => {
+    const u = await api.signIn();
+    const empty = await api.req<View>('GET', '/me/profile', { token: u.token });
+    expect(empty.body).toMatchObject({ promptDue: false, lifeNow: [], pronouns: null });
+    await api.req('POST', '/check-ins', {
+      token: u.token,
+      body: { state: { kind: 'grid', energy: 3, mood: 3 } },
+    });
+    expect((await api.req<View>('GET', '/me/profile', { token: u.token })).body.promptDue).toBe(
+      true,
+    );
+    const dismissed = await api.req<View>('POST', '/me/profile/prompt-dismissed', {
+      token: u.token,
+    });
+    expect(dismissed.body.promptDue).toBe(false);
+    const saved = await api.req<View>('PATCH', '/me/profile', {
+      token: u.token,
+      body: { pronouns: 'they/them', lifeNow: ['big_change', 'money'] },
+    });
+    expect(saved.body).toMatchObject({ pronouns: 'they/them', lifeNow: ['big_change', 'money'] });
+    // Encrypted at rest: the stored blob doesn't contain what was written.
+    const row = await prisma.user.findUniqueOrThrow({ where: { id: u.userId } });
+    expect(Buffer.from(row.profileEnc ?? []).toString('utf8')).not.toContain('they/them');
+  });
+
+  it('asks about everyday life only, and "Prefer not to say" stands alone', async () => {
+    const u = await api.signIn();
+    const harm = await api.req('PATCH', '/me/profile', {
+      token: u.token,
+      body: { lifeNow: ['mental_health'] },
+    });
+    expect(harm.status).toBe(400);
+    const mixed = await api.req('PATCH', '/me/profile', {
+      token: u.token,
+      body: { lifeNow: ['prefer_not', 'money'] },
+    });
+    expect(mixed.status).toBe(400);
+  });
+});

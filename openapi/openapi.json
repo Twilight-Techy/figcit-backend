@@ -19149,6 +19149,579 @@
         "x-access": "user"
       }
     },
+    "/v1/me/profile": {
+      "get": {
+        "operationId": "Users_profile",
+        "summary": "Me: the optional profile and Life right now (ME-1 to ME-6), private by default",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pronouns": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weekFills": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "studying",
+                          "working",
+                          "looking_for_work",
+                          "training",
+                          "caring",
+                          "other"
+                        ]
+                      }
+                    },
+                    "studyLevel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "school",
+                            "college",
+                            "undergraduate",
+                            "postgraduate",
+                            "apprenticeship",
+                            "other"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "jobField": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 60
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "carries": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 48
+                      }
+                    },
+                    "lifeNow": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "losing_someone",
+                          "big_change",
+                          "money",
+                          "work_study_pressure",
+                          "between",
+                          "caring",
+                          "alone",
+                          "stuck",
+                          "treated_unfairly",
+                          "prefer_not"
+                        ]
+                      }
+                    },
+                    "returnToWork": {
+                      "type": "boolean"
+                    },
+                    "promptDue": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pronouns",
+                    "weekFills",
+                    "studyLevel",
+                    "jobField",
+                    "carries",
+                    "lifeNow",
+                    "returnToWork",
+                    "promptDue"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "pronouns": "Example pronouns",
+                  "weekFills": [
+                    "studying"
+                  ],
+                  "studyLevel": "school",
+                  "jobField": "Example jobField",
+                  "carries": [
+                    "Example carries"
+                  ],
+                  "lifeNow": [
+                    "losing_someone"
+                  ],
+                  "returnToWork": true,
+                  "promptDue": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      },
+      "patch": {
+        "operationId": "Users_updateProfile",
+        "summary": "Change the optional profile or Life right now; never changes the colour (LE-0)",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pronouns": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 30
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "weekFills": {
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "studying",
+                        "working",
+                        "looking_for_work",
+                        "training",
+                        "caring",
+                        "other"
+                      ]
+                    }
+                  },
+                  "studyLevel": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "school",
+                          "college",
+                          "undergraduate",
+                          "postgraduate",
+                          "apprenticeship",
+                          "other"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "jobField": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 60
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "carries": {
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 48
+                    }
+                  },
+                  "lifeNow": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "losing_someone",
+                        "big_change",
+                        "money",
+                        "work_study_pressure",
+                        "between",
+                        "caring",
+                        "alone",
+                        "stuck",
+                        "treated_unfairly",
+                        "prefer_not"
+                      ]
+                    }
+                  },
+                  "returnToWork": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "pronouns": "Example pronouns",
+                "weekFills": [
+                  "studying"
+                ],
+                "studyLevel": "school",
+                "jobField": "Example jobField",
+                "carries": [
+                  "Example carries"
+                ],
+                "lifeNow": [
+                  "losing_someone"
+                ],
+                "returnToWork": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pronouns": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weekFills": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "studying",
+                          "working",
+                          "looking_for_work",
+                          "training",
+                          "caring",
+                          "other"
+                        ]
+                      }
+                    },
+                    "studyLevel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "school",
+                            "college",
+                            "undergraduate",
+                            "postgraduate",
+                            "apprenticeship",
+                            "other"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "jobField": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 60
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "carries": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 48
+                      }
+                    },
+                    "lifeNow": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "losing_someone",
+                          "big_change",
+                          "money",
+                          "work_study_pressure",
+                          "between",
+                          "caring",
+                          "alone",
+                          "stuck",
+                          "treated_unfairly",
+                          "prefer_not"
+                        ]
+                      }
+                    },
+                    "returnToWork": {
+                      "type": "boolean"
+                    },
+                    "promptDue": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pronouns",
+                    "weekFills",
+                    "studyLevel",
+                    "jobField",
+                    "carries",
+                    "lifeNow",
+                    "returnToWork",
+                    "promptDue"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "pronouns": "Example pronouns",
+                  "weekFills": [
+                    "studying"
+                  ],
+                  "studyLevel": "school",
+                  "jobField": "Example jobField",
+                  "carries": [
+                    "Example carries"
+                  ],
+                  "lifeNow": [
+                    "losing_someone"
+                  ],
+                  "returnToWork": true,
+                  "promptDue": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/me/profile/prompt-dismissed": {
+      "post": {
+        "operationId": "Users_dismissPrompt",
+        "summary": "\"Make FigCit more yours\" was dismissed: back in 7 days, 3 times at most (ME-1)",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pronouns": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weekFills": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "studying",
+                          "working",
+                          "looking_for_work",
+                          "training",
+                          "caring",
+                          "other"
+                        ]
+                      }
+                    },
+                    "studyLevel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "school",
+                            "college",
+                            "undergraduate",
+                            "postgraduate",
+                            "apprenticeship",
+                            "other"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "jobField": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 60
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "carries": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 48
+                      }
+                    },
+                    "lifeNow": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "losing_someone",
+                          "big_change",
+                          "money",
+                          "work_study_pressure",
+                          "between",
+                          "caring",
+                          "alone",
+                          "stuck",
+                          "treated_unfairly",
+                          "prefer_not"
+                        ]
+                      }
+                    },
+                    "returnToWork": {
+                      "type": "boolean"
+                    },
+                    "promptDue": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pronouns",
+                    "weekFills",
+                    "studyLevel",
+                    "jobField",
+                    "carries",
+                    "lifeNow",
+                    "returnToWork",
+                    "promptDue"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "pronouns": "Example pronouns",
+                  "weekFills": [
+                    "studying"
+                  ],
+                  "studyLevel": "school",
+                  "jobField": "Example jobField",
+                  "carries": [
+                    "Example carries"
+                  ],
+                  "lifeNow": [
+                    "losing_someone"
+                  ],
+                  "returnToWork": true,
+                  "promptDue": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
     "/v1/me/support-plan": {
       "get": {
         "operationId": "Safety_plan",
