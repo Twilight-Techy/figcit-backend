@@ -47,13 +47,20 @@ const envSchema = z.object({
   S3_SECRET_KEY: z.string().optional(),
   STORAGE_DIR: z.string().default('var/storage'),
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
-  // AI and speech (self-hosted; optional: every call has a fallback)
+  // AI and speech (optional: every call has a fallback). `llama`: our own llama-server
+  // (ADR 0009); `openai`: any hosted OpenAI-style API, e.g. Groq at https://api.groq.com/openai.
+  AI_PROVIDER: z.enum(['llama', 'openai']).default('llama'),
   AI_BASE_URL: z.url().optional(),
   AI_MODEL: z.string().default('ministral-3-3b-instruct-q4_k_m'),
   AI_TOKEN: z.string().optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(100).default(8000),
   ASSIST_DAILY_ALLOWANCE: z.coerce.number().int().min(0).default(10),
   WHISPER_URL: z.url().optional(),
+  // `whisper`: our own whisper-server; `openai`: an OpenAI-style /v1/audio/transcriptions at
+  // WHISPER_URL, with SPEECH_MODEL and SPEECH_TOKEN (AI_TOKEN when not set).
+  SPEECH_PROVIDER: z.enum(['whisper', 'openai']).default('whisper'),
+  SPEECH_MODEL: z.string().default('whisper-large-v3-turbo'),
+  SPEECH_TOKEN: z.string().optional(),
   // Push
   VAPID_PRIVATE_KEY: z.string().optional(),
   VAPID_PUBLIC_KEY: z.string().optional(),

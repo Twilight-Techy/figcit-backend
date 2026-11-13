@@ -75,6 +75,37 @@ export class SpeechService {
     };
   }
 
+  /**
+   * Our own whisper-server takes `/inference`; a hosted OpenAI-style API (Groq, …) takes
+   * `/v1/audio/transcriptions` with a model and a token. Both answer `{ text }`.
+   */
+  private send(url: string, audio: Uint8Array, type: string): Promise<Response> {
+    const base = url.replace(/\/$/, '');
+    const hosted = this.env.SPEECH_PROVIDER === 'openai';
+    const form = new FormData();
+    // A file name with an extension: hosted APIs read the format from it.
+    const ext = type.includes('webm')
+      ? 'webm'
+      : type.includes('mp4')
+        ? 'm4a'
+        : type.includes('ogg')
+          ? 'ogg'
+          : 'wav';
+    form.append('file', new Blob([new Uint8Array(audio)], { type }), `audio.${ext}`);
+    form.append('response_format', 'json');
+    if (hosted) {
+      form.append('model', this.env.SPEECH_MODEL);
+      form.append('language', 'en');
+    }
+    const token = this.env.SPEECH_TOKEN ?? this.env.AI_TOKEN;
+    return fetch(hosted ? `${base}/v1/audio/transcriptions` : `${base}/inference`, {
+      method: 'POST',
+      body: form,
+      ...(hosted && token ? { headers: { authorization: `Bearer ${token}` } } : {}),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  }
+
   /** Worker handler (`speech.transcribe`). */
   async transcribe(id: string): Promise<void> {
     const t = await this.prisma.transcription.findUnique({
@@ -85,14 +116,7 @@ export class SpeechService {
     await this.prisma.transcription.update({ where: { id }, data: { status: 'processing' } });
     try {
       const audio = await this.storage.get(t.file.storageKey);
-      const form = new FormData();
-      form.append('file', new Blob([new Uint8Array(audio)], { type: t.file.contentType }), 'audio');
-      form.append('response_format', 'json');
-      const res = await fetch(`${this.env.WHISPER_URL.replace(/\/$/, '')}/inference`, {
-        method: 'POST',
-        body: form,
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-      });
+      const res = await this.send(this.env.WHISPER_URL, audio, t.file.contentType);
       if (!res.ok) throw new Error(`whisper ${String(res.status)}`);
       const text = ((await res.json()) as { text?: string }).text?.trim() ?? '';
       const c = await this.crypto.forUser(t.userId);
