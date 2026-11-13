@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Put } from '@nestjs/common';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import {
   ageConfirmationSchema,
+  detailsResultSchema,
+  detailsSchema,
   mePatchSchema,
   meSchema,
   preferencesPatchSchema,
@@ -54,6 +56,21 @@ export class UsersController {
     @Body(new ZodPipe(preferencesPatchSchema)) body: z.infer<typeof preferencesPatchSchema>,
   ): Promise<PreferencesDto> {
     return this.users.updatePreferences(user.id, body);
+  }
+
+  @Post('details')
+  @HttpCode(200)
+  @Route({
+    summary: 'Your details at sign-up: name, age band, country or nation, Terms (S04a, age rule)',
+    tags: ['Users'],
+    body: detailsSchema,
+    response: detailsResultSchema,
+  })
+  saveDetails(
+    @CurrentUser() user: RequestUser,
+    @Body(new ZodPipe(detailsSchema)) body: z.infer<typeof detailsSchema>,
+  ): Promise<z.infer<typeof detailsResultSchema>> {
+    return this.users.saveDetails(user.id, body);
   }
 
   @Post('age-confirmation')

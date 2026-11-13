@@ -32,6 +32,14 @@ export function sender(from: string): { name?: string; email: string } {
  * through nodemailer. With neither, mail goes to a dev mailbox (bounded, in memory) that local
  * tools and e2e tests read through `GET /v1/dev/mailbox`.
  */
+/** Nodemailer reads options from the URL's query: a blocked port fails in seconds, not minutes. */
+export function withTimeouts(url: string): string {
+  const u = new URL(url);
+  for (const k of ['connectionTimeout', 'greetingTimeout', 'socketTimeout'])
+    if (!u.searchParams.has(k)) u.searchParams.set(k, String(SEND_TIMEOUT_MS));
+  return u.toString();
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger('Mail');
@@ -41,11 +49,7 @@ export class MailService {
   constructor(@Inject(ENV) private readonly env: Env) {
     this.transport =
       env.SMTP_URL && !env.BREVO_API_KEY
-        ? nodemailer.createTransport(env.SMTP_URL, {
-            connectionTimeout: SEND_TIMEOUT_MS,
-            greetingTimeout: SEND_TIMEOUT_MS,
-            socketTimeout: SEND_TIMEOUT_MS,
-          })
+        ? nodemailer.createTransport(withTimeouts(env.SMTP_URL))
         : undefined;
   }
 

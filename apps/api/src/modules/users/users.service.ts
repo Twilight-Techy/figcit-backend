@@ -3,7 +3,10 @@ import type { Prisma } from '@prisma/client';
 import { Forbidden, NotFound } from '../../common/errors/errors.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
 import type { z } from 'zod';
+import { PrivacyService } from '../privacy/privacy.service.js';
 import type {
+  detailsResultSchema,
+  detailsSchema,
   MeDto,
   mePatchSchema,
   PreferencesDto,
@@ -63,6 +66,7 @@ export class UsersService {
   constructor(
     private readonly repo: UsersRepository,
     private readonly entitlements: EntitlementsService,
+    private readonly privacy: PrivacyService,
   ) {}
 
   async me(userId: string): Promise<MeDto> {
@@ -83,6 +87,9 @@ export class UsersService {
       helpWith: row.helpWith,
       journeySeen: row.journeySeenAt !== null,
       setupDone: row.setupDoneAt !== null,
+      detailsDone:
+        row.nickname !== null && row.ageConfirmedAt !== null && row.termsAcceptedAt !== null,
+      productUpdates: row.productUpdates,
       hasPassword: row.passwordHash !== null,
       plan,
       tenant: row.tenant,
@@ -103,6 +110,41 @@ export class UsersService {
     };
     await this.repo.update(userId, data);
     return this.me(userId);
+  }
+
+  /**
+   * Your details (S04a) and the age rule. Only the band is stored, never a date of birth (SU-4).
+   * Under 16 the account just made is erased at once: nothing about a child is kept.
+   */
+  async saveDetails(
+    userId: string,
+    d: z.infer<typeof detailsSchema>,
+  ): Promise<z.infer<typeof detailsResultSchema>> {
+    if (d.ageBand === 'under_16') {
+      await this.privacy.eraseNow(userId);
+      return { outcome: 'not_available', me: null };
+    }
+    const current = await this.repo.findMe(userId);
+    if (!current) throw new NotFound('user');
+    const viaInstitution = d.ageBand === '16_17';
+    const covered = viaInstitution && (await this.repo.inInstitution(userId));
+    // An institution-covered account stays one; only the institution can change that.
+    const keepBand = current.ageBand === 'minor_institution';
+    await this.repo.update(userId, {
+      nickname: d.nickname,
+      region: d.region,
+      termsAcceptedAt: current.termsAcceptedAt ?? new Date(),
+      productUpdates: d.productUpdates,
+      ...(keepBand
+        ? {}
+        : !viaInstitution
+          ? { ageConfirmedAt: new Date(), ageBand: 'adult' as const }
+          : covered
+            ? { ageConfirmedAt: new Date(), ageBand: 'minor_institution' as const }
+            : { ageConfirmedAt: null, ageBand: null }),
+    });
+    const me = await this.me(userId);
+    return { outcome: me.ageConfirmed ? 'ok' : 'needs_institution', me };
   }
 
   async confirmAge(userId: string, viaInstitution = false): Promise<MeDto> {

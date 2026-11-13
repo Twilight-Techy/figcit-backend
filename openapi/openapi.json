@@ -15912,6 +15912,12 @@
                     "setupDone": {
                       "type": "boolean"
                     },
+                    "detailsDone": {
+                      "type": "boolean"
+                    },
+                    "productUpdates": {
+                      "type": "boolean"
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -16102,6 +16108,8 @@
                     "helpWith",
                     "journeySeen",
                     "setupDone",
+                    "detailsDone",
+                    "productUpdates",
                     "hasPassword",
                     "plan",
                     "tenant",
@@ -16128,6 +16136,8 @@
                   ],
                   "journeySeen": true,
                   "setupDone": true,
+                  "detailsDone": true,
+                  "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
                   "tenant": {
@@ -16193,15 +16203,9 @@
                 "type": "object",
                 "properties": {
                   "nickname": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 40
-                      },
-                      {
-                        "type": "null"
-                      }
+                    "type": [
+                      "string",
+                      "null"
                     ]
                   },
                   "locale": {
@@ -16210,7 +16214,7 @@
                   },
                   "region": {
                     "type": "string",
-                    "maxLength": 8
+                    "pattern": "^(GB-(ENG|WLS|SCT|NIR)|GB|[A-Z]{2})$"
                   },
                   "timezone": {
                     "type": "string",
@@ -16236,7 +16240,7 @@
               "example": {
                 "nickname": "Example nickname",
                 "locale": "Example locale",
-                "region": "Example ",
+                "region": "GB-ENG",
                 "timezone": "Example timezone",
                 "helpWith": [
                   "Example helpWith"
@@ -16319,6 +16323,12 @@
                     "setupDone": {
                       "type": "boolean"
                     },
+                    "detailsDone": {
+                      "type": "boolean"
+                    },
+                    "productUpdates": {
+                      "type": "boolean"
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -16509,6 +16519,8 @@
                     "helpWith",
                     "journeySeen",
                     "setupDone",
+                    "detailsDone",
+                    "productUpdates",
                     "hasPassword",
                     "plan",
                     "tenant",
@@ -16535,6 +16547,8 @@
                   ],
                   "journeySeen": true,
                   "setupDone": true,
+                  "detailsDone": true,
+                  "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
                   "tenant": {
@@ -16778,6 +16792,12 @@
                     "setupDone": {
                       "type": "boolean"
                     },
+                    "detailsDone": {
+                      "type": "boolean"
+                    },
+                    "productUpdates": {
+                      "type": "boolean"
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -16968,6 +16988,8 @@
                     "helpWith",
                     "journeySeen",
                     "setupDone",
+                    "detailsDone",
+                    "productUpdates",
                     "hasPassword",
                     "plan",
                     "tenant",
@@ -16994,6 +17016,8 @@
                   ],
                   "journeySeen": true,
                   "setupDone": true,
+                  "detailsDone": true,
+                  "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
                   "tenant": {
@@ -17275,6 +17299,440 @@
                       "at": "2026-01-15T09:30:00.000Z"
                     }
                   ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/me/details": {
+      "post": {
+        "operationId": "Users_saveDetails",
+        "summary": "Your details at sign-up: name, age band, country or nation, Terms (S04a, age rule)",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string"
+                  },
+                  "ageBand": {
+                    "type": "string",
+                    "enum": [
+                      "18_plus",
+                      "16_17",
+                      "under_16"
+                    ]
+                  },
+                  "region": {
+                    "type": "string",
+                    "pattern": "^(GB-(ENG|WLS|SCT|NIR)|GB|[A-Z]{2})$"
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "productUpdates": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "nickname",
+                  "ageBand",
+                  "region",
+                  "acceptTerms"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "nickname": "Example nickname",
+                "ageBand": "18_plus",
+                "region": "GB-ENG",
+                "acceptTerms": true,
+                "productUpdates": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "outcome": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "needs_institution",
+                        "not_available"
+                      ]
+                    },
+                    "me": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "email": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "emailVerified": {
+                              "type": "boolean"
+                            },
+                            "nickname": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "roles": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "ageConfirmed": {
+                              "type": "boolean"
+                            },
+                            "ageBand": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "adult",
+                                    "minor_institution"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "locale": {
+                              "type": "string"
+                            },
+                            "region": {
+                              "type": "string"
+                            },
+                            "timezone": {
+                              "type": "string"
+                            },
+                            "helpWith": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "journeySeen": {
+                              "type": "boolean"
+                            },
+                            "setupDone": {
+                              "type": "boolean"
+                            },
+                            "detailsDone": {
+                              "type": "boolean"
+                            },
+                            "productUpdates": {
+                              "type": "boolean"
+                            },
+                            "hasPassword": {
+                              "type": "boolean"
+                            },
+                            "plan": {
+                              "type": "string",
+                              "enum": [
+                                "free",
+                                "plus"
+                              ]
+                            },
+                            "tenant": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "preferences": {
+                              "type": "object",
+                              "properties": {
+                                "textSize": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 3
+                                },
+                                "theme": {
+                                  "type": "string",
+                                  "enum": [
+                                    "fig_citrus",
+                                    "quiet_pear",
+                                    "midnight_bergamot",
+                                    "blood_orange_hush",
+                                    "cool_melon",
+                                    "blue_citron"
+                                  ]
+                                },
+                                "followSystemTheme": {
+                                  "type": "boolean"
+                                },
+                                "highContrast": {
+                                  "type": "boolean"
+                                },
+                                "reduceMotion": {
+                                  "type": "boolean"
+                                },
+                                "sound": {
+                                  "type": "boolean"
+                                },
+                                "haptics": {
+                                  "type": "boolean"
+                                },
+                                "dyslexicFont": {
+                                  "type": "boolean"
+                                },
+                                "lowStimulation": {
+                                  "type": "boolean"
+                                },
+                                "notificationStyle": {
+                                  "type": "string",
+                                  "enum": [
+                                    "gentle",
+                                    "standard",
+                                    "silent"
+                                  ]
+                                },
+                                "quietHoursStart": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 1439
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "quietHoursEnd": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 1439
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "inWorship": {
+                                  "type": "boolean"
+                                },
+                                "inWorshipUntil": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "taskNudgesPerDay": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 10
+                                },
+                                "notifyCategories": {
+                                  "maxItems": 5,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "checkin",
+                                      "tasks",
+                                      "practices",
+                                      "recheck",
+                                      "reflect"
+                                    ]
+                                  }
+                                },
+                                "patternPrompts": {
+                                  "type": "boolean"
+                                },
+                                "personalisation": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "textSize",
+                                "theme",
+                                "followSystemTheme",
+                                "highContrast",
+                                "reduceMotion",
+                                "sound",
+                                "haptics",
+                                "dyslexicFont",
+                                "lowStimulation",
+                                "notificationStyle",
+                                "quietHoursStart",
+                                "quietHoursEnd",
+                                "inWorship",
+                                "inWorshipUntil",
+                                "taskNudgesPerDay",
+                                "notifyCategories",
+                                "patternPrompts",
+                                "personalisation"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "email",
+                            "emailVerified",
+                            "nickname",
+                            "roles",
+                            "ageConfirmed",
+                            "ageBand",
+                            "locale",
+                            "region",
+                            "timezone",
+                            "helpWith",
+                            "journeySeen",
+                            "setupDone",
+                            "detailsDone",
+                            "productUpdates",
+                            "hasPassword",
+                            "plan",
+                            "tenant",
+                            "createdAt",
+                            "preferences"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "outcome",
+                    "me"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "outcome": "ok",
+                  "me": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "email": "Example email",
+                    "emailVerified": true,
+                    "nickname": "Example nickname",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "ageConfirmed": true,
+                    "ageBand": "adult",
+                    "locale": "Example locale",
+                    "region": "Example region",
+                    "timezone": "Example timezone",
+                    "helpWith": [
+                      "Example helpWith"
+                    ],
+                    "journeySeen": true,
+                    "setupDone": true,
+                    "detailsDone": true,
+                    "productUpdates": true,
+                    "hasPassword": true,
+                    "plan": "free",
+                    "tenant": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "Example name"
+                    },
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "preferences": {
+                      "textSize": 0,
+                      "theme": "fig_citrus",
+                      "followSystemTheme": true,
+                      "highContrast": true,
+                      "reduceMotion": true,
+                      "sound": true,
+                      "haptics": true,
+                      "dyslexicFont": true,
+                      "lowStimulation": true,
+                      "notificationStyle": "gentle",
+                      "quietHoursStart": 0,
+                      "quietHoursEnd": 0,
+                      "inWorship": true,
+                      "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                      "taskNudgesPerDay": 0,
+                      "notifyCategories": [
+                        "checkin"
+                      ],
+                      "patternPrompts": true,
+                      "personalisation": true
+                    }
+                  }
                 }
               }
             }

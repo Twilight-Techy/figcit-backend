@@ -5,6 +5,7 @@ import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { NotConfigured, Unauthorized } from '../../common/errors/errors.js';
 import { UsersRepository } from '../users/users.repository.js';
+import { graphemes } from '../../common/text/graphemes.js';
 
 export interface GoogleStart {
   readonly url: string;
@@ -50,7 +51,7 @@ export class GoogleService {
     const state = oidc.randomState();
     const url = oidc.buildAuthorizationUrl(config, {
       redirect_uri: this.redirectUri,
-      scope: 'openid email',
+      scope: 'openid email profile',
       code_challenge: await oidc.calculatePKCECodeChallenge(verifier),
       code_challenge_method: 'S256',
       state,
@@ -89,6 +90,8 @@ export class GoogleService {
           email,
           dataKeyEnc: this.crypto.newWrappedKey(),
           emailVerified: email !== null,
+          // SU-6: Google's first name to start with; the user can change it on Your details.
+          nickname: firstName(claims['given_name']),
         })
       ).id;
     await this.prisma.authIdentity.create({
@@ -96,4 +99,11 @@ export class GoogleService {
     });
     return { userId, isNew: !existing };
   }
+}
+
+/** Google's first name as a starting nickname (SU-6): trimmed to the 30 characters a name allows. */
+export function firstName(given: unknown): string | null {
+  if (typeof given !== 'string') return null;
+  const name = graphemes(given.trim()).slice(0, 30).join('');
+  return name.length ? name : null;
 }

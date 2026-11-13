@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { graphemes } from '../../common/text/graphemes.js';
 
 export const THEMES = [
   'fig_citrus',
@@ -8,6 +9,18 @@ export const THEMES = [
   'cool_melon',
   'blue_citron',
 ] as const;
+
+/** A UK nation (sets the Help/SOS lines, SU-5), or a two-letter country code outside the UK. */
+export const REGION_RE = /^(GB-(ENG|WLS|SCT|NIR)|GB|[A-Z]{2})$/;
+
+/** A name or nickname in any script (SU-6): 1–30 characters, counted as the user sees them. */
+const nameSchema = z
+  .string()
+  .trim()
+  .refine((v) => {
+    const n = graphemes(v).length;
+    return n >= 1 && n <= 30;
+  }, 'Use 1 to 30 characters.');
 
 export const preferencesSchema = z.object({
   textSize: z.number().int().min(0).max(3),
@@ -51,6 +64,9 @@ export const meSchema = z.object({
   helpWith: z.array(z.string()),
   journeySeen: z.boolean(),
   setupDone: z.boolean(),
+  /** Your details (S04a) are done: a name, the age rule passed, and Terms and Privacy accepted. */
+  detailsDone: z.boolean(),
+  productUpdates: z.boolean(),
   hasPassword: z.boolean(),
   plan: z.enum(['free', 'plus']),
   tenant: z.object({ id: z.uuid(), name: z.string() }).nullable(),
@@ -61,9 +77,9 @@ export type MeDto = z.infer<typeof meSchema>;
 
 export const mePatchSchema = z
   .object({
-    nickname: z.string().trim().min(1).max(40).nullable(),
+    nickname: nameSchema.nullable(),
     locale: z.string().max(16),
-    region: z.string().max(8),
+    region: z.string().regex(REGION_RE),
     timezone: z.string().max(64),
     helpWith: z.array(z.string().max(48)).max(12),
     journeySeen: z.boolean(),
@@ -71,6 +87,27 @@ export const mePatchSchema = z
   })
   .partial()
   .strict();
+
+/** Your details (S04a): the four sign-up answers besides the email (SU-4, SU-5, SU-6, SU-8). */
+export const detailsSchema = z
+  .object({
+    nickname: nameSchema,
+    ageBand: z.enum(['18_plus', '16_17', 'under_16']),
+    region: z.string().regex(REGION_RE),
+    acceptTerms: z.literal(true),
+    productUpdates: z.boolean().default(false),
+  })
+  .strict();
+
+/**
+ * What the age rule decided (one rule for the whole UK): `ok` carries on; `needs_institution`
+ * (16 or 17, not in a college or university yet) joins with an institution code first;
+ * `not_available` (under 16) has had its account erased.
+ */
+export const detailsResultSchema = z.object({
+  outcome: z.enum(['ok', 'needs_institution', 'not_available']),
+  me: meSchema.nullable(),
+});
 
 /** D-02: 18+ confirm themselves; 16–17 only as a member of an institution (joined by code). */
 export const ageConfirmationSchema = z.union([

@@ -27,6 +27,7 @@ const PATTERN_CANDIDATES = [
   '2026-01',
   '+44 20 7946 0000',
   'FREQ=DAILY',
+  'GB-ENG',
   'abc',
   'a',
   '1',

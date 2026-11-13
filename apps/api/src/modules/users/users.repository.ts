@@ -16,6 +16,8 @@ const ME_SELECT = {
   helpWith: true,
   journeySeenAt: true,
   setupDoneAt: true,
+  termsAcceptedAt: true,
+  productUpdates: true,
   passwordHash: true,
   createdAt: true,
   status: true,
@@ -69,6 +71,7 @@ export class UsersRepository {
       dataKeyEnc: Uint8Array<ArrayBuffer>;
       emailVerified: boolean;
       passwordHash?: string;
+      nickname?: string | null;
     },
     tx?: Tx,
   ): Promise<{ id: string }> {
@@ -79,6 +82,7 @@ export class UsersRepository {
         dataKeyEnc: data.dataKeyEnc,
         emailVerifiedAt: data.emailVerified ? new Date() : null,
         ...(data.passwordHash ? { passwordHash: data.passwordHash } : {}),
+        ...(data.nickname ? { nickname: data.nickname } : {}),
         // Quiet hours 21:00–08:00 by default (D-27).
         preferences: { create: { quietHoursStart: 21 * 60, quietHoursEnd: 8 * 60 } },
         entitlements: { create: { planCode: 'free', source: 'none' } },
