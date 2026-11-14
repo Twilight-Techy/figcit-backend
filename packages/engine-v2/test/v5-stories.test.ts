@@ -1,8 +1,17 @@
 // Tab 20's 201 realistic stories, end to end: from what the person entered (state, emotions with
 // their sliders, body, senses, place, devices, tasks with chips) to the card the workbook gives.
 import { describe, expect, it } from 'vitest';
-import { run, type Card, type CardItem, type EngineInput } from '../src/index.js';
-import { catalogue, codeOf, examples, ruleset } from './support/v5.js';
+import {
+  cardWordsV5,
+  copyOf,
+  run,
+  type Card,
+  type CardItem,
+  type EngineInput,
+} from '../src/index.js';
+import { catalogue, codeOf, examples, imported, ruleset } from './support/v5.js';
+
+const copy = copyOf(imported.records);
 
 const OPENS: Readonly<Record<string, string>> = {
   Breathe: 'reg_breathe',
@@ -206,7 +215,9 @@ describe("Rules Engine v5.0: Tab 20's stories", () => {
     const { input, tasks } = inputOf(row);
     const r = run(ruleset, input);
     if (!r.ok) throw new Error(`${row['ID'] ?? ''}: ${JSON.stringify(r.issues)}`);
-    return { row, card: r.card, tasks, top: ordered(r.card, tasks)[0] };
+    const sorted = ordered(r.card, tasks);
+    const words = cardWordsV5(r.card, input, { copy, catalogue, tasks: sorted });
+    return { row, card: r.card, tasks, top: sorted[0], words };
   });
   const differ = (
     want: (r: Record<string, string>) => string,
@@ -316,6 +327,42 @@ describe("Rules Engine v5.0: Tab 20's stories", () => {
           !/^Order:/.test(x.row['Task order / card line'] ?? '')
             ? (/^Order: ([^.]*)\./.exec(x.row['Task order / card line'] ?? '')?.[1] ?? '-')
             : orderLine(x.card, x.tasks),
+      ),
+    );
+  });
+
+  it('gives the headline (Tab 11)', () => {
+    check(
+      differ(
+        (r) => r['Headline'] ?? '',
+        (x) => x.words.headline,
+      ),
+    );
+  });
+
+  it('gives the reason (RT-4)', () => {
+    check(
+      differ(
+        // Tab 20's "It's smells" is corrected (V5.md).
+        (r) => (r['Reason shown'] ?? '').replace("It's smells", 'Smells are bothering you'),
+        (x) => x.words.reason,
+      ),
+    );
+  });
+
+  it('says how the tasks were sorted (TK-2, TK-3)', () => {
+    check(
+      differ(
+        (r) => {
+          const line = r['Task order / card line'] ?? '';
+          const said = /Card says: '(.*?)'(?: (.*))?$/.exec(line);
+          // With nothing in the first group, Tab 20 has "We've put  first today."; the card says nothing.
+          const parts = said
+            ? [said[1] === "We've put  first today." ? '' : (said[1] ?? ''), said[2] ?? '']
+            : [line === '—' ? '' : line];
+          return parts.filter(Boolean).join(' ') || '-';
+        },
+        (x) => x.words.taskLine ?? '-',
       ),
     );
   });

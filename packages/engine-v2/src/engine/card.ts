@@ -127,14 +127,36 @@ export class CardBuilder {
   }
 
   /** v5.0's pattern and no-task suggestion, when rules set them. */
-  private v5Frame(): Pick<Card, 'pattern' | 'suggestion' | 'taskOrder'> {
+  private v5Frame(): Pick<Card, 'pattern' | 'suggestion' | 'taskOrder' | 'lowered' | 'feeling'> {
     const pattern = CardBuilder.best(this.m.patterns)?.pattern;
     const suggestion = CardBuilder.best(this.m.suggestions)?.copy;
     const order = CardBuilder.best(this.m.taskOrders);
+    // Only v5.0 rule sets set a pattern, so older cards replay unchanged.
+    const lowered =
+      pattern !== undefined &&
+      this.state.bandOrder(this.state.fact('band.final')) <
+        this.state.bandOrder(this.state.fact('band.baseline'));
     return {
       ...(pattern === undefined ? {} : { pattern }),
+      ...(lowered ? { lowered: true as const } : {}),
+      ...(pattern === undefined ? {} : this.deciding()),
       ...(suggestion === undefined ? {} : { suggestion }),
       ...(order ? { taskOrder: { first: order.first, later: order.later } } : {}),
+    };
+  }
+
+  /** v5.0 FE-3: the deciding emotion, for the card's reason (RT-4). */
+  private deciding(): Pick<Card, 'feeling'> {
+    const code = this.state.fact('feeling.deciding');
+    if (typeof code !== 'string') return {};
+    const level = this.state.fact('feeling.deciding_level');
+    const group = this.state.fact('feeling.deciding_group');
+    return {
+      feeling: {
+        code,
+        level: typeof level === 'number' ? level : null,
+        group: typeof group === 'string' ? group : null,
+      },
     };
   }
 

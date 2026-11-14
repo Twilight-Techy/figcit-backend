@@ -100,6 +100,14 @@ export interface Card {
   readonly taskOrder?: { readonly first: readonly string[]; readonly later: readonly string[] };
   /** v5.0 TK-4: with no task, the wording key of the task that fits right now (Tab 10). */
   readonly suggestion?: string;
+  /** v5.0: the colour is lower than the state's own (FE-1, FE-2, BS-1, SF-4); the reason says so. */
+  readonly lowered?: true;
+  /** v5.0 FE-3: the deciding emotion, its slider and its group. */
+  readonly feeling?: {
+    readonly code: string;
+    readonly level: number | null;
+    readonly group: string | null;
+  };
   /** No-words mode (v5.0 FE-2, BS-3): tap-only tools, eyes open; absent when off. */
   readonly noWords?: true;
   /** The input the primary's rule matched on: "Because you said X". */

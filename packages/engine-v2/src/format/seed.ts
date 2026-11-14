@@ -4,6 +4,7 @@ import { CATALOGUE_HEADER, cellText, type CatalogueColumn } from './catalogue.js
 import { COPY_FILE, COPY_HEADER, copySeedRows } from './copy.js';
 import { INPUT_SEED } from './input-seed.js';
 import { isV5, v5SeedRows } from './seed-v5.js';
+import { v5CopyRows } from './copy-v5.js';
 import { SUPPORT_SEED, TOOL_SEED } from './tool-seed.js';
 import { INPUT_MAPPINGS_HEADER } from './inputs.js';
 import type { Domain } from './registry.js';
@@ -435,7 +436,7 @@ export function withAdditions(read: ReadResult): {
     }
   }
   let inputs = 0;
-  // The check-in options and the card's wording are v3.3's until v5.0's are written (V5.md).
+  // The check-in options are v3.3's until v5.0's are written (V5.md); v5.0 has its own wording.
   const v5 = isV5(read.records);
   if (!inputMappingsGiven && !v5) {
     frames[INPUT_MAPPINGS_FILE] = [frameOf(INPUT_MAPPINGS_HEADER)];
@@ -447,9 +448,9 @@ export function withAdditions(read: ReadResult): {
   }
   let copy = 0;
   const copyGiven = COPY_FILE in read.frames;
-  if (!copyGiven && !v5) {
+  if (!copyGiven) {
     frames[COPY_FILE] = [frameOf(COPY_HEADER)];
-    for (const row of copySeedRows()) {
+    for (const row of copySeedRows(v5 ? v5CopyRows(read.records, slug) : undefined)) {
       order += 1;
       copy += 1;
       records.push({ ...row, order });
