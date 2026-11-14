@@ -57,7 +57,7 @@ afterAll(async () => {
 });
 
 describe('staff accounts', () => {
-  it('invites a new person, who signs in to the staff app and must set up two-step sign-in', async () => {
+  it('invites a new person, who signs in to the staff app with no two-step sign-in', async () => {
     const email = `invite-${randomUUID().slice(0, 8)}@example.com`;
     const res = await api.req<{ id: string; roles: string[]; existing: boolean; mfa: boolean }>(
       'POST',
@@ -72,11 +72,9 @@ describe('staff accounts', () => {
       `/dev/mailbox?to=${encodeURIComponent(email)}`,
     );
     expect(mail.body.mail.some((m) => m.text.includes(`${STAFF_APP}/sign-in/`))).toBe(true);
-    // Signed in but no two-step yet: no staff route.
+    // Staff sign in like anyone else: the two-step sign-in was removed (owner, 14 Nov 2026).
     const plain = await api.signIn(email);
-    expect((await api.req('GET', '/admin/metrics', { token: plain.token })).status).toBe(403);
-    const token = await signInAsStaff(email);
-    expect((await api.req('GET', '/admin/metrics', { token })).status).toBe(200);
+    expect((await api.req('GET', '/admin/metrics', { token: plain.token })).status).toBe(200);
     const again = await api.req('POST', '/admin/staff', {
       token: admin.token,
       body: { email, roles: ['admin'], reason: 'twice' },
@@ -192,18 +190,15 @@ describe('staff accounts', () => {
     expect(ownerRole?.actorRole).toBe('owner');
   });
 
-  it('hands ownership to an active admin with two-step sign-in, and back', async () => {
+  it('hands ownership to an active admin, and back', async () => {
     const next = await api.staff(['admin']);
     const fresh = `owner-${randomUUID().slice(0, 6)}@example.com`;
     const invited = await api.req<{ id: string }>('POST', '/admin/staff', {
       token: admin.token,
       body: { email: fresh, roles: ['admin'], reason: 'new admin' },
     });
-    const noMfa = await api.req('POST', '/admin/staff/owner', {
-      token: admin.token,
-      body: { userId: invited.body.id, reason: 'too early' },
-    });
-    expect(noMfa.status).toBe(400);
+    // An invited admin can take over at once: no two-step sign-in to set up first.
+    expect(invited.status).toBe(201);
     const res = await api.req<{ items: { id: string; owner: boolean }[] }>(
       'POST',
       '/admin/staff/owner',
