@@ -12876,6 +12876,135 @@
         "x-access": "user"
       }
     },
+    "/v1/decisions/v5/fit-summary": {
+      "get": {
+        "operationId": "Decisions_fitSummary",
+        "summary": "My fit summary (RW-5, Premium): the last 28 days of v5.0 check-ins by colour, with the kinds of task brought",
+        "tags": [
+          "Engine v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "to": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "checkIns": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "v5.0 check-ins in the period"
+                    },
+                    "lights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "light": {
+                            "type": "string"
+                          },
+                          "checkIns": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "chips": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "chip": {
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "checkIns": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "chip",
+                                "label",
+                                "checkIns"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "The kinds of task brought to these check-ins, most first"
+                          }
+                        },
+                        "required": [
+                          "light",
+                          "checkIns",
+                          "chips"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "In light order: green, yellow, blue, amber, red"
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "checkIns",
+                    "lights"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "from": "2026-01-15T09:30:00.000Z",
+                  "to": "2026-01-15T09:30:00.000Z",
+                  "checkIns": 1,
+                  "lights": [
+                    {
+                      "light": "Example light",
+                      "checkIns": 1,
+                      "chips": [
+                        {
+                          "chip": "Example chip",
+                          "label": "Example label",
+                          "checkIns": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
     "/v1/decisions/v5/preview": {
       "post": {
         "operationId": "Decisions_previewV5",

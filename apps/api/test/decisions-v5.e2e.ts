@@ -2,6 +2,7 @@
 // an admin would, then the app's Quick and Full check-ins through /v1/decisions/v5. v3.3 is
 // published again afterwards, for the files that follow.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { PrismaService } from '../src/common/db/prisma.service.js';
 import type { DecisionV5Dto, PreviewV5Dto } from '../src/modules/decisions/v5.schemas.js';
 import { bootApi, publishV2, type Api } from './helpers.js';
 
@@ -134,6 +135,37 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(res.body.card.headline).toBe('Which would you like first?');
     expect(res.body.card.alternatives.map((a) => a.label)).toEqual([
       'Start: Write the project proposal',
+    ]);
+  });
+
+  it('My fit summary is Premium: colours with the kinds of task brought (RW-5)', async () => {
+    const free = await api.req('GET', '/decisions/v5/fit-summary', { token: user });
+    expect(free.status).toBe(403);
+    const premium = await api.signIn();
+    await api.app.get(PrismaService).entitlement.create({
+      data: {
+        userId: premium.userId,
+        planCode: 'premium_monthly',
+        source: 'web',
+        status: 'active',
+      },
+    });
+    await decide(
+      { emotions: [{ code: 'calm', level: 5 }], tasks: [{ title: 'Rent', chip: 'can_t_wait' }] },
+      premium.token,
+    );
+    const res = await api.req<{
+      checkIns: number;
+      lights: { light: string; checkIns: number; chips: { chip: string; checkIns: number }[] }[];
+    }>('GET', '/decisions/v5/fit-summary', { token: premium.token });
+    expect(res.status).toBe(200);
+    expect(res.body.checkIns).toBe(1);
+    expect(res.body.lights).toEqual([
+      {
+        light: 'green',
+        checkIns: 1,
+        chips: [{ chip: 'can_t_wait', label: "Can't wait", checkIns: 1 }],
+      },
     ]);
   });
 

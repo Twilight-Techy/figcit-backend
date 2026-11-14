@@ -117,3 +117,22 @@ export const decisionV5Schema = z.object({
 export type DecisionV5Dto = z.infer<typeof decisionV5Schema>;
 export type PreviewV5Dto = z.infer<typeof previewV5Schema>;
 export type CardV5Dto = z.infer<typeof cardV5Schema>;
+
+/** RW-5: My fit summary (Premium): capacity against the kinds of task, over 2 to 4 weeks. */
+export const fitSummarySchema = z.object({
+  from: z.iso.datetime(),
+  to: z.iso.datetime(),
+  checkIns: z.number().int().describe('v5.0 check-ins in the period'),
+  lights: z
+    .array(
+      z.object({
+        light: z.string(),
+        checkIns: z.number().int(),
+        chips: z
+          .array(z.object({ chip: z.string(), label: z.string(), checkIns: z.number().int() }))
+          .describe('The kinds of task brought to these check-ins, most first'),
+      }),
+    )
+    .describe('In light order: green, yellow, blue, amber, red'),
+});
+export type FitSummaryDto = z.infer<typeof fitSummarySchema>;

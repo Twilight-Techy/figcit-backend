@@ -7,6 +7,7 @@ import { CheckInSimulatorService } from './checkin-simulator.service.js';
 import { DecisionsController, EngineToolsController } from './decisions.controller.js';
 import { DecisionsService } from './decisions.service.js';
 import { DecisionsV5Service } from './decisions-v5.service.js';
+import { FitSummaryService } from './fit-summary.service.js';
 import { EngineRuntimeService } from './engine-runtime.service.js';
 import { EngineToolsService } from './engine-tools.service.js';
 import { ExplorationsService } from './explorations.service.js';
@@ -22,6 +23,7 @@ import { ScenariosService } from './scenarios.service.js';
   providers: [
     DecisionsService,
     DecisionsV5Service,
+    FitSummaryService,
     EngineRuntimeService,
     EngineToolsService,
     ExplorationsService,
