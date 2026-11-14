@@ -37,6 +37,9 @@ export class StorageService {
         accessKey: env.S3_ACCESS_KEY ?? '',
         secretKey: env.S3_SECRET_KEY ?? '',
         region: env.S3_REGION,
+        // AWS: links on the bucket's own host, so the app's CSP can allow just this bucket.
+        // Other stores (MinIO locally, R2) keep path-style links.
+        pathStyle: !url.hostname.endsWith('.amazonaws.com'),
       });
     }
   }
