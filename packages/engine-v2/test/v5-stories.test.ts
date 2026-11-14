@@ -9,7 +9,7 @@ import {
   type CardItem,
   type EngineInput,
 } from '../src/index.js';
-import { catalogue, codeOf, examples, imported, ruleset } from './support/v5.js';
+import { catalogue, codeOf, examples, imported, ruleset, FULL } from './support/v5.js';
 
 const copy = copyOf(imported.records);
 
@@ -213,7 +213,7 @@ describe("Rules Engine v5.0: Tab 20's stories", () => {
   const rows = examples('stories');
   const results = rows.map((row) => {
     const { input, tasks } = inputOf(row);
-    const r = run(ruleset, input);
+    const r = run(ruleset, { ...FULL, ...input });
     if (!r.ok) throw new Error(`${row['ID'] ?? ''}: ${JSON.stringify(r.issues)}`);
     const sorted = ordered(r.card, tasks);
     const words = cardWordsV5(r.card, input, { copy, catalogue, tasks: sorted });

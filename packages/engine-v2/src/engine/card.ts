@@ -2,6 +2,7 @@ import { valuesOf, type Catalogue } from '../format/catalogue.js';
 import { LAYERS } from '../format/registry.js';
 import type { Target } from '../format/types.js';
 import type { Material, Origin, Proposal } from './apply.js';
+import { planOf, v5Frame } from './card-v5.js';
 import { because } from './conditions.js';
 import type { RunState } from './state.js';
 import type { Card, CardItem, ProposalFate } from './types.js';
@@ -54,6 +55,8 @@ export class CardBuilder {
   readonly fates: ProposalFate[] = [];
   readonly notes: string[] = [];
   private readonly placed: { item: CardItem; slot: string }[] = [];
+  /** v5.0 ENT-1: paid tools a free version stood in for in the primary. */
+  private readonly standIns: { tool: string; from: string }[] = [];
   private readonly toolPathway = new Map<string, string>();
   private readonly toolsByPathway = new Map<string, string[]>();
   /**
@@ -116,7 +119,7 @@ export class CardBuilder {
       practice: this.m.practice,
       because: primary.rule ? because(primary.rule.when, this.state, this.catalogue) : [],
       // Only when set, so cards made before v5.0 replay unchanged.
-      ...this.v5Frame(),
+      ...v5Frame(this.m, this.state, (list) => CardBuilder.best(list)),
       ...(this.state.noWords ? { noWords: true as const } : {}),
     };
   }
@@ -126,40 +129,6 @@ export class CardBuilder {
     return [...list].sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)[0];
   }
 
-  /** v5.0's pattern and no-task suggestion, when rules set them. */
-  private v5Frame(): Pick<Card, 'pattern' | 'suggestion' | 'taskOrder' | 'lowered' | 'feeling'> {
-    const pattern = CardBuilder.best(this.m.patterns)?.pattern;
-    const suggestion = CardBuilder.best(this.m.suggestions)?.copy;
-    const order = CardBuilder.best(this.m.taskOrders);
-    // Only v5.0 rule sets set a pattern, so older cards replay unchanged.
-    const lowered =
-      pattern !== undefined &&
-      this.state.bandOrder(this.state.fact('band.final')) <
-        this.state.bandOrder(this.state.fact('band.baseline'));
-    return {
-      ...(pattern === undefined ? {} : { pattern }),
-      ...(lowered ? { lowered: true as const } : {}),
-      ...(pattern === undefined ? {} : this.deciding()),
-      ...(suggestion === undefined ? {} : { suggestion }),
-      ...(order ? { taskOrder: { first: order.first, later: order.later } } : {}),
-    };
-  }
-
-  /** v5.0 FE-3: the deciding emotion, for the card's reason (RT-4). */
-  private deciding(): Pick<Card, 'feeling'> {
-    const code = this.state.fact('feeling.deciding');
-    if (typeof code !== 'string') return {};
-    const level = this.state.fact('feeling.deciding_level');
-    const group = this.state.fact('feeling.deciding_group');
-    return {
-      feeling: {
-        code,
-        level: typeof level === 'number' ? level : null,
-        group: typeof group === 'string' ? group : null,
-      },
-    };
-  }
-
   private supportScreen(): Card {
     this.m.proposals.forEach((p) => {
       this.fate(p, 'blocked', this.m.stop ?? undefined);
@@ -167,7 +136,7 @@ export class CardBuilder {
     const item = this.actionItem({ action: 'get_support_now' }, this.m.stop ?? '');
     return {
       kind: this.m.urgent === null ? 'support_screen' : 'urgent_screen',
-      ...this.v5Frame(),
+      ...v5Frame(this.m, this.state, (list) => CardBuilder.best(list)),
       band: null,
       light: null,
       primary: null,
@@ -231,6 +200,16 @@ export class CardBuilder {
 
   private alternatives(losers: readonly Group[]): CardItem[] {
     const out: CardItem[] = [];
+    // The paid tool a free one stood in for is offered first, labelled, where ENT-11 allows.
+    for (const { tool, from } of this.standIns) {
+      if (this.toolPlaced(tool) || !this.toolAllowed(tool, 'alternative')) continue;
+      if (out.length >= Math.min(MAX_ALTERNATIVES, ...this.m.alternativeLimits)) break;
+      const item = this.resolve({ tool }, 'alternative', from);
+      if (item) {
+        this.place(item, 'alternative');
+        out.push(item);
+      }
+    }
     for (const g of merge([...this.groups('alternative'), ...losers])) {
       if (out.length >= Math.min(MAX_ALTERNATIVES, ...this.m.alternativeLimits)) {
         this.groupFate(g, 'over_limit');
@@ -364,18 +343,36 @@ export class CardBuilder {
       : target;
   }
 
+  /**
+   * A named tool, then (in the primary) its free versions in turn: on a plan without a paid tool
+   * its free version leads (v5.0 ENT-1, T-20). Three steps at most, so a loop can't run on.
+   */
+  private withFallbacks(tool: string, slot: string): string[] {
+    const out = [tool];
+    for (let next = this.m.fallbacks.get(tool); slot === 'primary' && next && out.length < 3;) {
+      out.push(next);
+      next = this.m.fallbacks.get(next);
+    }
+    return out;
+  }
+
   /** The item a target becomes in a slot: a pathway resolves to its best allowed tool. */
   private resolve(given: Target, slot: string, from: string): CardItem | null {
     const target = this.swapped(given);
     if ('action' in target) return this.actionItem(target, from);
     const pathway =
       'pathway' in target ? target.pathway : (this.toolPathway.get(target.tool) ?? null);
-    const candidates = 'tool' in target ? [target.tool] : this.preferred(target.pathway);
+    const candidates =
+      'tool' in target ? this.withFallbacks(target.tool, slot) : this.preferred(target.pathway);
     // A pathway takes its next allowed tool not already on the card; a named tool is itself.
     const tool = candidates.find(
       (t) => this.toolAllowed(t, slot) && ('tool' in target || !this.toolPlaced(t)),
     );
     if (tool === undefined) return null;
+    if ('tool' in target && tool !== target.tool) {
+      this.standIns.push({ tool: target.tool, from });
+      this.notes.push(`${tool} leads in place of ${target.tool}, which the plan lacks (ENT-1)`);
+    }
     const used = this.upgraded(tool, slot);
     return {
       target,
@@ -385,6 +382,7 @@ export class CardBuilder {
       copy: null,
       tone: this.toneFor(slot, from),
       from,
+      ...planOf(this.m, used),
     };
   }
 
@@ -443,6 +441,7 @@ export class CardBuilder {
       copy: null,
       tone: this.toneFor('alternative', o.rule.id),
       from: o.rule.id,
+      ...planOf(this.m, tool),
     };
     this.place(item, 'alternative');
     this.notes.push(

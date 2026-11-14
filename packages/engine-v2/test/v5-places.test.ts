@@ -3,7 +3,7 @@
 // in a Yellow state (Building Up) and, lowered, in Amber; Red rows are the strong ones.
 import { describe, expect, it } from 'vitest';
 import { run, type CardItem, type EngineInput } from '../src/index.js';
-import { codeOf, examples, ruleset } from './support/v5.js';
+import { codeOf, examples, ruleset, FULL } from './support/v5.js';
 
 const OPENS: Readonly<Record<string, string>> = {
   Breathe: 'reg_breathe',
@@ -75,8 +75,8 @@ function inputOf(row: Record<string, string>, headphones: boolean): EngineInput 
 describe('Rules Engine v5.0: route by place (Tab 19)', () => {
   const rows = examples('place_routes');
   const results = rows.map((row) => {
-    const plain = run(ruleset, inputOf(row, false));
-    const withHeadphones = run(ruleset, inputOf(row, true));
+    const plain = run(ruleset, { ...FULL, ...inputOf(row, false) });
+    const withHeadphones = run(ruleset, { ...FULL, ...inputOf(row, true) });
     if (!plain.ok || !withHeadphones.ok) throw new Error(JSON.stringify(row));
     return { row, card: plain.card, headphones: withHeadphones.card };
   });

@@ -66,6 +66,8 @@ export interface CardItem {
   /** v5.0 (LBL-1): the tool's approved user_label and user_description, the only words shown. */
   readonly label?: string;
   readonly description?: string | null;
+  /** v5.0 (ENT-11, ENT-12): the plan the tool needs, when it isn't free; the app labels it. */
+  readonly plan?: 'prime' | 'premium';
 }
 
 export interface Card {

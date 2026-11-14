@@ -38,3 +38,6 @@ export function codeOf(domain: Parameters<typeof catalogue.get>[0], label: strin
   if (!v) throw new Error(`no ${domain} labelled "${label}"`);
   return v.code;
 }
+
+/** Tabs 18 to 20 show the full toolkit: their checks run on Premium (Tab 9; T-19, T-20 are free). */
+export const FULL = { 'signals.plan': 'premium' } as const;

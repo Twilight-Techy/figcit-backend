@@ -4,7 +4,7 @@
 // (LBL-1), and Tab 18 sometimes words the same tool differently (V5.md lists them).
 import { describe, expect, it } from 'vitest';
 import { run, type Card, type CardItem, type EngineInput } from '../src/index.js';
-import { codeOf, examples, report, ruleset } from './support/v5.js';
+import { codeOf, examples, report, ruleset, FULL } from './support/v5.js';
 
 /** Tab 18's button words, as the tool or action they open. */
 const OPENS: Readonly<Record<string, string>> = {
@@ -110,7 +110,7 @@ describe('Rules Engine v5.0: the no-task card (Tab 18)', () => {
   const cards = rows
     .filter((r) => !(r['Body'] ?? '').startsWith('Urgent sign — sudden'))
     .map((row) => {
-      const result = run(ruleset, inputOf(row));
+      const result = run(ruleset, { ...FULL, ...inputOf(row) });
       if (!result.ok) throw new Error(JSON.stringify(result.issues));
       return { row, got: shown(result.card), want: wanted(row) };
     });
@@ -135,7 +135,7 @@ describe('Rules Engine v5.0: the no-task card (Tab 18)', () => {
   it('shows the urgent screen for a sudden urgent sign, with pattern 50', () => {
     const urgent = rows.filter((r) => (r['Body'] ?? '').startsWith('Urgent sign — sudden'));
     for (const row of urgent) {
-      const r = run(ruleset, inputOf(row));
+      const r = run(ruleset, { ...FULL, ...inputOf(row) });
       if (!r.ok) throw new Error('input');
       expect(r.card.kind).toBe('urgent_screen');
       expect(r.card.pattern).toBe('50');
@@ -144,7 +144,7 @@ describe('Rules Engine v5.0: the no-task card (Tab 18)', () => {
 
   it("labels every tool button with Tab 17's words only (LBL-1, T-16)", () => {
     for (const { row } of cards.slice(0, 400)) {
-      const r = run(ruleset, inputOf(row));
+      const r = run(ruleset, { ...FULL, ...inputOf(row) });
       if (!r.ok) throw new Error('input');
       for (const item of [r.card.primary, ...r.card.alternatives])
         if (item?.tool) expect(item.label, item.tool).toMatch(/^[^{}]{1,60}$/);

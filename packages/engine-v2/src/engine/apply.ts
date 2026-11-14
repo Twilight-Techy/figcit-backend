@@ -60,6 +60,8 @@ export class Material {
   /** v5.0 CX-R: tool → what it is shown as here, in run order (the card takes the best-ranked). */
   readonly swaps: (Origin & { from: string; to: Target })[] = [];
   readonly alternativeLimits: number[] = [];
+  /** v5.0 ENT-1: paid tool → its free version, which stands in on a plan without it (T-20). */
+  readonly fallbacks = new Map<string, string>();
   /** v5.0 TK-2: the task order by chip, from the best-ranked rule. */
   readonly taskOrders: (Origin & { first: readonly string[]; later: readonly string[] })[] = [];
 }
@@ -227,6 +229,9 @@ function applyV5(e: Effect, origin: Origin, m: Material): boolean {
       return true;
     case 'tools.swap':
       m.swaps.push({ ...origin, from: str(e, 'from'), to: e['to'] as Target });
+      return true;
+    case 'tools.fallback':
+      m.fallbacks.set(str(e, 'tool'), str(e, 'free'));
       return true;
     case 'alternatives.limit':
       m.alternativeLimits.push(num(e, 'max'));

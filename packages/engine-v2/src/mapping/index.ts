@@ -20,6 +20,7 @@ import { FEELINGS } from './v5-routes.js';
 import { SUGGESTIONS } from './v5-tasks.js';
 import { BODY_RULES, CAPACITY, COLOUR_RULES, COLOURS } from './v5-colours.js';
 import { DEVICES, PLACES } from './v5-places.js';
+import { LABELS, PLANS } from './v5-plans.js';
 import { COVERAGE_GAPS, DECISION_SEQUENCE, DRIVERS, JOURNEY_LAYERS } from './reference-tabs.js';
 import type { EngineColumns, EngineRule } from '../format/types.js';
 import type { RowMapping, TabMapping } from './types.js';
@@ -56,6 +57,8 @@ export const V5_MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   time_demand: SUGGESTIONS,
   places: PLACES,
   devices: DEVICES,
+  labels: LABELS,
+  plans_tools: PLANS,
 };
 
 /** The mapping file for these rows' edition: v5.0 when they hold its capacity tab. */

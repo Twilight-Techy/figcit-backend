@@ -3,7 +3,7 @@
 // workbook gives. At home, able to step away, no devices, no task (Tab 18's own assumptions).
 import { describe, expect, it } from 'vitest';
 import { run, type EngineInput } from '../src/index.js';
-import { catalogue, codeOf, examples, report, ruleset } from './support/v5.js';
+import { catalogue, codeOf, examples, report, ruleset, FULL } from './support/v5.js';
 
 const STATE: Readonly<Record<string, EngineInput>> = {
   'Full Flow': { 'state.energy': 3, 'state.mood': 3 },
@@ -49,7 +49,7 @@ function inputOf(row: Record<string, string>): EngineInput {
 }
 
 function outcome(row: Record<string, string>): { colour: string; noWords: string } {
-  const result = run(ruleset, inputOf(row));
+  const result = run(ruleset, { ...FULL, ...inputOf(row) });
   if (!result.ok) throw new Error(`row ${row['#'] ?? ''}: ${JSON.stringify(result.issues)}`);
   const { card } = result;
   return {
@@ -58,7 +58,8 @@ function outcome(row: Record<string, string>): { colour: string; noWords: string
   };
 }
 
-describe('Rules Engine v5.0: every colour outcome (Tab 18)', () => {
+// Each check runs all 2,550 rows; on a busy machine that takes longer than the default 5 s.
+describe('Rules Engine v5.0: every colour outcome (Tab 18)', { timeout: 30_000 }, () => {
   const rows = examples('outcomes');
 
   it('maps the colour rules with no row left invalid', () => {
@@ -94,7 +95,7 @@ describe('Rules Engine v5.0: every colour outcome (Tab 18)', () => {
 
 describe('Rules Engine v5.0: the colour tests of Tab 21', () => {
   const card = (input: EngineInput) => {
-    const r = run(ruleset, { 'state.energy': 3, 'state.mood': 3, ...input });
+    const r = run(ruleset, { ...FULL, 'state.energy': 3, 'state.mood': 3, ...input });
     if (!r.ok) throw new Error(JSON.stringify(r.issues));
     return r.card;
   };

@@ -259,6 +259,13 @@ export const EFFECTS: readonly EffectSpec[] = [
       "Offer one tool of this tier from the card's suggested pathway as an alternative (Tab 6d: one labelled Advanced alternative in Green, Yellow or Blue; E-62)",
   }),
   effect({
+    kind: 'tools.fallback',
+    class: 'modifier',
+    params: { tool: { type: 'enum', domain: 'tool' }, free: { type: 'enum', domain: 'tool' } },
+    description:
+      'v5.0 ENT-1: on a plan without this tool, its free version leads instead, and it is offered beside it where ENT-11 allows (T-20)',
+  }),
+  effect({
     kind: 'tools.swap',
     class: 'modifier',
     params: { from: { type: 'enum', domain: 'tool' }, to: { type: 'target' } },

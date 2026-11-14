@@ -362,6 +362,29 @@ function patterns(records: readonly RuleRecordDraft[]): SeedRow[] {
 export const isV5 = (records: readonly RuleRecordDraft[]): boolean =>
   records.some((r) => r.tab === 'capacity');
 
+/** Tab 9's plans, and the tool tiers Tab 17's Plan column gives (`paid` is either). */
+function plans(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  return [
+    // The Plans table is a reference table in the workbook (prices), so its rows aren't rules.
+    ...records
+      .filter((r) => r.tab === 'plans_tools' && r.section === 'Plans')
+      .map((r): SeedRow => ({
+        domain: 'plan',
+        mapping: 'exact',
+        cells: { Code: slug(r.sourceRef), Label: r.sourceRef, Source: source(r) },
+      })),
+    ...(['prime', 'premium', 'paid', 'floor'] as const).map((code): SeedRow => ({
+      domain: 'tier',
+      mapping: 'interpreted',
+      cells: {
+        Code: code,
+        Label: code,
+        Source: 'labels (Tab 17) · Plan; plans_tools (Tab 9) · Safety floor',
+      },
+    })),
+  ];
+}
+
 /** Every catalogue row v5.0 gives, in domain order. */
 export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
   return [
@@ -380,5 +403,6 @@ export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): See
     ...devices(records, slug),
     ...chips(records, slug),
     ...patterns(records),
+    ...plans(records, slug),
   ];
 }
