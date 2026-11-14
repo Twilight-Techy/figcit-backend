@@ -134,7 +134,7 @@ export class DecisionsV5Service {
       'signals.plan': tier,
       ...(lifeNow.length > 0 ? { 'life.now': lifeNow } : {}),
       // RW-1: back to work, study or training adds the day's load check (pattern 60).
-      'prefs.return_to_work': profile.weekFills.includes('returning'),
+      'prefs.return_to_work': profile.returnToWork,
     };
   }
 }

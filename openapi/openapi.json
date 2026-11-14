@@ -20426,7 +20426,7 @@
                       ]
                     },
                     "weekFills": {
-                      "maxItems": 7,
+                      "maxItems": 6,
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -20434,7 +20434,6 @@
                           "studying",
                           "working",
                           "looking_for_work",
-                          "returning",
                           "training",
                           "caring",
                           "other"
@@ -20578,7 +20577,7 @@
                     ]
                   },
                   "weekFills": {
-                    "maxItems": 7,
+                    "maxItems": 6,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -20586,7 +20585,6 @@
                         "studying",
                         "working",
                         "looking_for_work",
-                        "returning",
                         "training",
                         "caring",
                         "other"
@@ -20693,7 +20691,7 @@
                       ]
                     },
                     "weekFills": {
-                      "maxItems": 7,
+                      "maxItems": 6,
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -20701,7 +20699,6 @@
                           "studying",
                           "working",
                           "looking_for_work",
-                          "returning",
                           "training",
                           "caring",
                           "other"
@@ -20848,7 +20845,7 @@
                       ]
                     },
                     "weekFills": {
-                      "maxItems": 7,
+                      "maxItems": 6,
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -20856,7 +20853,6 @@
                           "studying",
                           "working",
                           "looking_for_work",
-                          "returning",
                           "training",
                           "caring",
                           "other"
