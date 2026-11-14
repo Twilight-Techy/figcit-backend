@@ -89,19 +89,26 @@ function publicOption(input: InputKind, o: InputOption, catalogue: Catalogue): P
   };
 }
 
+/** A column by the first of its names that the row has (v3.3's State Grid, v5.0's Tab 1). */
+const either = (columns: readonly WorkbookCell[], names: readonly string[]): string =>
+  names.map((n) => cellText(columns, n)).find((t) => t !== '') ?? '';
+
 function cellOf(columns: readonly WorkbookCell[]): PublicCell | null {
-  const id = cellText(columns, 'Cell ID');
+  const id = either(columns, ['Cell ID', 'Cell']);
   const m = CELL.exec(id);
   if (!m) return null;
   return {
     id,
     energy: Number(m[1]),
     mood: Number(m[2]),
-    name: cellText(columns, 'Name'),
+    name: either(columns, ['Name', 'State name']),
     // The workbook writes the emoji then its description ("✨ Sparkles"); the app shows the emoji.
-    icon: cellText(columns, 'Icon').split(/\s+/)[0] ?? '',
-    meaning: cellText(columns, 'Plain-language meaning (layman, no jargon)'),
-    band: cellText(columns, 'Capacity band'),
+    icon: either(columns, ['Icon']).split(/\s+/)[0] ?? '',
+    meaning: either(columns, [
+      'Plain-language meaning (layman, no jargon)',
+      'One-line meaning (shown)',
+    ]),
+    band: either(columns, ['Capacity band', 'Baseline band (internal)']),
   };
 }
 
@@ -121,7 +128,13 @@ export function checkInOptionsOf(rows: readonly OptionsRow[]): {
     INPUTS.map((input) => [input, options[input].map((o) => publicOption(input, o, catalogue))]),
   ) as Record<InputKind, PublicOption[]>;
   const cells = rows
-    .filter((r) => r.tab === 'state_grid' && r.role === 'rule' && r.status === 'active')
+    // v3.3's State Grid, or v5.0's Tab 1 (capacity).
+    .filter(
+      (r) =>
+        (r.tab === 'state_grid' || r.tab === 'capacity') &&
+        r.role === 'rule' &&
+        r.status === 'active',
+    )
     .map((r) => cellOf(r.columns))
     .filter((c): c is PublicCell => c !== null);
   const intensityBands = (catalogue.get('intensity_band') ?? []).map((b) => ({

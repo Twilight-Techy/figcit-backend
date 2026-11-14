@@ -1,7 +1,13 @@
 // Rules Engine v5.0: the app's check-in as engine input, through the version's check-in options
 // (Tabs 2-5, 7, 10; plans per Tab 9).
 import { describe, expect, it } from 'vitest';
-import { factsFromCheckInV5, inputOptionsOf, run, type CheckInV5 } from '../src/index.js';
+import {
+  checkInOptionsOf,
+  factsFromCheckInV5,
+  inputOptionsOf,
+  run,
+  type CheckInV5,
+} from '../src/index.js';
 import { catalogue, imported, ruleset } from './support/v5.js';
 
 const { options, issues } = inputOptionsOf(imported.records, catalogue);
@@ -108,5 +114,19 @@ describe('Rules Engine v5.0: the check-in as engine input', () => {
   it('drops an option that is not offered', () => {
     const { dropped } = factsFromCheckInV5({ ...FULL_CHECK_IN, helpCard: 'hc_9' }, options);
     expect(dropped).toEqual([{ input: 'help', code: 'hc_9', why: 'not_offered' }]);
+  });
+
+  it("gives the app Tab 1's sixteen states with their name, icon and meaning (Tab 13 step 2)", () => {
+    const { view } = checkInOptionsOf(imported.records);
+    expect(view.cells).toHaveLength(16);
+    expect(view.cells.find((c) => c.id === 'E1M1')).toEqual({
+      id: 'E1M1',
+      energy: 1,
+      mood: 1,
+      name: 'Hibernate',
+      icon: '🌙',
+      meaning: 'Rest is the task right now — everything else can wait.',
+      band: 'Very Constrained',
+    });
   });
 });

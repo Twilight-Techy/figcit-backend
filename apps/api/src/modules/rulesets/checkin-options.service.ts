@@ -77,7 +77,8 @@ export class CheckInOptionsService {
     hash: string,
   ): Promise<CheckInOptions | null> {
     const rows = await this.prisma.rulesetRecord.findMany({
-      where: { versionId, tab: { in: ['catalogue', 'input_mappings', 'state_grid'] } },
+      // The states: v3.3's State Grid, or v5.0's Tab 1 (capacity).
+      where: { versionId, tab: { in: ['catalogue', 'input_mappings', 'state_grid', 'capacity'] } },
       orderBy: { order: 'asc' },
       select: { tab: true, status: true, frame: true, role: true, columns: true },
     });

@@ -49,6 +49,10 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(feelings.find((o) => o.code === 'anxious')?.group).toBe('always_free');
     expect(feelings.find((o) => o.code === 'frustrated')?.group).toBe('prime');
     expect((res.body.inputs['help'] ?? []).length).toBeGreaterThan(8);
+    // Tab 13 step 2: each state's name, icon and meaning, from Tab 1.
+    const cells = (res.body as unknown as { cells: { id: string; name: string }[] }).cells;
+    expect(cells).toHaveLength(16);
+    expect(cells.find((c) => c.id === 'E3M3')?.name).toBe('Full Flow');
   });
 
   it('shows the colour, its sentence and the Help menu as the person goes', async () => {
