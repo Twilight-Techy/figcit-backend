@@ -8,6 +8,8 @@
  * generated from it, so they cannot disagree.
  */
 
+import { V5_FACTS } from './registry-v5.js';
+
 /** Value domains. Their values live in the rule set's catalogue table. */
 export const DOMAINS = [
   'cell',
@@ -30,6 +32,12 @@ export const DOMAINS = [
   'support',
   'practice_mode',
   'tier',
+  // Rules Engine v5.0 (docs/engine-v2/V5.md): emotion groups, body signs, urgent signs.
+  'feeling_group',
+  'body_sign',
+  'body_group',
+  'urgent_sign',
+  'urgent_answer',
 ] as const;
 export type Domain = (typeof DOMAINS)[number];
 
@@ -59,6 +67,12 @@ export const DOMAIN_INFO: Readonly<Record<Domain, string>> = {
   practice_mode:
     'How an offered Reflect or Meditate practice may run (Tab 6c MD-2, MD-4, section D)',
   tier: 'Tool tier the Tab 6d rows mark: Advanced (paid) or the safety floor; other tools are free',
+  feeling_group:
+    'Group of an emotion (v5.0 Tab 2; never shown). Order breaks a tie between two emotions (FE-3: lower wins)',
+  body_sign: 'Body sign (v5.0 Tab 3, Body tab)',
+  body_group: 'Group of a body sign (v5.0 Tab 3)',
+  urgent_sign: "Urgent body sign, 'Something feels wrong' (v5.0 Tab 3; SF-4)",
+  urgent_answer: "The answer to 'Is this sudden or new for you?' (SF-4)",
 };
 
 /** The engine's stages, in run order, each tied to its Tab 8 step. */
@@ -213,6 +227,7 @@ export const FACTS: readonly FactSpec[] = [
     computed: true,
     description: 'Experience families present',
   }),
+  ...V5_FACTS,
   fact({
     name: 'family.intensity',
     type: 'intensity',

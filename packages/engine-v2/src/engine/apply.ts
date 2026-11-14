@@ -84,6 +84,9 @@ function applyToState(e: Effect, state: RunState): boolean {
     case 'light.set':
       state.setLight(str(e, 'light'));
       return true;
+    case 'mode.no_words':
+      state.noWords = true;
+      return true;
     case 'light.overlay':
       state.overlayLight(str(e, 'light'));
       return true;

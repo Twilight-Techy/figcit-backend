@@ -446,7 +446,7 @@ describe('the JSON Schema agrees with the validator', () => {
 
   it('describes every fact and effect for the staff app', () => {
     const format = describeFormat(withExtras, []);
-    expect(format.format).toBe(3);
+    expect(format.format).toBe(4);
     expect(format.facts).toHaveLength(FACTS.length);
     expect(format.facts.find((f) => f.name === 'band.final')?.ops).toContain('gte');
     expect(format.domains.find((d) => d.domain === 'tool')?.values.map((v) => v.code)).toContain(

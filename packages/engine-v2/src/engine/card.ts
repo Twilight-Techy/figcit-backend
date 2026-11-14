@@ -91,6 +91,8 @@ export class CardBuilder {
       minutesCap: this.m.minutesCaps.length > 0 ? Math.min(...this.m.minutesCaps) : null,
       practice: this.m.practice,
       because: primary.rule ? because(primary.rule.when, this.state, this.catalogue) : [],
+      // Only when on, so cards made before v5.0 replay unchanged.
+      ...(this.state.noWords ? { noWords: true as const } : {}),
     };
   }
 

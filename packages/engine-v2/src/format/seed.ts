@@ -3,6 +3,7 @@ import type { ReadResult, RuleRecordDraft, TableFrame, TabKey } from '../ruleset
 import { CATALOGUE_HEADER, cellText, type CatalogueColumn } from './catalogue.js';
 import { COPY_FILE, COPY_HEADER, copySeedRows } from './copy.js';
 import { INPUT_SEED } from './input-seed.js';
+import { isV5, v5SeedRows } from './seed-v5.js';
 import { SUPPORT_SEED, TOOL_SEED } from './tool-seed.js';
 import { INPUT_MAPPINGS_HEADER } from './inputs.js';
 import type { Domain } from './registry.js';
@@ -268,9 +269,9 @@ function interpreted(domain: Domain, codes: readonly string[], from: string): Se
   }));
 }
 
-/** Every catalogue row the workbook gives, in domain order; codes made unique within a domain. */
-function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow[] {
-  const rows = [
+/** v3.3's catalogue rows, in domain order. */
+function v3SeedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow[] {
+  return [
     ...asIs('cell', records, 'state_grid', 'Name'),
     ...bandsAndLights(records),
     ...families(records),
@@ -320,6 +321,11 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
       'tools_tiers · A. heading (NUCCESS Plus or institution licence)',
     ),
   ];
+}
+
+/** Every catalogue row the workbook gives, in domain order; codes made unique within a domain. */
+function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow[] {
+  const rows = isV5(records) ? v5SeedRows(records, slug) : v3SeedRows(records, notes);
   const used = new Map<string, number>();
   return rows.map((row) => {
     const key = `${row.domain}|${row.cells.Code ?? ''}`;
@@ -429,7 +435,9 @@ export function withAdditions(read: ReadResult): {
     }
   }
   let inputs = 0;
-  if (!inputMappingsGiven) {
+  // The check-in options and the card's wording are v3.3's until v5.0's are written (V5.md).
+  const v5 = isV5(read.records);
+  if (!inputMappingsGiven && !v5) {
     frames[INPUT_MAPPINGS_FILE] = [frameOf(INPUT_MAPPINGS_HEADER)];
     for (const row of inputSeedRows()) {
       order += 1;
@@ -439,7 +447,7 @@ export function withAdditions(read: ReadResult): {
   }
   let copy = 0;
   const copyGiven = COPY_FILE in read.frames;
-  if (!copyGiven) {
+  if (!copyGiven && !v5) {
     frames[COPY_FILE] = [frameOf(COPY_HEADER)];
     for (const row of copySeedRows()) {
       order += 1;

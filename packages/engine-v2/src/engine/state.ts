@@ -31,11 +31,28 @@ export class RunState {
   /** NUCRIPCE tags and their weight (1 low ... 4 maximum). */
   readonly drivers = new Map<string, number>();
   readonly notes: string[] = [];
+  /** No-words mode (v5.0 FE-2, BS-3): tap-only tools, eyes open, nothing to read or decide. */
+  noWords = false;
+  /** v5.0: each emotion's group, the groups' tie order (FE-3), and each body sign's group. */
+  private readonly feelingGroup: ReadonlyMap<string, string>;
+  private readonly groupOrder: ReadonlyMap<string, number>;
+  private readonly bodyGroup: ReadonlyMap<string, string>;
 
   constructor(
     private readonly input: EngineInput,
     catalogue: Catalogue,
   ) {
+    this.feelingGroup = new Map(
+      valuesOf(catalogue, 'family').flatMap((v) => (v.group ? [[v.code, v.group] as const] : [])),
+    );
+    this.groupOrder = new Map(
+      valuesOf(catalogue, 'feeling_group').map((v) => [v.code, v.order ?? Number.MAX_SAFE_INTEGER]),
+    );
+    this.bodyGroup = new Map(
+      valuesOf(catalogue, 'body_sign').flatMap((v) =>
+        v.group ? [[v.code, v.group] as const] : [],
+      ),
+    );
     this.bands = [...valuesOf(catalogue, 'band')]
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((v) => v.code);
@@ -102,12 +119,57 @@ export class RunState {
       case 'recheck.intensity_change':
         return this.intensityChange();
       default:
+        return this.v5Fact(name);
+    }
+  }
+
+  /** The facts Rules Engine v5.0 works out (FE-3, BS-1). */
+  private v5Fact(name: string): unknown {
+    switch (name) {
+      case 'feeling.deciding':
+        return this.deciding()?.code;
+      case 'feeling.deciding_group': {
+        const d = this.deciding();
+        return d ? this.feelingGroup.get(d.code) : undefined;
+      }
+      case 'feeling.deciding_level':
+        return this.deciding()?.level;
+      case 'body.groups':
+        return [...new Set(this.bodySigns().flatMap((s) => this.bodyGroup.get(s) ?? []))];
+      case 'body.count':
+        return this.bodySigns().length;
+      default:
         return NOT_COMPUTED;
     }
   }
 
   private feelings(): Intensities {
     return (this.input['family.intensity'] as Intensities | undefined) ?? {};
+  }
+
+  private bodySigns(): readonly string[] {
+    return (this.input['body.signs'] as string[] | undefined) ?? [];
+  }
+
+  /**
+   * v5.0 FE-3: of the emotions picked (a group in Tab 2), the higher slider decides; a tie goes to
+   * the group with the lower Order (Shutdown, then Charged, then Low, as the catalogue says).
+   * O(e) for e emotions (two at most).
+   */
+  private deciding(): { code: string; level: number | null } | undefined {
+    const order = (code: string): number =>
+      this.groupOrder.get(this.feelingGroup.get(code) ?? '') ?? Number.MAX_SAFE_INTEGER;
+    let best: { code: string; level: number | null } | undefined;
+    for (const [code, level] of Object.entries(this.feelings())) {
+      if (!this.groupOrder.has(this.feelingGroup.get(code) ?? '')) continue;
+      if (
+        !best ||
+        (level ?? -1) > (best.level ?? -1) ||
+        ((level ?? -1) === (best.level ?? -1) && order(code) < order(best.code))
+      )
+        best = { code, level };
+    }
+    return best;
   }
 
   /** Highest rating among the harder feelings felt; null when none of them is rated. */

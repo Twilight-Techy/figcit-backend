@@ -75,6 +75,7 @@ export {
   copyKeysOf,
   mappedRules,
   MAPPINGS,
+  V5_MAPPINGS,
   type MappingReport,
   type RowMapping,
   type TabCoverage,

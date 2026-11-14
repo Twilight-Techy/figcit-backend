@@ -16,6 +16,11 @@ export const COMPUTED_FROM: Readonly<Record<string, readonly string[]>> = {
   'sensitivity.count': ['sensitivity.flags'],
   'recheck.intensity_change': ['recheck.previous_peak', 'family.intensity'],
   'recheck.band_improved': ['recheck.previous_baseline', 'state.energy', 'state.mood'],
+  'feeling.deciding': ['family.intensity'],
+  'feeling.deciding_group': ['family.intensity'],
+  'feeling.deciding_level': ['family.intensity'],
+  'body.groups': ['body.signs'],
+  'body.count': ['body.signs'],
 };
 
 /**

@@ -91,6 +91,8 @@ export interface Card {
     readonly maxMinutes: number | null;
     readonly tools: readonly string[] | null;
   }[];
+  /** No-words mode (v5.0 FE-2, BS-3): tap-only tools, eyes open; absent when off. */
+  readonly noWords?: true;
   /** The input the primary's rule matched on: "Because you said X". */
   readonly because: readonly {
     readonly fact: string;

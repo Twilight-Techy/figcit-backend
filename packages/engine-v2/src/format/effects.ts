@@ -103,6 +103,13 @@ export const EFFECTS: readonly EffectSpec[] = [
     description: 'The setting counts as these classes (Tab 3b; read by CX-1 and MD-4)',
   }),
   effect({
+    kind: 'mode.no_words',
+    class: 'requirement',
+    params: {},
+    description:
+      'No-words mode: tap-only tools, eyes open, nothing to read or decide (v5.0 FE-2, BS-3; pattern 16)',
+  }),
+  effect({
     kind: 'light.set',
     class: 'requirement',
     params: { light: { type: 'enum', domain: 'light' } },

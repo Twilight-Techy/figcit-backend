@@ -15,6 +15,7 @@ import { PATTERNS_OFFER } from './patterns-offer.js';
 import { PATTERNS_TRIGGER } from './patterns-trigger.js';
 import { REFLECT_MEDITATE } from './reflect-meditate.js';
 import { TOOLS_TIERS } from './tools-tiers.js';
+import { BODY_RULES, CAPACITY, COLOUR_RULES, COLOURS } from './v5-colours.js';
 import { COVERAGE_GAPS, DECISION_SEQUENCE, DRIVERS, JOURNEY_LAYERS } from './reference-tabs.js';
 import type { EngineColumns, EngineRule } from '../format/types.js';
 import type { RowMapping, TabMapping } from './types.js';
@@ -39,6 +40,18 @@ export const MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   patterns: { rows: { ...PATTERNS_BAND, ...PATTERNS_TRIGGER, ...PATTERNS_OFFER } },
   non_negotiables: NON_NEGOTIABLES,
 };
+
+/** Rules Engine v5.0's mapping file (docs/engine-v2/V5.md). */
+export const V5_MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
+  capacity: CAPACITY,
+  colours: COLOURS,
+  colour_rules: COLOUR_RULES,
+  body_senses: BODY_RULES,
+};
+
+/** The mapping file for these rows' edition: v5.0 when they hold its capacity tab. */
+const mappingsFor = (records: readonly RulesetRecord[]) =>
+  records.some((r) => r.tab === 'capacity') ? V5_MAPPINGS : MAPPINGS;
 
 const NOT_A_RULE: RowMapping = {
   mapping: 'reference',
@@ -103,7 +116,7 @@ function coverageOf(records: readonly RulesetRecord[]): Partial<Record<TabKey, T
 export function applyMappings(
   records: readonly RulesetRecord[],
   catalogue: Catalogue = catalogueOf(records).catalogue,
-  mappings: Readonly<Partial<Record<TabKey, TabMapping>>> = MAPPINGS,
+  mappings: Readonly<Partial<Record<TabKey, TabMapping>>> = mappingsFor(records),
 ): { records: RulesetRecord[]; report: MappingReport } {
   const used = new Set<string>();
   const invalid: { ref: string; issues: Issue[] }[] = [];
