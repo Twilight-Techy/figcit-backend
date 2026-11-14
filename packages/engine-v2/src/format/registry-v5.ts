@@ -6,6 +6,21 @@ import type { FactSpec } from './registry.js';
  */
 export const V5_FACTS: readonly FactSpec[] = [
   {
+    name: 'tasks.count',
+    type: 'number',
+    min: 0,
+    max: 100,
+    stage: 'demand',
+    description: 'v5.0: how many open tasks the check-in brings (TK-5)',
+  },
+  {
+    name: 'tasks.chips',
+    type: 'set',
+    domain: 'task_chip',
+    stage: 'demand',
+    description: 'v5.0: the chips on those tasks (a task with no chip counts as Usual, TK-1)',
+  },
+  {
     name: 'context.can_step_away',
     type: 'boolean',
     stage: 'context',

@@ -1,4 +1,5 @@
 import type { Comparison, Condition, Effect } from '../format/types.js';
+import { BAND_RULES } from './bands.js';
 import type { RowMapping, TabMapping } from './types.js';
 
 // Rules Engine v5.0: the colour (Tab 1 capacity, Tab 6 colours and the rules that change them,
@@ -201,6 +202,18 @@ export const COLOUR_RULES: TabMapping = {
     'CTX-0': reference('How the app asks Where you are; nothing for the engine.'),
     'DEM-0': reference('A task never changes the colour.'),
     'LE-0': reference('Life right now never changes the colour.'),
+    'RC-1..5': {
+      mapping: 'interpreted',
+      reason:
+        "'As before': v3.3's RC-1 (Blue after support and a better re-check), RC-3 and RC-4 (at most one step up, none without improvement) and RC-5 (no automatic Blue after a safety event).",
+      engine: {
+        stage: 'capacity_fit',
+        rules: (['RC-1', 'RC-3', 'RC-4', 'RC-5'] as const).flatMap((ref) => {
+          const row = BAND_RULES.rows?.[ref];
+          return row?.mapping === 'exact' || row?.mapping === 'interpreted' ? row.engine.rules : [];
+        }),
+      },
+    },
     'SF-4': {
       mapping: 'exact',
       reason:
@@ -239,11 +252,12 @@ export const BODY_RULES: TabMapping = {
   rows: {
     'BS-1': reference('Run from Tab 6 (the same rule).'),
     'BS-3': {
-      mapping: 'exact',
-      reason: 'Shut down (body) switches on no-words mode (pattern 16).',
+      mapping: 'interpreted',
+      reason:
+        "Shut down (body) switches on no-words mode (pattern 16); Tab 20 does the same for Can't get moving, the other Shutdown sign, so the group is read.",
       engine: {
         stage: 'capacity_fit',
-        rules: [{ when: contains('body.signs', 'shut_down'), then: [set('mode.no_words')] }],
+        rules: [{ when: contains('body.groups', 'shutdown'), then: [set('mode.no_words')] }],
       },
     },
   },

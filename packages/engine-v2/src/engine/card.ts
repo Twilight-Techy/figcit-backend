@@ -127,12 +127,14 @@ export class CardBuilder {
   }
 
   /** v5.0's pattern and no-task suggestion, when rules set them. */
-  private v5Frame(): { pattern?: string; suggestion?: string } {
+  private v5Frame(): Pick<Card, 'pattern' | 'suggestion' | 'taskOrder'> {
     const pattern = CardBuilder.best(this.m.patterns)?.pattern;
     const suggestion = CardBuilder.best(this.m.suggestions)?.copy;
+    const order = CardBuilder.best(this.m.taskOrders);
     return {
       ...(pattern === undefined ? {} : { pattern }),
       ...(suggestion === undefined ? {} : { suggestion }),
+      ...(order ? { taskOrder: { first: order.first, later: order.later } } : {}),
     };
   }
 

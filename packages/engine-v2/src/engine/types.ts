@@ -96,6 +96,8 @@ export interface Card {
   }[];
   /** v5.0: the card's pattern (Tab 11), which gives its headline. */
   readonly pattern?: string;
+  /** v5.0 TK-2: the order to show tasks in, by chip; `later` ones wait. The app sorts by it. */
+  readonly taskOrder?: { readonly first: readonly string[]; readonly later: readonly string[] };
   /** v5.0 TK-4: with no task, the wording key of the task that fits right now (Tab 10). */
   readonly suggestion?: string;
   /** No-words mode (v5.0 FE-2, BS-3): tap-only tools, eyes open; absent when off. */

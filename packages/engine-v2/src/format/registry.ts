@@ -38,6 +38,7 @@ export const DOMAINS = [
   'body_group',
   'urgent_sign',
   'urgent_answer',
+  'task_chip',
 ] as const;
 export type Domain = (typeof DOMAINS)[number];
 
@@ -73,6 +74,8 @@ export const DOMAIN_INFO: Readonly<Record<Domain, string>> = {
   body_group: 'Group of a body sign (v5.0 Tab 3)',
   urgent_sign: "Urgent body sign, 'Something feels wrong' (v5.0 Tab 3; SF-4)",
   urgent_answer: "The answer to 'Is this sudden or new for you?' (SF-4)",
+  task_chip:
+    "A task's chip (v5.0 Tab 10): New, Can't wait, Hard, Usual ... (NUCRIPCE in plain words)",
 };
 
 /** The engine's stages, in run order, each tied to its Tab 8 step. */
@@ -124,6 +127,8 @@ export const ACTIONS = [
   // v5.0: P1-A's "Plan something" (to a task) and TK-4's suggested task (its words: the suggestion).
   'plan_something',
   'suggest_task',
+  // v5.0: "Start: {task}" (patterns 2, 54); the app fills in the top task.
+  'start_task',
 ] as const;
 export type Action = (typeof ACTIONS)[number];
 

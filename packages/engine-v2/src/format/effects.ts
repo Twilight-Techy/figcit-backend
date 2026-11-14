@@ -266,6 +266,17 @@ export const EFFECTS: readonly EffectSpec[] = [
       'v5.0 CX-R: where you are, this tool is shown as that one instead (Breathe → Breathe (discreet)); the best-ranked swap wins',
   }),
   effect({
+    kind: 'tasks.order',
+    class: 'modifier',
+    params: {
+      first: { type: 'enum_list', domain: 'task_chip', min: 0 },
+      later: { type: 'enum_list', domain: 'task_chip', min: 0 },
+    },
+    optional: ['later'],
+    description:
+      'v5.0 TK-2: the order tasks are shown in for this colour, by chip; `later` ones wait (Amber)',
+  }),
+  effect({
     kind: 'alternatives.limit',
     class: 'requirement',
     params: { max: { type: 'int', min: 0, max: 2 } },

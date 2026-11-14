@@ -60,6 +60,8 @@ export class Material {
   /** v5.0 CX-R: tool → what it is shown as here, in run order (the card takes the best-ranked). */
   readonly swaps: (Origin & { from: string; to: Target })[] = [];
   readonly alternativeLimits: number[] = [];
+  /** v5.0 TK-2: the task order by chip, from the best-ranked rule. */
+  readonly taskOrders: (Origin & { first: readonly string[]; later: readonly string[] })[] = [];
 }
 
 const str = (e: Effect, k: string): string => String(e[k]);
@@ -228,6 +230,9 @@ function applyV5(e: Effect, origin: Origin, m: Material): boolean {
       return true;
     case 'alternatives.limit':
       m.alternativeLimits.push(num(e, 'max'));
+      return true;
+    case 'tasks.order':
+      m.taskOrders.push({ ...origin, first: list(e, 'first'), later: list(e, 'later') });
       return true;
     default:
       return false;

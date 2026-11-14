@@ -56,9 +56,11 @@ export class RunState {
     this.bands = [...valuesOf(catalogue, 'band')]
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((v) => v.code);
+    // v3.3 marks the harder families "harder"; v5.0's are every group but Settled (Tab 2).
+    const v5 = valuesOf(catalogue, 'feeling_group').length > 0;
     this.harder = new Set(
       valuesOf(catalogue, 'family')
-        .filter((v) => v.group === 'harder')
+        .filter((v) => (v5 ? v.group !== null && v.group !== 'settled' : v.group === 'harder'))
         .map((v) => v.code),
     );
   }

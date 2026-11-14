@@ -298,6 +298,22 @@ const VARIANTS: readonly (readonly [string, string, string, string])[] = [
   ['reg_move_walk', 'Walk it off', 'regulate', 'Use the walk you are on'],
   ['dmp_capture_text', 'Empty your head (text)', 'dump', 'Type it out, nothing out loud'],
   ['reg_rest_pause', 'Pause for 2 minutes', 'regulate', 'Two quiet minutes where you are'],
+  [
+    'reg_dance_private',
+    'Dance break (somewhere private)',
+    'regulate',
+    'Find a private spot, then dance it out',
+  ],
+  // Pattern 59's device steps (Tab 17's ADP-DEVICE, one per device) and its no-device step (Tab 20).
+  ['adp_device_ear', 'Use your ear defenders', 'adapt', 'Use what you have with you'],
+  ['adp_device_sun', 'Put your sunglasses on', 'adapt', 'Use what you have with you'],
+  ['adp_device_room', 'Go to the quiet room', 'adapt', 'Use what you have with you'],
+  [
+    'adp_space_turn',
+    'Turn away from it or move seats',
+    'adapt',
+    'A small change to what is around you',
+  ],
 ];
 
 function variants(): SeedRow[] {
@@ -310,6 +326,22 @@ function variants(): SeedRow[] {
       Group: pathway,
       Source: "place_routes (Tab 19); pathways (Tab 8, Busy / can't move)",
       Note: description,
+    },
+  }));
+}
+
+/** Tab 10's task chips: the label is the chip, the note its plain words on the card (RT-3). */
+function chips(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  return rows(records, 'time_demand', 'v5.0 — Task chips').map((r, i) => ({
+    domain: 'task_chip',
+    mapping: 'exact',
+    cells: {
+      Code: slug(text(r, 'Chip shown')),
+      Label: text(r, 'Chip shown'),
+      Order: String(i),
+      Group: slug(r.sourceRef),
+      Source: source(r),
+      Note: text(r, 'Plain words in the card'),
     },
   }));
 }
@@ -346,6 +378,7 @@ export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): See
     ...variants(),
     ...places(records, slug),
     ...devices(records, slug),
+    ...chips(records, slug),
     ...patterns(records),
   ];
 }

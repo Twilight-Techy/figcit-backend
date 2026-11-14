@@ -16,6 +16,8 @@ const swap = (from: string, step: string): Effect => set('tools.swap', { from, t
 /** Away from home and unable to step away (Tab 4: "Ask"; Tab 19's rows are all "No"). */
 const at = (place: string): Condition =>
   all(eq('context.setting', place), is('context.can_step_away', false));
+/** Away from home, whether or not the person can step away (discreet tools stay discreet, Tab 20). */
+const atPlace = (place: string): Comparison => eq('context.setting', place);
 const withoutHeadphones: Comparison = {
   fact: 'context.supports',
   op: 'not_contains',
@@ -45,6 +47,8 @@ function place(
   swaps: readonly (readonly [string, string])[],
   reason: string,
 ): [string, RowMapping] {
+  const discreet = swaps.filter(([from]) => DISCREET.some(([d]) => d === from));
+  const stuck = swaps.filter(([from]) => !DISCREET.some(([d]) => d === from));
   return [
     ref,
     {
@@ -53,9 +57,20 @@ function place(
       engine: {
         stage: 'context',
         rules: [
-          { when: at(code), then: swaps.map(([from, step]) => swap(from, step)) },
+          { when: atPlace(code), then: discreet.map(([from, step]) => swap(from, step)) },
+          ...(stuck.length > 0
+            ? [{ when: at(code), then: stuck.map(([from, step]) => swap(from, step)) }]
+            : []),
+          // Able to step away: dancing is fine, somewhere private (Tab 4; Tab 20).
+          {
+            when: all(atPlace(code), is('context.can_step_away', true)),
+            then: [swap('reg_dance', 'reg_dance_private')],
+          },
           // Calming sounds out loud need headphones (DV-H); without them, Comfort on screen.
-          { when: all(at(code), withoutHeadphones), then: [swap('reg_sounds', 'reg_comfort')] },
+          {
+            when: all(atPlace(code), withoutHeadphones),
+            then: [swap('reg_sounds', 'reg_comfort')],
+          },
         ],
       },
     },
@@ -147,10 +162,17 @@ export const PATTERN_49: RowMapping = {
     rules: [
       {
         when: eq('context.setting', 'exam_interview_or_assessment'),
-        then: [
-          set('require', { slot: 'primary', target: { tool: 'reg_breathe_silent' } }),
-          set('alternatives.limit', { max: 0 }),
-        ],
+        then: [set('require', { slot: 'primary', target: { tool: 'reg_breathe_silent' } })],
+      },
+      // Nothing beside it, unless there is a task: then the task (Tab 20).
+      {
+        when: all(eq('context.setting', 'exam_interview_or_assessment'), {
+          any: [
+            { fact: 'tasks.count', op: 'absent' },
+            { fact: 'tasks.count', op: 'eq', value: 0 },
+          ],
+        }),
+        then: [set('alternatives.limit', { max: 0 })],
       },
       // No-words mode keeps its own headline there (pattern 16, Tab 19).
       {
