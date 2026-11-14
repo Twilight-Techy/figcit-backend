@@ -12086,7 +12086,7 @@
     "/v1/decisions/v5": {
       "post": {
         "operationId": "Decisions_decideV5",
-        "summary": "Rules Engine v5.0: run a Quick or Full check-in and record the decision; the card has its words, labels and plans",
+        "summary": "Rules Engine v5.0: run a Quick or Full check-in and record the decision; the card has its words, labels and plans. Needs an account (SU-1)",
         "tags": [
           "Engine v2"
         ],
@@ -12871,18 +12871,15 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "browse": []
           }
         ],
-        "x-access": "browse"
+        "x-access": "user"
       }
     },
     "/v1/decisions/v5/preview": {
       "post": {
         "operationId": "Decisions_previewV5",
-        "summary": "Rules Engine v5.0: the colour, its sentence and the Help menu as the person checks in; nothing is stored",
+        "summary": "Rules Engine v5.0: the colour, its sentence and the Help menu as the person checks in; nothing is stored. Needs an account (SU-1)",
         "tags": [
           "Engine v2"
         ],
@@ -13328,12 +13325,9 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "browse": []
           }
         ],
-        "x-access": "browse"
+        "x-access": "user"
       }
     },
     "/v1/dev/mailbox": {
