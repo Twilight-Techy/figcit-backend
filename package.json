@@ -17,7 +17,7 @@
     "test:e2e": "pnpm --filter @figcit/api test:e2e",
     "bench": "pnpm --filter @figcit/engine bench",
     "check:engine-deps": "node scripts/check-engine-deps.mjs",
-    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run check:engine-deps && pnpm run knip && pnpm run deps:check && pnpm run licences:check",
+    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run check:engine-deps && pnpm run knip && pnpm run deps:check && pnpm run licences:check && pnpm run heroku:check",
     "db:generate": "pnpm --filter @figcit/api db:generate",
     "db:migration": "pnpm --filter @figcit/api db:migration",
     "openapi:generate": "pnpm --filter @figcit/api openapi:generate",
@@ -32,7 +32,9 @@
     "eval:speech": "pnpm --filter @figcit/api eval:speech",
     "eval:speech:generate": "pnpm --filter @figcit/api eval:speech:generate",
     "eval:load": "pnpm --filter @figcit/api eval:load",
-    "eval:decide": "pnpm --filter @figcit/api eval:decide"
+    "eval:decide": "pnpm --filter @figcit/api eval:decide",
+    "heroku:dockerfile": "node scripts/heroku-dockerfile.mjs",
+    "heroku:check": "node scripts/heroku-dockerfile.mjs --check"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

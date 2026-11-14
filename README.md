@@ -47,4 +47,6 @@ docker run --read-only --tmpfs /tmp --env-file .env figcit-api worker           
 
 Migrations run at deploy time with `pnpm --filter @figcit/api db:migrate`, not from the image.
 
+**Hosting**: the API runs on Heroku (`figcit-api`, EU), which builds `Dockerfile.heroku` (`heroku.yml`) and deploys `main` automatically. `Dockerfile.heroku` is generated from `docker/api.Dockerfile` by `pnpm heroku:dockerfile`, because Heroku's builder has no BuildKit; `pnpm check` fails when it is out of date. One web dyno runs the API with the job worker in the same process (`JOBS_ON_DEMAND=true`). Migrations still run by hand before a deploy that needs them.
+
 **CI** (`.github/workflows/ci.yml`) has stable job names to require in branch protection: `check` (lint, format, types, unit tests, engine coverage, knip, dependency-cruiser, licences, OpenAPI up to date, build), `e2e` (API against Postgres 16 with coverage), `audit` (`pnpm audit`, high and critical fail), `secrets` (gitleaks) and `image` (build, compressed size under 180 MB, Trivy).
