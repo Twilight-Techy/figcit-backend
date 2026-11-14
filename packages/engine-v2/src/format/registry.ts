@@ -8,7 +8,7 @@
  * generated from it, so they cannot disagree.
  */
 
-import { V5_FACTS } from './registry-v5.js';
+import { V5_FACTS, type V5Fact } from './registry-v5.js';
 
 /** Value domains. Their values live in the rule set's catalogue table. */
 export const DOMAINS = [
@@ -168,6 +168,15 @@ export interface FactSpec {
 
 const fact = (spec: FactSpec): FactSpec => spec;
 
+/** A v5.0 fact, checked against the domains and stages here (registry-v5 can't import them). */
+function v5Fact(f: V5Fact): FactSpec {
+  if (f.domain !== undefined && !(DOMAINS as readonly string[]).includes(f.domain))
+    throw new Error(`v5.0 fact ${f.name}: unknown domain ${f.domain}`);
+  if (!STAGES.some((s) => s.key === f.stage))
+    throw new Error(`v5.0 fact ${f.name}: unknown stage ${f.stage}`);
+  return f as FactSpec;
+}
+
 export const FACTS: readonly FactSpec[] = [
   fact({
     name: 'safety.risk',
@@ -243,7 +252,7 @@ export const FACTS: readonly FactSpec[] = [
     computed: true,
     description: 'Experience families present',
   }),
-  ...V5_FACTS,
+  ...V5_FACTS.map(v5Fact),
   fact({
     name: 'family.intensity',
     type: 'intensity',

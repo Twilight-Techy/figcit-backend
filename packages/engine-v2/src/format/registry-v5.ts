@@ -1,10 +1,24 @@
-import type { FactSpec } from './registry.js';
+/**
+ * A v5.0 fact, as the registry's FactSpec has it. Its own type, so this file doesn't import the
+ * registry that imports it (no cycle); the registry checks each domain and stage when it loads.
+ */
+export interface V5Fact {
+  readonly name: string;
+  readonly type: 'enum' | 'set' | 'number' | 'intensity' | 'boolean';
+  readonly domain?: string;
+  readonly min?: number;
+  readonly max?: number;
+  readonly stage: string;
+  readonly derived?: true;
+  readonly computed?: true;
+  readonly description: string;
+}
 
 /**
  * The facts Rules Engine v5.0 adds (format 4, docs/engine-v2/V5.md): the deciding emotion (FE-3),
  * the body signs and their groups (BS-1), and the urgent signs with their answer (SF-4).
  */
-export const V5_FACTS: readonly FactSpec[] = [
+export const V5_FACTS: readonly V5Fact[] = [
   {
     name: 'tasks.count',
     type: 'number',
