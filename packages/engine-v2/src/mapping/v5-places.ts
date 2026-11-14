@@ -69,7 +69,7 @@ export const PLACES: TabMapping = {
       {
         mapping: 'reference',
         reason: 'Home: everything, out loud, eyes closed, Move, Dance and calls (no swap).',
-      } as RowMapping,
+      },
     ],
     place(
       'PL2',
@@ -94,7 +94,7 @@ export const PLACES: TabMapping = {
       {
         mapping: 'reference',
         reason: 'Exam: only silent, eyes-open Regulate; pattern 49 (Tab 11) runs it.',
-      } as RowMapping,
+      },
     ],
     place(
       'PL6',
