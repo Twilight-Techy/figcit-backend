@@ -49,16 +49,25 @@ export function sweepInputs(catalogue: Catalogue): EngineInput[] {
   const feelings = [null, ...valuesOf(catalogue, 'family').map((v) => v.code)];
   const settings = valuesOf(catalogue, 'context').map((v) => v.code);
   const flags = valuesOf(catalogue, 'sensitivity_flag').map((v) => v.code);
-  const tasks: EngineInput[] = [
-    {},
-    { 'demand.present': true, 'demand.timeline': 'T0' },
-    { 'demand.present': true, 'demand.timeline': 'T3' },
-  ];
+  // v5.0 (its catalogue has task chips): tasks by chip, and v5.0's plans (Tab 9).
+  const v5 = valuesOf(catalogue, 'task_chip').length > 0;
+  const tasks: EngineInput[] = v5
+    ? [
+        {},
+        { 'tasks.count': 1, 'tasks.chips': ['can_t_wait'] },
+        { 'tasks.count': 3, 'tasks.chips': ['usual', 'hard'] },
+      ]
+    : [
+        {},
+        { 'demand.present': true, 'demand.timeline': 'T0' },
+        { 'demand.present': true, 'demand.timeline': 'T3' },
+      ];
+  const plans = v5 ? ['free', 'premium'] : ['free', 'plus'];
   const out: EngineInput[] = [];
   for (const cell of cells)
     for (const feeling of feelings)
       for (const taskInput of tasks)
-        for (const plan of ['free', 'plus']) {
+        for (const plan of plans) {
           const i = out.length;
           out.push({
             ...(cell ?? {}),
@@ -89,6 +98,28 @@ const hasSupport = (c: Card): boolean =>
   c.visible.some((i) => 'action' in i.target && i.target.action === 'get_support_now');
 const entitled = (input: EngineInput): boolean =>
   input['signals.plan'] === 'plus' || input['signals.plan'] === 'institution';
+/** A tool the plan lacks: v3.3's Advanced without Plus; v5.0's Prime or Premium (Tab 9). */
+const EVERYTHING = new Set(['premium', 'organisation_seat', 'pilot']);
+const lacks = (i: CardItem, input: EngineInput): boolean => {
+  const plan = input['signals.plan'];
+  if (i.plan === 'premium') return typeof plan !== 'string' || !EVERYTHING.has(plan);
+  if (i.plan === 'prime')
+    return plan !== 'prime' && !(typeof plan === 'string' && EVERYTHING.has(plan));
+  return i.advanced && !entitled(input);
+};
+/**
+ * The task as the primary. v3.3: any Execute primary. v5.0 cuts the task to one small step in
+ * Amber (TK-3; Tab 18 gives Smallest next step there), so in Amber only the task itself counts
+ * (Start, Skip to); in Red any Execute primary does ("Tasks kept, not suggested now").
+ */
+const TASK_ITSELF = new Set(['start_task', 'skip_to_task']);
+const taskFirst = (c: Card): boolean => {
+  const p = c.primary;
+  if (!p || !amberRed(c)) return false;
+  if (c.pattern === undefined || c.light === 'red')
+    return p.pathway === 'execute' || ('action' in p.target && TASK_ITSELF.has(p.target.action));
+  return 'action' in p.target && TASK_ITSELF.has(p.target.action);
+};
 const felt = (input: EngineInput, family: string): boolean =>
   Object.keys((input['family.intensity'] as object | undefined) ?? {}).includes(family);
 
@@ -96,15 +127,16 @@ const felt = (input: EngineInput, family: string): boolean =>
 const TESTS: Readonly<Record<PublishCheckId, (c: Card, input: EngineInput) => string[] | null>> = {
   red_support: (c) => (c.light === 'red' && !hasSupport(c) ? [] : null),
   support_visible: (c) => (c.supportVisible && !hasSupport(c) ? [] : null),
-  primary_in_plan: (c, input) =>
-    !entitled(input) && c.primary?.advanced ? [rowOf(c.primary)] : null,
-  no_advanced_amber_red: (c) => {
-    const advanced = items(c).filter((i) => i.advanced);
+  primary_in_plan: (c, input) => (c.primary && lacks(c.primary, input) ? [rowOf(c.primary)] : null),
+  // v3.3: no Advanced tool at all; v5.0 (ENT-3): no tool the plan lacks.
+  no_advanced_amber_red: (c, input) => {
+    const advanced = items(c).filter(
+      (i) => i.advanced || (i.plan !== undefined && lacks(i, input)),
+    );
     return amberRed(c) && advanced.length > 0 ? advanced.map(rowOf) : null;
   },
   card_shape: (c) => (c.alternatives.length > MAX_ALTERNATIVES ? [] : null),
-  no_task_first_amber_red: (c) =>
-    amberRed(c) && c.primary?.pathway === 'execute' ? [rowOf(c.primary)] : null,
+  no_task_first_amber_red: (c) => (c.primary && taskFirst(c) ? [rowOf(c.primary)] : null),
   hopeless_override: (c, input) =>
     felt(input, 'immediate_risk_language') && c.kind !== 'support_screen' ? [] : null,
   no_reflect_amber_red: (c) => {

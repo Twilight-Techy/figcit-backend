@@ -52,6 +52,22 @@ export class Material {
   readonly reminders: (Origin & { minutes: number; copy: string | null })[] = [];
   support: string | null = null;
   stop: string | null = null;
+  /** v5.0: the card's pattern and the no-task suggestion, each from its best-ranked rule. */
+  readonly patterns: (Origin & { pattern: string })[] = [];
+  readonly suggestions: (Origin & { copy: string })[] = [];
+  /** v5.0 SF-4: the stop is the urgent screen. */
+  urgent: string | null = null;
+  /** v5.0 CX-R: tool → what it is shown as here, in run order (the card takes the best-ranked). */
+  readonly swaps: (Origin & { from: string; to: Target })[] = [];
+  readonly alternativeLimits: number[] = [];
+  /** v5.0 ENT-1: paid tool → its free version, which stands in on a plan without it (T-20). */
+  readonly fallbacks = new Map<string, string>();
+  /** v5.0 TK-2: the task order by chip, from the best-ranked rule. */
+  readonly taskOrders: (Origin & { first: readonly string[]; later: readonly string[] })[] = [];
+  /** v5.0 Tab 7: support cards not shown here, those that come first, and a blocked pick. */
+  readonly menuHidden = new Set<string>();
+  readonly menuFirst: (Origin & { cards: readonly string[] })[] = [];
+  readonly helpSwaps: (Origin & { card: string; copy: string })[] = [];
 }
 
 const str = (e: Effect, k: string): string => String(e[k]);
@@ -83,6 +99,9 @@ function applyToState(e: Effect, state: RunState): boolean {
       return true;
     case 'light.set':
       state.setLight(str(e, 'light'));
+      return true;
+    case 'mode.no_words':
+      state.noWords = true;
       return true;
     case 'light.overlay':
       state.overlayLight(str(e, 'light'));
@@ -200,8 +219,47 @@ function applyToFrame(e: Effect, origin: Origin, m: Material): void {
 }
 
 /** Applies one effect of a matched rule. Every effect in the registry is handled here. */
+/** v5.0's effects on the card's frame: its pattern, the no-task suggestion, the urgent screen. */
+function applyV5(e: Effect, origin: Origin, m: Material): boolean {
+  switch (e.kind) {
+    case 'pattern.set':
+      m.patterns.push({ ...origin, pattern: str(e, 'pattern') });
+      return true;
+    case 'suggestion.set':
+      m.suggestions.push({ ...origin, copy: str(e, 'copy') });
+      return true;
+    case 'screen.urgent':
+      m.urgent ??= origin.rule.id;
+      return true;
+    case 'tools.swap':
+      m.swaps.push({ ...origin, from: str(e, 'from'), to: e['to'] as Target });
+      return true;
+    case 'menu.hide':
+      m.menuHidden.add(str(e, 'card'));
+      return true;
+    case 'menu.first':
+      m.menuFirst.push({ ...origin, cards: list(e, 'cards') });
+      return true;
+    case 'help.swap':
+      m.helpSwaps.push({ ...origin, card: str(e, 'card'), copy: str(e, 'copy') });
+      return true;
+    case 'tools.fallback':
+      m.fallbacks.set(str(e, 'tool'), str(e, 'free'));
+      return true;
+    case 'alternatives.limit':
+      m.alternativeLimits.push(num(e, 'max'));
+      return true;
+    case 'tasks.order':
+      m.taskOrders.push({ ...origin, first: list(e, 'first'), later: list(e, 'later') });
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function applyEffect(e: Effect, origin: Origin, state: RunState, m: Material): void {
   if (applyToState(e, state)) return;
+  if (applyV5(e, origin, m)) return;
   if (applyToChoice(e, origin, m)) return;
   applyToFrame(e, origin, m);
 }

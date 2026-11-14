@@ -103,6 +103,13 @@ export const EFFECTS: readonly EffectSpec[] = [
     description: 'The setting counts as these classes (Tab 3b; read by CX-1 and MD-4)',
   }),
   effect({
+    kind: 'mode.no_words',
+    class: 'requirement',
+    params: {},
+    description:
+      'No-words mode: tap-only tools, eyes open, nothing to read or decide (v5.0 FE-2, BS-3; pattern 16)',
+  }),
+  effect({
     kind: 'light.set',
     class: 'requirement',
     params: { light: { type: 'enum', domain: 'light' } },
@@ -250,6 +257,78 @@ export const EFFECTS: readonly EffectSpec[] = [
     params: { tier: { type: 'enum', domain: 'tier' } },
     description:
       "Offer one tool of this tier from the card's suggested pathway as an alternative (Tab 6d: one labelled Advanced alternative in Green, Yellow or Blue; E-62)",
+  }),
+  effect({
+    kind: 'tools.fallback',
+    class: 'modifier',
+    params: { tool: { type: 'enum', domain: 'tool' }, free: { type: 'enum', domain: 'tool' } },
+    description:
+      'v5.0 ENT-1: on a plan without this tool, its free version leads instead, and it is offered beside it where ENT-11 allows (T-20)',
+  }),
+  effect({
+    kind: 'tools.swap',
+    class: 'modifier',
+    params: { from: { type: 'enum', domain: 'tool' }, to: { type: 'target' } },
+    description:
+      'v5.0 CX-R: where you are, this tool is shown as that one instead (Breathe → Breathe (discreet)); the best-ranked swap wins',
+  }),
+  effect({
+    kind: 'menu.hide',
+    class: 'requirement',
+    params: { card: { type: 'enum', domain: 'support_card' } },
+    description: "v5.0 Tab 7: this support card isn't shown in the Help menu here (its 'Shown in')",
+  }),
+  effect({
+    kind: 'menu.first',
+    class: 'modifier',
+    params: { cards: { type: 'enum_list', domain: 'support_card', min: 1 } },
+    description:
+      'v5.0 Tab 7, ME-4: these support cards come first in the Help menu (Red; Life right now)',
+  }),
+  effect({
+    kind: 'help.swap',
+    class: 'modifier',
+    params: { card: { type: 'enum', domain: 'support_card' }, copy: { type: 'key' } },
+    description:
+      'v5.0 SEQ-2: a gate or safety rule blocks the picked card; the card says why in one line (this wording key)',
+  }),
+  effect({
+    kind: 'tasks.order',
+    class: 'modifier',
+    params: {
+      first: { type: 'enum_list', domain: 'task_chip', min: 0 },
+      later: { type: 'enum_list', domain: 'task_chip', min: 0 },
+    },
+    optional: ['later'],
+    description:
+      'v5.0 TK-2: the order tasks are shown in for this colour, by chip; `later` ones wait (Amber)',
+  }),
+  effect({
+    kind: 'alternatives.limit',
+    class: 'requirement',
+    params: { max: { type: 'int', min: 0, max: 2 } },
+    description: 'v5.0: at most this many alternatives (pattern 49: none beside the silent tool)',
+  }),
+  effect({
+    kind: 'pattern.set',
+    class: 'modifier',
+    params: { pattern: { type: 'enum', domain: 'pattern' } },
+    description:
+      "v5.0: the card's pattern (Tab 11), which gives its headline; the best-ranked rule's wins",
+  }),
+  effect({
+    kind: 'suggestion.set',
+    class: 'modifier',
+    params: { copy: { type: 'key' } },
+    description:
+      'v5.0 TK-4: with no task, the task that fits right now (Tab 10 list); the best-ranked wins',
+  }),
+  effect({
+    kind: 'screen.urgent',
+    class: 'requirement',
+    params: {},
+    description:
+      "v5.0 SF-4: with stop, the urgent screen (999 and the nation's 111 line, pattern 50) instead of the support screen",
   }),
   effect({
     kind: 'copy.use',

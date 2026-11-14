@@ -15,7 +15,7 @@ export class ExportBuilder {
   async build(userId: string): Promise<Section> {
     const c = await this.crypto.forUser(userId);
     const parts = await Promise.all([
-      this.account(userId),
+      this.account(userId, c),
       this.checkIns(userId, c),
       this.work(userId, c),
       this.words(userId, c),
@@ -29,7 +29,7 @@ export class ExportBuilder {
     };
   }
 
-  private async account(userId: string): Promise<Section> {
+  private async account(userId: string, c: UserCipher): Promise<Section> {
     const where = { userId };
     const [user, consents, entitlements, shares, safetyEvents] = await Promise.all([
       this.prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { preferences: true } }),
@@ -66,6 +66,10 @@ export class ExportBuilder {
         timezone: user.timezone,
         createdAt: user.createdAt,
         preferences: user.preferences,
+        ageBand: user.ageBand,
+        productUpdates: user.productUpdates,
+        // Me and Life right now (ME-2, ME-3), as the user wrote them.
+        profile: user.profileEnc ? (JSON.parse(c.dec(user.profileEnc)) as unknown) : null,
       },
       consents,
       plans: entitlements,

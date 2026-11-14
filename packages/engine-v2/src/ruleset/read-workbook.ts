@@ -1,5 +1,12 @@
 import { parseCsv } from './csv.js';
-import { FILE_LAYOUTS, FILE_ORDER, type FileLayout, type TableSpec } from './layout.js';
+import {
+  FILE_LAYOUTS,
+  FILE_ORDER,
+  editionOf,
+  filesOf,
+  type FileLayout,
+  type TableSpec,
+} from './layout.js';
 import { segment, type Block, type NoteBlock, type SheetRow, type TableBlock } from './segment.js';
 import type {
   ImportReport,
@@ -226,9 +233,11 @@ function buildReport(out: Collector, given: readonly string[]): ImportReport {
   const byTab: Partial<Record<TabKey, TabCount>> = {};
   for (const [tab, count] of out.counts) byTab[tab] = count;
   const expected = new Set(FILE_ORDER);
+  // Only the workbook these files are: a v5.0 upload doesn't lack v3.3's tabs, nor the reverse.
+  const own = filesOf(editionOf(given));
   return {
     files: FILE_ORDER.filter((f) => given.includes(f)),
-    missingFiles: FILE_ORDER.filter((f) => !given.includes(f) && !FILE_LAYOUTS[f]?.addition),
+    missingFiles: own.filter((f) => !given.includes(f)),
     unknownFiles: given.filter((f) => !expected.has(f)),
     totalRecords: out.records.length,
     byTab,

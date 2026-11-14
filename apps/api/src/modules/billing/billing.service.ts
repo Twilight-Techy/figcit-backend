@@ -11,7 +11,10 @@ import {
   NotFound,
 } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
+import type { PlanTier } from '../entitlements/entitlements.service.js';
 import { InboxService } from '../notifications/inbox.service.js';
+
+const tierOf = (t: string): PlanTier => (t === 'prime' || t === 'premium' ? t : 'free');
 
 const DAY = 86_400_000;
 const GRACE_DAYS = 7;
@@ -40,74 +43,106 @@ export class BillingService {
     private readonly events: DomainEvents,
   ) {}
 
-  plans(): Promise<
-    {
+  /** VAT on a price before VAT, rounded to the penny. */
+  vatOn(minor: number): number {
+    return Math.round((minor * this.env.VAT_PERCENT) / 100);
+  }
+
+  async plans(): Promise<{
+    vatPercent: number;
+    items: {
       code: string;
       name: string;
+      tier: PlanTier;
       priceMinor: number | null;
+      vatMinor: number | null;
+      totalMinor: number | null;
+      buyable: boolean;
+      lengthDays: number | null;
       currency: string;
       interval: string | null;
       features: string[];
-    }[]
-  > {
-    return this.prisma.plan.findMany({
+    }[];
+  }> {
+    const rows = await this.prisma.plan.findMany({
       where: { active: true },
       orderBy: { position: 'asc' },
-      select: {
-        code: true,
-        name: true,
-        priceMinor: true,
-        currency: true,
-        interval: true,
-        features: true,
-      },
     });
+    return {
+      vatPercent: this.env.VAT_PERCENT,
+      items: rows.map((p) => {
+        const vat = p.priceMinor === null ? null : this.vatOn(p.priceMinor);
+        return {
+          code: p.code,
+          name: p.name,
+          tier: tierOf(p.tier),
+          priceMinor: p.priceMinor,
+          vatMinor: vat,
+          totalMinor: p.priceMinor === null || vat === null ? null : p.priceMinor + vat,
+          buyable: p.buyable,
+          lengthDays: p.lengthDays,
+          currency: p.currency,
+          interval: p.interval,
+          features: p.features,
+        };
+      }),
+    };
   }
 
   async checkout(
     userId: string,
     planCode: string,
-    concessionConfirmed: boolean,
-  ): Promise<{ url: string; sessionId: string }> {
+  ): Promise<{
+    url: string;
+    sessionId: string;
+    subtotalMinor: number;
+    vatMinor: number;
+    totalMinor: number;
+  }> {
     if (this.env.BILLING_PROVIDER !== 'fake') throw new NotConfigured('Card payments');
-    // ENT-8: purchases only by adults; under-18s are covered through an institution licence.
+    // ENT-8: purchases only by adults; 16 and 17 are covered by their college or university.
     const buyer = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { ageBand: true, ageConfirmedAt: true },
     });
     if (buyer?.ageBand === 'minor_institution')
-      throw new Forbidden('Plus is for adults. Your institution licence already covers you.');
+      throw new Forbidden('Your college or university already covers you with Premium.');
     if (!buyer?.ageConfirmedAt)
       throw new AppError(
         403,
         'age_unconfirmed',
         'Please confirm you are 18 or over',
-        'Only adults can buy Plus.',
+        'Only adults can buy a plan.',
       );
     const plan = await this.prisma.plan.findUnique({ where: { code: planCode } });
-    if (!plan?.active || !plan.priceMinor) throw new BadInput('That plan can’t be bought here.');
-    if (plan.code === 'plus_concession' && !concessionConfirmed)
-      throw new BadInput('Please confirm the concession applies to you.');
+    if (!plan?.active || !plan.buyable || !plan.priceMinor)
+      throw new BadInput('That plan can’t be bought here.');
     const active = await this.prisma.entitlement.findFirst({
       where: {
         userId,
+        source: 'web',
         status: { in: ['active', 'grace'] },
-        planCode: { not: 'free' },
         OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }],
       },
+      include: { plan: true },
     });
-    if (active && active.renewsAt)
+    // One subscription at a time; moving between Prime and Premium starts the new one.
+    if (active?.renewsAt && active.planCode === plan.code)
       throw new AppError(
         409,
         'already_subscribed',
-        'You already have Plus',
+        `You already have ${active.plan.name}`,
         'Manage it from Plans.',
       );
     const sessionId = randomUUID();
     this.sessions.set(sessionId, { userId, planCode, at: Date.now() });
+    const vat = this.vatOn(plan.priceMinor);
     return {
       sessionId,
       url: `${this.env.APP_URL.replace(/\/$/, '')}/plans/checkout/?session=${sessionId}`,
+      subtotalMinor: plan.priceMinor,
+      vatMinor: vat,
+      totalMinor: plan.priceMinor + vat,
     };
   }
 
@@ -149,7 +184,7 @@ export class BillingService {
     this.events.emit('entitlement.changed', { userId });
   }
 
-  /** Cancels at the end of the paid period; Plus keeps working until then. */
+  /** Cancels at the end of the paid period; the plan keeps working until then. */
   async cancel(userId: string): Promise<{ endsAt: string }> {
     const sub = await this.prisma.entitlement.findFirst({
       where: {
@@ -216,7 +251,7 @@ export class BillingService {
           renewsAt: new Date(now + (PERIOD_DAYS[interval ?? 'month'] ?? 30) * DAY),
         },
       });
-    // A failed payment never cuts someone off mid-week: Plus keeps working through a grace period.
+    // A failed payment never cuts someone off mid-week: the plan keeps working through a grace period.
     else if (e.type === 'payment_failed')
       await this.prisma.entitlement.update({
         where: { id },

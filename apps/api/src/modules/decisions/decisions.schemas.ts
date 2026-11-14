@@ -20,7 +20,7 @@ const cardItem = z.object({
 });
 
 export const cardV2Schema = z.object({
-  kind: z.enum(['card', 'support_screen']),
+  kind: z.enum(['card', 'support_screen', 'urgent_screen']),
   band: z.string().nullable(),
   light: z.string().nullable(),
   primary: cardItem.nullable(),
@@ -334,7 +334,7 @@ export const gridBodySchema = z
 
 const gridOutcome = z.object({
   light: z.string().nullable(),
-  kind: z.enum(['card', 'support_screen']),
+  kind: z.enum(['card', 'support_screen', 'urgent_screen']),
   label: z.string().describe('The main button as the user sees it'),
   tool: z.string().nullable(),
 });

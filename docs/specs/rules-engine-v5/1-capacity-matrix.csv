@@ -1,0 +1,21 @@
+Tab 1 — Capacity Matrix: Energy × Mood (16 states),,,,,,,,
+"Energy: Very Low, Low, Moderate, High. Mood: Very Bad, Bad, Neutral, Good. The coordinate is the identity — never add or multiply the two numbers (E4M1 ≠ E1M4). Cell IDs and band names are never shown on screen.",,,,,,,,
+,,,,,,,,
+Cell,Energy,Mood,State name,Icon,One-line meaning (shown),Baseline band (internal),Colour shown,Default lean
+E1M1,Very Low,Very Bad,Hibernate,🌙,Rest is the task right now — everything else can wait.,Very Constrained,Red · Care first,Regulate (Rest) or Dump now; Get support now visible; tasks deferred; own practice only if the user starts it
+E1M2,Very Low,Bad,Gentle Drift,🌱,"Low on fuel and feeling flat — small, soft steps only.",Very Constrained,Red · Care first,Regulate first; Connect offered; tasks deferred
+E1M3,Very Low,Neutral,Tender Space,🕯️,Calm but running on empty — be gentle with yourself.,Constrained,Amber · Lighten the load,Regulate (Rest); one familiar step only if wanted; short eyes-open stillness if calm
+E1M4,Very Low,Good,Quiet Glow,☁️,"Peaceful and settled, just low on energy — enjoy the stillness.",Constrained,Amber · Lighten the load,Rest without guilt; stillness or gratitude welcome; familiar steps only
+E2M1,Low,Very Bad,Ground First,🌿,"Some energy, but unsettled — steady yourself before anything else.",Constrained,Amber · Lighten the load,"Regulate or Dump first, then one small familiar step"
+E2M2,Low,Bad,Slow Warm,☀️,Warming up slowly — low-pressure tasks fit best.,Conditional,Yellow · Go gently,Optional light reset; familiar or interest-led tasks to lift mood
+E2M3,Low,Neutral,Building Up,✨,Familiar tasks welcome here.,Conditional,Yellow · Go gently,No support step needed; familiar tasks and small interests
+E2M4,Low,Good,Ready to Try,⚙️,Settled and willing — a good moment to start something.,Available,Green · Ready,No support step needed; interest-led or familiar tasks; a good moment to start
+E3M1,Moderate,Very Bad,Activate,🔥,Energy is up but so is friction — channel it before you use it.,Conditional,Yellow · Go gently,Regulate first to channel energy; then something new or with others
+E3M2,Moderate,Bad,Flow Entering,🎯,"Getting going, though mood's still catching up — ease in.",Conditional,Yellow · Go gently,Optional light reset; familiar or interest-led tasks to lift mood
+E3M3,Moderate,Neutral,Full Flow,🌊,"Steady energy, clear head — good for focused work.",Available,Green · Ready,No support step needed; familiar or moderately stretching work
+E3M4,Moderate,Good,Creative Peak,🎨,Energised and in a good place — great for ideas and making things.,Available,Green · Ready,"No support step needed; ideas, making, stretching or exploring"
+E4M1,High,Very Bad,Regain Base,💧,Lots of energy but mood is scattered — find your footing first.,Conditional,Yellow · Go gently,Regulate (grounding) first; Adapt to a quieter space if there is a task; only the most urgent minimum
+E4M2,High,Bad,Storm Mode,⚡,"Wired and on edge — high energy needs an outlet, not a task yet.",Conditional,Yellow · Go gently,Regulate with movement first; Express (write it out); then something new or with others
+E4M3,High,Neutral,Release First,🌬️,Charged up and steady — let some energy out before diving in.,Conditional,Yellow · Go gently,"Brief movement offered, not forced; stretching or familiar work"
+E4M4,High,Good,Peak Flow,🚀,"High energy, feeling good — your best window for big things.",Available,Green · Ready,"No support step needed; stretching, interest, something new, exploring"
+Not sure,—,—,Not sure yet,❔,That's okay — we'll go gently.,Conditional (NS-1),Yellow · Go gently,"Body-first check (pattern 27), then confirm"

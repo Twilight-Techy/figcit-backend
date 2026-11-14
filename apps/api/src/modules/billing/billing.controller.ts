@@ -4,20 +4,31 @@ import { z } from 'zod';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
-import { EntitlementsService } from '../entitlements/entitlements.service.js';
+import { EntitlementsService, PLAN_TIERS } from '../entitlements/entitlements.service.js';
 import { BillingService } from './billing.service.js';
 
 const planSchema = z.object({
   code: z.string(),
   name: z.string(),
+  tier: z.enum(PLAN_TIERS),
+  /** Pence before VAT. */
   priceMinor: z.number().int().nullable(),
+  /** The VAT on that price, and the total a buyer pays. */
+  vatMinor: z.number().int().nullable(),
+  totalMinor: z.number().int().nullable(),
+  /** The user can buy it here; otherwise an organisation arranges it (seats, the pilot). */
+  buyable: z.boolean(),
+  /** For a plan that ends by itself, such as the six-week pilot. */
+  lengthDays: z.number().int().nullable(),
   currency: z.string(),
   interval: z.string().nullable(),
   features: z.array(z.string()),
 });
-const plansSchema = z.object({ items: z.array(planSchema) });
+const plansSchema = z.object({ vatPercent: z.number(), items: z.array(planSchema) });
 const entitlementsSchema = z.object({
+  /** @deprecated Use `level`: any paid plan reads as `plus` here. */
   tier: z.enum(['free', 'plus']),
+  level: z.enum(PLAN_TIERS),
   items: z.array(
     z.object({
       planCode: z.string(),
@@ -32,7 +43,14 @@ const entitlementsSchema = z.object({
 const checkoutSchema = z
   .object({ planCode: z.string().max(24), concessionConfirmed: z.boolean().default(false) })
   .strict();
-const checkoutResultSchema = z.object({ url: z.string(), sessionId: z.uuid() });
+const checkoutResultSchema = z.object({
+  url: z.string(),
+  sessionId: z.uuid(),
+  /** What the buyer sees before paying: the price, the VAT, the total. */
+  subtotalMinor: z.number().int(),
+  vatMinor: z.number().int(),
+  totalMinor: z.number().int(),
+});
 const completeSchema = z.object({ sessionId: z.uuid() }).strict();
 const okSchema = z.object({ ok: z.literal(true) });
 const iso = (d: Date | null): string | null => d?.toISOString() ?? null;
@@ -52,18 +70,19 @@ export class BillingController {
     response: plansSchema,
   })
   async plans(): Promise<z.infer<typeof plansSchema>> {
-    return { items: await this.billing.plans() };
+    return this.billing.plans();
   }
 
   @Get('me/entitlements')
   @Route({ summary: 'What I have access to', tags: ['Plans'], response: entitlementsSchema })
   async mine(@CurrentUser() user: RequestUser): Promise<z.infer<typeof entitlementsSchema>> {
-    const [tier, items] = await Promise.all([
+    const [level, items] = await Promise.all([
       this.entitlements.tierFor(user.id),
       this.entitlements.list(user.id),
     ]);
     return {
-      tier,
+      tier: level === 'free' ? 'free' : 'plus',
+      level,
       items: items.map((e) => ({
         ...e,
         renewsAt: iso(e.renewsAt),
@@ -75,7 +94,7 @@ export class BillingController {
 
   @Post('billing/checkout')
   @Route({
-    summary: 'Start buying Plus (S61)',
+    summary: 'Start buying Prime or Premium (S61): the total with VAT, before payment',
     tags: ['Plans'],
     body: checkoutSchema,
     response: checkoutResultSchema,
@@ -85,7 +104,7 @@ export class BillingController {
     @CurrentUser() user: RequestUser,
     @Body(new ZodPipe(checkoutSchema)) body: z.infer<typeof checkoutSchema>,
   ): Promise<z.infer<typeof checkoutResultSchema>> {
-    return this.billing.checkout(user.id, body.planCode, body.concessionConfirmed);
+    return this.billing.checkout(user.id, body.planCode);
   }
 
   @Post('billing/fake/complete')

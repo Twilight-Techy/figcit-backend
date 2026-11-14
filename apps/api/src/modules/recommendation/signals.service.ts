@@ -180,7 +180,8 @@ export class SignalsService {
       consent?.granted === true &&
       validated >= MIN_VALIDATED_OUTCOMES;
     return {
-      plan,
+      // The rules (v3.3) know a free and a paid plan: Prime and Premium are both paid.
+      plan: plan === 'free' ? 'free' : 'plus',
       declinesThisSession: declines,
       rejectedToolIds: rejected,
       ruminationTopics: topics,

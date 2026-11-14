@@ -9,6 +9,7 @@ import { CurrentUser, type RequestUser } from '../../common/guards/request-user.
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import {
+  authMethodsSchema,
   browseTokenSchema,
   forgotSchema,
   magicLinkRequestSchema,
@@ -27,6 +28,7 @@ import {
 } from './auth.schemas.js';
 import { AuthService, type SignedIn } from './auth.service.js';
 import { GoogleService } from './google.service.js';
+import { MailService } from '../../platform/mail/mail.service.js';
 import { SessionsService, type IssuedSession } from './sessions.service.js';
 
 const REFRESH_COOKIE = 'figcit_rt';
@@ -66,6 +68,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly sessions: SessionsService,
     private readonly google: GoogleService,
+    private readonly mail: MailService,
   ) {}
 
   private native(req: FastifyRequest): boolean {
@@ -336,6 +339,19 @@ export class AuthController {
     return { browseToken: token.browseToken, expiresAt: token.expiresAt.toISOString() };
   }
 
+  @Get('methods')
+  @Route({
+    summary: 'The sign-in methods that work here (SU-2): the app shows only these',
+    tags: ['Auth'],
+    access: 'public',
+    response: authMethodsSchema,
+  })
+  methods(): z.infer<typeof authMethodsSchema> {
+    // Email sign-in still works through the dev mailbox in development and tests.
+    const email = this.mail.delivers || this.env.NODE_ENV !== 'production';
+    return { password: true, emailCode: email, google: this.google.configured };
+  }
+
   @Get('google/start')
   @Route({
     summary: 'Start Google sign-in (redirect)',
@@ -344,7 +360,17 @@ export class AuthController {
     status: 302,
   })
   async googleStart(@Res() reply: FastifyReply): Promise<void> {
-    const start = await this.google.start();
+    // Never a raw error page (SU-10): back to the app, which says so in plain words.
+    const back = `${this.env.APP_URL}/enter/?error=google`;
+    if (!this.google.configured) {
+      void reply.redirect(back, 302);
+      return;
+    }
+    const start = await this.google.start().catch(() => null);
+    if (!start) {
+      void reply.redirect(back, 302);
+      return;
+    }
     const secure = this.env.COOKIE_SECURE ?? this.env.NODE_ENV === 'production';
     void reply.setCookie(GOOGLE_COOKIE, `${start.state}.${start.verifier}`, {
       httpOnly: true,

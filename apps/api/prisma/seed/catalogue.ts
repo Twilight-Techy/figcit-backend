@@ -2,48 +2,139 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { PrismaClient } from '@prisma/client';
 
-// Prices are PLACEHOLDERS until the financial plan sets them (D-13, ENT-8); held as configuration.
+// The business plan's plans (Developer Brief, Plans and pricing): pence before VAT, held as
+// configuration (ENT-10). Annual is 12 months for the price of 10. The migration
+// 20261113115947_plans_prime_premium writes the same rows; FigCit Plus is retired (kept as Prime).
+const PRIME = ['full_history', 'more_choices', 'sorting', 'unlimited_rewrite'];
+const PREMIUM = ['full_history', 'reports', 'patterns', 'full_toolkit'];
+interface PlanRow {
+  readonly code: string;
+  readonly name: string;
+  readonly tier: 'free' | 'prime' | 'premium';
+  readonly priceMinor: number | null;
+  readonly interval: 'month' | 'year' | null;
+  readonly position: number;
+  readonly features: readonly string[];
+  readonly active?: boolean;
+  readonly buyable?: boolean;
+  readonly lengthDays?: number | null;
+}
+const plan = (p: PlanRow) => ({
+  ...p,
+  active: p.active ?? true,
+  buyable: p.buyable ?? false,
+  lengthDays: p.lengthDays ?? null,
+});
+
 export const PLANS = [
-  {
+  plan({
     code: 'free',
     name: 'Free',
+    tier: 'free',
     priceMinor: null,
     interval: null,
     position: 0,
     features: ['all_free_tools', 'engine', 'help', 'support_plan', 'progress_30_days'],
-  },
-  {
-    code: 'plus_monthly',
-    name: 'FigCit Plus (monthly)',
-    priceMinor: 699,
+  }),
+  plan({
+    code: 'prime_monthly',
+    name: 'Prime',
+    tier: 'prime',
+    priceMinor: 700,
     interval: 'month',
     position: 1,
-    features: ['advanced_tools', 'full_progress', 'reports'],
-  },
-  {
-    code: 'plus_yearly',
-    name: 'FigCit Plus (yearly)',
-    priceMinor: 5999,
+    features: PRIME,
+    buyable: true,
+  }),
+  plan({
+    code: 'prime_yearly',
+    name: 'Prime',
+    tier: 'prime',
+    priceMinor: 7000,
     interval: 'year',
     position: 2,
-    features: ['advanced_tools', 'full_progress', 'reports'],
-  },
-  {
-    code: 'plus_concession',
-    name: 'FigCit Plus concession (monthly)',
-    priceMinor: 349,
+    features: PRIME,
+    buyable: true,
+  }),
+  plan({
+    code: 'premium_monthly',
+    name: 'Premium',
+    tier: 'premium',
+    priceMinor: 1300,
     interval: 'month',
     position: 3,
-    features: ['advanced_tools', 'full_progress', 'reports'],
-  },
-  {
+    features: PREMIUM,
+    buyable: true,
+  }),
+  plan({
+    code: 'premium_yearly',
+    name: 'Premium',
+    tier: 'premium',
+    priceMinor: 13000,
+    interval: 'year',
+    position: 4,
+    features: PREMIUM,
+    buyable: true,
+  }),
+  plan({
+    code: 'org_seat',
+    name: 'Organisation seat',
+    tier: 'premium',
+    priceMinor: 1000,
+    interval: 'month',
+    position: 5,
+    features: PREMIUM,
+  }),
+  plan({
     code: 'institution',
-    name: 'Institution licence',
+    name: 'Organisation seat',
+    tier: 'premium',
     priceMinor: null,
     interval: null,
-    position: 4,
-    features: ['advanced_tools', 'full_progress', 'reports', 'caam_dashboard'],
-  },
+    position: 6,
+    features: PREMIUM,
+  }),
+  plan({
+    code: 'pilot',
+    name: 'Launch pilot',
+    tier: 'premium',
+    priceMinor: null,
+    interval: null,
+    position: 7,
+    features: PREMIUM,
+    lengthDays: 42,
+  }),
+  // Retired: existing subscriptions keep working, as Prime.
+  plan({
+    code: 'plus_monthly',
+    name: 'FigCit Plus (monthly)',
+    tier: 'prime',
+    priceMinor: 699,
+    interval: 'month',
+    position: 8,
+    features: PRIME,
+    active: false,
+  }),
+  plan({
+    code: 'plus_yearly',
+    name: 'FigCit Plus (yearly)',
+    tier: 'prime',
+    priceMinor: 5999,
+    interval: 'year',
+    position: 9,
+    features: PRIME,
+    active: false,
+  }),
+  plan({
+    code: 'plus_concession',
+    name: 'FigCit Plus concession',
+    tier: 'prime',
+    priceMinor: 349,
+    interval: 'month',
+    position: 10,
+    features: PRIME,
+    active: false,
+  }),
 ] as const;
 
 interface ToolRow {

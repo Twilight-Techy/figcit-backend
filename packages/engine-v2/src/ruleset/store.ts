@@ -18,8 +18,11 @@ import type {
  *    rule set has left the dev database: minutes.cap and driver weights (E-49); practice.limit,
  *    tools.tier, tier.limit, tier.require, reminder.offer, two card actions, the default layer,
  *    the practice_mode and tier values, six input facts and the derived-fact stage check (E-50).
+ * 4: Rules Engine v5.0 (docs/engine-v2/V5.md): the v5.0 tabs; the feeling_group, body_sign,
+ *    body_group, urgent_sign and urgent_answer values; the deciding-emotion, body and urgent-sign
+ *    facts; mode.no_words. Format 3 rule sets need no upgrade: nothing they use changed.
  */
-export const RULESET_FORMAT = 3;
+export const RULESET_FORMAT = 4;
 
 /**
  * How far a record's engine columns say what its workbook text says (DESIGN §3.3):

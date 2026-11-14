@@ -8,6 +8,8 @@
  * generated from it, so they cannot disagree.
  */
 
+import { V5_FACTS, type V5Fact } from './registry-v5.js';
+
 /** Value domains. Their values live in the rule set's catalogue table. */
 export const DOMAINS = [
   'cell',
@@ -30,6 +32,17 @@ export const DOMAINS = [
   'support',
   'practice_mode',
   'tier',
+  // Rules Engine v5.0 (docs/engine-v2/V5.md): emotion groups, body signs, urgent signs.
+  'feeling_group',
+  'body_sign',
+  'body_group',
+  'urgent_sign',
+  'urgent_answer',
+  'task_chip',
+  // v5.0: the Help menu's support cards (Tab 7), Life right now (Tab 15), Quick or Full check-in.
+  'support_card',
+  'life_event',
+  'checkin_mode',
 ] as const;
 export type Domain = (typeof DOMAINS)[number];
 
@@ -59,6 +72,18 @@ export const DOMAIN_INFO: Readonly<Record<Domain, string>> = {
   practice_mode:
     'How an offered Reflect or Meditate practice may run (Tab 6c MD-2, MD-4, section D)',
   tier: 'Tool tier the Tab 6d rows mark: Advanced (paid) or the safety floor; other tools are free',
+  feeling_group:
+    'Group of an emotion (v5.0 Tab 2; never shown). Order breaks a tie between two emotions (FE-3: lower wins)',
+  body_sign: 'Body sign (v5.0 Tab 3, Body tab)',
+  body_group: 'Group of a body sign (v5.0 Tab 3)',
+  urgent_sign: "Urgent body sign, 'Something feels wrong' (v5.0 Tab 3; SF-4)",
+  urgent_answer: "The answer to 'Is this sudden or new for you?' (SF-4)",
+  task_chip:
+    "A task's chip (v5.0 Tab 10): New, Can't wait, Hard, Usual ... (NUCRIPCE in plain words)",
+  support_card:
+    "What the user picked in the Help menu (v5.0 Tab 7): the eight support cards and the 'More needs' list; Group is the card it is shown with",
+  life_event: "Life right now (v5.0 Tab 15 ME-3): what's going on, never the colour (LE-0)",
+  checkin_mode: 'Quick or Full check-in (v5.0 Tab 13): a Quick one asks no place (CTX-U)',
 };
 
 /** The engine's stages, in run order, each tied to its Tab 8 step. */
@@ -107,6 +132,11 @@ export const ACTIONS = [
   'save_for_later',
   'open_home',
   'check_in',
+  // v5.0: P1-A's "Plan something" (to a task) and TK-4's suggested task (its words: the suggestion).
+  'plan_something',
+  'suggest_task',
+  // v5.0: "Start: {task}" (patterns 2, 54); the app fills in the top task.
+  'start_task',
 ] as const;
 export type Action = (typeof ACTIONS)[number];
 
@@ -137,6 +167,15 @@ export interface FactSpec {
 }
 
 const fact = (spec: FactSpec): FactSpec => spec;
+
+/** A v5.0 fact, checked against the domains and stages here (registry-v5 can't import them). */
+function v5Fact(f: V5Fact): FactSpec {
+  if (f.domain !== undefined && !(DOMAINS as readonly string[]).includes(f.domain))
+    throw new Error(`v5.0 fact ${f.name}: unknown domain ${f.domain}`);
+  if (!STAGES.some((s) => s.key === f.stage))
+    throw new Error(`v5.0 fact ${f.name}: unknown stage ${f.stage}`);
+  return f as FactSpec;
+}
 
 export const FACTS: readonly FactSpec[] = [
   fact({
@@ -213,6 +252,7 @@ export const FACTS: readonly FactSpec[] = [
     computed: true,
     description: 'Experience families present',
   }),
+  ...V5_FACTS.map(v5Fact),
   fact({
     name: 'family.intensity',
     type: 'intensity',

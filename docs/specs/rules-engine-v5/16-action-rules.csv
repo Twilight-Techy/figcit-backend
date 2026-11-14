@@ -1,0 +1,77 @@
+Tab 16 — A rule for every user action,,,,,,
+,,,,,,
+Action,Screen,User action,System rule / response,Data stored,Next,Linked rules
+A-01,S01 Welcome,Open the app (not signed in),"Show Welcome with Create account, Sign in, How FigCit works and Help. No browse option.",—,S02 / S04,SU-1
+A-02,Any,"Tap Help (any screen, signed in or not)",Open Help/SOS with lines for the user's nation (or All-UK lines if unknown).,"help_opened, source",S31,"SF-1, HELPLINES"
+A-03,S02 How it works,Continue / Skip,"Show the 5 steps in current wording (Check in, Help menu, Support or task, Try one step, Review). Skip goes to S04.",—,S04,CP-12
+A-04,S04 Create account,Choose email + password / email code / Google,Show only configured methods (SU-2).,auth_method,S04a,SU-2
+A-05,S04a Your details,Enter name or nickname,"Required, 1–30 characters, any script; trimmed; used in greetings.",display_name,—,SU-3
+A-06,S04a Your details,Choose age band,18+ continue; 16–17 → institution code or institution sign-in; Under 16 → not available + Childline + Help.,age_band (never DOB),S04b / stop,SU-4
+A-07,S04a Your details,Choose country and UK nation,Required; sets Help/SOS lines and notices.,"country, uk_nation",—,SU-5
+A-08,S04a Your details,Accept Terms and Privacy; optional updates,Create account disabled until Terms and Privacy accepted; updates unticked by default.,consent records,S04b,SU-8
+A-09,S04b Verify,Enter code / open link / Resend,Code valid 10 min; Resend after 60 s; spam hint; plain errors.,verified_at,S04c,"SU-7, SU-10"
+A-10,S04 Google,Continue with Google,Pre-fill name (editable) and email; still ask age band and country.,auth_provider,S04a,SU-6
+A-11,S04c Welcome,"See 'Hello, {name}'; set comfort or Skip",One optional comfort screen; calm defaults if skipped.,preferences,S06 or S05,SU-9
+A-12,S04 Sign in,Sign in,Verify; restore settings first; greet by name.,session,S05,SI-1..SI-5
+A-13,S04 Sign in,Forgot password,Time-limited link; other sessions signed out.,—,S04,SI-3
+A-14,S05 Home,Tap Quick check-in,Run Capacity → How you feel → Help menu.,mode=quick,S06,CTX-U
+A-15,S05 Home,Tap Full check-in,Run Capacity → How you feel → Body & senses → Where you are → Help menu.,mode=full,S06,—
+A-16,S05 Home,Tap 'I need help with…',"Ask Capacity first (1 screen), then Help menu.",mode=need,S06,—
+A-17,S06 Capacity,Choose energy and mood,"Nothing pre-selected; Continue enabled once both chosen; show state name, icon, meaning and colour instantly.","cell_id, baseline_band",S08,Tab 1
+A-18,S06 Capacity,Tap 'Not sure',Three picture taps; suggest a state to confirm.,source=not_sure,S07,NS-1
+A-19,S08 How you feel,Pick up to 2 emotions,10 free chips + Something else + More (Prime). One slider appears under each chosen emotion; a third pick asks which to swap.,emotions[],—,"FE-3, Tab 2"
+A-20,S08 How you feel,Move the slider,"Slider only on screen; backend maps to Mild, Moderate, Strong, Very strong. The stronger emotion decides.",intensity[],—,"FE-1, FE-2"
+A-21,S08 How you feel,Continue,Show colour + one sentence inline; in Amber/Red show optional 'Breathe first?' chip.,band_after_feelings,S09 (full) or S11,"FE-1, FE-2, CAP-1"
+A-22,S08 How you feel,Tap 'Breathe first?' chip,Open a 1–2 min Breathe; then return to the check-in step the user was on.,interim_tool,S14,pattern 4/5
+A-23,S09 Body & senses,Tick body signs (and urgent signs if needed),"Optional; Shutdown sign or 3+ signs lowers the colour (BS-1, within CAP-1); urgent sign → SF-4 first.",sensations[],—,"BS-1, SF-4"
+A-24,S09 Body & senses,"Tick senses (noise, lights…)","Senses never change the colour; they put Adapt first (BS-2, pattern 59).",sense_flags[],S10,BS-2
+A-25,S10 Where you are,Choose place and who's around,"Nothing pre-selected; frequent places shown first, unselected.","place, people",—,CTX-0
+A-26,S10 Where you are,Answer 'Can you step away?',"Yes opens Move, Dance and calls where the place allows; No keeps tools discreet. Never changes the colour.",can_step_away,—,CX-R
+A-27,S10 Where you are,Tick help or devices with me,Unlocks or reorders tools (e.g. headphones → sounds and guided audio); never changes the colour.,devices[],—,DV-R
+A-28,S10 Where you are,Confirm,Apply CX-R and DV-R to choose the route; show 'Got it — we'll pick things that work {place words}.' The colour does not change here.,"route, tools_allowed",S11,"CX-R, DV-R"
+A-29,S11 Help menu,Choose 'Something I need to do',Go to task.,need=task,S12,—
+A-30,S11 Help menu,Choose 'Support for how I feel',Show the 8 cards filtered by light (top 4 by fit + More).,—,S11b,Tab 7
+A-31,S11b Support cards,Pick a card,Card sets the pathway unless a gate or safety rule blocks it (SEQ-2).,need_card,S13,SEQ-2
+A-32,S11 Help menu,Choose 'Just checking in',Save the check-in and return Home with the state card.,—,S05,—
+A-33,S12 Task,"Enter task, kind, when, 'putting this off'",Timeline asked only here; several tasks → pick one of three.,"demand, timeline",S13,"Tabs 10, 10"
+A-34,S12 Task,Also picked a support card,Apply SEQ-1 (support first in Amber/Red; otherwise ask 'Which first?').,sequence,S13,"SEQ-1, P43"
+A-35,S13 Card,Tap the primary action,Open the tool or task flow named by its user_label only.,cta_accepted,S14–S29,LBL-1
+A-36,S13 Card,Tap 'Other ways in',Show up to two alternatives that fit the light (ALT-1).,alt_opened,sheet,ALT-1
+A-37,S13 Card,Tap 'Why this?',"Show the full RT-1 reason, including what context changed.",—,sheet,RT-1
+A-38,S13 Card,Tap 'Not now',Offer Remind me in an hour / Save for later / Back to Home; no penalty; do not repeat the same card this session.,declined,S05,pattern 30
+A-39,S13 Card,Tap 'Not at home? Tell us where you are',Open S10 and re-run the card.,—,S10,"CTX-U, P42"
+A-40,S13 Card,Edit state,Return to S06 with current answers kept for this check-in only.,—,S06,—
+A-41,Any tool,Start / pause / stop,Stop anytime; nothing counted or scored; discreet variants first in public.,session events,—,Tab 8
+A-42,Any tool,Complete,Ask 'How did that go?',completion,S30,—
+A-43,S30 Feedback,Rate helpfulness and effort; optional quick re-check,Apply RC-1..RC-5; surface any queued step.,outcome,S13 / S05,Tab 6
+A-44,S16 Dump,Delete a dump,In-app confirm dialog (never the browser's confirm box).,—,—,BUG-11
+A-45,S05 Home,See profile prompt,Shown only when ME-1 allows; Dismiss or Add details.,prompt_shown,S35 Me,ME-1
+A-46,S35 Me,Add optional details,Save each field separately; all optional.,profile fields,—,ME-2
+A-47,S35 Me,Add to Life right now,Optional; multi-select from the ME-3 list; editable and deletable; no health or harm options.,life_right_now[],—,"ME-3, ME-6"
+A-48,S35 Me,"Tap 'If someone is hurting you or you don't feel safe, tap Help'",Open Help/SOS with the nation's crisis and domestic abuse lines; store nothing about the tap's reason.,help_opened (source = life_right_now),S31,"ME-5, SF-3"
+A-49,S41 Plans,Open plans,"Show Free, Prime (£7/month or £70/year), Premium (£13/month or £130/year) and 'Covered by your organisation?'; prices before VAT with 'VAT added at checkout'; never in Amber/Red.",—,—,"ENT-3, ENT-10"
+A-50,S41 Plans,"Choose Prime or Premium, monthly or annual",Adults only; checkout shows price + VAT = total before payment; web payment provider; cancel in two taps.,"subscription, billing_period",—,ENT-8
+A-51,S41 Plans,Enter an organisation code,Check the seat; unlock Premium for the covered user automatically.,seat_id,—,ENT-7
+A-52,Tool tile,Free user taps a Prime/Premium tile (Green/Yellow/Blue),Show what it adds and the plan that includes it; 'Not now' remembered for the session.,—,S41,ENT-11
+A-53,S36 Settings,Change comfort settings,Apply immediately everywhere.,preferences,—,—
+A-54,S36 Settings,Export or delete my data,Export within the app; delete with one confirmation and a cooling-off notice.,—,—,ENT-2
+A-55,S40 Sign out,Sign out,Shown only when signed in; confirm once.,—,S01,SI-6
+,,,,,,
+v5.0 — New actions,,,,,,
+Action,Screen,User action,System rule / response,Data stored,Next,Linked rules
+A-56,S05 Home,First time on Home,"Show 'Set things up your way' (theme, language, text size, reduced motion, voice, sounds, reminders); Skip allowed.",settings,S05,"ST-1, ST-2"
+A-57,S05 Home,Tap the settings icon,Open Settings; changes apply straight away.,settings,S36,ST-3
+A-58,S08 How you feel,Pick an emotion,Show one slider under it; max two emotions; a third tap asks which to swap.,"emotions[], slider",—,FE-3
+A-59,S08 How you feel,Move the slider,"Backend maps 1–3 Mild, 4–6 Moderate, 7–8 Strong, 9–10 Very strong; result line updates.",intensity,—,"FE-1, FE-2"
+A-60,S08 How you feel,Tap 'Something else',Text box; SF-1 check; optional one-tap group; Free: not saved after the check-in; paid: 'Save as my own emotion'.,custom_emotion (paid only),—,SE-1
+A-61,S08 / S09 / S10,Tap a locked option,Green/Yellow/Blue: one-screen plan sheet. Amber/Red: nothing opens; user picks another or 'Something else'.,lock_tapped,S41 or stay,"ENT-12, ENT-13"
+A-62,S09 Body & senses,Tap an urgent sign,Ask 'Is this sudden or new for you?' Yes → urgent screen; No → continue one step lower.,urgent_answer (no detail stored),S31u / S10,"SF-4, P50, P51"
+A-63,S12 Task,Add a task with a chip,"Save name, chip (optional) and time; sort by colour; card names the order in plain words.","task, chip",S13,"TK-1, TK-2"
+A-64,S13 Card,No task entered,Suggest one task that fits the colour and place (none in Red).,suggestion_shown,—,"TK-4, P53"
+A-65,S16 Dump,Sort an item,To-do → Task; Note → saved; Idea in words → Write; Idea as image → Create; Worry → by colour.,sorted_as,S12 / S17 / S20 / S14,DR-1..DR-6
+A-66,S14 Regulate,Choose Dance break or a session,Own music or royalty-free track; only where the place allows; timer.,session,S30,"MV-2, MV-3, MV-7"
+A-67,S14 Regulate,Start guided body movement (Premium),Show safety line; choose voice or display; set 2–20 minutes.,"session, guide_type",S30,"MV-5, MV-6"
+A-68,S14c Create,"Draw, paint or design; Save or Upload",Private canvas; Free saves up to 10; Prime unlimited and upload.,artwork (private),—,"CR-2, CR-3, CR-5"
+A-69,S20 Express,"Write, or 'Ask for what I need'",Writing panel; template builds a short request; never sends automatically.,draft (private),—,"WR-1, RW-4"
+A-70,S35 Me,"Turn on 'Getting back to work, study or training'",Adds the morning load check and before-a-shift tools.,rtw_on,S05,"RW-1, RW-2"
+A-71,S35 Me,Open My fit summary (Premium),2–4 weeks of capacity against task chips; share only by choice.,—,—,RW-5

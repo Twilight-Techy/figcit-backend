@@ -46,8 +46,16 @@ export function copyOf(
 }
 
 /** The wording as first filled, as records without an order yet. */
-export function copySeedRows(): Omit<RulesetRecord, 'order'>[] {
-  return COPY_SEED.map(([key, text, source, how, note = '']) => {
+export function copySeedRows(
+  seed: readonly (readonly [
+    string,
+    string,
+    string,
+    'exact' | 'interpreted',
+    string?,
+  ])[] = COPY_SEED,
+): Omit<RulesetRecord, 'order'>[] {
+  return seed.map(([key, text, source, how, note = '']) => {
     const cells: Record<string, string> = { Key: key, Text: text, Source: source, Note: note };
     return {
       tab: 'copy' as const,
@@ -61,7 +69,7 @@ export function copySeedRows(): Omit<RulesetRecord, 'order'>[] {
       mapping: how,
       status: 'active' as const,
       // The support screen's words are clinical wording (Tab 7 pattern 28, T-21).
-      safety: key.startsWith('card.support'),
+      safety: key.startsWith('card.support') || key === 'reason.urgent',
       workbookTag: null,
     };
   });

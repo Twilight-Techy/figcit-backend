@@ -23,7 +23,7 @@ export class DumpSortService implements OnModuleInit {
   }
 
   async suggest(userId: string, dumpId: string): Promise<void> {
-    if ((await this.entitlements.tierFor(userId)) !== 'plus') return;
+    if (!(await this.entitlements.paid(userId))) return;
     const row = await this.prisma.dump.findFirst({
       where: { id: dumpId, userId },
       select: DUMP_SELECT,

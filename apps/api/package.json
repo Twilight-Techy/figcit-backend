@@ -22,6 +22,7 @@
     "db:seed": "prisma db seed",
     "db:migrate": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
+    "ruleset:publish": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/publish-edition.ts",
     "db:sync-inputs": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/sync-inputs.ts",
     "db:seed:personas": "node --conditions=development --import @swc-node/register/esm-register prisma/seed/run-personas.ts",
     "eval": "node --conditions=development --import @swc-node/register/esm-register src/modules/ai/evals/run.ts",

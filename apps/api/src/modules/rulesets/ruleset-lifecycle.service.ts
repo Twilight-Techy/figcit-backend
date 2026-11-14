@@ -6,7 +6,7 @@ import {
   publishChecks,
   PUBLISH_CHECKS,
   type PublishCheckReport,
-  INPUTS,
+  questionsOf,
   rowIssues,
   rulesetDocument,
   type JsonValue,
@@ -80,12 +80,15 @@ function invalidRows(rows: readonly RecordRow[]): {
       engine: r.engine,
     }));
   const { catalogue, issues: catalogueIssues } = catalogueOf(live);
-  // The check-in options must all point at catalogue values, and every question needs options (E-40).
+  // The check-in options must all point at catalogue values, and every question the edition asks
+  // needs options (E-40; v5.0's questions are Tab 13's).
   const { options, issues: optionIssues } = inputOptionsOf(live, catalogue);
-  const empty = INPUTS.filter((input) => options[input].length === 0).map((input) => ({
-    path: `/input_mappings/${input}`,
-    message: `the check-in question "${input}" has no options`,
-  }));
+  const empty = questionsOf(catalogue)
+    .filter((input) => options[input].length === 0)
+    .map((input) => ({
+      path: `/input_mappings/${input}`,
+      message: `the check-in question "${input}" has no options`,
+    }));
   const invalid: InvalidRow[] = [];
   for (const r of live) {
     if (r.tab === 'catalogue') continue; // reported once, in catalogueIssues

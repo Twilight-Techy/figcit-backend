@@ -65,10 +65,9 @@ export class AiService {
     if (!userHash) return true;
     let limit = caller.userId ? STANDARD_DAILY : BROWSE_DAILY;
     if (caller.allowance === 'assist' && caller.userId) {
-      limit =
-        (await this.entitlements.tierFor(caller.userId)) === 'plus'
-          ? PLUS_ASSIST_DAILY
-          : this.env.ASSIST_DAILY_ALLOWANCE;
+      limit = (await this.entitlements.paid(caller.userId))
+        ? PLUS_ASSIST_DAILY
+        : this.env.ASSIST_DAILY_ALLOWANCE;
     }
     const since = new Date();
     since.setUTCHours(0, 0, 0, 0);

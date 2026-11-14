@@ -49,7 +49,7 @@ model User {
   email           String?    @unique // stored lower-cased
   emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz(3)
   passwordHash    String?    @map("password_hash")
-  nickname        String?    @db.VarChar(40)
+  nickname        String?    @db.VarChar(120) // 30 characters as seen, in any script (SU-6)
   ageConfirmedAt  DateTime?  @map("age_confirmed_at") @db.Timestamptz(3)
   ageBand         AgeBand?   @map("age_band")
   locale          String     @default("en-GB") @db.VarChar(16)
@@ -66,6 +66,12 @@ model User {
   profileEnc      Bytes?     @map("profile_enc")
   journeySeenAt   DateTime?  @map("journey_seen_at") @db.Timestamptz(3)
   setupDoneAt     DateTime?  @map("setup_done_at") @db.Timestamptz(3)
+  // Your details (S04a): Terms and Privacy accepted (SU-8), and product-update emails (opt-in).
+  termsAcceptedAt DateTime?  @map("terms_accepted_at") @db.Timestamptz(3)
+  productUpdates  Boolean    @default(false) @map("product_updates")
+  // "Make FigCit more yours" (ME-1): how often it was dismissed, and when last.
+  profilePromptDismissals Int       @default(0) @map("profile_prompt_dismissals") @db.SmallInt
+  profilePromptAt         DateTime? @map("profile_prompt_at") @db.Timestamptz(3)
   failedSignIns   Int        @default(0) @map("failed_sign_ins") @db.SmallInt
   lockedUntil     DateTime?  @map("locked_until") @db.Timestamptz(3)
   lastActiveAt    DateTime?  @map("last_active_at") @db.Timestamptz(3)

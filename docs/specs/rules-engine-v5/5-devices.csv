@@ -1,0 +1,17 @@
+"Tab 5 — Help or devices with me: unlock tools, never change the colour (DV-R)",,
+"Shown on Where you are; carried devices from Me appear first, never pre-ticked (CTX-0).",,
+,,
+ID,Device or help,What it unlocks
+DV-H,Headphones or earbuds,"Unlocks calming sounds, guided audio, guided movement voice, own music for Dance (if private)"
+DV-E,Ear defenders or loop earplugs,Adapt: 'Use your ear defenders' first for Too loud / Too busy
+DV-S,Sunglasses or tinted glasses,Adapt: first step for Too bright
+DV-F,Fidget item,Regulate: 'Use your fidget' as a discreet option
+DV-Q,Quiet room I can use,Adapt: 'Go to the quiet room' + unlocks eyes-closed and out-loud tools there
+DV-N,Snack or water with me,Body needs: 'Have a drink or snack first'
+,,
+Retired in v5.0,,
+Retired rule,Was,Now
+CX-1,A pressure not offset lowered the colour one step,CX-R: places and pressures choose the route only
+CX-2,Several pressures lowered it only one step,Not needed
+DV-1/2/3,A device offsetting every pressure restored the colour,DV-R: devices unlock or reorder tools only
+EX-1,Strong distress lowered the colour one step,"FE-1, FE-2 and BS-1 (one step in total, CAP-1)"

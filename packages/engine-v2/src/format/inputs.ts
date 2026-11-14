@@ -22,8 +22,32 @@ export const INPUTS = [
   'not_sure_energy',
   'not_sure_comfort',
   'body_region',
+  // v5.0: body signs, urgent signs ('Something feels wrong') and the Help menu's cards.
+  'body',
+  'urgent',
+  'help',
 ] as const;
 export type InputKind = (typeof INPUTS)[number];
+
+/** The questions Rules Engine v5.0's check-in asks (Tab 13); every one needs options to publish. */
+export const V5_INPUTS: readonly InputKind[] = [
+  'feeling',
+  'body',
+  'urgent',
+  'sense',
+  'place',
+  'support',
+  'task_kind',
+  'help',
+];
+const V5_ONLY: readonly InputKind[] = ['body', 'urgent', 'help'];
+
+/** The questions a version's check-in asks: v5.0's when its catalogue has the Help menu (Tab 7). */
+export function questionsOf(catalogue: Catalogue): readonly InputKind[] {
+  return valuesOf(catalogue, 'support_card').length > 0
+    ? V5_INPUTS
+    : INPUTS.filter((i) => !V5_ONLY.includes(i));
+}
 
 /** The input mappings table's columns (an added table, E-19, E-40). */
 export const INPUT_MAPPINGS_HEADER = [

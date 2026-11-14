@@ -23,6 +23,8 @@ export interface CatalogueValue {
   readonly from: number | null;
   readonly to: number | null;
   readonly group: string | null;
+  /** The Note column, when filled; for a v5.0 tool, its approved user_description (LBL-1). */
+  readonly note?: string;
 }
 
 /** Every domain's values, in catalogue order (Order, then row order). */
@@ -74,9 +76,18 @@ export function readCatalogueRow(
     issues.push({ path: `${at}/To`, message: 'To is below From' });
   if (issues.length > 0 || !isDomain(domain)) return { issues };
   const group = cellText(columns, 'Group');
+  const note = cellText(columns, 'Note');
   return {
     domain,
-    value: { code, label, order, from, to, group: group === '' ? null : group },
+    value: {
+      code,
+      label,
+      order,
+      from,
+      to,
+      group: group === '' ? null : group,
+      ...(note === '' ? {} : { note }),
+    },
   };
 }
 

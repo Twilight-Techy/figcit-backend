@@ -2,6 +2,7 @@ import { valuesOf, type Catalogue } from '../format/catalogue.js';
 import { LAYERS } from '../format/registry.js';
 import type { Target } from '../format/types.js';
 import type { Material, Origin, Proposal } from './apply.js';
+import { planOf, v5Frame } from './card-v5.js';
 import { because } from './conditions.js';
 import type { RunState } from './state.js';
 import type { Card, CardItem, ProposalFate } from './types.js';
@@ -54,8 +55,18 @@ export class CardBuilder {
   readonly fates: ProposalFate[] = [];
   readonly notes: string[] = [];
   private readonly placed: { item: CardItem; slot: string }[] = [];
+  /** v5.0 ENT-1: paid tools a free version stood in for in the primary. */
+  private readonly standIns: { tool: string; from: string }[] = [];
   private readonly toolPathway = new Map<string, string>();
   private readonly toolsByPathway = new Map<string, string[]>();
+  /**
+   * v5.0 (LBL-1): each tool's approved words, Tab 17's user_label and user_description; the card
+   * carries them so nothing else can be shown. Null for v3.3 rule sets, whose cards stay as they were.
+   */
+  private readonly toolWords: ReadonlyMap<
+    string,
+    { label: string; description: string | null }
+  > | null;
 
   constructor(
     private readonly m: Material,
@@ -67,6 +78,21 @@ export class CardBuilder {
       this.toolPathway.set(t.code, t.group);
       this.toolsByPathway.set(t.group, [...(this.toolsByPathway.get(t.group) ?? []), t.code]);
     }
+    this.toolWords =
+      valuesOf(catalogue, 'feeling_group').length > 0
+        ? new Map(
+            valuesOf(catalogue, 'tool').map((t) => [
+              t.code,
+              { label: t.label, description: t.note ?? null },
+            ]),
+          )
+        : null;
+  }
+
+  /** A v5.0 tool button with its approved words; anything else unchanged. */
+  private worded(item: CardItem): CardItem {
+    const words = item.tool === null ? undefined : this.toolWords?.get(item.tool);
+    return words ? { ...item, label: words.label, description: words.description } : item;
   }
 
   build(): Card {
@@ -75,14 +101,15 @@ export class CardBuilder {
     // The queue is the plan after the primary, so it is filled before the options beside it.
     const queued = this.queued(primary.item);
     const alternatives = this.offer(primary.item, this.alternatives(primary.losers));
+    const worded = (i: CardItem): CardItem => this.worded(i);
     return {
       kind: 'card',
       band: (this.state.fact('band.final') as string | undefined) ?? null,
       light: (this.state.fact('light') as string | undefined) ?? null,
-      primary: primary.item,
-      alternatives,
-      queued,
-      visible: this.visible(),
+      primary: primary.item ? worded(primary.item) : null,
+      alternatives: alternatives.map(worded),
+      queued: queued.map(worded),
+      visible: this.visible().map(worded),
       prompts: [...new Set(this.m.copyUses.filter((c) => c.slot === 'visible').map((c) => c.key))],
       reminder: this.reminder(),
       supportVisible: this.m.support !== null,
@@ -91,6 +118,9 @@ export class CardBuilder {
       minutesCap: this.m.minutesCaps.length > 0 ? Math.min(...this.m.minutesCaps) : null,
       practice: this.m.practice,
       because: primary.rule ? because(primary.rule.when, this.state, this.catalogue) : [],
+      // Only when set, so cards made before v5.0 replay unchanged.
+      ...v5Frame(this.m, this.state, this.catalogue, rankOf),
+      ...(this.state.noWords ? { noWords: true as const } : {}),
     };
   }
 
@@ -100,7 +130,8 @@ export class CardBuilder {
     });
     const item = this.actionItem({ action: 'get_support_now' }, this.m.stop ?? '');
     return {
-      kind: 'support_screen',
+      kind: this.m.urgent === null ? 'support_screen' : 'urgent_screen',
+      ...v5Frame(this.m, this.state, this.catalogue, rankOf),
       band: null,
       light: null,
       primary: null,
@@ -164,8 +195,18 @@ export class CardBuilder {
 
   private alternatives(losers: readonly Group[]): CardItem[] {
     const out: CardItem[] = [];
+    // The paid tool a free one stood in for is offered first, labelled, where ENT-11 allows.
+    for (const { tool, from } of this.standIns) {
+      if (this.toolPlaced(tool) || !this.toolAllowed(tool, 'alternative')) continue;
+      if (out.length >= Math.min(MAX_ALTERNATIVES, ...this.m.alternativeLimits)) break;
+      const item = this.resolve({ tool }, 'alternative', from);
+      if (item) {
+        this.place(item, 'alternative');
+        out.push(item);
+      }
+    }
     for (const g of merge([...this.groups('alternative'), ...losers])) {
-      if (out.length >= MAX_ALTERNATIVES) {
+      if (out.length >= Math.min(MAX_ALTERNATIVES, ...this.m.alternativeLimits)) {
         this.groupFate(g, 'over_limit');
         continue;
       }
@@ -287,17 +328,46 @@ export class CardBuilder {
 
   // ---- tools ----
 
+  /** v5.0 CX-R: what a tool is shown as here (the best-ranked swap), else the target itself. */
+  private swapped(target: Target): Target {
+    if (!('tool' in target)) return target;
+    const swaps = this.m.swaps.filter((s) => s.from === target.tool);
+    return swaps.length > 0
+      ? ([...swaps].sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)[0]?.to ??
+          target)
+      : target;
+  }
+
+  /**
+   * A named tool, then (in the primary) its free versions in turn: on a plan without a paid tool
+   * its free version leads (v5.0 ENT-1, T-20). Three steps at most, so a loop can't run on.
+   */
+  private withFallbacks(tool: string, slot: string): string[] {
+    const out = [tool];
+    for (let next = this.m.fallbacks.get(tool); slot === 'primary' && next && out.length < 3;) {
+      out.push(next);
+      next = this.m.fallbacks.get(next);
+    }
+    return out;
+  }
+
   /** The item a target becomes in a slot: a pathway resolves to its best allowed tool. */
-  private resolve(target: Target, slot: string, from: string): CardItem | null {
+  private resolve(given: Target, slot: string, from: string): CardItem | null {
+    const target = this.swapped(given);
     if ('action' in target) return this.actionItem(target, from);
     const pathway =
       'pathway' in target ? target.pathway : (this.toolPathway.get(target.tool) ?? null);
-    const candidates = 'tool' in target ? [target.tool] : this.preferred(target.pathway);
+    const candidates =
+      'tool' in target ? this.withFallbacks(target.tool, slot) : this.preferred(target.pathway);
     // A pathway takes its next allowed tool not already on the card; a named tool is itself.
     const tool = candidates.find(
       (t) => this.toolAllowed(t, slot) && ('tool' in target || !this.toolPlaced(t)),
     );
     if (tool === undefined) return null;
+    if ('tool' in target && tool !== target.tool) {
+      this.standIns.push({ tool: target.tool, from });
+      this.notes.push(`${tool} leads in place of ${target.tool}, which the plan lacks (ENT-1)`);
+    }
     const used = this.upgraded(tool, slot);
     return {
       target,
@@ -307,6 +377,7 @@ export class CardBuilder {
       copy: null,
       tone: this.toneFor(slot, from),
       from,
+      ...planOf(this.m, used),
     };
   }
 
@@ -365,6 +436,7 @@ export class CardBuilder {
       copy: null,
       tone: this.toneFor('alternative', o.rule.id),
       from: o.rule.id,
+      ...planOf(this.m, tool),
     };
     this.place(item, 'alternative');
     this.notes.push(

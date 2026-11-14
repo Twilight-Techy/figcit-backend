@@ -1,0 +1,308 @@
+import type { Comparison, Condition, Effect } from '../format/types.js';
+import { BAND_RULES } from './bands.js';
+import type { RowMapping, TabMapping } from './types.js';
+
+// Rules Engine v5.0: the colour (Tab 1 capacity, Tab 6 colours and the rules that change them,
+// Tab 3's body rules), read for the engine. Founder decisions of 11 Nov 2026: feelings, their
+// strength and the body lower the colour one step at most; place and devices never change it.
+// Checked against every row of Tab 18 (test/v5-outcomes.test.ts).
+
+const eq = (fact: string, value: string): Comparison => ({ fact, op: 'eq', value });
+const among = (fact: string, value: readonly string[]): Comparison => ({ fact, op: 'in', value });
+const is = (fact: string, value: boolean): Comparison => ({ fact, op: 'is', value });
+const atLeast = (fact: string, band: string): Comparison => ({
+  fact,
+  op: 'gte',
+  value: { band },
+});
+const contains = (fact: string, value: string): Comparison => ({ fact, op: 'contains', value });
+const all = (...c: Condition[]): Condition => ({ all: c });
+const any = (...c: Condition[]): Condition => ({ any: c });
+const set = (kind: string, params: Record<string, unknown> = {}): Effect => ({ kind, ...params });
+const lower: Effect = set('band.lower', { steps: 1 });
+
+const reference = (reason: string): RowMapping => ({ mapping: 'reference', reason });
+
+/** Tab 1: each state's baseline band ("Baseline band (internal)"). */
+const BASELINE: Readonly<Record<string, string>> = {
+  E1M1: 'very_constrained',
+  E1M2: 'very_constrained',
+  E1M3: 'constrained',
+  E1M4: 'constrained',
+  E2M1: 'constrained',
+  E2M2: 'conditional',
+  E2M3: 'conditional',
+  E2M4: 'available',
+  E3M1: 'conditional',
+  E3M2: 'conditional',
+  E3M3: 'available',
+  E3M4: 'available',
+  E4M1: 'conditional',
+  E4M2: 'conditional',
+  E4M3: 'conditional',
+  E4M4: 'available',
+};
+
+export const CAPACITY: TabMapping = {
+  rows: {
+    ...Object.fromEntries(
+      Object.entries(BASELINE).map(([cell, band]): [string, RowMapping] => [
+        cell,
+        {
+          mapping: 'exact',
+          reason: `BL-0: ${cell}'s baseline band, as the row says.`,
+          engine: {
+            stage: 'state',
+            rules: [{ when: eq('state.cell', cell), then: [set('band.set', { to: band })] }],
+          },
+        },
+      ]),
+    ),
+    'Not sure': reference('NS-1 (Tab 6) sets the band for Not sure.'),
+  },
+};
+
+/** Tab 6, Colours: each band's light. Recovery's Blue is an overlay the RC rules give. */
+export const COLOURS: TabMapping = {
+  rows: {
+    ...Object.fromEntries(
+      [
+        ['Available', 'available', 'green'],
+        ['Conditional', 'conditional', 'yellow'],
+        ['Constrained', 'constrained', 'amber'],
+        ['Very Constrained', 'very_constrained', 'red'],
+      ].map(([row = '', band = '', light = '']): [string, RowMapping] => [
+        row,
+        {
+          mapping: 'exact',
+          reason: `${row} shows ${light}.`,
+          engine: {
+            stage: 'capacity_fit',
+            rules: [
+              { when: eq('band.final', band), then: [set('light.set', { light })] },
+              // Red: Get support now is always shown (Tab 8; patterns 7, 8).
+              ...(light === 'red'
+                ? [
+                    {
+                      stage: 'orchestration' as const,
+                      when: eq('band.final', band),
+                      then: [set('support.show')],
+                    },
+                  ]
+                : []),
+            ],
+          },
+        },
+      ]),
+    ),
+    Recovery: reference('Blue is an overlay the recovery rules (RC-1..5) give, not a band.'),
+  },
+};
+
+/** The unpleasant groups FE-1 names ("Charged, Low, or Unsorted"). */
+const UNPLEASANT = ['charged', 'low', 'unsorted'];
+
+export const COLOUR_RULES: TabMapping = {
+  rows: {
+    'BL-0': reference('Each Tab 1 row sets its own baseline band.'),
+    'NS-1': {
+      mapping: 'exact',
+      reason: "'Not sure' is Yellow (Conditional) until a state is confirmed.",
+      engine: {
+        stage: 'state',
+        rules: [
+          { when: is('state.not_sure', true), then: [set('band.set', { to: 'conditional' })] },
+        ],
+      },
+    },
+    'FE-1': {
+      mapping: 'exact',
+      reason:
+        'The deciding emotion (FE-3) is in an unpleasant group at Strong (7-8) or Very strong (9-10): one step lower.',
+      engine: {
+        stage: 'capacity_fit',
+        rules: [
+          {
+            when: all(
+              among('feeling.deciding_group', UNPLEASANT),
+              atLeast('feeling.deciding_level', 'strong'),
+            ),
+            then: [lower],
+          },
+        ],
+      },
+    },
+    'FE-2': {
+      mapping: 'exact',
+      reason:
+        'The deciding emotion is in the Shutdown group at Moderate (4) or above: one step lower and no-words mode.',
+      engine: {
+        stage: 'capacity_fit',
+        rules: [
+          {
+            when: all(
+              eq('feeling.deciding_group', 'shutdown'),
+              atLeast('feeling.deciding_level', 'moderate'),
+            ),
+            then: [lower, set('mode.no_words')],
+          },
+        ],
+      },
+    },
+    'FE-3': reference(
+      'The engine works out the deciding emotion (feeling.deciding): the higher slider, a tie to the lower group Order in the catalogue.',
+    ),
+    'FE-0': reference('Settled emotions, and unpleasant ones at Mild or Moderate, change nothing.'),
+    'FE-5': {
+      mapping: 'interpreted',
+      reason:
+        "'Not good enough' at Strong or above: Get support now replaces Not now; Connect is in its route; Reflect only in Green/Yellow, as 'What went well' (its route).",
+      engine: {
+        stage: 'orchestration',
+        rules: [
+          {
+            when: all(
+              eq('feeling.deciding', 'not_good_enough'),
+              atLeast('feeling.deciding_level', 'strong'),
+            ),
+            then: [set('support.show')],
+          },
+        ],
+      },
+    },
+    'BS-1': {
+      mapping: 'exact',
+      reason:
+        'A Shutdown body sign, or 3+ signs (the other groups are Pain & discomfort, Tension & restless, Heavy & tired): one step lower.',
+      engine: {
+        stage: 'capacity_fit',
+        rules: [
+          {
+            when: any(contains('body.groups', 'shutdown'), {
+              fact: 'body.count',
+              op: 'gte',
+              value: 3,
+            }),
+            then: [lower],
+          },
+        ],
+      },
+    },
+    'CAP-1': {
+      mapping: 'exact',
+      reason:
+        'FE-1, FE-2, BS-1 and SF-4 (familiar) together lower the colour one step at most; Red is the lowest band anyway.',
+      engine: {
+        stage: 'capacity_fit',
+        rules: [{ when: null, then: [set('band.limit_drop', { steps: 1 })] }],
+      },
+    },
+    'CX-R': reference('Place, "Can you step away?" and pressures never change the colour.'),
+    'CTX-U': reference(
+      'Run as pattern 42 (Tab 11 card rules, P42): discreet tools first, and the link.',
+    ),
+    'BS-2': reference(
+      'Run as pattern 59 (Tab 11): what is around you first, with a device if one helps.',
+    ),
+    'SE-1': reference(
+      "The one tap is the fact feeling.something_else_group, which the engine reads as the emotion's group (FE-3); the text's safety check is SF-1, before the engine.",
+    ),
+    'SF-1': {
+      mapping: 'interpreted',
+      reason:
+        "Risk language anywhere is safety.risk, the API's safety check on the text (clinical sign-off needed); 'I need help now' is the Help menu's own row. Help/SOS, pattern 28.",
+      engine: {
+        stage: 'safety',
+        layer: 'safety',
+        rules: [
+          {
+            when: is('safety.risk', true),
+            then: [set('stop'), set('support.show'), set('pattern.set', { pattern: '28' })],
+          },
+        ],
+      },
+    },
+    'SF-2': {
+      mapping: 'interpreted',
+      reason:
+        '"Escalates support" read as Get support now shown, as in v3.3; the colour is unchanged.',
+      engine: {
+        stage: 'orchestration',
+        rules: [
+          {
+            when: any(
+              { fact: 'signals.days_very_constrained', op: 'gte', value: 7 },
+              { fact: 'signals.days_without_improvement', op: 'gte', value: 14 },
+            ),
+            then: [set('support.show')],
+          },
+        ],
+      },
+    },
+    'SF-3': reference(
+      'The Help line under Life right now opens Help/SOS in the app; nothing is stored.',
+    ),
+    'DV-R': reference('Help or devices never change the colour.'),
+    'CTX-0': reference('How the app asks Where you are; nothing for the engine.'),
+    'DEM-0': reference('A task never changes the colour.'),
+    'LE-0': reference('Life right now never changes the colour.'),
+    'RC-1..5': {
+      mapping: 'interpreted',
+      reason:
+        "'As before': v3.3's RC-1 (Blue after support and a better re-check), RC-3 and RC-4 (at most one step up, none without improvement) and RC-5 (no automatic Blue after a safety event).",
+      engine: {
+        stage: 'capacity_fit',
+        rules: (['RC-1', 'RC-3', 'RC-4', 'RC-5'] as const).flatMap((ref) => {
+          const row = BAND_RULES.rows?.[ref];
+          return row?.mapping === 'exact' || row?.mapping === 'interpreted' ? row.engine.rules : [];
+        }),
+      },
+    },
+    'SF-4': {
+      mapping: 'exact',
+      reason:
+        'An urgent body sign: "sudden or new" is the urgent screen (pattern 50); "familiar when overwhelmed" continues one step lower (within CAP-1).',
+      engine: {
+        stage: 'safety',
+        layer: 'safety',
+        rules: [
+          {
+            when: all({ fact: 'urgent.signs', op: 'not_empty' }, eq('urgent.answer', 'sudden_new')),
+            then: [
+              set('stop'),
+              set('support.show'),
+              set('screen.urgent'),
+              set('pattern.set', { pattern: '50' }),
+            ],
+          },
+          {
+            stage: 'capacity_fit',
+            when: all({ fact: 'urgent.signs', op: 'not_empty' }, eq('urgent.answer', 'familiar')),
+            then: [lower],
+          },
+        ],
+      },
+    },
+  },
+};
+
+/** Tab 3's body rules: BS-1 is in Tab 6; BS-3 switches on no-words mode. */
+export const BODY_RULES: TabMapping = {
+  // Body signs, urgent signs and senses are values (the catalogue); what they change is in Tab 6.
+  all: {
+    mapping: 'reference',
+    reason: 'A value the catalogue holds; the rules that read it are in Tab 6 and below.',
+  },
+  rows: {
+    'BS-1': reference('Run from Tab 6 (the same rule).'),
+    'BS-3': {
+      mapping: 'interpreted',
+      reason:
+        "Shut down (body) switches on no-words mode (pattern 16); Tab 20 does the same for Can't get moving, the other Shutdown sign, so the group is read.",
+      engine: {
+        stage: 'capacity_fit',
+        rules: [{ when: contains('body.groups', 'shutdown'), then: [set('mode.no_words')] }],
+      },
+    },
+  },
+};

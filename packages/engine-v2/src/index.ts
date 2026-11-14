@@ -21,6 +21,8 @@ export {
   inputOptionsOf,
   INPUTS,
   parseMapsTo,
+  questionsOf,
+  V5_INPUTS,
   readInputRow,
   type InputKind,
   type InputOption,
@@ -75,6 +77,7 @@ export {
   copyKeysOf,
   mappedRules,
   MAPPINGS,
+  V5_MAPPINGS,
   type MappingReport,
   type RowMapping,
   type TabCoverage,
@@ -82,7 +85,15 @@ export {
 } from './mapping/index.js';
 export { canonicalJson, type JsonValue } from './ruleset/canonical.js';
 export { parseCsv } from './ruleset/csv.js';
-export { FILE_LAYOUTS, FILE_ORDER, type FileLayout, type TableSpec } from './ruleset/layout.js';
+export {
+  FILE_LAYOUTS,
+  FILE_ORDER,
+  editionOf,
+  filesOf,
+  type Edition,
+  type FileLayout,
+  type TableSpec,
+} from './ruleset/layout.js';
 export { cellsOf, columnLetter, readWorkbook, trimEnd } from './ruleset/read-workbook.js';
 export { filledCount, segment, type Block, type SheetRow } from './ruleset/segment.js';
 export {
@@ -118,6 +129,9 @@ export { COPY_FILE, COPY_HEADER, copyOf, readCopyRow } from './format/copy.js';
 export {
   checkInput,
   compile,
+  factsFromCheckInV5,
+  type CheckInV5,
+  type DroppedAnswer,
   explainCheckIn,
   factsFromCheckIn,
   foldContributions,
@@ -132,6 +146,11 @@ export {
   compare,
   explore,
   MAX_ALTERNATIVES,
+  cardWordsV5,
+  orderTasks,
+  type CardTask,
+  type CardWordsV5,
+  type WordsSources,
   publishChecks,
   PUBLISH_CHECKS,
   run,

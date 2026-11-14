@@ -1,0 +1,91 @@
+Tab 17 — Approved labels (the ONLY words the app may show for tools) and copy,,,,
+LBL-1: render user_label and user_description only.,,,,
+,,,,
+Tool,Pathway,user_label,user_description,Plan
+REG-BREATHE,Regulate,Breathe,Slow your breathing with a calm circle,Free
+REG-GROUND,Regulate,Ground yourself,"Notice five things around you, one at a time",Free
+REG-MOVE,Regulate,Move a little,Gentle movements you can do anywhere,Free
+REG-SOUNDS,Regulate,Calming sounds,"Brown noise or rain, best with headphones",Free
+REG-STEPOUT,Regulate,Step out,Leave the room for a couple of minutes,Free
+REG-REST,Regulate,Rest,A rest timer with no goals,Free
+REG-SOUNDS+,Regulate,More sounds,Full sound library and your own mix,Prime
+REG-MOVE+,Regulate,Movement routines,Longer guided movement for your body,Prime
+REG-CREATE,Regulate,Create,"Draw, tap a rhythm or fidget on screen",Prime
+REG-SLEEP,Regulate,Sleep wind-down,Guided programmes to wind down for sleep,Premium
+DMP-CAPTURE,Dump,Empty your head,Type or say it. Nothing has to become a task,Free
+DMP-SORT,Dump,Sort it,"Put thoughts into To-do, Notes, Ideas or Worries",Free
+DMP-SUGGEST,Dump,Sorting suggestions,We suggest where each thought could go,Prime
+EXP-CARDS,Express,Quick message cards,Ready cards like 'I need a minute',Free
+EXP-SIMPLIFY,Express,Make it simpler,Rewrite your words more simply,Free
+EXP-TONE,Express,Check the tone,See how your message might land,Prime
+EXP-DRAFT,Express,Draft it for me,Start a message or document from scratch,Premium
+EXP-SCRIPT,Express,Script for a call,"Words for a meeting, call or presentation",Premium
+EXE-STEP,Execute,Smallest next step,One small step you can start now,Free
+EXE-BREAK,Execute,Break it down,Split the task into a few small steps,Free
+EXE-PICK,Execute,What matters now,Pick one of three for today,Free
+EXE-FOCUS,Execute,Focus timer,A simple timer you can pause anytime,Free
+EXE-REMIND,Execute,Remind me,A gentle nudge at a time you choose,Prime
+EXE-BODYDOUBLE,Execute,Work alongside me,A calm companion while you work,Prime
+EXE-CAL,Execute,Sync my calendar,Bring tasks and events from your calendar,Premium
+ADP-SPACE,Adapt,Change the space,Quieter or less bright space,Free
+ADP-SMALLER,Adapt,Make it smaller,Do less and still count it,Free
+ADP-HOW,Adapt,Change how,"For example, voice instead of typing",Free
+ADP-PACE,Adapt,Change the pace,Slower blocks with breaks,Free
+ADP-ORDER,Adapt,Change the order,Rearrange the steps,Free
+ADP-PASSPORT,Adapt,Adjustment passport,"What helps me at work or study, to share",Premium
+RFL-TODAY,Reflect,Make sense of today,Three gentle prompts. Stop anytime,Free
+RFL-CLOSE,Reflect,Close the day,"A gentle look back, then let it rest",Free
+RFL-HELPED,Reflect,What helped,Notice what worked so it's easier next time,Prime
+RFL-ASK,Reflect,Prepare to ask,Get clear on what you need before asking,Premium
+CON-CONTACT,Connect,Message someone I trust,Send a ready message to a trusted contact,Free
+CON-CALL,Connect,Call someone I trust,Call a contact from your support plan,Free
+CON-BUDDY,Connect,Check-in buddy,A scheduled check-in with someone you choose,Prime
+MED-STILL,Meditate · Rituals · Prayer,Stillness timer,"Silent time, eyes open or closed",Free
+MED-SETTLE,Meditate · Rituals · Prayer,Guided settle,"On-screen prompts, one line at a time",Free
+MED-GRATITUDE,Meditate · Rituals · Prayer,Gratitude practice,Notice three small things,Free
+MED-OWN,Meditate · Rituals · Prayer,My practice,"Your own prayers, rituals and reminders",Free
+MED-WALK,Meditate · Rituals · Prayer,Walking practice,"Guided, 10 or 20 minutes",Prime
+MED-BODYSCAN,Meditate · Rituals · Prayer,Body scan,"Head to feet, slowly",Premium
+,,,,
+Colour labels,,,,
+Light,Label,Line,,
+Green,Green · Ready,You've got room for things right now.,,
+Yellow,Yellow · Go gently,Some things will take more effort today — go gently.,,
+Amber,Amber · Lighten the load,Your load is high — let's make things lighter.,,
+Red,Red · Care first,Let's take care of you first.,,
+Blue,Blue · Steadier,You're steadier than before — keep it gentle.,,
+,,,,
+Copy changes from the MVP review,,,,
+ID,Screen,Current text,Replace with,
+CP-01,S06,What's your perceived current state?,How's your energy and mood right now?,
+CP-02,S06,Continue to Experience,Continue,
+CP-03,S06,Slider thumbs resting on Very Low / Very Bad,No answer selected until the user taps,
+CP-04,S09,Your body was never your enemy. Feel what you were told to suppress.,Notice anything in your body? Skip if not.,
+CP-05,S09/S10,"Your senses are data, not overreaction. / Is anything bothering your senses right now?",One Senses tab: 'Is anything around you bothering your senses?',
+CP-06,S10,This mediates what you can take on.,Where you are changes what feels doable.,
+CP-07,S10,Support available right now,Help or devices with me,
+CP-08,S16 Dump,Every region that holds chronic tension is a sentence your nervous system never finished speaking. Pour it all out.,Empty your head. Nothing here has to become a task.,
+CP-09,S13,FigCit suggests Open Home.,You're in a good place. What would you like to do with it?,
+CP-10,S05,"Good morning, you","Good morning, {name}",
+CP-11,S31 Help,You can do this.,You don't have to deal with this alone.,
+CP-12,S02,Check-in · Support · Match · Act · Review,Check in · Choose what you need · Get a suggestion · Try one small step · See what helped,
+CP-13,S41 Plans,FigCit Plus £6.99 / month · £59.99 / year,Prime £7 a month or £70 a year · Premium £13 a month or £130 a year · Covered by your organisation? (Prices before VAT; VAT added at checkout),
+CP-14,Tab 11 SF-2 copy,…We are here to support you in seeking the right help. You can do it.,"This sounds like a really hard stretch, and you don't have to go through it alone. Would you like help finding the right support?",
+CP-15,S09 Body list,Contractions; Hot flashes,Review with the clinical adviser (e.g. 'Cramps'; 'Hot or flushed'),
+,,,,
+v5.0 — New labels,,,,
+Tool,Pathway,user_label,user_description,Plan
+REG-DANCE,Regulate,Dance break,Move to your own music for a few minutes,Free
+REG-DANCE-S,Regulate,Dance session,Set a time and dance it out,Prime
+REG-WIND,Regulate,Wind down,Slow movement to get ready for sleep,Prime
+REG-BODY,Regulate,Guided body movement,Follow moves that ease tension and stress,Premium
+REG-COMFORT,Regulate,Comfort,Kind words or soothing sounds,Free
+REG-CREATE,Regulate,Create,"Draw, paint or design something",Free (limited) / Prime
+REG-TAP,Regulate,Breathe (tap-only),Tap along — no words needed,Free
+EXP-WRITE,Express,Write it out,Put it into words,Free
+EXP-ASK,Express,Ask for what I need,Turn your needs into a short request,Prime (with patterns: Premium)
+EXP-APPT,Express,Notes for my appointment,Points to bring to a meeting or appointment,Prime
+ADP-DEVICE,Adapt,Use your ear defenders / Put your sunglasses on / Go to the quiet room,Use what you have with you,Free
+EXE-SUGGEST,Execute,{suggested task},Something that fits right now,Free
+RTW-LOAD,Execute,See today's plan,What fits today,Free
+RTW-FIT,Me,My fit summary,How your capacity and tasks have fitted,Premium

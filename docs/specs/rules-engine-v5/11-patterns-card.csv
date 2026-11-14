@@ -1,0 +1,83 @@
+Tab 11 — Recommendation patterns (1–49) and card rules,,,,,,
+One primary button plus at most two alternatives. 'Not now' is always valid and never penalised. Labels come only from Tab 17.,,,,,,
+,,,,,,
+Pattern,When,Task?,Sequence,Headline,Primary button,Alternatives
+1,"Green, no difficult feeling, no task",No,None needed,You're in a good place. What would you like to do with it?,Plan something,Explore something new · Just note how I feel
+2,"Green, no difficult feeling",Yes,Go straight to the task,Ready to start?,Smallest next step,Break it down · Not now
+3,"Yellow, no or mild difficult feeling, familiar task",Yes,Optional light reset,Start with what you already know.,Smallest next step,Short reset first · Not now
+4,"Yellow, mild difficult feeling, or a stretching task",Yes,Light reset (optional) → task,Want a 2-minute reset before we start?,Breathe,Skip to task · Not now
+5,Amber with a task,Yes,Regulate or Dump first → re-check → one small familiar step,Let's reduce the load first.,Breathe / Rest / Empty your head,I'll try the task anyway · Not now
+6,"Amber, no task",No,"Regulate, Dump or Connect",Let's reduce the load first.,Breathe / Rest,Empty your head or Talk to someone · Not now
+7,Red with a task,Yes,Regulate or Dump now; task deferred until a re-check improves,Let's take care of you first.,Breathe / Rest,Get support now (always visible)
+8,"Red, no task",No,"Regulate, Dump or Connect; support visible",Let's take care of you first.,Breathe / Rest,Talk to someone · Get support now
+9,"Any light, word-finding difficulty with a message to write",Yes,Express (Regulate first only in Red),Let's put this into words together.,Draft it / Make it simpler,Quick message cards · Not now
+10,"Any light, anger High+ with a message to send",Yes,"Express, never auto-sends; optional reset",Let's draft this — you choose when to send it.,Draft it,Reset first · Not now
+11,"Any light, loneliness, no task",No,Connect,Want to reach out to someone?,Message someone I trust,Breathe · Not now
+12,"Any light, 'this way isn't working'",Either,Adapt → re-run the card,"Would a different space, pace or format make this easier?",Change the space / pace / how,Keep as is · Not now
+13,"Any light, a sense flag not offset, focus task (or excited)",Either,Adapt (setting) before the task,Want to adjust your setting first?,Change the space,Start task anyway · Not now
+14,"Green/Yellow, exploring or interest task, no urgency (T3–T6)",Yes,None,Explore this for 10 minutes?,Start exploring,Save for later · Not now
+15,"Any light, task due now (T0)",Yes,Shortest reset if needed → smallest version,Let's do the smallest version first.,Smallest next step,I need more time · Not now
+16,"Any light, shutdown / freeze",Either,Tap-only Regulate; task deferred,Let's just breathe — no words needed.,Breathe (tap-only),Send my 'I need quiet' message · Get support now (Red) / Not now
+17,"Any light, task paralysis",Yes,Execute: 2-minute start with a body double,Let's just do the first two minutes.,Start with me,Break it down more · Not now
+18,Shame or guilt with an overdue task (TX),Yes,Reset at High+ → Express repair → smallest repair step,Let's take one small step to put this right.,Draft the message,Short reset first · Not now
+19,Sensory overload High+ with 2+ sense flags,Either,Reduce input first; task deferred unless T0,Let's turn the volume down first.,Find a quieter spot,Put headphones on · Leave early · Get support now
+20,Hyperfocus lock,Yes,Stop point + short rest → resume by choice,Let's set a stopping point and top up.,5-minute break,Remind me in 20 minutes · Keep going
+21,Boredom with a task,Yes,Add a boost or Move → task with a novelty hook,Let's make this less boring.,Add a boost,Just start · Not now
+22,Several tasks or decision paralysis,Yes (2+),Dump the list → top 3 → pick one,Let's find the one thing that matters now.,Sort my list,Dump it all first · Not now
+23,Social hangover / masking fatigue,Either,Quiet recovery; Connect not offered; task capped or deferred,Time to recharge — quiet counts.,Quiet reset,Do it later · Not now
+24,Pain or illness flare (High+),Either,"Rest + Adapt (pace, scope); essentials only",Let's look after your body first.,Rest,Ask for an adjustment · Not now
+25,Grief / loss,Either,Connect + Regulate; lighten the load,Be gentle with yourself today.,Reach out,Make it smaller · Get support now (High+) · Not now
+26,Rejection / hurt,Either,Dump or Express (send later); reset first at High+,Let's get the replay out of your head.,Empty your head,Draft a reply · Talk to someone
+27,Not sure how I feel,Either,Body-first check → confirm; else Conditional,Not sure is okay — let's start with your body.,Quick body check,Pick a state anyway · Not now
+28,Immediate risk (any light),Any,SAFETY OVERRIDE: everything else paused,You don't have to go through this alone.,Get support now,Call my trusted contact · Samaritans · Text SHOUT
+29,Body basics unmet,Either,Meet the need → re-check → continue,Body basics first — then we'll pick this back up.,I've sorted it,Remind me in 10 minutes · Skip
+30,3+ suggestions declined this session,Any,Stop suggesting; quiet period,No problem — I'll stay out of your way.,Go to Home,Check in later · Remind me tomorrow
+31,"Recovery: support done, re-check improved",Either,Blue light; queued task in small steps,You're steadier — want to pick up gently?,Start small,Rest a bit longer · Note what helped
+32,"Green, Blue, or Yellow at Mild/Moderate; wanting to make sense",No,"Reflect (3 prompts, about 5 min)",Want to make sense of it?,Make sense of today,Not now
+33,Green/Yellow; relief or end of a demanding day,No,Reflect (what helped),Want to note what helped today?,What helped,Just rest · Not now
+34,Green/Yellow/Blue; a recurring struggle confirmed by the user,Either,Reflect (pattern) → Adapt or Express,This has come up a few times — want to look at what helps?,Look at my pattern,Not now · Don't show me this
+35,Green/Yellow; preparing to speak up or reflective work,Yes,Reflect → Express (never auto-sends) → Execute,Let's gather your points first.,Prepare to ask,Draft straight away · Not now
+36,Green/Yellow (Amber if calm); unease before an event (T0–T2),Yes,Meditate (settle 3–10 min) → Adapt or Execute,Want to settle in before you go?,Guided settle,Just prepare · Not now
+37,A saved practice is due (TR) or 'Pray or do my practice',Either,The user's own practice + Adapt for a space; in Amber with distress or Red: Breathe first,It's time for your {practice}.,Begin,Remind me in 15 minutes · Find a quiet space · Skip today
+38,Green/Yellow/Blue (Amber if calm); find stillness or savour,No,Meditate (stillness or gratitude),Want some quiet time?,Stillness timer,Gratitude practice · Not now
+39,Start or end of day with a saved opening/closing practice; or winding down,Either,Meditate (ritual); optional Reflect in Green/Blue,Ready to close the day?,Closing ritual,Just sleep · Skip
+40,"RUMINATION GUARD: Reflect asked for in Amber/Red, rumination present, or same topic 3+ times in 7 days",Any,Reflect not offered; Dump or Regulate,Let's get it out of your head instead of going over it.,Empty your head,Short reset · Talk to someone
+41,"MEDITATION GUARD: shutdown, feeling detached, overload High+, or 'meditation makes me feel worse'",Any,No eyes-closed or body-scan practice; tap-only Breathe or eyes-open Ground,(uses pattern 16 or 19 wording),Breathe (tap-only),Get support now (Red) · Not now
+42,Quick check-in (place not asked),Either,Discreet tools first; link to add place,(normal pattern wording),(normal primary),+ link: 'Not at home? Tell us where you are'
+43,Support card + task in Green/Yellow/Blue,Yes,Ask which first (SEQ-1),Which would you like first?,{support card},{the task}
+44,Help tapped from the Life right now line,Any,Safety screen with the nation's lines (SF-3); nothing stored,You don't have to go through this alone.,Get support now,Call my trusted contact · Not now
+45,RETIRED in v5.0 (devices no longer change the colour; see DV-R),Either,Name the device in the reason; may use the tool it unlocks,(normal pattern wording),e.g. Calming sounds,(normal alternatives)
+46,"Yellow, no difficult feeling, no task",No,None needed; optional reset,"Plan something small, or take a moment first?",Plan something,Short reset · Not now
+47,"Racing or tangled thoughts, any light except Red",Either,Dump first; task after if any,Want to empty your head first?,Empty your head,Breathe · Not now
+48,"Anxious Mild/Moderate, no task",No,Optional 2-minute reset,Want a 2-minute reset?,Breathe,Guided settle · Not now
+49,"Can't step away (exam hall, ward on shift), not Red, no task",No,"Silent, eyes-open tools only",Steady yourself quietly — you can't step away right now.,"Breathe (silent, eyes open)",Not now
+,,,,,,
+Card rules,,,,,,
+Rule,Area,Rule,Why,,,
+LBL-1,Labels,"Every tool and button has a user_label (≤5 words) and a user_description (≤12 words) in Tab 17. The app renders ONLY these fields. Internal descriptions, rule text and notes are never rendered. A missing label falls back to 'Try {pathway}' and logs an error.","Fixes the card that showed 'The user's own rituals, prayers, recitations, schedules and reminders' as a button.",,,
+RT-1,Rationale,"The 'Because…' text must mention something from every step the user completed: capacity (state name), feelings with strength, body or senses (if given), what context changed (if anything) and the band. Then the suggestion and what comes next.",Users felt unheard when the reason only repeated their feelings.,,,
+RT-2,Rationale length,"At most 3 short sentences and 60 words; plain words; no internal terms (no 'intervention', 'NUCRIPCE', 'band', cell IDs).",,,,
+RT-3,Demand types in plain words,"Routine → 'familiar, simple tasks'; Exploration → 'light exploring or learning'; Interest → 'something you enjoy'; Challenge → 'a stretching task'; Novelty → 'something new'; Urgency → 'the one thing that can't wait'; Passion → 'something that matters to you'; Collaboration → 'something with other people'. Always give one concrete example.",,,,
+RT-4,Template,"'You're in {state}: {meaning}. You said you feel {feelings}{ and {body/senses}}. {context sentence}. Right now {plain demand types} fit best, like {example}. {CTA question}'","Context sentence examples: 'Being on a noisy bus without headphones makes this harder, so we've moved you from yellow to amber.' / 'Your headphones help, so you stay in yellow.'",,,
+P1-A,Pattern 1 amended,"Green, no distress, no demand. Old CTA 'Open Home' is retired. New card: 'You're in a good place. What would you like to do with it?' Primary: Plan something (→ task). Alternatives: Explore something new (Exploration/Interest ideas) · Just note how I feel.",'FigCit suggests Open Home' was not a suggestion.,,,
+ALT-1,Alternatives fit the light,Alternatives must suit the light: in Green do not offer 'Explore Regulate anyway' unless restlessness or a sense flag is present; never offer a Prime/Premium tool to a free user except under ENT-11.,"A calm, high-energy user was offered Regulate and Create.",,,
+SEQ-1,Support need + task,"If the user picks a support card AND enters a task: in Amber/Red or at High+ difficult feelings → support first, then the task (pattern 5). In Green/Yellow/Blue → ask 'Which first?' with two buttons. A practice (Meditate/Rituals/Prayer) or Reflect is never the action for a task.",A work task produced a prayer/ritual card.,,,
+SEQ-2,Card wins,"The support card the user picks sets the pathway unless a safety rule or gate (RF, MD, SF) blocks it; then the safe swap is explained in one line.",,,,
+P42,New pattern,Quick check-in (context unknown): discreet variant first + link 'Not at home? Tell us where you are' (CTX-U).,,,,
+P43,New pattern,Support card + task in Green/Yellow/Blue: 'Which would you like first?' [Support] [Task] (SEQ-1).,,,,
+P44,New pattern,Help tapped from the fixed line under Life right now: safety screen with nation-specific lines (SF-3); nothing stored.,,,,
+P45,New pattern,RETIRED in v5.0: devices no longer change the colour (DV-R); the reason may still name a device that unlocked a tool.,,,,
+,,,,,,
+v5.0 — New patterns 50–60,,,,,,
+Pattern,When,Task?,Sequence,Headline,Primary button,Alternatives
+50,Urgent body sign answered 'sudden or new',Any,Urgent screen: 999 and the nation's 111 line; nothing else,This could need urgent help.,Call 999,"Call NHS 111 · I'm safe, go back"
+51,Urgent body sign answered 'familiar when overwhelmed',Any,"Check-in continues one step lower (CAP-1); Regulate first, discreet if needed",Let's help your body settle first.,Breathe,Get support now · Not now
+52,"Something else typed, group skipped",Any,Treated as Low; Regulate → Connect,Thanks for putting it in your own words.,Breathe,Message someone I trust · Not now
+53,"No task, Green/Yellow/Blue",No,TK-4 suggestion that fits the colour and place,Here's something that fits right now.,{suggested task},Another idea · Not now
+54,Task list sorted (Prime/Premium),Yes,TK-2 order; top task first with Smallest next step,We've put {plain chip words} first today.,Start: {top task},Break it down · Not now
+55,"Empowered or Clear-headed, Green/Yellow",Either,"Express → Ask for what I need, or a Hard/New task","Good moment to ask for what you need, or tackle something harder.",Ask for what I need,{Hard task} · Not now
+56,Bored (any colour but Red),Either,"Regulate → Create, or a 'Try out' task",Want to make something?,Create,Try something out · Not now
+57,"Charged, Strong+, at home or able to step away",Either,"Regulate → Dance break or Move, then Dump/Express",Let's get some of that energy out.,Dance break,Move a little · Not now
+58,"Low energy at night, winding down (Prime)",No,Regulate → Sleep wind-down movement,Want to wind down for sleep?,Wind down,Calming sounds · Not now
+59,"Senses ticked, any colour",Either,"Adapt first using devices (ear defenders, sunglasses, quiet room)",Let's sort what's around you first.,{device step or Change the space},Breathe · Not now
+60,Return to work/study: morning load check,Either,RW-2 day's load line + top task,Today fits {plain chip words}.,See today's plan,Not now

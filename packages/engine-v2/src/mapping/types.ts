@@ -23,5 +23,10 @@ export type RowMapping =
 /** A tab's mapping: per row by the author's reference, and a default for rows not listed. */
 export interface TabMapping {
   readonly rows?: Readonly<Record<string, RowMapping>>;
+  /**
+   * Rows of one table of the tab, by the start of its heading: for a tab whose tables reuse the
+   * same references (v5.0 Tab 10's Green, Yellow ... in two tables). Checked before `rows`.
+   */
+  readonly sections?: Readonly<Record<string, Readonly<Record<string, RowMapping>>>>;
   readonly all?: RowMapping;
 }

@@ -35,7 +35,9 @@ const envSchema = z.object({
   MASTER_KEYS: z.string().min(1),
   // Jobs: run them in the API process with no polling, so an idle database can sleep (ADR 0010).
   JOBS_ON_DEMAND: bool.default(false),
-  // Email
+  // Email. BREVO_API_KEY sends through Brevo's HTTPS API (port 443), for hosts that block SMTP
+  // (Render's free plan, owner's choice 12 Nov 2026); it wins over SMTP_URL when both are set.
+  BREVO_API_KEY: z.string().optional(),
   DEV_MAILBOX: bool.default(false),
   MAIL_FROM: z.string().default('FigCit <hello@figcit.co.uk>'),
   SMTP_URL: z.string().optional(),
@@ -70,6 +72,8 @@ const envSchema = z.object({
   VAPID_SUBJECT: z.string().default('mailto:hello@figcit.co.uk'),
   // Billing (D-14: provider behind a port; fake until chosen)
   BILLING_PROVIDER: z.enum(['fake', 'stripe']).default('fake'),
+  // Prices are shown before VAT; checkout adds it and shows the total before payment.
+  VAT_PERCENT: z.coerce.number().min(0).max(100).default(20),
   BILLING_WEBHOOK_SECRET: z.string().default('dev-webhook-secret'),
   // Abuse protection
   RATE_LIMIT_ENABLED: bool.default(true),

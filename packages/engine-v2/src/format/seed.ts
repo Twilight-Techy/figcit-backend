@@ -3,6 +3,9 @@ import type { ReadResult, RuleRecordDraft, TableFrame, TabKey } from '../ruleset
 import { CATALOGUE_HEADER, cellText, type CatalogueColumn } from './catalogue.js';
 import { COPY_FILE, COPY_HEADER, copySeedRows } from './copy.js';
 import { INPUT_SEED } from './input-seed.js';
+import { isV5, v5SeedRows } from './seed-v5.js';
+import { v5CopyRows } from './copy-v5.js';
+import { v5InputSeed } from './input-seed-v5.js';
 import { SUPPORT_SEED, TOOL_SEED } from './tool-seed.js';
 import { INPUT_MAPPINGS_HEADER } from './inputs.js';
 import type { Domain } from './registry.js';
@@ -268,9 +271,9 @@ function interpreted(domain: Domain, codes: readonly string[], from: string): Se
   }));
 }
 
-/** Every catalogue row the workbook gives, in domain order; codes made unique within a domain. */
-function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow[] {
-  const rows = [
+/** v3.3's catalogue rows, in domain order. */
+function v3SeedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow[] {
+  return [
     ...asIs('cell', records, 'state_grid', 'Name'),
     ...bandsAndLights(records),
     ...families(records),
@@ -320,6 +323,11 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
       'tools_tiers · A. heading (NUCCESS Plus or institution licence)',
     ),
   ];
+}
+
+/** Every catalogue row the workbook gives, in domain order; codes made unique within a domain. */
+function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow[] {
+  const rows = isV5(records) ? v5SeedRows(records, slug) : v3SeedRows(records, notes);
   const used = new Map<string, number>();
   return rows.map((row) => {
     const key = `${row.domain}|${row.cells.Code ?? ''}`;
@@ -335,8 +343,10 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
 const frameOf = (header: readonly string[]): TableFrame => ({ header: [...header], banner: [] });
 
 /** The check-in options as first filled (E-40), as records without an order yet. */
-function inputSeedRows(): Omit<RulesetRecord, 'order'>[] {
-  return INPUT_SEED.flatMap((seed) =>
+function inputSeedRows(
+  seeds: readonly (typeof INPUT_SEED)[number][] = INPUT_SEED,
+): Omit<RulesetRecord, 'order'>[] {
+  return seeds.flatMap((seed) =>
     seed.rows.map(([code, label, group, mapsTo, note = ''], i) => {
       const cells: Record<string, string> = {
         Input: seed.input,
@@ -429,9 +439,11 @@ export function withAdditions(read: ReadResult): {
     }
   }
   let inputs = 0;
+  // v5.0's check-in options and wording come from its own tabs (V5.md).
+  const v5 = isV5(read.records);
   if (!inputMappingsGiven) {
     frames[INPUT_MAPPINGS_FILE] = [frameOf(INPUT_MAPPINGS_HEADER)];
-    for (const row of inputSeedRows()) {
+    for (const row of inputSeedRows(v5 ? v5InputSeed(read.records, slug) : undefined)) {
       order += 1;
       inputs += 1;
       records.push({ ...row, order });
@@ -441,7 +453,7 @@ export function withAdditions(read: ReadResult): {
   const copyGiven = COPY_FILE in read.frames;
   if (!copyGiven) {
     frames[COPY_FILE] = [frameOf(COPY_HEADER)];
-    for (const row of copySeedRows()) {
+    for (const row of copySeedRows(v5 ? v5CopyRows(read.records, slug) : undefined)) {
       order += 1;
       copy += 1;
       records.push({ ...row, order });

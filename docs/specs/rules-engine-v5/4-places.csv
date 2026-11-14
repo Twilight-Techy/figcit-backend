@@ -1,0 +1,12 @@
+"Tab 4 — Where you are: places decide the route, never the colour (CX-R)",,,,,,
+Asked fresh every Full check-in; nothing pre-selected (CTX-0). Then 'Can you step away?' (Yes / No). Quick check-in uses discreet tools first (CTX-U).,,,,,,
+,,,,,,
+ID,Place,Plan,Discreet by default?,Can step away (default),Tools allowed,Tools held back
+PL1,Home,Free,No,Yes,"Everything, including out-loud, eyes-closed, Move, Dance and calls",—
+PL2,Work or placement,Free,Yes,Ask,Discreet tools; Move = stretch at my desk; Dance and calls only if 'I can step away',Out-loud audio without headphones
+PL3,Class or lecture,Free,Yes,Ask,"Silent, eyes-open tools; Dump by text; messages","Calls, Move, Dance, eyes-closed"
+PL4,"Out and about (street, shop, bus or train)",Free,Yes,Ask,Discreet tools; Walk it off when walking; sounds and guided audio only with headphones,"Dance, eyes-closed, calls on public transport"
+PL5,"Exam, interview or assessment",Prime (under More),Yes,No,"Only silent, eyes-open Regulate (pattern 49)",Everything else until it ends
+PL6,"Appointment or meeting (e.g. Jobcentre, GP, review)",Prime (under More),Yes,Ask,Discreet Regulate; Express → Notes for my appointment,"Calls, Move, Dance"
+PL7,Library or quiet study space,Prime (under More),Yes,Ask,Silent tools; Dump by text; Create (draw),"Out-loud audio, calls, Dance"
+PL8,Somewhere else,Prime (under More),Yes,Ask,Discreet tools by default,"Out-loud, eyes-closed unless 'I can step away'"

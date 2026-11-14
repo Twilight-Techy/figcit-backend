@@ -166,7 +166,7 @@ export class DecisionsService {
         trace: result.trace as unknown as Prisma.InputJsonValue,
         band: result.card.band,
         light: result.card.light,
-        supportScreen: result.card.kind === 'support_screen',
+        supportScreen: result.card.kind !== 'card',
         recheckOfId: meta.recheckOfId,
         createdAt: meta.now,
       },
@@ -174,8 +174,16 @@ export class DecisionsService {
     return { record, card: result.card, trace: result.trace };
   }
 
+  /** Runs and stores a prepared input in its own transaction (the v5.0 decisions use it). */
+  store(
+    p: Pick<Prepared, 'engine' | 'input'>,
+    meta: { userId: string | undefined; recheckOfId: string | null; now: Date },
+  ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
+    return this.record(this.prisma, p, meta);
+  }
+
   /** The account's signals and SF-2's run of Red days. */
-  private async serverFacts(
+  async serverFacts(
     userId: string,
     catalogue: Catalogue,
     now: Date,

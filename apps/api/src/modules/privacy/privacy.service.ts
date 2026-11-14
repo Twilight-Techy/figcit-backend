@@ -153,6 +153,25 @@ export class PrivacyService {
     return { scheduledFor: scheduledFor.toISOString() };
   }
 
+  /**
+   * Hard-deletes one account now, files first. The daily purge uses it after the grace period;
+   * sign-up uses it straight away for someone under 16 (age rule), as nothing about a child is kept.
+   */
+  async eraseNow(userId: string): Promise<void> {
+    const files = await this.prisma.storedFile.findMany({
+      where: { userId },
+      select: { storageKey: true },
+    });
+    for (const f of files) await this.storage.remove(f.storageKey).catch(() => undefined);
+    // Deleting the user row cascades every table and destroys the wrapped data key.
+    await this.prisma.purge(async (tx) => {
+      await tx.safetyEvent.updateMany({ where: { userId }, data: { userId: null } });
+      // Engine v2 decisions stay, unlinked (E-05, E-52; O-06 decides retention).
+      await tx.decisionRecord.updateMany({ where: { userId }, data: { userId: null } });
+      await tx.user.delete({ where: { id: userId } });
+    });
+  }
+
   /** Worker (daily): hard-deletes accounts whose grace period ended, files first. */
   async purgeDue(now = new Date()): Promise<number> {
     const due = await this.prisma.deletionRequest.findMany({
@@ -160,20 +179,7 @@ export class PrivacyService {
       select: { userId: true },
       take: 100,
     });
-    for (const { userId } of due) {
-      const files = await this.prisma.storedFile.findMany({
-        where: { userId },
-        select: { storageKey: true },
-      });
-      for (const f of files) await this.storage.remove(f.storageKey).catch(() => undefined);
-      // Deleting the user row cascades every table and destroys the wrapped data key.
-      await this.prisma.purge(async (tx) => {
-        await tx.safetyEvent.updateMany({ where: { userId }, data: { userId: null } });
-        // Engine v2 decisions stay, unlinked like a Browse record (E-05, E-52; O-06 decides retention).
-        await tx.decisionRecord.updateMany({ where: { userId }, data: { userId: null } });
-        await tx.user.delete({ where: { id: userId } });
-      });
-    }
+    for (const { userId } of due) await this.eraseNow(userId);
     if (due.length) this.logger.log(`purged ${String(due.length)} accounts`);
     return due.length;
   }

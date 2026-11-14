@@ -696,9 +696,33 @@ export const SAFETY_EXCLUSIONS: readonly string[] = [
   'kill the lights',
 ];
 
+/** Lines every UK nation shows (Developer Brief, Help/SOS lines by nation; checked 10 Nov 2026). */
+const UK_ALL: readonly CrisisRoute[] = [
+  { id: 'emergency', label: 'In danger now', detail: 'Call 999', href: 'tel:999', kind: 'call' },
+  {
+    id: 'samaritans',
+    label: 'Samaritans, any time',
+    detail: 'Call 116 123',
+    href: 'tel:116123',
+    kind: 'call',
+  },
+  {
+    id: 'shout',
+    label: 'Shout, by text',
+    detail: 'Text SHOUT to 85258',
+    href: 'sms:85258?body=SHOUT',
+    kind: 'text',
+  },
+];
+
+/**
+ * Crisis lines by region: `GB` for the UK when the nation isn't known, `GB-ENG`, `GB-WLS`,
+ * `GB-SCT` and `GB-NIR` for each nation (SU-5), `INTL` outside the UK. Numbers need Clinical
+ * Safety sign-off before launch.
+ */
 export const CRISIS_ROUTES: Readonly<Record<string, readonly CrisisRoute[]>> = {
   GB: [
-    { id: 'emergency', label: 'In danger now', detail: 'Call 999', href: 'tel:999', kind: 'call' },
+    ...UK_ALL.slice(0, 1),
     {
       id: 'nhs111',
       label: 'NHS 111 (choose the mental health option)',
@@ -706,19 +730,85 @@ export const CRISIS_ROUTES: Readonly<Record<string, readonly CrisisRoute[]>> = {
       href: 'tel:111',
       kind: 'call',
     },
+    ...UK_ALL.slice(1),
+  ],
+  'GB-ENG': [
+    ...UK_ALL.slice(0, 1),
     {
-      id: 'samaritans',
-      label: 'Samaritans, any time',
-      detail: 'Call 116 123',
-      href: 'tel:116123',
+      id: 'nhs111',
+      label: 'NHS 111, option 2 (urgent mental health)',
+      detail: 'Call 111',
+      href: 'tel:111',
+      kind: 'call',
+    },
+    ...UK_ALL.slice(1),
+    {
+      id: 'domestic_abuse',
+      label: 'National Domestic Abuse Helpline',
+      detail: 'Call 0808 2000 247',
+      href: 'tel:08082000247',
+      kind: 'call',
+    },
+  ],
+  'GB-WLS': [
+    ...UK_ALL.slice(0, 1),
+    {
+      id: 'nhs111',
+      label: 'NHS 111 Wales, press 2 (urgent mental health, any time)',
+      detail: 'Call 111',
+      href: 'tel:111',
+      kind: 'call',
+    },
+    ...UK_ALL.slice(1),
+    {
+      id: 'domestic_abuse',
+      label: 'Live Fear Free',
+      detail: 'Call 0808 80 10 800',
+      href: 'tel:08088010800',
+      kind: 'call',
+    },
+  ],
+  'GB-SCT': [
+    ...UK_ALL.slice(0, 1),
+    {
+      id: 'nhs111',
+      label: 'NHS 24 (mental health)',
+      detail: 'Call 111',
+      href: 'tel:111',
       kind: 'call',
     },
     {
-      id: 'shout',
-      label: 'Shout, by text',
-      detail: 'Text SHOUT to 85258',
-      href: 'sms:85258?body=SHOUT',
-      kind: 'text',
+      id: 'breathing_space',
+      label: 'Breathing Space',
+      detail: 'Call 0800 83 85 87',
+      href: 'tel:0800838587',
+      kind: 'call',
+    },
+    ...UK_ALL.slice(1),
+    {
+      id: 'domestic_abuse',
+      label: 'Domestic Abuse and Forced Marriage Helpline',
+      detail: 'Call 0800 027 1234',
+      href: 'tel:08000271234',
+      kind: 'call',
+    },
+  ],
+  'GB-NIR': [
+    ...UK_ALL.slice(0, 1),
+    {
+      id: 'lifeline',
+      label: 'Lifeline (crisis)',
+      detail: 'Call 0808 808 8000',
+      href: 'tel:08088088000',
+      kind: 'call',
+    },
+    ...UK_ALL.slice(1),
+    {
+      id: 'domestic_abuse',
+      label: 'Domestic and Sexual Abuse Helpline',
+      detail: 'Call 0808 802 1414',
+      href: 'tel:08088021414',
+      kind: 'call',
     },
   ],
   INTL: [

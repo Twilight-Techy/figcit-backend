@@ -41,6 +41,19 @@ import {
   type SimulateCheckInResult,
 } from './simulator.schemas.js';
 
+import { DecisionsV5Service } from './decisions-v5.service.js';
+import { FitSummaryService } from './fit-summary.service.js';
+import {
+  checkInV5Schema,
+  decisionV5Schema,
+  fitSummarySchema,
+  previewV5Schema,
+  type CheckInV5Body,
+  type DecisionV5Dto,
+  type FitSummaryDto,
+  type PreviewV5Dto,
+} from './v5.schemas.js';
+
 const TAGS = ['Engine v2'];
 
 /**
@@ -52,7 +65,52 @@ export class DecisionsController {
   constructor(
     private readonly decisions: DecisionsService,
     private readonly bridge: CardBridgeService,
+    private readonly v5: DecisionsV5Service,
+    private readonly fit: FitSummaryService,
   ) {}
+
+  @Get('v5/fit-summary')
+  @Route({
+    summary:
+      'My fit summary (RW-5, Premium): the last 28 days of v5.0 check-ins by colour, with the kinds of task brought',
+    tags: TAGS,
+    response: fitSummarySchema,
+  })
+  fitSummary(@CurrentUser() user: RequestUser): Promise<FitSummaryDto> {
+    return this.fit.summary(user.id);
+  }
+
+  @Post('v5/preview')
+  @HttpCode(200)
+  @Route({
+    summary:
+      'Rules Engine v5.0: the colour, its sentence and the Help menu as the person checks in; nothing is stored. Needs an account (SU-1)',
+    tags: TAGS,
+    body: checkInV5Schema,
+    response: previewV5Schema,
+  })
+  previewV5(
+    @CurrentUser() user: RequestUser,
+    @Body(new ZodPipe(checkInV5Schema)) body: CheckInV5Body,
+  ): Promise<PreviewV5Dto> {
+    return this.v5.preview(body, user.id);
+  }
+
+  @Post('v5')
+  @Route({
+    summary:
+      'Rules Engine v5.0: run a Quick or Full check-in and record the decision; the card has its words, labels and plans. Needs an account (SU-1)',
+    tags: TAGS,
+    body: checkInV5Schema,
+    response: decisionV5Schema,
+    status: 201,
+  })
+  decideV5(
+    @CurrentUser() user: RequestUser,
+    @Body(new ZodPipe(checkInV5Schema)) body: CheckInV5Body,
+  ): Promise<DecisionV5Dto> {
+    return this.v5.decide(body, user.id);
+  }
 
   @Post()
   @Route({

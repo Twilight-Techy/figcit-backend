@@ -257,7 +257,7 @@ describe('rule store (engine v2)', () => {
       schema: { $defs: Record<string, unknown> };
     }>('GET', `/rulesets/${first}/format`, { token: reader });
     expect(format.status).toBe(200);
-    expect(format.body.format).toBe(3);
+    expect(format.body.format).toBe(4);
     expect(format.body.facts.map((f) => f.name)).toContain('peak.negative');
     expect(format.body.domains.find((d) => d.domain === 'band')?.values.map((v) => v.code)).toEqual(
       ['very_constrained', 'constrained', 'conditional', 'available'],

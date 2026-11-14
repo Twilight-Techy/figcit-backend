@@ -1,0 +1,43 @@
+Tab 21 — Test cases,,,
+,,,
+Test,Input,Expected result,Rules
+T-01,"Peak Flow (Green), calm 6, no task, Quick","Card: 'You're in a good place…' Plan something / Explore something new / Just note how I feel. No 'Open Home', no Regulate alternative.","P1-A, ALT-1"
+T-02,"Full Flow (Green), calm; task 'Write the project proposal'; card 'Ground me in my practice'",'Which first?' [My practice] [The task]. The task card never shows a practice as its action.,"SEQ-1, P43"
+T-03,"Full Flow (Green), overwhelmed 8; Senses: Noise; Bus; Step away: Not easily; no devices","Strong overwhelm (8) only → one step lower (FE-1). The noisy bus does NOT lower it further; discreet tools and Adapt first (CX-R, BS-2).","FE-1, CX-R, BS-2"
+T-04,Same as T-03 but Headphones ticked,Same colour as T-03; headphones unlock calming sounds and guided audio (DV-R).,DV-R
+T-05,"Full Flow (Green), calm; Senses: Noise + Crowd; Party; Headphones only",Colour stays Green; tools filtered for a busy place; Adapt first.,"CX-R, BS-2, P59"
+T-06,"Full Flow (Green), calm; Exam hall; Step away: No; headphones","Colour stays Green; silent, eyes-open tools only (pattern 49).","CX-R, P49"
+T-07,Yellow; Senses: Lights; Sunglasses ticked,Colour stays Yellow; 'Put your sunglasses on' offered first.,"DV-R, BS-2"
+T-08,"Quick check-in, Amber",No context applied; discreet variants first; link 'Not at home? Tell us where you are'.,"CTX-U, P42"
+T-09,Second check-in the same day,Where you are has nothing pre-selected; last place appears first as an unselected chip.,CTX-0
+T-10,Sign-up: age 16–17 without institution code,Account not created; kind explanation; Help/SOS shown.,SU-4
+T-11,Sign-up: Under 16,Not available message + Childline 0800 1111 + Help.,SU-4
+T-12,Sign-up with Google,Name pre-filled and editable; age band and country still asked.,SU-6
+T-13,Google not configured,Google button hidden; no raw error page.,"SU-2, SU-10"
+T-14,Country = Scotland; tap Help,"NHS 24 (111), Breathing Space 0800 83 85 87, Samaritans, Shout, 999.",HELPLINES
+T-15,Home after sign-in as 'Torera',"'Good morning, Torera'.",SI-5
+T-16,Recommendation card for any tool,Button text equals the tool's user_label; no internal description visible.,LBL-1
+T-17,Me: tap the Help line under Life right now,Help/SOS opens with 999 and the nation's domestic abuse and crisis lines; nothing stored; colour unchanged.,"ME-5, SF-3, LE-0"
+T-18,Me: Life right now 'Losing someone or something'; Support menu in Green,"Reflect, Connect and Meditate cards ordered first; colour unchanged.",ME-4
+T-19,"Free user, Amber, opens Regulate",Only safety-floor tools; no Prime/Premium tiles.,ENT-3
+T-20,"Free user, Green, best fit is a Prime tool",Primary is the best free tool; one labelled Prime alternative.,ENT-11
+T-21,Plans screen,Prime £7/month or £70/year · Premium £13/month or £130/year · organisation code; 'Prices before VAT'; checkout shows the VAT total.,"ENT-8, ENT-10"
+T-22,Organisation code entered,Premium unlocked automatically; organisation sees no individual data.,ENT-7
+T-23,Not signed in,No 'Log out' anywhere; no check-in tools; Help works.,"SU-1, SI-6"
+T-24,Delete a dump,"In-app dialog, not the browser's confirm box.",A-44
+T-25,Each of the 8 support cards in each light,Visibility matches Tab 7; blocked cards swap safely with a one-line reason.,"Tab 7, SEQ-2"
+,,,
+v5.0 — New tests,,,
+Test,Input,Expected result,Rules
+T-30,"Calm, Green, no task",Pattern 53: a fitting task suggestion is shown; colour stays Green.,"TK-4, FE-0"
+T-31,Anxious 8 + Happy 8 (tie),Anxious decides (tie → unpleasant); colour one step lower.,"FE-3, FE-1"
+T-32,Angry 9 + Tension + Aches + Heaviness,Only ONE step lower in total.,CAP-1
+T-33,"Yellow, noisy bus, no headphones",Colour stays Yellow; discreet tools first.,CX-R
+T-34,Breathless → 'sudden or new',Urgent screen with 999 and 111; nothing else.,"SF-4, P50"
+T-35,Free user taps 'Frustrated' (locked) in Amber,Nothing opens; no plan sheet.,ENT-12
+T-36,"Free user, 'Something else' = 'gutted'",Safety check runs; one-tap group question; not saved after the check-in.,SE-1
+T-37,Dump: idea sorted as diagram,Opens Regulate → Create with the idea as a title.,DR-4
+T-38,"Prime user, four tasks, Amber","'Can't wait' first, then 'Usual'; 'Hard' and 'New' under Later.",TK-2
+T-39,First sign-in,'Set things up your way' sheet before the first check-in; skippable.,ST-1
+T-40,Guided body movement start,Safety line shown; user picks voice or display and sets the time.,"MV-5, MV-6"
+T-41,"Shut down 5, Green cell",No-words mode; colour one step lower; no Dance or eyes-closed tools.,"FE-2, MV-2"

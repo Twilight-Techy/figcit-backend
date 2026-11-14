@@ -1,6 +1,6 @@
 {
   "version": "bundled",
-  "hash": "b8ee9c968bdfe55c6c101bc229f8e8a340741715de3f130611bd255324da3bce",
+  "hash": "53e03044ddef64dfb3ba728e9beab94b636ec3b03e8fd10f28fd24ddbeddac06",
   "inputs": {
     "feeling": [
       {
@@ -1145,7 +1145,10 @@
         "label": "Feet",
         "group": null
       }
-    ]
+    ],
+    "body": [],
+    "urgent": [],
+    "help": []
   },
   "intensityBands": [
     {

@@ -618,6 +618,485 @@
         "x-access": "staff"
       }
     },
+    "/v1/admin/organisations": {
+      "get": {
+        "operationId": "Organisations_list",
+        "summary": "Organisations, their codes and how many places are in use",
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "plan": {
+                            "type": "string",
+                            "enum": [
+                              "org_seat",
+                              "pilot"
+                            ]
+                          },
+                          "seatsUsed": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "codes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "code": {
+                                  "type": "string"
+                                },
+                                "uses": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "maxUses": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "expiresAt": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "code",
+                                "uses",
+                                "maxUses",
+                                "expiresAt"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "kind",
+                          "plan",
+                          "seatsUsed",
+                          "codes",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "Example name",
+                      "kind": "Example kind",
+                      "plan": "org_seat",
+                      "seatsUsed": 1,
+                      "codes": [
+                        {
+                          "code": "Example code",
+                          "uses": 1,
+                          "maxUses": 1,
+                          "expiresAt": "2026-01-15T09:30:00.000Z"
+                        }
+                      ],
+                      "createdAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "Organisations_create",
+        "summary": "Add an organisation: its people get Premium (a seat) or the six-week pilot",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "university",
+                      "college",
+                      "school",
+                      "employer",
+                      "jobcentre",
+                      "programme",
+                      "other"
+                    ]
+                  },
+                  "plan": {
+                    "default": "org_seat",
+                    "type": "string",
+                    "enum": [
+                      "org_seat",
+                      "pilot"
+                    ]
+                  },
+                  "anonymityFloor": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 50
+                  }
+                },
+                "required": [
+                  "name",
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "name": "Example name",
+                "kind": "university",
+                "plan": "org_seat",
+                "anonymityFloor": 10
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "plan": {
+                      "type": "string",
+                      "enum": [
+                        "org_seat",
+                        "pilot"
+                      ]
+                    },
+                    "seatsUsed": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "codes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "uses": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "maxUses": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "expiresAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "uses",
+                          "maxUses",
+                          "expiresAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "kind",
+                    "plan",
+                    "seatsUsed",
+                    "codes",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "name": "Example name",
+                  "kind": "Example kind",
+                  "plan": "org_seat",
+                  "seatsUsed": 1,
+                  "codes": [
+                    {
+                      "code": "Example code",
+                      "uses": 1,
+                      "maxUses": 1,
+                      "expiresAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ],
+                  "createdAt": "2026-01-15T09:30:00.000Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/organisations/{id}/codes": {
+      "post": {
+        "operationId": "Organisations_issue",
+        "summary": "Issue an organisation code: people enter it at sign-up or in Plans",
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "maxUses": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000
+                  },
+                  "days": {
+                    "default": 365,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 730
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "maxUses": 1,
+                "days": 365
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "uses": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "maxUses": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "expiresAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "uses",
+                    "maxUses",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "code": "Example code",
+                  "uses": 1,
+                  "maxUses": 1,
+                  "expiresAt": "2026-01-15T09:30:00.000Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/safety-events": {
       "get": {
         "operationId": "Admin_safety",
@@ -3566,6 +4045,61 @@
         "x-access": "public"
       }
     },
+    "/v1/auth/methods": {
+      "get": {
+        "operationId": "Auth_methods",
+        "summary": "The sign-in methods that work here (SU-2): the app shows only these",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "password": {
+                      "type": "boolean"
+                    },
+                    "emailCode": {
+                      "type": "boolean"
+                    },
+                    "google": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "password",
+                    "emailCode",
+                    "google"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "password": true,
+                  "emailCode": true,
+                  "google": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "x-access": "public"
+      }
+    },
     "/v1/auth/mfa/enrol": {
       "post": {
         "operationId": "Auth_enrol",
@@ -4626,7 +5160,7 @@
     "/v1/billing/checkout": {
       "post": {
         "operationId": "Billing_checkout",
-        "summary": "Start buying Plus (S61)",
+        "summary": "Start buying Prime or Premium (S61): the total with VAT, before payment",
         "tags": [
           "Plans"
         ],
@@ -4673,17 +5207,38 @@
                       "type": "string",
                       "format": "uuid",
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "subtotalMinor": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "vatMinor": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "totalMinor": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
                     }
                   },
                   "required": [
                     "url",
-                    "sessionId"
+                    "sessionId",
+                    "subtotalMinor",
+                    "vatMinor",
+                    "totalMinor"
                   ],
                   "additionalProperties": false
                 },
                 "example": {
                   "url": "Example url",
-                  "sessionId": "00000000-0000-4000-8000-000000000001"
+                  "sessionId": "00000000-0000-4000-8000-000000000001",
+                  "subtotalMinor": 1,
+                  "vatMinor": 1,
+                  "totalMinor": 1
                 }
               }
             }
@@ -8454,7 +9009,8 @@
                           "type": "string",
                           "enum": [
                             "card",
-                            "support_screen"
+                            "support_screen",
+                            "urgent_screen"
                           ]
                         },
                         "band": {
@@ -9457,7 +10013,8 @@
                               "type": "string",
                               "enum": [
                                 "card",
-                                "support_screen"
+                                "support_screen",
+                                "urgent_screen"
                               ]
                             },
                             "band": {
@@ -10075,7 +10632,8 @@
                               "type": "string",
                               "enum": [
                                 "card",
-                                "support_screen"
+                                "support_screen",
+                                "urgent_screen"
                               ]
                             },
                             "band": {
@@ -11523,6 +12081,1382 @@
           "safety_reviewer",
           "content_editor"
         ]
+      }
+    },
+    "/v1/decisions/v5": {
+      "post": {
+        "operationId": "Decisions_decideV5",
+        "summary": "Rules Engine v5.0: run a Quick or Full check-in and record the decision; the card has its words, labels and plans. Needs an account (SU-1)",
+        "tags": [
+          "Engine v2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "quick",
+                      "full"
+                    ],
+                    "description": "Quick asks no body, senses or place (CTX-U)"
+                  },
+                  "state": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "grid"
+                          },
+                          "energy": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          },
+                          "mood": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "energy",
+                          "mood"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "not_sure"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      }
+                    ]
+                  },
+                  "emotions": {
+                    "maxItems": 2,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        },
+                        "level": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10,
+                          "description": "The slider"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "level"
+                      ]
+                    },
+                    "description": "Up to two emotions (Tab 2)"
+                  },
+                  "somethingElse": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 30,
+                        "description": "Checked for safety, then dropped (SE-1)"
+                      },
+                      "group": {
+                        "description": "The one tap: wound up, low, switched off, okay; skipped stays Unsorted",
+                        "type": "string",
+                        "enum": [
+                          "charged",
+                          "low",
+                          "shutdown",
+                          "settled"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text"
+                    ]
+                  },
+                  "body": {
+                    "maxItems": 14,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,48}$"
+                    }
+                  },
+                  "urgent": {
+                    "description": "'Something feels wrong' and 'Is this sudden or new for you?' (SF-4)",
+                    "type": "object",
+                    "properties": {
+                      "signs": {
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "answer": {
+                        "type": "string",
+                        "enum": [
+                          "sudden_new",
+                          "familiar"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "signs",
+                      "answer"
+                    ]
+                  },
+                  "senses": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,48}$"
+                    }
+                  },
+                  "place": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      },
+                      "canStepAway": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "canStepAway"
+                    ]
+                  },
+                  "devices": {
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,48}$"
+                    }
+                  },
+                  "tasks": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120,
+                          "description": "Shown on the card, never to the engine"
+                        },
+                        "chip": {
+                          "description": "No chip is Usual (TK-1)",
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "required": [
+                        "title"
+                      ]
+                    }
+                  },
+                  "helpCard": {
+                    "description": "The Help menu pick (Tab 7)",
+                    "type": "string",
+                    "pattern": "^[a-z0-9_]{1,48}$"
+                  },
+                  "recheckOfId": {
+                    "description": "The decision this check-in re-checks",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "state",
+                  "emotions"
+                ]
+              },
+              "example": {
+                "mode": "quick",
+                "state": {
+                  "kind": "grid",
+                  "energy": 1,
+                  "mood": 1
+                },
+                "emotions": [
+                  {
+                    "code": "example",
+                    "level": 1
+                  }
+                ],
+                "somethingElse": {
+                  "text": "Example text",
+                  "group": "charged"
+                },
+                "body": [
+                  "example"
+                ],
+                "urgent": {
+                  "signs": [
+                    "example"
+                  ],
+                  "answer": "sudden_new"
+                },
+                "senses": [
+                  "example"
+                ],
+                "place": {
+                  "code": "example",
+                  "canStepAway": true
+                },
+                "devices": [
+                  "example"
+                ],
+                "tasks": [
+                  {
+                    "title": "Example title",
+                    "chip": "example"
+                  }
+                ],
+                "helpCard": "example",
+                "recheckOfId": "00000000-0000-4000-8000-000000000001"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "ruleset": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "hash": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "hash"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "engineVersion": {
+                      "type": "string"
+                    },
+                    "card": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "card",
+                            "support_screen",
+                            "urgent_screen"
+                          ]
+                        },
+                        "light": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "pattern": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "noWords": {
+                          "type": "boolean"
+                        },
+                        "headline": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "taskLine": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "primary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "tool",
+                                    "action",
+                                    "pathway"
+                                  ]
+                                },
+                                "code": {
+                                  "type": "string"
+                                },
+                                "pathway": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "description": "Tab 17's user_label, or the action's words (LBL-1)"
+                                },
+                                "description": {
+                                  "description": "Tab 17's user_description",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "plan": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "prime",
+                                        "premium"
+                                      ]
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ],
+                                  "description": "A paid tool: the app shows the lock"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "code",
+                                "pathway",
+                                "label",
+                                "description",
+                                "plan"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "alternatives": {
+                          "maxItems": 2,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "tool",
+                                  "action",
+                                  "pathway"
+                                ]
+                              },
+                              "code": {
+                                "type": "string"
+                              },
+                              "pathway": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Tab 17's user_label, or the action's words (LBL-1)"
+                              },
+                              "description": {
+                                "description": "Tab 17's user_description",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "plan": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "prime",
+                                      "premium"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "A paid tool: the app shows the lock"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "code",
+                              "pathway",
+                              "label",
+                              "description",
+                              "plan"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "supportVisible": {
+                          "type": "boolean",
+                          "description": "Get support now; otherwise the app shows Not now"
+                        },
+                        "suggestion": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "key",
+                                "text"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "With no task, a task that fits (TK-4)"
+                        },
+                        "prompts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "text"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "e.g. 'Not at home? Tell us where you are' (P42)"
+                        },
+                        "tasks": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "first": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "later": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "first",
+                                "later"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "The task titles in the order to show them (TK-2)"
+                        },
+                        "helpSwap": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "card": {
+                                  "type": "string"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "card",
+                                "reason"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "The card picked was blocked; why, in one line (SEQ-2)"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "light",
+                        "pattern",
+                        "noWords",
+                        "headline",
+                        "reason",
+                        "taskLine",
+                        "primary",
+                        "alternatives",
+                        "supportVisible",
+                        "suggestion",
+                        "prompts",
+                        "tasks",
+                        "helpSwap"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "menu": {
+                      "type": "object",
+                      "properties": {
+                        "cards": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "hint": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "hint"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "more": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "hint": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "hint"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "cards",
+                        "more"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "dropped": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "input": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "why": {
+                            "type": "string",
+                            "enum": [
+                              "not_offered",
+                              "locked",
+                              "not_asked",
+                              "too_many"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "input",
+                          "code",
+                          "why"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "createdAt",
+                    "ruleset",
+                    "engineVersion",
+                    "card",
+                    "menu",
+                    "dropped"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "createdAt": "2026-01-15T09:30:00.000Z",
+                  "ruleset": {
+                    "label": "Example label",
+                    "hash": "Example hash"
+                  },
+                  "engineVersion": "Example engineVersion",
+                  "card": {
+                    "kind": "card",
+                    "light": "Example light",
+                    "pattern": "Example pattern",
+                    "noWords": true,
+                    "headline": "Example headline",
+                    "reason": "Example reason",
+                    "taskLine": "Example taskLine",
+                    "primary": {
+                      "kind": "tool",
+                      "code": "Example code",
+                      "pathway": "Example pathway",
+                      "label": "Example label",
+                      "description": "Example description",
+                      "plan": "prime"
+                    },
+                    "alternatives": [
+                      {
+                        "kind": "tool",
+                        "code": "Example code",
+                        "pathway": "Example pathway",
+                        "label": "Example label",
+                        "description": "Example description",
+                        "plan": "prime"
+                      }
+                    ],
+                    "supportVisible": true,
+                    "suggestion": {
+                      "key": "<example-key>",
+                      "text": "Example text"
+                    },
+                    "prompts": [
+                      {
+                        "key": "<example-key>",
+                        "text": "Example text"
+                      }
+                    ],
+                    "tasks": {
+                      "first": [
+                        "Example first"
+                      ],
+                      "later": [
+                        "Example later"
+                      ]
+                    },
+                    "helpSwap": {
+                      "card": "Example card",
+                      "reason": "Example reason"
+                    }
+                  },
+                  "menu": {
+                    "cards": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label",
+                        "hint": "Example hint"
+                      }
+                    ],
+                    "more": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label",
+                        "hint": "Example hint"
+                      }
+                    ]
+                  },
+                  "dropped": [
+                    {
+                      "input": "Example input",
+                      "code": "Example code",
+                      "why": "not_offered"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/decisions/v5/fit-summary": {
+      "get": {
+        "operationId": "Decisions_fitSummary",
+        "summary": "My fit summary (RW-5, Premium): the last 28 days of v5.0 check-ins by colour, with the kinds of task brought",
+        "tags": [
+          "Engine v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "to": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "checkIns": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "v5.0 check-ins in the period"
+                    },
+                    "lights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "light": {
+                            "type": "string"
+                          },
+                          "checkIns": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "chips": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "chip": {
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "checkIns": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "chip",
+                                "label",
+                                "checkIns"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "The kinds of task brought to these check-ins, most first"
+                          }
+                        },
+                        "required": [
+                          "light",
+                          "checkIns",
+                          "chips"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "In light order: green, yellow, blue, amber, red"
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "checkIns",
+                    "lights"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "from": "2026-01-15T09:30:00.000Z",
+                  "to": "2026-01-15T09:30:00.000Z",
+                  "checkIns": 1,
+                  "lights": [
+                    {
+                      "light": "Example light",
+                      "checkIns": 1,
+                      "chips": [
+                        {
+                          "chip": "Example chip",
+                          "label": "Example label",
+                          "checkIns": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/decisions/v5/preview": {
+      "post": {
+        "operationId": "Decisions_previewV5",
+        "summary": "Rules Engine v5.0: the colour, its sentence and the Help menu as the person checks in; nothing is stored. Needs an account (SU-1)",
+        "tags": [
+          "Engine v2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "quick",
+                      "full"
+                    ],
+                    "description": "Quick asks no body, senses or place (CTX-U)"
+                  },
+                  "state": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "grid"
+                          },
+                          "energy": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          },
+                          "mood": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "energy",
+                          "mood"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "not_sure"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      }
+                    ]
+                  },
+                  "emotions": {
+                    "maxItems": 2,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        },
+                        "level": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10,
+                          "description": "The slider"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "level"
+                      ]
+                    },
+                    "description": "Up to two emotions (Tab 2)"
+                  },
+                  "somethingElse": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 30,
+                        "description": "Checked for safety, then dropped (SE-1)"
+                      },
+                      "group": {
+                        "description": "The one tap: wound up, low, switched off, okay; skipped stays Unsorted",
+                        "type": "string",
+                        "enum": [
+                          "charged",
+                          "low",
+                          "shutdown",
+                          "settled"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text"
+                    ]
+                  },
+                  "body": {
+                    "maxItems": 14,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,48}$"
+                    }
+                  },
+                  "urgent": {
+                    "description": "'Something feels wrong' and 'Is this sudden or new for you?' (SF-4)",
+                    "type": "object",
+                    "properties": {
+                      "signs": {
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "answer": {
+                        "type": "string",
+                        "enum": [
+                          "sudden_new",
+                          "familiar"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "signs",
+                      "answer"
+                    ]
+                  },
+                  "senses": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,48}$"
+                    }
+                  },
+                  "place": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      },
+                      "canStepAway": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "canStepAway"
+                    ]
+                  },
+                  "devices": {
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,48}$"
+                    }
+                  },
+                  "tasks": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120,
+                          "description": "Shown on the card, never to the engine"
+                        },
+                        "chip": {
+                          "description": "No chip is Usual (TK-1)",
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "required": [
+                        "title"
+                      ]
+                    }
+                  },
+                  "helpCard": {
+                    "description": "The Help menu pick (Tab 7)",
+                    "type": "string",
+                    "pattern": "^[a-z0-9_]{1,48}$"
+                  },
+                  "recheckOfId": {
+                    "description": "The decision this check-in re-checks",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "state",
+                  "emotions"
+                ]
+              },
+              "example": {
+                "mode": "quick",
+                "state": {
+                  "kind": "grid",
+                  "energy": 1,
+                  "mood": 1
+                },
+                "emotions": [
+                  {
+                    "code": "example",
+                    "level": 1
+                  }
+                ],
+                "somethingElse": {
+                  "text": "Example text",
+                  "group": "charged"
+                },
+                "body": [
+                  "example"
+                ],
+                "urgent": {
+                  "signs": [
+                    "example"
+                  ],
+                  "answer": "sudden_new"
+                },
+                "senses": [
+                  "example"
+                ],
+                "place": {
+                  "code": "example",
+                  "canStepAway": true
+                },
+                "devices": [
+                  "example"
+                ],
+                "tasks": [
+                  {
+                    "title": "Example title",
+                    "chip": "example"
+                  }
+                ],
+                "helpCard": "example",
+                "recheckOfId": "00000000-0000-4000-8000-000000000001"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "card",
+                        "support_screen",
+                        "urgent_screen"
+                      ]
+                    },
+                    "light": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lowered": {
+                      "type": "boolean",
+                      "description": "The colour went down (FE-1, FE-2, BS-1, SF-4)"
+                    },
+                    "noWords": {
+                      "type": "boolean",
+                      "description": "No-words mode (FE-2, BS-3): tap-only, eyes open"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "description": "One plain sentence (RT-4)"
+                    },
+                    "menu": {
+                      "type": "object",
+                      "properties": {
+                        "cards": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "hint": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "hint"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "more": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "hint": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "hint"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "cards",
+                        "more"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "dropped": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "input": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "why": {
+                            "type": "string",
+                            "enum": [
+                              "not_offered",
+                              "locked",
+                              "not_asked",
+                              "too_many"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "input",
+                          "code",
+                          "why"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "light",
+                    "lowered",
+                    "noWords",
+                    "reason",
+                    "menu",
+                    "dropped"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "kind": "card",
+                  "light": "Example light",
+                  "lowered": true,
+                  "noWords": true,
+                  "reason": "Example reason",
+                  "menu": {
+                    "cards": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label",
+                        "hint": "Example hint"
+                      }
+                    ],
+                    "more": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label",
+                        "hint": "Example hint"
+                      }
+                    ]
+                  },
+                  "dropped": [
+                    {
+                      "input": "Example input",
+                      "code": "Example code",
+                      "why": "not_offered"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
       }
     },
     "/v1/dev/mailbox": {
@@ -15857,6 +17791,12 @@
                     "setupDone": {
                       "type": "boolean"
                     },
+                    "detailsDone": {
+                      "type": "boolean"
+                    },
+                    "productUpdates": {
+                      "type": "boolean"
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -15865,6 +17805,14 @@
                       "enum": [
                         "free",
                         "plus"
+                      ]
+                    },
+                    "tier": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "prime",
+                        "premium"
                       ]
                     },
                     "tenant": {
@@ -16047,8 +17995,11 @@
                     "helpWith",
                     "journeySeen",
                     "setupDone",
+                    "detailsDone",
+                    "productUpdates",
                     "hasPassword",
                     "plan",
+                    "tier",
                     "tenant",
                     "createdAt",
                     "preferences"
@@ -16073,8 +18024,11 @@
                   ],
                   "journeySeen": true,
                   "setupDone": true,
+                  "detailsDone": true,
+                  "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
+                  "tier": "free",
                   "tenant": {
                     "id": "00000000-0000-4000-8000-000000000001",
                     "name": "Example name"
@@ -16138,15 +18092,9 @@
                 "type": "object",
                 "properties": {
                   "nickname": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 40
-                      },
-                      {
-                        "type": "null"
-                      }
+                    "type": [
+                      "string",
+                      "null"
                     ]
                   },
                   "locale": {
@@ -16155,7 +18103,7 @@
                   },
                   "region": {
                     "type": "string",
-                    "maxLength": 8
+                    "pattern": "^(GB-(ENG|WLS|SCT|NIR)|GB|[A-Z]{2})$"
                   },
                   "timezone": {
                     "type": "string",
@@ -16181,7 +18129,7 @@
               "example": {
                 "nickname": "Example nickname",
                 "locale": "Example locale",
-                "region": "Example ",
+                "region": "GB-ENG",
                 "timezone": "Example timezone",
                 "helpWith": [
                   "Example helpWith"
@@ -16264,6 +18212,12 @@
                     "setupDone": {
                       "type": "boolean"
                     },
+                    "detailsDone": {
+                      "type": "boolean"
+                    },
+                    "productUpdates": {
+                      "type": "boolean"
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -16272,6 +18226,14 @@
                       "enum": [
                         "free",
                         "plus"
+                      ]
+                    },
+                    "tier": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "prime",
+                        "premium"
                       ]
                     },
                     "tenant": {
@@ -16454,8 +18416,11 @@
                     "helpWith",
                     "journeySeen",
                     "setupDone",
+                    "detailsDone",
+                    "productUpdates",
                     "hasPassword",
                     "plan",
+                    "tier",
                     "tenant",
                     "createdAt",
                     "preferences"
@@ -16480,8 +18445,11 @@
                   ],
                   "journeySeen": true,
                   "setupDone": true,
+                  "detailsDone": true,
+                  "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
+                  "tier": "free",
                   "tenant": {
                     "id": "00000000-0000-4000-8000-000000000001",
                     "name": "Example name"
@@ -16723,6 +18691,12 @@
                     "setupDone": {
                       "type": "boolean"
                     },
+                    "detailsDone": {
+                      "type": "boolean"
+                    },
+                    "productUpdates": {
+                      "type": "boolean"
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -16731,6 +18705,14 @@
                       "enum": [
                         "free",
                         "plus"
+                      ]
+                    },
+                    "tier": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "prime",
+                        "premium"
                       ]
                     },
                     "tenant": {
@@ -16913,8 +18895,11 @@
                     "helpWith",
                     "journeySeen",
                     "setupDone",
+                    "detailsDone",
+                    "productUpdates",
                     "hasPassword",
                     "plan",
+                    "tier",
                     "tenant",
                     "createdAt",
                     "preferences"
@@ -16939,8 +18924,11 @@
                   ],
                   "journeySeen": true,
                   "setupDone": true,
+                  "detailsDone": true,
+                  "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
+                  "tier": "free",
                   "tenant": {
                     "id": "00000000-0000-4000-8000-000000000001",
                     "name": "Example name"
@@ -17243,6 +19231,450 @@
         "x-access": "user"
       }
     },
+    "/v1/me/details": {
+      "post": {
+        "operationId": "Users_saveDetails",
+        "summary": "Your details at sign-up: name, age band, country or nation, Terms (S04a, age rule)",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string"
+                  },
+                  "ageBand": {
+                    "type": "string",
+                    "enum": [
+                      "18_plus",
+                      "16_17",
+                      "under_16"
+                    ]
+                  },
+                  "region": {
+                    "type": "string",
+                    "pattern": "^(GB-(ENG|WLS|SCT|NIR)|GB|[A-Z]{2})$"
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "productUpdates": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "nickname",
+                  "ageBand",
+                  "region",
+                  "acceptTerms"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "nickname": "Example nickname",
+                "ageBand": "18_plus",
+                "region": "GB-ENG",
+                "acceptTerms": true,
+                "productUpdates": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "outcome": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "needs_institution",
+                        "not_available"
+                      ]
+                    },
+                    "me": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "email": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "emailVerified": {
+                              "type": "boolean"
+                            },
+                            "nickname": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "roles": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "ageConfirmed": {
+                              "type": "boolean"
+                            },
+                            "ageBand": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "adult",
+                                    "minor_institution"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "locale": {
+                              "type": "string"
+                            },
+                            "region": {
+                              "type": "string"
+                            },
+                            "timezone": {
+                              "type": "string"
+                            },
+                            "helpWith": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "journeySeen": {
+                              "type": "boolean"
+                            },
+                            "setupDone": {
+                              "type": "boolean"
+                            },
+                            "detailsDone": {
+                              "type": "boolean"
+                            },
+                            "productUpdates": {
+                              "type": "boolean"
+                            },
+                            "hasPassword": {
+                              "type": "boolean"
+                            },
+                            "plan": {
+                              "type": "string",
+                              "enum": [
+                                "free",
+                                "plus"
+                              ]
+                            },
+                            "tier": {
+                              "type": "string",
+                              "enum": [
+                                "free",
+                                "prime",
+                                "premium"
+                              ]
+                            },
+                            "tenant": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "preferences": {
+                              "type": "object",
+                              "properties": {
+                                "textSize": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 3
+                                },
+                                "theme": {
+                                  "type": "string",
+                                  "enum": [
+                                    "fig_citrus",
+                                    "quiet_pear",
+                                    "midnight_bergamot",
+                                    "blood_orange_hush",
+                                    "cool_melon",
+                                    "blue_citron"
+                                  ]
+                                },
+                                "followSystemTheme": {
+                                  "type": "boolean"
+                                },
+                                "highContrast": {
+                                  "type": "boolean"
+                                },
+                                "reduceMotion": {
+                                  "type": "boolean"
+                                },
+                                "sound": {
+                                  "type": "boolean"
+                                },
+                                "haptics": {
+                                  "type": "boolean"
+                                },
+                                "dyslexicFont": {
+                                  "type": "boolean"
+                                },
+                                "lowStimulation": {
+                                  "type": "boolean"
+                                },
+                                "notificationStyle": {
+                                  "type": "string",
+                                  "enum": [
+                                    "gentle",
+                                    "standard",
+                                    "silent"
+                                  ]
+                                },
+                                "quietHoursStart": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 1439
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "quietHoursEnd": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 1439
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "inWorship": {
+                                  "type": "boolean"
+                                },
+                                "inWorshipUntil": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "taskNudgesPerDay": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 10
+                                },
+                                "notifyCategories": {
+                                  "maxItems": 5,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "checkin",
+                                      "tasks",
+                                      "practices",
+                                      "recheck",
+                                      "reflect"
+                                    ]
+                                  }
+                                },
+                                "patternPrompts": {
+                                  "type": "boolean"
+                                },
+                                "personalisation": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "textSize",
+                                "theme",
+                                "followSystemTheme",
+                                "highContrast",
+                                "reduceMotion",
+                                "sound",
+                                "haptics",
+                                "dyslexicFont",
+                                "lowStimulation",
+                                "notificationStyle",
+                                "quietHoursStart",
+                                "quietHoursEnd",
+                                "inWorship",
+                                "inWorshipUntil",
+                                "taskNudgesPerDay",
+                                "notifyCategories",
+                                "patternPrompts",
+                                "personalisation"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "email",
+                            "emailVerified",
+                            "nickname",
+                            "roles",
+                            "ageConfirmed",
+                            "ageBand",
+                            "locale",
+                            "region",
+                            "timezone",
+                            "helpWith",
+                            "journeySeen",
+                            "setupDone",
+                            "detailsDone",
+                            "productUpdates",
+                            "hasPassword",
+                            "plan",
+                            "tier",
+                            "tenant",
+                            "createdAt",
+                            "preferences"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "outcome",
+                    "me"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "outcome": "ok",
+                  "me": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "email": "Example email",
+                    "emailVerified": true,
+                    "nickname": "Example nickname",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "ageConfirmed": true,
+                    "ageBand": "adult",
+                    "locale": "Example locale",
+                    "region": "Example region",
+                    "timezone": "Example timezone",
+                    "helpWith": [
+                      "Example helpWith"
+                    ],
+                    "journeySeen": true,
+                    "setupDone": true,
+                    "detailsDone": true,
+                    "productUpdates": true,
+                    "hasPassword": true,
+                    "plan": "free",
+                    "tier": "free",
+                    "tenant": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "Example name"
+                    },
+                    "createdAt": "2026-01-15T09:30:00.000Z",
+                    "preferences": {
+                      "textSize": 0,
+                      "theme": "fig_citrus",
+                      "followSystemTheme": true,
+                      "highContrast": true,
+                      "reduceMotion": true,
+                      "sound": true,
+                      "haptics": true,
+                      "dyslexicFont": true,
+                      "lowStimulation": true,
+                      "notificationStyle": "gentle",
+                      "quietHoursStart": 0,
+                      "quietHoursEnd": 0,
+                      "inWorship": true,
+                      "inWorshipUntil": "2026-01-15T09:30:00.000Z",
+                      "taskNudgesPerDay": 0,
+                      "notifyCategories": [
+                        "checkin"
+                      ],
+                      "patternPrompts": true,
+                      "personalisation": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
     "/v1/me/entitlements": {
       "get": {
         "operationId": "Billing_mine",
@@ -17263,6 +19695,14 @@
                       "enum": [
                         "free",
                         "plus"
+                      ]
+                    },
+                    "level": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "prime",
+                        "premium"
                       ]
                     },
                     "items": {
@@ -17330,12 +19770,14 @@
                   },
                   "required": [
                     "tier",
+                    "level",
                     "items"
                   ],
                   "additionalProperties": false
                 },
                 "example": {
                   "tier": "free",
+                  "level": "free",
                   "items": [
                     {
                       "planCode": "Example planCode",
@@ -18063,6 +20505,579 @@
                   ],
                   "patternPrompts": true,
                   "personalisation": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/me/profile": {
+      "get": {
+        "operationId": "Users_profile",
+        "summary": "Me: the optional profile and Life right now (ME-1 to ME-6), private by default",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pronouns": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weekFills": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "studying",
+                          "working",
+                          "looking_for_work",
+                          "training",
+                          "caring",
+                          "other"
+                        ]
+                      }
+                    },
+                    "studyLevel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "school",
+                            "college",
+                            "undergraduate",
+                            "postgraduate",
+                            "apprenticeship",
+                            "other"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "jobField": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 60
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "carries": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 48
+                      }
+                    },
+                    "lifeNow": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "losing_someone",
+                          "big_change",
+                          "money",
+                          "work_study_pressure",
+                          "between",
+                          "caring",
+                          "alone",
+                          "stuck",
+                          "treated_unfairly",
+                          "prefer_not"
+                        ]
+                      }
+                    },
+                    "returnToWork": {
+                      "type": "boolean"
+                    },
+                    "promptDue": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pronouns",
+                    "weekFills",
+                    "studyLevel",
+                    "jobField",
+                    "carries",
+                    "lifeNow",
+                    "returnToWork",
+                    "promptDue"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "pronouns": "Example pronouns",
+                  "weekFills": [
+                    "studying"
+                  ],
+                  "studyLevel": "school",
+                  "jobField": "Example jobField",
+                  "carries": [
+                    "Example carries"
+                  ],
+                  "lifeNow": [
+                    "losing_someone"
+                  ],
+                  "returnToWork": true,
+                  "promptDue": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      },
+      "patch": {
+        "operationId": "Users_updateProfile",
+        "summary": "Change the optional profile or Life right now; never changes the colour (LE-0)",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pronouns": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 30
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "weekFills": {
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "studying",
+                        "working",
+                        "looking_for_work",
+                        "training",
+                        "caring",
+                        "other"
+                      ]
+                    }
+                  },
+                  "studyLevel": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "school",
+                          "college",
+                          "undergraduate",
+                          "postgraduate",
+                          "apprenticeship",
+                          "other"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "jobField": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 60
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "carries": {
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 48
+                    }
+                  },
+                  "lifeNow": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "losing_someone",
+                        "big_change",
+                        "money",
+                        "work_study_pressure",
+                        "between",
+                        "caring",
+                        "alone",
+                        "stuck",
+                        "treated_unfairly",
+                        "prefer_not"
+                      ]
+                    }
+                  },
+                  "returnToWork": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "pronouns": "Example pronouns",
+                "weekFills": [
+                  "studying"
+                ],
+                "studyLevel": "school",
+                "jobField": "Example jobField",
+                "carries": [
+                  "Example carries"
+                ],
+                "lifeNow": [
+                  "losing_someone"
+                ],
+                "returnToWork": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pronouns": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weekFills": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "studying",
+                          "working",
+                          "looking_for_work",
+                          "training",
+                          "caring",
+                          "other"
+                        ]
+                      }
+                    },
+                    "studyLevel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "school",
+                            "college",
+                            "undergraduate",
+                            "postgraduate",
+                            "apprenticeship",
+                            "other"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "jobField": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 60
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "carries": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 48
+                      }
+                    },
+                    "lifeNow": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "losing_someone",
+                          "big_change",
+                          "money",
+                          "work_study_pressure",
+                          "between",
+                          "caring",
+                          "alone",
+                          "stuck",
+                          "treated_unfairly",
+                          "prefer_not"
+                        ]
+                      }
+                    },
+                    "returnToWork": {
+                      "type": "boolean"
+                    },
+                    "promptDue": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pronouns",
+                    "weekFills",
+                    "studyLevel",
+                    "jobField",
+                    "carries",
+                    "lifeNow",
+                    "returnToWork",
+                    "promptDue"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "pronouns": "Example pronouns",
+                  "weekFills": [
+                    "studying"
+                  ],
+                  "studyLevel": "school",
+                  "jobField": "Example jobField",
+                  "carries": [
+                    "Example carries"
+                  ],
+                  "lifeNow": [
+                    "losing_someone"
+                  ],
+                  "returnToWork": true,
+                  "promptDue": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/me/profile/prompt-dismissed": {
+      "post": {
+        "operationId": "Users_dismissPrompt",
+        "summary": "\"Make FigCit more yours\" was dismissed: back in 7 days, 3 times at most (ME-1)",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pronouns": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weekFills": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "studying",
+                          "working",
+                          "looking_for_work",
+                          "training",
+                          "caring",
+                          "other"
+                        ]
+                      }
+                    },
+                    "studyLevel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "school",
+                            "college",
+                            "undergraduate",
+                            "postgraduate",
+                            "apprenticeship",
+                            "other"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "jobField": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 60
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "carries": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 48
+                      }
+                    },
+                    "lifeNow": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "losing_someone",
+                          "big_change",
+                          "money",
+                          "work_study_pressure",
+                          "between",
+                          "caring",
+                          "alone",
+                          "stuck",
+                          "treated_unfairly",
+                          "prefer_not"
+                        ]
+                      }
+                    },
+                    "returnToWork": {
+                      "type": "boolean"
+                    },
+                    "promptDue": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "pronouns",
+                    "weekFills",
+                    "studyLevel",
+                    "jobField",
+                    "carries",
+                    "lifeNow",
+                    "returnToWork",
+                    "promptDue"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "pronouns": "Example pronouns",
+                  "weekFills": [
+                    "studying"
+                  ],
+                  "studyLevel": "school",
+                  "jobField": "Example jobField",
+                  "carries": [
+                    "Example carries"
+                  ],
+                  "lifeNow": [
+                    "losing_someone"
+                  ],
+                  "returnToWork": true,
+                  "promptDue": true
                 }
               }
             }
@@ -19576,6 +22591,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "vatPercent": {
+                      "type": "number"
+                    },
                     "items": {
                       "type": "array",
                       "items": {
@@ -19587,7 +22605,54 @@
                           "name": {
                             "type": "string"
                           },
+                          "tier": {
+                            "type": "string",
+                            "enum": [
+                              "free",
+                              "prime",
+                              "premium"
+                            ]
+                          },
                           "priceMinor": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "vatMinor": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "totalMinor": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "buyable": {
+                            "type": "boolean"
+                          },
+                          "lengthDays": {
                             "anyOf": [
                               {
                                 "type": "integer",
@@ -19618,7 +22683,12 @@
                         "required": [
                           "code",
                           "name",
+                          "tier",
                           "priceMinor",
+                          "vatMinor",
+                          "totalMinor",
+                          "buyable",
+                          "lengthDays",
                           "currency",
                           "interval",
                           "features"
@@ -19628,16 +22698,23 @@
                     }
                   },
                   "required": [
+                    "vatPercent",
                     "items"
                   ],
                   "additionalProperties": false
                 },
                 "example": {
+                  "vatPercent": 1,
                   "items": [
                     {
                       "code": "Example code",
                       "name": "Example name",
+                      "tier": "free",
                       "priceMinor": 1,
+                      "vatMinor": 1,
+                      "totalMinor": 1,
+                      "buyable": true,
+                      "lengthDays": 1,
                       "currency": "Example currency",
                       "interval": "Example interval",
                       "features": [
@@ -26562,7 +29639,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -26605,7 +29683,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -26666,7 +29745,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -28193,7 +31273,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -28236,7 +31317,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -28297,7 +31379,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -29817,7 +32900,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -29860,7 +32944,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -29921,7 +33006,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -31358,7 +34444,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -31401,7 +34488,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -31462,7 +34550,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -32438,7 +35527,8 @@
                               "type": "string",
                               "enum": [
                                 "card",
-                                "support_screen"
+                                "support_screen",
+                                "urgent_screen"
                               ]
                             },
                             "band": {
@@ -34056,7 +37146,8 @@
                                   "type": "string",
                                   "enum": [
                                     "card",
-                                    "support_screen"
+                                    "support_screen",
+                                    "urgent_screen"
                                   ]
                                 },
                                 "band": {
@@ -36903,7 +39994,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -36946,7 +40038,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -37007,7 +40100,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -39838,7 +42932,8 @@
                                       "type": "string",
                                       "enum": [
                                         "card",
-                                        "support_screen"
+                                        "support_screen",
+                                        "urgent_screen"
                                       ]
                                     },
                                     "band": {

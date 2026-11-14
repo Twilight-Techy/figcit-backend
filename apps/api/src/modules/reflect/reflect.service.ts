@@ -126,7 +126,7 @@ export class ReflectService {
   }
 
   async variantsFor(userId: string): Promise<(ReflectVariant & { locked: boolean })[]> {
-    const plus = (await this.deps.entitlements.tierFor(userId)) === 'plus';
+    const plus = await this.deps.entitlements.paid(userId);
     return (await this.variants()).map((v) => ({ ...v, locked: v.tier === 'advanced' && !plus }));
   }
 
@@ -142,7 +142,7 @@ export class ReflectService {
     ]);
     const variant = q.variant ? variants.find((v) => v.code === q.variant) : undefined;
     const light = state.light;
-    if (variant?.tier === 'advanced' && (await this.deps.entitlements.tierFor(userId)) !== 'plus')
+    if (variant?.tier === 'advanced' && !(await this.deps.entitlements.paid(userId)))
       return { allowed: false, reason: 'advanced', rule: 'ENT-1', light, alternatives: [] };
     // A win or a gratitude note is a lighter task than looking back over a hard day.
     const lightTouch = variant?.kind === 'win' || variant?.code === 'gratitude';
@@ -237,7 +237,7 @@ export class ReflectService {
   ): Promise<ReflectVariant> {
     const v = variants.find((x) => x.code === input.variant);
     if (!v) throw new BadInput(`Unknown reflection: ${input.variant}`);
-    if (v.tier === 'advanced' && (await this.deps.entitlements.tierFor(userId)) !== 'plus')
+    if (v.tier === 'advanced' && !(await this.deps.entitlements.paid(userId)))
       throw new NotEntitled(v.title);
     const known = new Set(v.prompts.map((p) => p.id));
     if (input.answers.some((a) => !known.has(a.promptId)))

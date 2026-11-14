@@ -142,8 +142,7 @@ export function shownLead(
   copy: Presentation['copy'],
   rejected: readonly string[] = [],
 ): { label: string; tool: string | null } {
-  if (v2.kind === 'support_screen')
-    return { label: copy.get('card.support.cta') ?? '', tool: null };
+  if (v2.kind !== 'card') return { label: copy.get('card.support.cta') ?? '', tool: null };
   const { lead } = leadOf(v2, rejected);
   if (!lead) return { label: copy.get('action.open_home') ?? '', tool: null };
   return { label: fill(labelOf(lead, copy), { task: 'your task' }), tool: lead.tool };
@@ -208,7 +207,7 @@ function whyOf(v2: Card, p: Presentation, rationale: string): Why {
 export function present(v2: Card, p: Presentation, ids: CardIds): { card: CardDto; why: Why } {
   const ctx = { recommendationId: ids.id, taskId: ids.taskId };
   const dto = (a: Action) => toActionDto(a, ctx);
-  const support = v2.kind === 'support_screen';
+  const support = v2.kind !== 'card';
   const light = (v2.light ?? 'red') as CardDto['light'];
   const shown = p.lights[light];
   const base = {

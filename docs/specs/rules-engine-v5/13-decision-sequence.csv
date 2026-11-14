@@ -1,0 +1,20 @@
+Tab 13 — Decision sequence (backend order),,,
+Quick runs steps 0–3 then 6 onward; Full runs every step.,,,
+,,,
+Step,Screen,What happens,Reads from
+0. Safety,Every screen,'I need help now' and free text (incl. 'Something else' and Dump) are watched; risk → Help/SOS (SF-1). Help line under Life right now → SF-3. Urgent body signs → SF-4.,Tab 6 SF-1/SF-3
+1. Entry,S04/S05,First time on Home: 'Set things up your way' settings sheet before the first check-in (ST-1). Then Home offers: Quick check-in · Full check-in · I need help with… No browse mode (SU-1).,Tab 15
+2. Capacity,S06,"Energy (4) × Mood (4), nothing pre-selected. Result shown INSTANTLY on the same screen: state name, icon, one-line meaning, baseline colour.",Tab 1
+2b. Not sure,S07,Three picture taps → suggested state the user confirms (NS-1).,Tab 6 NS-1
+3. How you feel,S08,"Up to TWO of 20 emotions (10 free on screen + Something else; More = Prime). Each chosen emotion shows a slider only. Result inline: colour after FE-1/FE-2 (and BS-1 later), one plain sentence, optional 'Breathe first?' chip in Amber/Red.","Tab 2; Tab 6 FE-0..FE-5, CAP-1"
+4. Body & senses,S09 (Full only),"One screen, two tabs: Body (Tab 3) with the urgent signs row, and Senses. BS-1 may lower the colour (one step in total with feelings, CAP-1); senses never do. Urgent sign → SF-4 first.",Tab 3
+5. Where you are,S10 (Full only),"Asked fresh (CTX-0): place; 'Can you step away?' (Yes / No); help or devices with me. Never changes the colour (CX-R, DV-R); chooses discreet or open tools and the route. Result: 'Got it — we'll pick things that work {place words}.'","Tabs 4, 5, 6"
+6. Support inference,internal,Tab 2 triggers + 6c gates (RF/MD) + Life right now ordering (ME-4).,"Tabs 2, 12"
+7. Help menu,S11,"'What can I help you with?' — Something I need to do · Support for how I feel (8 cards, filtered by light) · Just checking in.",Tab 7
+8. Task,S12,"Task name, optional chip (New, Can't wait, Hard, Usual, Enjoy, Matters to me, With others, Try out) and time. Tasks sorted by colour (TK-2). No task → a task that fits is suggested (TK-4).","Tabs 10, 10"
+9. Fit and drivers,internal,Capacity–demand fit (DEM-0) and NUCRIPCE tags; SEQ-1 when a support card and a task are both present.,"Tabs 10, 10, 11"
+10. Entitlement,internal,Keep the primary within the user's plan (Free/Prime/Premium/seat); ENT-3 and ENT-11.,Tab 9
+11. Card,S13,"One primary action, up to two alternatives, rationale by RT-1..RT-4, labels by LBL-1 only.","Tabs 11, 11, 17"
+12. Action,S14–S29,"The tool, filtered by context and devices.",Tab 8
+13. Feedback & re-check,S30,Helped? Effort? Optional quick re-check (Capacity + How you feel). Blue rules RC-1..RC-5.,Tab 6
+14. Profile prompt,S05,Optional 'Make FigCit more yours' card when ME-1 allows.,Tab 15

@@ -9,7 +9,7 @@ import type { CompiledRuleset, EngineInput, RuleCheck, RunResult, Trace } from '
 /** The engine's own version, recorded with every recommendation (DESIGN §7). */
 export const ENGINE_VERSION = '2.0.0';
 /** Rule set formats this engine runs (DESIGN §5 "format versions"). */
-export const ENGINE_FORMATS: readonly number[] = [3];
+export const ENGINE_FORMATS: readonly number[] = [3, 4];
 
 export interface RunOptions {
   /** `light`: the rules that fired; `full`: every rule checked and the facts after each stage. */
