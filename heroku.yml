@@ -1,0 +1,5 @@
+# Heroku builds the API image from Dockerfile.heroku (generated from docker/api.Dockerfile) and runs
+# its own command: the API, with the job worker in the same process (JOBS_ON_DEMAND=true, ADR 0010).
+build:
+  docker:
+    web: Dockerfile.heroku
