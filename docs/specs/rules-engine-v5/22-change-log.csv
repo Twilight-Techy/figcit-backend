@@ -1,0 +1,24 @@
+Tab 22 — What changed from v3.3,,
+,,
+Area,v3.3,v4.0
+Accounts,"Sign up, Register or Browse",Account required (Help/SOS without one); four sign-up fields; age band; country
+Check-in,One long flow (about 10 screens),Quick and Full; result on the same screen at each step; senses once
+Context,Filtered tools only (v3.3 CX-1 needed 2+ flags + distress),"Lowers the colour one step unless offset (CX-1, CX-2, DV-1, DV-2) and filters tools; asked fresh"
+Help menu,Needs list (21 needs),Three choices + eight cards (one per pathway); needs list kept as More
+Card,Pattern 1 'Open Home'; reason from feelings only,P1-A; reason covers every step; approved labels only; SEQ-1; patterns 42–49
+Plans,NUCCESS Plus / Advanced; concession,"Free; Prime £7/£70; Premium £13/£130; organisation seat = Premium at £10/£100 — monthly/annual, all before VAT"
+Connect,Peer community planned as Advanced,"No peer community; messages sent from the phone, outside the app"
+Profile,Optional profile fields at registration,Optional profile in Me with a prompt; Life right now (no health or harm options) with a fixed Help line
+Scenarios,Tab 0 (96) and 0b (93) hand-written,"Tab 18 (170 colour outcomes), Tab 19 (640) and Tab 20 (256) generated from the rules"
+,,
+v5.0 changes,,
+Area,v4.1,v5.0
+Feelings,"Up to 3 feelings, strength chips",Up to 2 of 20 emotions in 4 groups; slider only; Something else (type it)
+Colour,Feelings −1 and context −1 (devices could restore),Feelings/intensity/body −1 in total; place and devices choose the route only
+Body,9 body signals,14 body signs + 5 urgent signs with 'sudden or new?' (SF-4)
+Tasks,Demand types internal,8 plain chips; tasks sorted by colour; a task suggested when there is none
+Pathways,—,Dance and guided movement in Regulate → Move; Create in Regulate; Write in Express; Dump routes
+Plans,Tools by plan,"What each plan can select (emotions, body, senses, places, tasks); always-free safety list"
+Settings,Settings screen,Settings sheet before the first check-in
+Return to work,—,"Morning load check, before-a-shift tools, Ask for what I need, My fit summary"
+Scenarios,896 generated scenarios,"2,550 outcome rows, 320 place rows, 201 realistic stories"

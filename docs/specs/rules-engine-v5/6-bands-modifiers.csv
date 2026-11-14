@@ -1,0 +1,34 @@
+Tab 6 — Colours and the rules that change them,,,,,
+,,,,,
+Colours,,,,,
+Band (backend),Colour shown,Line,,,
+Available,Green · Ready,You've got room for things right now.,,,
+Conditional,Yellow · Go gently,Some things will take more effort today — go gently.,,,
+Constrained,Amber · Lighten the load,Your load is high — let's make things lighter.,,,
+Very Constrained,Red · Care first,Let's take care of you first.,,,
+Recovery,Blue · Steadier,You're steadier than before — keep it gentle.,,,
+,,,,,
+Rules (v5.0),,,,,
+Rule,Layer,Trigger,Effect,Why / notes,Status
+BL-0,Baseline,Capacity Matrix cell (energy × mood).,Sets the starting colour,Unchanged.,Kept
+NS-1,Baseline,User chose 'Not sure'.,Yellow until confirmed,Unchanged.,Kept
+FE-1,Feelings,"The deciding emotion is unpleasant (Charged, Low, or Unsorted) AND its slider is Strong (7–8) or Very strong (9–10).",Lowers the colour one step,Replaces EX-1.,New v5.0
+FE-2,Feelings,"The deciding emotion is in the Shutdown group (Numb, Frozen, Shut down) at Moderate or above.",Lowers one step AND switches to no-words mode (pattern 16),Replaces the F7 shutdown rule.,New v5.0
+FE-3,Feelings,Two emotions picked (maximum two).,The higher slider decides. A tie goes to the unpleasant one; between two unpleasant ones: Shutdown > Charged > Low.,Safer reading on a tie.,New v5.0
+FE-0,Feelings,"Settled emotions (Calm, Happy, Grateful, Clear-headed, Empowered) at any strength; or unpleasant ones at Mild/Moderate.",No colour change; they shape the route and the card wording,Pleasant feelings never raise the colour.,New v5.0
+FE-5,Feelings,'Not good enough' at Strong or Very strong.,Connect is offered in the card; the Help line is visible; Reflect only in Green/Yellow and only as 'What went well',Avoids reinforcing harsh self-judgement.,New v5.0
+SE-1,Feelings,'Something else' typed.,Text passes the safety check (SF-1). Optional one tap: 'wound up / low / switched off / okay'. Skipped = Low.,Free users type; paid users can save it as their own emotion (ENT-12).,New v5.0
+BS-1,Body,"A Shutdown sensation (Can't get moving, Shut down) OR 3+ sensations from Pain & discomfort, Tension & restless, Heavy & tired.",Lowers the colour one step,Replaces the old body step.,New v5.0
+BS-2,Senses,"Any sense ticked (Too loud, Too bright, …).",No colour change; Adapt and sense-friendly tools come first,"Senses decide the route, not the colour.",New v5.0
+CAP-1,Cap,"FE-1, FE-2 and BS-1 together.",At most ONE step down in total; never below Red,Founder decision 11 Nov 2026.,Changed v5.0
+CX-R,Context,"Place, 'Can you step away?' and pressures.",Never change the colour; decide which tools and routes are shown (Tab 4),"Replaces CX-1, CX-2 and CTX lowering.",Changed v5.0
+DV-R,Devices,Help or devices with me.,Never change the colour; unlock or reorder tools (Tab 5),Replaces DV-1/2/3 'restore the band'.,Changed v5.0
+CTX-0,Context,Every Full check-in.,"Place asked fresh; nothing pre-selected; carried devices shown first, unticked",Unchanged.,Kept
+CTX-U,Context,Quick check-in (place not asked).,Discreet tools first + 'Not at home? Tell us where you are',Unchanged.,Kept
+DEM-0,Demand,"Any task, chip or timeline.",No colour change; decides task order (TK rules),Unchanged.,Kept
+LE-0,Life right now,Anything in Life right now.,"No colour change; tone, card order, signposting",Unchanged.,Kept
+SF-1,Safety,Risk language anywhere (including 'Something else' and Dump) or 'I need help now'.,Bypasses the colour; Help/SOS (pattern 28),Clinical sign-off needed.,Kept
+SF-2,Safety,"Red 7+ days, or 14+ days without improvement.",Escalates support; no colour change,Unchanged.,Kept
+SF-3,Safety,Help line under Life right now tapped.,Help/SOS; nothing stored,Unchanged.,Kept
+SF-4,Safety,"An urgent body sign picked (slurred speech, breathless, chest pain, suddenly can't move part of the body, sudden change in sight).","Ask 'Is this sudden or new for you?' Yes → urgent screen: 999 (and NHS 111 / NHS 24 / NHS Direct by nation); No, it's familiar when I'm overwhelmed → check-in continues, colour one step lower (counts within CAP-1)","Signposting, not diagnosis. Clinical sign-off needed.",New v5.0
+RC-1..5,Recovery,As before.,Blue after support + improved re-check,Unchanged.,Kept

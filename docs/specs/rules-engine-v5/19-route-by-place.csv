@@ -1,0 +1,324 @@
+"Tab 19 — Same feeling, different place: route changes, colour does not (320 rows)",,,,,,,,
+"Each emotion at Moderate (slider 5) in a Yellow state (Building Up) and an Amber state (Tender Space), in all 8 places; last columns show the change with headphones.",,,,,,,,
+,,,,,,,,
+#,Emotion,Colour,Place,Can step away,Primary button,Alternatives,Primary with headphones,Pattern
+1,Angry,Yellow,Home,Yes,Dance break,Write it out · Not now,Dance break,48
+2,Angry,Yellow,Work or placement,No,Stretch at my desk,Write it out · Not now,Stretch at my desk,48
+3,Angry,Yellow,Class or lecture,No,"Ground (5-4-3-2-1, eyes open)",Write it out · Not now,"Ground (5-4-3-2-1, eyes open)",48
+4,Angry,Yellow,"Out and about (street, shop, bus or train)",No,Walk it off,Write it out · Not now,Walk it off,48
+5,Angry,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+6,Angry,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Notes for my appointment · Not now,"Ground (5-4-3-2-1, eyes open)",48
+7,Angry,Yellow,Library or quiet study space,No,"Ground (5-4-3-2-1, eyes open)",Write it out · Not now,"Ground (5-4-3-2-1, eyes open)",48
+8,Angry,Yellow,Somewhere else,No,"Ground (5-4-3-2-1, eyes open)",Write it out · Not now,"Ground (5-4-3-2-1, eyes open)",48
+9,Angry,Amber,Home,Yes,Breathe,Move a little · Not now,Breathe,6
+10,Angry,Amber,Work or placement,No,Breathe (discreet),Stretch at my desk · Not now,Breathe (discreet),6
+11,Angry,Amber,Class or lecture,No,Breathe (discreet),"Ground (5-4-3-2-1, eyes open) · Not now",Breathe (discreet),6
+12,Angry,Amber,"Out and about (street, shop, bus or train)",No,Breathe (discreet),Walk it off · Not now,Breathe (discreet),6
+13,Angry,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+14,Angry,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (discreet),"Ground (5-4-3-2-1, eyes open) · Not now",Breathe (discreet),6
+15,Angry,Amber,Library or quiet study space,No,Breathe (discreet),"Ground (5-4-3-2-1, eyes open) · Not now",Breathe (discreet),6
+16,Angry,Amber,Somewhere else,No,Breathe (discreet),"Ground (5-4-3-2-1, eyes open) · Not now",Breathe (discreet),6
+17,Frustrated,Yellow,Home,Yes,Move a little,Smallest next step · Not now,Move a little,48
+18,Frustrated,Yellow,Work or placement,No,Stretch at my desk,Smallest next step · Not now,Stretch at my desk,48
+19,Frustrated,Yellow,Class or lecture,No,"Ground (5-4-3-2-1, eyes open)",Smallest next step · Not now,"Ground (5-4-3-2-1, eyes open)",48
+20,Frustrated,Yellow,"Out and about (street, shop, bus or train)",No,Walk it off,Smallest next step · Not now,Walk it off,48
+21,Frustrated,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+22,Frustrated,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Smallest next step · Not now,"Ground (5-4-3-2-1, eyes open)",48
+23,Frustrated,Yellow,Library or quiet study space,No,"Ground (5-4-3-2-1, eyes open)",Smallest next step · Not now,"Ground (5-4-3-2-1, eyes open)",48
+24,Frustrated,Yellow,Somewhere else,No,"Ground (5-4-3-2-1, eyes open)",Smallest next step · Not now,"Ground (5-4-3-2-1, eyes open)",48
+25,Frustrated,Amber,Home,Yes,Breathe,Empty your head · Not now,Breathe,6
+26,Frustrated,Amber,Work or placement,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+27,Frustrated,Amber,Class or lecture,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+28,Frustrated,Amber,"Out and about (street, shop, bus or train)",No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+29,Frustrated,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+30,Frustrated,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+31,Frustrated,Amber,Library or quiet study space,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+32,Frustrated,Amber,Somewhere else,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+33,Anxious,Yellow,Home,Yes,Breathe,Smallest next step · Not now,Breathe,48
+34,Anxious,Yellow,Work or placement,No,Breathe (discreet),Smallest next step · Not now,Breathe (discreet),48
+35,Anxious,Yellow,Class or lecture,No,Breathe (discreet),Smallest next step · Not now,Breathe (discreet),48
+36,Anxious,Yellow,"Out and about (street, shop, bus or train)",No,Breathe (discreet),Smallest next step · Not now,Breathe (discreet),48
+37,Anxious,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+38,Anxious,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (discreet),Smallest next step · Not now,Breathe (discreet),48
+39,Anxious,Yellow,Library or quiet study space,No,Breathe (discreet),Smallest next step · Not now,Breathe (discreet),48
+40,Anxious,Yellow,Somewhere else,No,Breathe (discreet),Smallest next step · Not now,Breathe (discreet),48
+41,Anxious,Amber,Home,Yes,"Ground (5-4-3-2-1, eyes open)",Breathe · Not now,"Ground (5-4-3-2-1, eyes open)",6
+42,Anxious,Amber,Work or placement,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+43,Anxious,Amber,Class or lecture,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+44,Anxious,Amber,"Out and about (street, shop, bus or train)",No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+45,Anxious,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+46,Anxious,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+47,Anxious,Amber,Library or quiet study space,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+48,Anxious,Amber,Somewhere else,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+49,Overwhelmed,Yellow,Home,Yes,Empty your head,Smallest next step · Not now,Empty your head,48
+50,Overwhelmed,Yellow,Work or placement,No,Empty your head (text),Smallest next step · Not now,Empty your head (text),48
+51,Overwhelmed,Yellow,Class or lecture,No,Empty your head (text),Smallest next step · Not now,Empty your head (text),48
+52,Overwhelmed,Yellow,"Out and about (street, shop, bus or train)",No,Empty your head (text),Smallest next step · Not now,Empty your head (text),48
+53,Overwhelmed,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+54,Overwhelmed,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Empty your head (text),Smallest next step · Not now,Empty your head (text),48
+55,Overwhelmed,Yellow,Library or quiet study space,No,Empty your head (text),Smallest next step · Not now,Empty your head (text),48
+56,Overwhelmed,Yellow,Somewhere else,No,Empty your head (text),Smallest next step · Not now,Empty your head (text),48
+57,Overwhelmed,Amber,Home,Yes,Breathe,Empty your head · Not now,Breathe,6
+58,Overwhelmed,Amber,Work or placement,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+59,Overwhelmed,Amber,Class or lecture,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+60,Overwhelmed,Amber,"Out and about (street, shop, bus or train)",No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+61,Overwhelmed,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+62,Overwhelmed,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+63,Overwhelmed,Amber,Library or quiet study space,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+64,Overwhelmed,Amber,Somewhere else,No,Breathe (discreet),Empty your head (text) · Not now,Breathe (discreet),6
+65,Let down or cheated,Yellow,Home,Yes,Write it out,Call or message someone I trust · Not now,Write it out,48
+66,Let down or cheated,Yellow,Work or placement,No,Write it out,Message someone I trust · Not now,Write it out,48
+67,Let down or cheated,Yellow,Class or lecture,No,Write it out,Message someone I trust · Not now,Write it out,48
+68,Let down or cheated,Yellow,"Out and about (street, shop, bus or train)",No,Write it out,Message someone I trust · Not now,Write it out,48
+69,Let down or cheated,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+70,Let down or cheated,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Notes for my appointment,Message someone I trust · Not now,Notes for my appointment,48
+71,Let down or cheated,Yellow,Library or quiet study space,No,Write it out,Message someone I trust · Not now,Write it out,48
+72,Let down or cheated,Yellow,Somewhere else,No,Write it out,Message someone I trust · Not now,Write it out,48
+73,Let down or cheated,Amber,Home,Yes,Breathe,Call or message someone I trust · Not now,Breathe,6
+74,Let down or cheated,Amber,Work or placement,No,Breathe (discreet),Message someone I trust · Not now,Breathe (discreet),6
+75,Let down or cheated,Amber,Class or lecture,No,Breathe (discreet),Message someone I trust · Not now,Breathe (discreet),6
+76,Let down or cheated,Amber,"Out and about (street, shop, bus or train)",No,Breathe (discreet),Message someone I trust · Not now,Breathe (discreet),6
+77,Let down or cheated,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+78,Let down or cheated,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (discreet),Message someone I trust · Not now,Breathe (discreet),6
+79,Let down or cheated,Amber,Library or quiet study space,No,Breathe (discreet),Message someone I trust · Not now,Breathe (discreet),6
+80,Let down or cheated,Amber,Somewhere else,No,Breathe (discreet),Message someone I trust · Not now,Breathe (discreet),6
+81,All over the place,Yellow,Home,Yes,"Ground (5-4-3-2-1, eyes open)",Empty your head · Not now,"Ground (5-4-3-2-1, eyes open)",48
+82,All over the place,Yellow,Work or placement,No,"Ground (5-4-3-2-1, eyes open)",Empty your head (text) · Not now,"Ground (5-4-3-2-1, eyes open)",48
+83,All over the place,Yellow,Class or lecture,No,"Ground (5-4-3-2-1, eyes open)",Empty your head (text) · Not now,"Ground (5-4-3-2-1, eyes open)",48
+84,All over the place,Yellow,"Out and about (street, shop, bus or train)",No,"Ground (5-4-3-2-1, eyes open)",Empty your head (text) · Not now,"Ground (5-4-3-2-1, eyes open)",48
+85,All over the place,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+86,All over the place,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Empty your head (text) · Not now,"Ground (5-4-3-2-1, eyes open)",48
+87,All over the place,Yellow,Library or quiet study space,No,"Ground (5-4-3-2-1, eyes open)",Empty your head (text) · Not now,"Ground (5-4-3-2-1, eyes open)",48
+88,All over the place,Yellow,Somewhere else,No,"Ground (5-4-3-2-1, eyes open)",Empty your head (text) · Not now,"Ground (5-4-3-2-1, eyes open)",48
+89,All over the place,Amber,Home,Yes,"Ground (5-4-3-2-1, eyes open)",Breathe · Not now,"Ground (5-4-3-2-1, eyes open)",6
+90,All over the place,Amber,Work or placement,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+91,All over the place,Amber,Class or lecture,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+92,All over the place,Amber,"Out and about (street, shop, bus or train)",No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+93,All over the place,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+94,All over the place,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+95,All over the place,Amber,Library or quiet study space,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+96,All over the place,Amber,Somewhere else,No,"Ground (5-4-3-2-1, eyes open)",Breathe (discreet) · Not now,"Ground (5-4-3-2-1, eyes open)",6
+97,Teary or sad,Yellow,Home,Yes,Calming sounds,Call or message someone I trust · Not now,Calming sounds,48
+98,Teary or sad,Yellow,Work or placement,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),48
+99,Teary or sad,Yellow,Class or lecture,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),48
+100,Teary or sad,Yellow,"Out and about (street, shop, bus or train)",No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),48
+101,Teary or sad,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+102,Teary or sad,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),48
+103,Teary or sad,Yellow,Library or quiet study space,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),48
+104,Teary or sad,Yellow,Somewhere else,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),48
+105,Teary or sad,Amber,Home,Yes,Calming sounds,Call or message someone I trust · Not now,Calming sounds,6
+106,Teary or sad,Amber,Work or placement,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),6
+107,Teary or sad,Amber,Class or lecture,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),6
+108,Teary or sad,Amber,"Out and about (street, shop, bus or train)",No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),6
+109,Teary or sad,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+110,Teary or sad,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),6
+111,Teary or sad,Amber,Library or quiet study space,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),6
+112,Teary or sad,Amber,Somewhere else,No,Comfort (kind words on screen),Message someone I trust · Not now,Calming sounds (headphones),6
+113,Disappointed,Yellow,Home,Yes,Make sense of today,Smallest next step · Not now,Make sense of today,48
+114,Disappointed,Yellow,Work or placement,No,Save it to reflect on later,Smallest next step · Not now,Save it to reflect on later,48
+115,Disappointed,Yellow,Class or lecture,No,Save it to reflect on later,Smallest next step · Not now,Save it to reflect on later,48
+116,Disappointed,Yellow,"Out and about (street, shop, bus or train)",No,Save it to reflect on later,Smallest next step · Not now,Save it to reflect on later,48
+117,Disappointed,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+118,Disappointed,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Save it to reflect on later,Smallest next step · Not now,Save it to reflect on later,48
+119,Disappointed,Yellow,Library or quiet study space,No,Make sense of today,Smallest next step · Not now,Make sense of today,48
+120,Disappointed,Yellow,Somewhere else,No,Save it to reflect on later,Smallest next step · Not now,Save it to reflect on later,48
+121,Disappointed,Amber,Home,Yes,Calming sounds,Rest · Not now,Calming sounds,6
+122,Disappointed,Amber,Work or placement,No,Comfort (kind words on screen),Pause for 2 minutes · Not now,Calming sounds (headphones),6
+123,Disappointed,Amber,Class or lecture,No,Comfort (kind words on screen),Pause for 2 minutes · Not now,Calming sounds (headphones),6
+124,Disappointed,Amber,"Out and about (street, shop, bus or train)",No,Comfort (kind words on screen),Pause for 2 minutes · Not now,Calming sounds (headphones),6
+125,Disappointed,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+126,Disappointed,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Comfort (kind words on screen),Pause for 2 minutes · Not now,Calming sounds (headphones),6
+127,Disappointed,Amber,Library or quiet study space,No,Comfort (kind words on screen),Pause for 2 minutes · Not now,Calming sounds (headphones),6
+128,Disappointed,Amber,Somewhere else,No,Comfort (kind words on screen),Pause for 2 minutes · Not now,Calming sounds (headphones),6
+129,Lonely,Yellow,Home,Yes,Call or message someone I trust,Calming sounds · Not now,Call or message someone I trust,48
+130,Lonely,Yellow,Work or placement,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,48
+131,Lonely,Yellow,Class or lecture,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,48
+132,Lonely,Yellow,"Out and about (street, shop, bus or train)",No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,48
+133,Lonely,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+134,Lonely,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,48
+135,Lonely,Yellow,Library or quiet study space,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,48
+136,Lonely,Yellow,Somewhere else,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,48
+137,Lonely,Amber,Home,Yes,Call or message someone I trust,Calming sounds · Not now,Call or message someone I trust,6
+138,Lonely,Amber,Work or placement,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+139,Lonely,Amber,Class or lecture,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+140,Lonely,Amber,"Out and about (street, shop, bus or train)",No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+141,Lonely,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+142,Lonely,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+143,Lonely,Amber,Library or quiet study space,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+144,Lonely,Amber,Somewhere else,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+145,Unmotivated,Yellow,Home,Yes,Smallest next step,Move a little · Not now,Smallest next step,48
+146,Unmotivated,Yellow,Work or placement,No,Smallest next step,Stretch at my desk · Not now,Smallest next step,48
+147,Unmotivated,Yellow,Class or lecture,No,Smallest next step,"Ground (5-4-3-2-1, eyes open) · Not now",Smallest next step,48
+148,Unmotivated,Yellow,"Out and about (street, shop, bus or train)",No,Smallest next step,Walk it off · Not now,Smallest next step,48
+149,Unmotivated,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+150,Unmotivated,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Smallest next step,"Ground (5-4-3-2-1, eyes open) · Not now",Smallest next step,48
+151,Unmotivated,Yellow,Library or quiet study space,No,Smallest next step,"Ground (5-4-3-2-1, eyes open) · Not now",Smallest next step,48
+152,Unmotivated,Yellow,Somewhere else,No,Smallest next step,"Ground (5-4-3-2-1, eyes open) · Not now",Smallest next step,48
+153,Unmotivated,Amber,Home,Yes,Rest,Smallest next step · Not now,Rest,6
+154,Unmotivated,Amber,Work or placement,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+155,Unmotivated,Amber,Class or lecture,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+156,Unmotivated,Amber,"Out and about (street, shop, bus or train)",No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+157,Unmotivated,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+158,Unmotivated,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+159,Unmotivated,Amber,Library or quiet study space,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+160,Unmotivated,Amber,Somewhere else,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+161,Bored,Yellow,Home,Yes,Create (draw),Smallest next step · Not now,Create (draw),56
+162,Bored,Yellow,Work or placement,No,Create (draw),Smallest next step · Not now,Create (draw),56
+163,Bored,Yellow,Class or lecture,No,Create (draw),Smallest next step · Not now,Create (draw),56
+164,Bored,Yellow,"Out and about (street, shop, bus or train)",No,Create (draw),Smallest next step · Not now,Create (draw),56
+165,Bored,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+166,Bored,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Smallest next step · Not now,"Ground (5-4-3-2-1, eyes open)",56
+167,Bored,Yellow,Library or quiet study space,No,Create (draw),Smallest next step · Not now,Create (draw),56
+168,Bored,Yellow,Somewhere else,No,Create (draw),Smallest next step · Not now,Create (draw),56
+169,Bored,Amber,Home,Yes,Create (draw),Rest · Not now,Create (draw),56
+170,Bored,Amber,Work or placement,No,Create (draw),Pause for 2 minutes · Not now,Create (draw),56
+171,Bored,Amber,Class or lecture,No,Create (draw),Pause for 2 minutes · Not now,Create (draw),56
+172,Bored,Amber,"Out and about (street, shop, bus or train)",No,Create (draw),Pause for 2 minutes · Not now,Create (draw),56
+173,Bored,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+174,Bored,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"Ground (5-4-3-2-1, eyes open)",Pause for 2 minutes · Not now,"Ground (5-4-3-2-1, eyes open)",56
+175,Bored,Amber,Library or quiet study space,No,Create (draw),Pause for 2 minutes · Not now,Create (draw),56
+176,Bored,Amber,Somewhere else,No,Create (draw),Pause for 2 minutes · Not now,Create (draw),56
+177,Not good enough,Yellow,Home,Yes,What went well,Call or message someone I trust · Not now,What went well,48
+178,Not good enough,Yellow,Work or placement,No,Save it to reflect on later,Message someone I trust · Not now,Save it to reflect on later,48
+179,Not good enough,Yellow,Class or lecture,No,Save it to reflect on later,Message someone I trust · Not now,Save it to reflect on later,48
+180,Not good enough,Yellow,"Out and about (street, shop, bus or train)",No,Save it to reflect on later,Message someone I trust · Not now,Save it to reflect on later,48
+181,Not good enough,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+182,Not good enough,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Save it to reflect on later,Message someone I trust · Not now,Save it to reflect on later,48
+183,Not good enough,Yellow,Library or quiet study space,No,What went well,Message someone I trust · Not now,What went well,48
+184,Not good enough,Yellow,Somewhere else,No,Save it to reflect on later,Message someone I trust · Not now,Save it to reflect on later,48
+185,Not good enough,Amber,Home,Yes,Call or message someone I trust,Calming sounds · Not now,Call or message someone I trust,6
+186,Not good enough,Amber,Work or placement,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+187,Not good enough,Amber,Class or lecture,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+188,Not good enough,Amber,"Out and about (street, shop, bus or train)",No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+189,Not good enough,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+190,Not good enough,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+191,Not good enough,Amber,Library or quiet study space,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+192,Not good enough,Amber,Somewhere else,No,Message someone I trust,Comfort (kind words on screen) · Not now,Message someone I trust,6
+193,Numb,Amber,Home,Yes,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+194,Numb,Amber,Work or placement,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+195,Numb,Amber,Class or lecture,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+196,Numb,Amber,"Out and about (street, shop, bus or train)",No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+197,Numb,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",16
+198,Numb,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+199,Numb,Amber,Library or quiet study space,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+200,Numb,Amber,Somewhere else,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+201,Numb,Red,Home,Yes,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+202,Numb,Red,Work or placement,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+203,Numb,Red,Class or lecture,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+204,Numb,Red,"Out and about (street, shop, bus or train)",No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+205,Numb,Red,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Get support now,"Breathe (silent, eyes open)",16
+206,Numb,Red,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+207,Numb,Red,Library or quiet study space,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+208,Numb,Red,Somewhere else,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+209,Frozen,Amber,Home,Yes,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+210,Frozen,Amber,Work or placement,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+211,Frozen,Amber,Class or lecture,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+212,Frozen,Amber,"Out and about (street, shop, bus or train)",No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+213,Frozen,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",16
+214,Frozen,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+215,Frozen,Amber,Library or quiet study space,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+216,Frozen,Amber,Somewhere else,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+217,Frozen,Red,Home,Yes,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+218,Frozen,Red,Work or placement,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+219,Frozen,Red,Class or lecture,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+220,Frozen,Red,"Out and about (street, shop, bus or train)",No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+221,Frozen,Red,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Get support now,"Breathe (silent, eyes open)",16
+222,Frozen,Red,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+223,Frozen,Red,Library or quiet study space,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+224,Frozen,Red,Somewhere else,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+225,Shut down,Amber,Home,Yes,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+226,Shut down,Amber,Work or placement,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+227,Shut down,Amber,Class or lecture,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+228,Shut down,Amber,"Out and about (street, shop, bus or train)",No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+229,Shut down,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",16
+230,Shut down,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+231,Shut down,Amber,Library or quiet study space,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+232,Shut down,Amber,Somewhere else,No,Breathe (tap-only),Send my 'I need quiet' message · Not now,Breathe (tap-only),16
+233,Shut down,Red,Home,Yes,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+234,Shut down,Red,Work or placement,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+235,Shut down,Red,Class or lecture,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+236,Shut down,Red,"Out and about (street, shop, bus or train)",No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+237,Shut down,Red,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Get support now,"Breathe (silent, eyes open)",16
+238,Shut down,Red,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+239,Shut down,Red,Library or quiet study space,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+240,Shut down,Red,Somewhere else,No,Breathe (tap-only),Send my 'I need quiet' message · Get support now,Breathe (tap-only),16
+241,Calm,Yellow,Home,Yes,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+242,Calm,Yellow,Work or placement,No,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+243,Calm,Yellow,Class or lecture,No,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+244,Calm,Yellow,"Out and about (street, shop, bus or train)",No,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+245,Calm,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+246,Calm,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+247,Calm,Yellow,Library or quiet study space,No,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+248,Calm,Yellow,Somewhere else,No,"One 'Usual' task, like a 10-minute tidy",Plan something · Not now,"One 'Usual' task, like a 10-minute tidy",53
+249,Calm,Amber,Home,Yes,Rest,Smallest next step · Not now,Rest,6
+250,Calm,Amber,Work or placement,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+251,Calm,Amber,Class or lecture,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+252,Calm,Amber,"Out and about (street, shop, bus or train)",No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+253,Calm,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+254,Calm,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+255,Calm,Amber,Library or quiet study space,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+256,Calm,Amber,Somewhere else,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+257,Happy,Yellow,Home,Yes,"One 'Usual' task, like a 10-minute tidy",Call or message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+258,Happy,Yellow,Work or placement,No,"One 'Usual' task, like a 10-minute tidy",Message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+259,Happy,Yellow,Class or lecture,No,"One 'Usual' task, like a 10-minute tidy",Message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+260,Happy,Yellow,"Out and about (street, shop, bus or train)",No,"One 'Usual' task, like a 10-minute tidy",Message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+261,Happy,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+262,Happy,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"One 'Usual' task, like a 10-minute tidy",Message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+263,Happy,Yellow,Library or quiet study space,No,"One 'Usual' task, like a 10-minute tidy",Message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+264,Happy,Yellow,Somewhere else,No,"One 'Usual' task, like a 10-minute tidy",Message someone I trust · Not now,"One 'Usual' task, like a 10-minute tidy",53
+265,Happy,Amber,Home,Yes,Rest,Smallest next step · Not now,Rest,6
+266,Happy,Amber,Work or placement,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+267,Happy,Amber,Class or lecture,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+268,Happy,Amber,"Out and about (street, shop, bus or train)",No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+269,Happy,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+270,Happy,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+271,Happy,Amber,Library or quiet study space,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+272,Happy,Amber,Somewhere else,No,Pause for 2 minutes,Smallest next step · Not now,Pause for 2 minutes,6
+273,Grateful,Yellow,Home,Yes,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+274,Grateful,Yellow,Work or placement,No,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+275,Grateful,Yellow,Class or lecture,No,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+276,Grateful,Yellow,"Out and about (street, shop, bus or train)",No,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+277,Grateful,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+278,Grateful,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+279,Grateful,Yellow,Library or quiet study space,No,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+280,Grateful,Yellow,Somewhere else,No,"One 'Usual' task, like a 10-minute tidy",Gratitude practice · Not now,"One 'Usual' task, like a 10-minute tidy",53
+281,Grateful,Amber,Home,Yes,Gratitude practice,Rest · Not now,Gratitude practice,6
+282,Grateful,Amber,Work or placement,No,Gratitude practice,Pause for 2 minutes · Not now,Gratitude practice,6
+283,Grateful,Amber,Class or lecture,No,Gratitude practice,Pause for 2 minutes · Not now,Gratitude practice,6
+284,Grateful,Amber,"Out and about (street, shop, bus or train)",No,Gratitude practice,Pause for 2 minutes · Not now,Gratitude practice,6
+285,Grateful,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+286,Grateful,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Gratitude practice,Pause for 2 minutes · Not now,Gratitude practice,6
+287,Grateful,Amber,Library or quiet study space,No,Gratitude practice,Pause for 2 minutes · Not now,Gratitude practice,6
+288,Grateful,Amber,Somewhere else,No,Gratitude practice,Pause for 2 minutes · Not now,Gratitude practice,6
+289,Clear-headed,Yellow,Home,Yes,Smallest next step,Ask for what I need · Not now,Smallest next step,55
+290,Clear-headed,Yellow,Work or placement,No,Smallest next step,Ask for what I need · Not now,Smallest next step,55
+291,Clear-headed,Yellow,Class or lecture,No,Smallest next step,Ask for what I need · Not now,Smallest next step,55
+292,Clear-headed,Yellow,"Out and about (street, shop, bus or train)",No,Smallest next step,Ask for what I need · Not now,Smallest next step,55
+293,Clear-headed,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+294,Clear-headed,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Smallest next step,Notes for my appointment · Not now,Smallest next step,55
+295,Clear-headed,Yellow,Library or quiet study space,No,Smallest next step,Ask for what I need · Not now,Smallest next step,55
+296,Clear-headed,Yellow,Somewhere else,No,Smallest next step,Ask for what I need · Not now,Smallest next step,55
+297,Clear-headed,Amber,Home,Yes,Smallest next step,Rest · Not now,Smallest next step,6
+298,Clear-headed,Amber,Work or placement,No,Smallest next step,Pause for 2 minutes · Not now,Smallest next step,6
+299,Clear-headed,Amber,Class or lecture,No,Smallest next step,Pause for 2 minutes · Not now,Smallest next step,6
+300,Clear-headed,Amber,"Out and about (street, shop, bus or train)",No,Smallest next step,Pause for 2 minutes · Not now,Smallest next step,6
+301,Clear-headed,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+302,Clear-headed,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Smallest next step,Pause for 2 minutes · Not now,Smallest next step,6
+303,Clear-headed,Amber,Library or quiet study space,No,Smallest next step,Pause for 2 minutes · Not now,Smallest next step,6
+304,Clear-headed,Amber,Somewhere else,No,Smallest next step,Pause for 2 minutes · Not now,Smallest next step,6
+305,Empowered,Yellow,Home,Yes,Ask for what I need,Smallest next step · Not now,Ask for what I need,55
+306,Empowered,Yellow,Work or placement,No,Ask for what I need,Smallest next step · Not now,Ask for what I need,55
+307,Empowered,Yellow,Class or lecture,No,Ask for what I need,Smallest next step · Not now,Ask for what I need,55
+308,Empowered,Yellow,"Out and about (street, shop, bus or train)",No,Ask for what I need,Smallest next step · Not now,Ask for what I need,55
+309,Empowered,Yellow,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+310,Empowered,Yellow,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Notes for my appointment,Smallest next step · Not now,Notes for my appointment,55
+311,Empowered,Yellow,Library or quiet study space,No,Ask for what I need,Smallest next step · Not now,Ask for what I need,55
+312,Empowered,Yellow,Somewhere else,No,Ask for what I need,Smallest next step · Not now,Ask for what I need,55
+313,Empowered,Amber,Home,Yes,Write it out,Rest · Not now,Write it out,6
+314,Empowered,Amber,Work or placement,No,Write it out,Pause for 2 minutes · Not now,Write it out,6
+315,Empowered,Amber,Class or lecture,No,Write it out,Pause for 2 minutes · Not now,Write it out,6
+316,Empowered,Amber,"Out and about (street, shop, bus or train)",No,Write it out,Pause for 2 minutes · Not now,Write it out,6
+317,Empowered,Amber,"Exam, interview or assessment",No,"Breathe (silent, eyes open)",Not now,"Breathe (silent, eyes open)",49
+318,Empowered,Amber,"Appointment or meeting (e.g. Jobcentre, GP, review)",No,Notes for my appointment,Pause for 2 minutes · Not now,Notes for my appointment,6
+319,Empowered,Amber,Library or quiet study space,No,Write it out,Pause for 2 minutes · Not now,Write it out,6
+320,Empowered,Amber,Somewhere else,No,Write it out,Pause for 2 minutes · Not now,Write it out,6

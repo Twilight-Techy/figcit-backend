@@ -1,0 +1,44 @@
+"Tab 3 — Body & senses (Full check-in, one screen, two tabs)",,,,
+"Body signs can lower the colour (BS-1); senses never do (BS-2) — senses put Adapt first. Urgent signs sit in their own row, always free, and trigger SF-4.",,,,
+,,,,
+Body tab,,,,
+ID,Body sign,Group,Plan,
+BD01,Tension,Tension & restless,Free (on screen),
+BD02,Aches or pain,Pain & discomfort,Free (on screen),
+BD03,Heaviness,Heavy & tired,Free (on screen),
+BD04,Fidgeting,Tension & restless,Free (on screen),
+BD05,Can't get moving,Shutdown,Free (on screen),
+BD06,Shut down (body),Shutdown,Free (on screen),
+BD07,Discomfort,Pain & discomfort,Prime (under More),
+BD08,Itch,Pain & discomfort,Prime (under More),
+BD09,Tenderness,Pain & discomfort,Prime (under More),
+BD10,Headache,Pain & discomfort,Prime (under More),
+BD11,Tingling,Tension & restless,Prime (under More),
+BD12,Racing heart,Tension & restless,Prime (under More),
+BD13,Knot in my stomach,Tension & restless,Prime (under More),
+BD14,Tired or blurry eyes,Heavy & tired,Prime (under More),
+,,,,
+Body rules,,,,
+Rule,Rule in plain words,,,
+BS-1,"Lowers the colour one step when: a Shutdown sign is picked (Can't get moving, Shut down) OR 3+ signs from Pain & discomfort, Tension & restless, Heavy & tired. Counts within CAP-1 (one step in total with feelings).",,,
+BS-3,Shut down (body) also switches on no-words mode (pattern 16).,,,
+BS-4,Pain & discomfort or Tension & restless in Green/Yellow/Blue at home: a labelled Premium option 'Guided body movement' may be offered (ENT-11).,,,
+,,,,
+Urgent signs row ('Something feels wrong'),,,,
+ID,Urgent sign (always free),What happens,,
+UR1,Slurred speech,"SF-4: 'Is this sudden or new for you?' Yes → urgent screen (999 + the nation's 111 line, pattern 50). No, it's familiar when I'm overwhelmed → continue one step lower (pattern 51).",,
+UR2,Breathless,"SF-4: 'Is this sudden or new for you?' Yes → urgent screen (999 + the nation's 111 line, pattern 50). No, it's familiar when I'm overwhelmed → continue one step lower (pattern 51).",,
+UR3,Chest pain,"SF-4: 'Is this sudden or new for you?' Yes → urgent screen (999 + the nation's 111 line, pattern 50). No, it's familiar when I'm overwhelmed → continue one step lower (pattern 51).",,
+UR4,Suddenly can't move part of my body,"SF-4: 'Is this sudden or new for you?' Yes → urgent screen (999 + the nation's 111 line, pattern 50). No, it's familiar when I'm overwhelmed → continue one step lower (pattern 51).",,
+UR5,Sudden change in my sight,"SF-4: 'Is this sudden or new for you?' Yes → urgent screen (999 + the nation's 111 line, pattern 50). No, it's familiar when I'm overwhelmed → continue one step lower (pattern 51).",,
+,,,,
+Senses tab,,,,
+ID,Sense,Group,Plan,What it changes
+SN01,Too loud,Overload,Free (on screen),"Adapt first (pattern 59), using any device ticked"
+SN02,Too bright,Overload,Free (on screen),"Adapt first (pattern 59), using any device ticked"
+SN03,Too busy or crowded,Overload,Free (on screen),"Adapt first (pattern 59), using any device ticked"
+SN04,Hungry or thirsty,Body needs,Free (on screen),First line of the card: have a drink or snack / adjust layers
+SN05,Clothes or touch bothering me,Overload,Prime (under More),"Adapt first (pattern 59), using any device ticked"
+SN06,Smells,Overload,Prime (under More),"Adapt first (pattern 59), using any device ticked"
+SN07,Too hot or too cold,Body needs,Prime (under More),First line of the card: have a drink or snack / adjust layers
+SN08,Need more input (under-stimulated),Under-stimulated,Prime (under More),"Regulate → Move, Dance or Create offered first"

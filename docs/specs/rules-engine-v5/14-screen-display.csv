@@ -1,0 +1,12 @@
+Tab 14 — What the user sees at each step,,
+Every customer-facing step shows its result on the same screen before Continue.,,
+,,
+Step,Screen,What is shown
+Capacity,S06,"Two rows of four choices (energy, mood); nothing selected. When both are chosen, a result card appears on the same screen: icon + state name + one-line meaning + the baseline colour with its label (e.g. '🌊 Full Flow — Steady energy, clear head — good for focused work. Green · Ready'). Continue."
+Not sure,S07,Three picture taps → 'Does this sound like you? {icon} {name}' → Yes / Pick another. If still unsure: 'That's okay — we'll go gently.' (Yellow · Go gently).
+How you feel,S08,Ten emotion chips + 'Something else' + More (lock icon for Prime). Picking an emotion opens one slider under it (no scale shown). Max two; a third tap asks which to swap. Result line: the colour with its label and one sentence. Amber/Red: 'Breathe first?' chip.
+Body & senses,S09 (Full),"Two tabs: Body | Senses, ten free chips in total + More. A separate row 'Something feels wrong' with the urgent signs (always free). Result line: 'Noted: {items}.'"
+Where you are,S10 (Full),Place chips; 'Can you step away?' Yes / No; 'Help or devices with me'. Nothing pre-selected. Result line: 'Got it — we'll pick things that work {place words}.' The colour does not change here.
+Help menu,S11,'What can I help you with?' — Something I need to do · Support for how I feel · Just checking in. Support shows the top four cards for the light + More (Red: three cards + Get support now).
+Card,S13,"Top: icon + state name + colour label. Headline (pattern wording). Reason (RT-1..RT-4, ≤3 sentences). One primary button (Tab 17 label). Up to two alternatives. Links: Why this? · Other ways in · Not now. Red: 'Get support now' always visible. Quick check-in: link 'Not at home? Tell us where you are'."
+Light labels,All,Green · Ready — 'You've got room for things right now.' | Yellow · Go gently — 'Some things will take more effort today — go gently.' | Amber · Lighten the load — 'Your load is high — let's make things lighter.' | Red · Care first — 'Let's take care of you first.' | Blue · Steadier — 'You're steadier than before — keep it gentle.' Colour is never the only signal: label and icon always shown.

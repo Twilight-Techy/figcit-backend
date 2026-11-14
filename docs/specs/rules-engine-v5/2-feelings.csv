@@ -1,0 +1,49 @@
+"Tab 2 — How you feel: 20 emotions, groups and the slider",,,,,,,
+Pick up to two emotions. Each chosen emotion shows ONE slider (no scale on screen). A third tap shows 'You can pick up to two' and asks which to swap. The groups are never shown to users.,,,,,,,
+,,,,,,,
+Slider → backend level,,,,,,,
+Backend level,Shown as,Slider values,,,,,
+I1,Mild,1–3,,,,,
+I2,Moderate,4–6,,,,,
+I3,Strong,7–8,,,,,
+I4,Very strong,9–10,,,,,
+,,,,,,,
+Groups,,,,,,,
+Group (not shown),Means,Emotions,What helps first,,,,
+Charged,"High energy, unpleasant","Angry, Frustrated, Anxious, Overwhelmed, Let down or cheated, All over the place","Settle the body first (Regulate), then put it somewhere (Dump or Express)",,,,
+Low,"Low energy, unpleasant","Teary or sad, Disappointed, Lonely, Unmotivated, Bored, Not good enough","Comfort and connection first; then one small, familiar step",,,,
+Shutdown,Switched off,"Numb, Frozen, Shut down","No words needed: tap-only tools, eyes open, nothing to read or decide (pattern 16, MEDITATION GUARD 41)",,,,
+Settled,Okay or good,"Calm, Happy, Grateful, Clear-headed, Empowered","Use the capacity: tasks that fit, speaking up, creating, connecting",,,,
+Unsorted,Something else (typed),Whatever the user types,One optional tap maps it to a group; if skipped it is treated as Low (the safer reading),,,,
+,,,,,,,
+The 20 emotions + Something else,,,,,,,
+ID,Emotion,Group,Plan,Never locked?,Route in Green / Yellow / Blue (at home),Route in Amber / Red,Lowers the colour?
+EM01,Angry,Charged,Free (on screen),—,"Regulate → Move or Dance break, then Express → Write it out","Regulate → Breathe, then Move a little",FE-1 at Strong+
+EM02,Frustrated,Charged,Prime (under More),—,"Regulate → Move a little, then Execute → Break it down","Regulate → Breathe, then Dump",FE-1 at Strong+
+EM03,Anxious,Charged,Free (on screen),Always free,"Regulate → Breathe or Ground, then Execute → Smallest next step",Regulate → Ground (5-4-3-2-1),FE-1 at Strong+
+EM04,Overwhelmed,Charged,Free (on screen),Always free,"Dump → Empty your head, then Execute → Pick a task that fits","Regulate → Breathe, then Dump",FE-1 at Strong+
+EM05,Let down or cheated,Charged,Prime (under More),—,"Express → Write it out, then Connect","Regulate → Breathe, then Connect",FE-1 at Strong+
+EM06,All over the place,Charged,Prime (under More),—,"Regulate → Ground, then Dump",Regulate → Ground (5-4-3-2-1),FE-1 at Strong+
+EM07,Teary or sad,Low,Free (on screen),Always free,"Regulate → Comfort (soothing sounds or a warm drink), then Connect","Regulate → Comfort, then Connect",FE-1 at Strong+
+EM08,Disappointed,Low,Prime (under More),—,"Reflect → Make sense of today, then Execute → Smallest next step","Regulate → Comfort, then Rest",FE-1 at Strong+
+EM09,Lonely,Low,Free (on screen),—,Connect → Message someone I trust,"Connect → Message someone I trust, then Regulate → Comfort",FE-1 at Strong+
+EM10,Unmotivated,Low,Free (on screen),—,Execute → Smallest next step (a 'Usual' task) or Move a little,"Regulate → Rest, then one 'Usual' step",FE-1 at Strong+
+EM11,Bored,Low,Prime (under More),—,"Regulate → Create, or Execute → 'Try out' something",Regulate → Create (draw or doodle),FE-1 at Strong+
+EM12,Not good enough,Low,Free (on screen),Always free,"Reflect → What went well (strengths), then Connect",Connect → Message someone I trust (Help line visible),FE-1 at Strong+
+EM13,Numb,Shutdown,Prime (under More),—,"Regulate → Ground (eyes open), then Move a little",Regulate → Breathe (tap-only),FE-2 at Moderate+
+EM14,Frozen,Shutdown,Prime (under More),—,"Regulate → Breathe (tap-only), then Move a little",Regulate → Breathe (tap-only),FE-2 at Moderate+
+EM15,Shut down,Shutdown,Free (on screen),Always free,"Regulate → Breathe (tap-only), then Connect → 'I need quiet' message",Regulate → Breathe (tap-only),FE-2 at Moderate+
+EM16,Calm,Settled,Free (on screen),—,Execute → Plan or start a task,Regulate → Rest (no task pressure),Never (FE-0)
+EM17,Happy,Settled,Free (on screen),—,"Execute → 'Enjoy' or 'Matters to me' task, or Connect","Regulate → Rest, then one 'Enjoy' task",Never (FE-0)
+EM18,Grateful,Settled,Prime (under More),—,"Meditate → Gratitude practice, or Connect → thank someone",Meditate → Gratitude practice,Never (FE-0)
+EM19,Clear-headed,Settled,Prime (under More),—,Execute → a 'Hard' or 'New' task,Execute → one 'Usual' step,Never (FE-0)
+EM20,Empowered,Settled,Prime (under More),—,"Express → Ask for what I need (adjustments), or a 'Hard' task",Express → Note what I need for later,Never (FE-0)
+EM00,Something else (type it),Unsorted,Free (type it; this check-in only),Always free,"Ask one tap: 'Does it feel more wound up, low, switched off or okay?' then route by that group; skipped = treated as Low","Regulate → Breathe, then Connect",FE-1 at Strong+ (treated as unpleasant)
+,,,,,,,
+Rules,,,,,,,
+Rule,Rule in plain words,,,,,,
+FE-3,Two emotions: the higher slider decides; a tie goes to the unpleasant one; between two unpleasant ones Shutdown > Charged > Low. The other emotion is still named in the reason.,,,,,,
+SE-1,"'Something else': a text box (30 characters). Safety check (SF-1) runs on the text. One optional tap: 'Does it feel more wound up, low, switched off or okay?' Free: used for this check-in only. Prime/Premium: 'Save as my own emotion' and pick its group once; it then appears in their list and in patterns.",,,,,,
+FE-5,'Not good enough' at Strong or Very strong: Connect is offered; Get support now replaces 'Not now'; Reflect only in Green/Yellow as 'What went well'.,,,,,,
+Free on screen (10),"Angry, Anxious, Overwhelmed, Teary or sad, Lonely, Unmotivated, Not good enough, Shut down, Calm, Happy — plus 'Something else (type it)'.",,,,,,
+Under More (Prime),"Frustrated, Let down or cheated, All over the place, Disappointed, Bored, Numb, Frozen, Grateful, Clear-headed, Empowered.",,,,,,

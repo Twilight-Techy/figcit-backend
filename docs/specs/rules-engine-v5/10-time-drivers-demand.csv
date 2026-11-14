@@ -1,0 +1,82 @@
+"Tab 10 — Timeline, demand drivers (NUCRIPCE) and demand types",,,
+Asked only when there is a task. Timeline never changes the colour (DEM-0).,,,
+,,,
+Timeline,,,
+Code,Shown as,Window,Effect
+T0,Now,"Due within the next 60 minutes, or happening now.","Urgency driver = maximum weight. Cap any Execute breakdown to 1-3 micro- steps. Never skip a needed Regulate step, but keep it to a 1-2 minute variant."
+T1,Later today,Due in more than 1 hour but before the end of today.,Urgency driver = high weight. Cap Execute breakdown to 3-5 steps. Default Body Double to AI (no lead time for inviting a person).
+T2,This week,Due tomorrow or within the next 7 days.,Urgency driver = moderate weight. Fuller Execute breakdown allowed. Body Double can offer 'invite colleague/friend' option.
+T3,This month,Due in more than 7 days and up to 4 weeks.,Urgency driver = low weight. NUCRIPCE may favour Challenge/Exploration over Urgency-driven minimum-viable-action.
+T4,Months,Due in more than 4 weeks and up to 12 months.,Same as T3. Routine/Interest-led planning is favoured over urgency-led action.
+T5,Long-term,Due in more than 12 months.,Urgency driver effectively inactive. Treat as Exploration/Interest-led if the user wants to engage now.
+T6,No deadline,No due date and no consequence for delay; user-chosen timing.,Urgency driver not applicable. Recommendation is driven entirely by State + Intervention + other NUCRIPCE drivers.
+TX,Overdue,The deadline has already passed (any amount of time).,"Urgency high, but the first step is repair, not catch-up: Express a short, factual message (explain, ask for an extension), then Execute the smallest remaining step. Pairs with Shame / guilt. No blame language."
+TR,Recurring,"Repeats on a schedule (e.g. daily meds routine, weekly report). The engine uses the NEXT occurrence to set T0-T5 for urgency.","Adds the Routine driver; reminders tuned to capacity, never streaks. A repeatedly skipped recurring task is treated as a long-avoided task. Prayer times and daily rituals in My Practices use TR; reminders respect quiet hours and 'In worship'; a missed practice is never counted as a failure."
+Note,—,—,Timeline never overrides safety or accessibility. A T0 deadline does not cancel a needed Regulate step — it only shortens it.
+,,,
+"NUCRIPCE drivers (never shown to users) — shown to users as: Routine = familiar, simple tasks; Exploration = light exploring or learning; Interest = something you enjoy; Challenge = a stretching task; Novelty = something new; Urgency = the one thing that can't wait; Passion = something that matters to you; Collaboration = something with other people",,,
+Driver,Definition,Examples,
+N — Novelty,"The activity is new, unfamiliar, different, or offers a new experience.","Trying a new method, new topic, new environment, new creative activity.",
+U — Urgency,"The activity has meaningful time pressure or a consequence for delay. Derived from Timeline (timeline), not user-labelled directly.","Immediate task, same-day requirement, deadline-sensitive action.",
+C — Challenge,"The activity requires problem-solving, sustained effort, complexity or stretch.","Solving, designing, analysing, difficult learning.",
+R — Routine,"The activity is familiar, predictable, structured or low in decision cost.","Known workflow, checklist, repeated routine.",
+I — Interest,"The activity naturally captures attention, curiosity or engagement.","Preferred topic, hobby, personally engaging task.",
+P — Passion,"The activity is strongly connected to personal meaning, values or enthusiasm.","Purpose-led project, creative pursuit, cause-related activity.",
+C — Collaboration,"The activity inherently involves working with others, social participation, interaction or shared activity.","Group work, volunteering, event, body doubling, meeting others.",
+E — Exploration,"The activity involves inquiry, learning, information- seeking, experimentation, research or discovery.","Learning a topic, comparing options, investigating a question.",
+,,,
+Demand types,,,
+Demand characteristic,How to detect it,Drivers tagged,Example
+Unfamiliar / first-time activity,"User indicates 'first time', 'never done this before', or activity type not in their history",Novelty,Using a new software tool for the first time
+Time-bound with real consequence,Timeline (timeline) = T0/T1/T2 AND user indicates a consequence for delay,Urgency,Presentation due in 5 hours; assignment due tomorrow
+Complex / multi-step / effortful,"Demand description implies multiple stages, analysis, or problem-solving",Challenge,"Designing a solution, writing an essay, debugging code"
+Familiar / previously completed / low-decision,User indicates 'I've done this before' or activity matches a recurring pattern in their history,Routine,"Weekly report, regular chores, known workflow"
+Matches stated interests/hobbies,Cross-reference with user's stored interests/preferences (if provided) or explicit 'I enjoy this',Interest,"Hobby project, preferred subject area"
+Connected to stated values/goals,"User indicates personal significance ('this matters to me', 'this is for my future')",Passion,"Personal project, cause-related volunteering, career-defining task"
+Involves other people inherently,"Demand description includes meeting, presenting to, collaborating with, or responding to others",Collaboration,"Team meeting, presentation, group assignment, replying to a colleague"
+Requires learning / research / investigation,"Demand description implies finding out, comparing, or understanding new information",Exploration,"Researching a topic, comparing options, studying for an exam"
+Several competing demands,"User lists more than one activity, or says 'everything' / 'I don't know where to start'",Tag each demand separately; only the ONE the user picks proceeds (pattern 22),"Three deadlines this week; dinner, homework and an email at once"
+Imposed by someone else,"Demand set by a manager, tutor or family member rather than chosen",Tags as normal; engine softens language and offers choice of order (reduces demand-avoidance),'My manager wants the slides by 3pm'
+Long-avoided task,"Same demand logged 3+ times without starting, or user says 'I've been putting this off'",Routine or Novelty hook + Execute 2-minute start (pattern 17),Booking a GP appointment put off for weeks
+Switching / transition,User needs to stop one thing and start another,Routine; Adapt (transition ritual) before Execute,Moving from coursework to a shift
+Stopping / winding down,"User needs to stop (hyperfocus exit, sleep, end of day)",No driver needed; Adapt (pace) + Recovery,'I need to stop working and sleep'
+Asking for help or an adjustment,"User needs to request support, an extension or a reasonable adjustment","Collaboration; Express (draft, never auto-sends)",Asking for extra time; asking to work from home on a flare day
+"Recurring personal practice (prayer times, daily ritual, meditation habit)","User saves a practice in My Practices with a schedule, or sets Timeline TR with a practice type",Routine (+ Passion if the user marks it as meaningful); Urgency from the next occurrence only,Morning devotion; midday prayer; evening meditation; Sunday reflection
+"Reflective work required by a course or job (reflective log, placement reflection, supervision or appraisal prep, PDP)","Demand text mentions reflection, reflective log, supervision, appraisal or portfolio",Challenge + Routine (+ Collaboration if for a supervisor or assessor); Urgency from the timeline. Done through Execute and,Nursing placement reflective log; supervision notes; annual appraisal form
+"Preparing for a significant event (interview, exam, appointment)",Event type plus Timeline T0–T2,Urgency + Challenge (+ Novelty if first time; + Collaboration if others involved); Meditate settle or Adapt before Execute,Job interview tomorrow; hospital appointment this afternoon
+,,,
+v5.0 — Task chips (NUCRIPCE in plain words),,,
+Demand type (never shown),Chip shown,Example,Plain words in the card
+Novelty,New,First day on a placement; a new system at work,something new
+Urgency,Can't wait,Report due today; rent to pay,the thing that can't wait
+Challenge,Hard,A difficult essay section; a tough conversation,a harder task
+Routine,Usual,Washing up; weekly timesheet; usual shift tasks,the usual things
+Interest,Enjoy,Reading about a hobby; cooking something nice,something you enjoy
+Passion,Matters to me,Volunteering; faith; family time,something that matters to you
+Collaboration,With others,Team meeting; group project; calling the Jobcentre,something with other people
+Exploration,Try out,Looking at courses or jobs; testing a new routine,trying something out
+,,,
+v5.0 — Task order by colour (TK-2),,,
+Colour,Order tasks are shown in,,
+Green,Hard → New → Can't wait → Matters to me → Try out → With others → Enjoy → Usual,,
+Yellow,Can't wait → Usual → Enjoy → Try out → Matters to me → With others → Hard → New,,
+Amber,"Can't wait → Usual → Enjoy → Later: Matters to me, Try out, With others, Hard, New",,
+Red,Care first: the list is kept but not suggested; one 'Can't wait' item can be marked 'Ask someone to help',,
+Blue,"Usual → Enjoy → Can't wait → Try out → Matters to me → With others → Later: Hard, New",,
+,,,
+v5.0 — No-task suggestions,,,
+Colour,Suggestions when there is no task (TK-4),,
+Green,"Start the hardest thing on your mind · Plan your week's 'Can't wait' items · Try out a course, job or idea you've been meaning to look at · Ask for an adjustment you need (Express)",,
+Yellow,"One 'Usual' task, like a 10-minute tidy · Reply to one message · Prepare clothes or bag for tomorrow · A short walk",,
+Amber,Have a drink or snack · Sit somewhere quieter · One tiny 'Usual' thing (put one thing away) · Text someone 'Having a heavy day',,
+Red,Rest is the task right now · Drink some water · Get somewhere you feel safe and comfortable · Let someone know (Connect),,
+Blue,One gentle 'Usual' task · Note what helped (Reflect) · Something you enjoy for 10 minutes,,
+,,,
+v5.0 — Task rules,,,
+Rule,Area,Rule in plain words,
+TK-1,Adding a task,"Name the task; optionally tap one chip (New, Can't wait, Hard, Usual, Enjoy, Matters to me, With others, Try out) and a time (Now, Today, This week). No chip = 'Usual'. The words 'demand type' and NUCRIPCE are never shown.",
+TK-2,Sorting,"Tasks are sorted by the colour (Tab 10 order). The card says it in one plain sentence, e.g. 'We've put the usual things first today.'",
+TK-3,Can't wait,A 'Can't wait' task is never hidden. In Amber it is cut to one small step; in Red the app offers 'Ask someone to help' or 'Move the deadline' (Express).,
+TK-4,No task,"If there is no task, the app still suggests one that fits the colour and place (Tab 10 list). Never in Red: Red suggests rest and care only.",
+TK-5,Many tasks,"Free: up to 3 tasks; the app picks the best fit. Prime and Premium: unlimited list, fully sorted, with 'Break it down'.",
+TK-6,"Return to work, study or training","If 'Getting back to work, study or training' is on in Me, the first suggestion each morning is the day's load check: 'Today fits: the usual things and one can't-wait.'",

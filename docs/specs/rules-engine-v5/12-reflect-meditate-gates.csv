@@ -1,0 +1,14 @@
+Tab 12 — Reflect and Meditate · Rituals · Prayer gates,,,,
+,,,,
+Rule,Pathway,Trigger,Effect,Why
+RF-1,Reflect,"Final light is Amber or Red, or peak intensity of a negative family is High+ (7-10).",Reflect not offered. Amber: one-tap 'remind me later'. Red: Dump or Regulate (pattern 40).,Reflection in high distress tends to become rumination.
+RF-2,Reflect,Rumination family present; OR same topic reflected 3+ times in 7 days with no improvement; OR the re-check after Reflect is worse.,Reflect blocked for that topic for 7 days; route to pattern 40.,Stops a helpful tool turning into a loop.
+RF-3,Reflect,Every Reflect session.,"3 prompts, time-limited, chips or voice allowed; the user can stop at any prompt; no streaks.",Low effort; works for people who find writing hard.
+RF-4,Reflect,Every saved reflection.,Private by default; excluded from institutional views and reports unless the user selects it; deletable.,Trust and data minimisation.
+RF-5,Reflect,Any free text or voice.,Passes through the Safety screen classifier (Tab 13 step 0).,Risk language can surface while reflecting.
+MD-1,Meditate,Band and experience at the moment of recommendation.,"(a) Primary in Green, Yellow, Blue. (b) Amber with no difficult feeling at Moderate+: primary allowed. (c) Amber with distress: Regulate primary; 3-minute eyes-open practice or the user's own practice as an alternative. (d) Red: never primary; the user's own practice only if they start it.",Meditation is restful when calm; body-first regulation comes first in distress.
+MD-2,Meditate,Shutdown/freeze; feeling detached or unreal; Sensory overload High+; or the user flags 'meditation makes me feel worse'.,No eyes-closed or body-scan practice. Regulate primary (pattern 41). The user's own saved prayer audio only if the user starts it.,Systematic-review evidence reports unwanted effects of meditation for a minority of people; these states raise that risk.
+MD-3,Meditate,Selecting any practice content.,"Content comes only from My Practices (user-added) or the neutral library. Profile fields (religion, ethnicity, etc.) NEVER select content.","Faith neutrality, dignity, inclusion."
+MD-4,Meditate,"Context class public, formal, observed or caring.","Silent, eyes-open, headphone-only, 3 minutes or less. Spoken prayer or recitation only in private or a prayer room; Adapt offers to find a space.",Practical and safe in public.
+MD-5,Meditate,Recurring practices (Timeline TR).,Reminders respect quiet hours and 'In worship'; missed practices are never counted as failures; no streaks.,Avoids guilt; 51.2% of survey respondents quit tools over guilt-inducing notifications.
+MD-6,Both,Any time the Support pathway or the Safety override is active.,Neither pathway can replace or hide 'Get support now'.,Safety first.
