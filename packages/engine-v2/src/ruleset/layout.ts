@@ -10,8 +10,13 @@ export interface TableSpec {
   readonly numeric?: true;
 }
 
+/** Which workbook a file belongs to: v3.3, or Rules Engine v5.0 (November 2026). */
+export type Edition = '3.3' | '5.0';
+
 export interface FileLayout {
   readonly tables: readonly TableSpec[];
+  /** The workbook edition with this file; files of both are optional to the other (readme: both). */
+  readonly edition?: Edition;
   /** Tabs 0 and 0b have grouping rows above the real header, which starts with this text. */
   readonly headerFirstCell?: string;
   /** Where notes go when no table is near. */
@@ -38,12 +43,108 @@ const reference = (tab: TabKey, refCols: readonly number[] = [0]): TableSpec => 
   refCols,
 });
 
+const v5 = (layout: Omit<FileLayout, 'edition'>): FileLayout => ({ ...layout, edition: '5.0' });
+
+/**
+ * Rules Engine v5.0's tabs (docs/engine-v2/V5.md). Rule tables are the ones the engine runs or
+ * reads values from; Tabs 18-21 (every outcome, routes by place, stories, test cases) are
+ * examples the checks run against, never rules.
+ */
+const V5_LAYOUTS: Readonly<Record<string, FileLayout>> = {
+  '1-capacity-matrix.csv': v5({ tables: [rule('capacity')], noteTab: 'capacity' }),
+  '2-feelings.csv': v5({
+    tables: [rule('feelings'), rule('feelings'), rule('feelings'), rule('feelings')],
+    noteTab: 'feelings',
+  }),
+  '3-body-senses.csv': v5({
+    tables: [rule('body_senses'), rule('body_senses'), rule('body_senses'), rule('body_senses')],
+    noteTab: 'body_senses',
+  }),
+  '4-places.csv': v5({ tables: [rule('places')], noteTab: 'places' }),
+  '5-devices.csv': v5({ tables: [rule('devices'), reference('devices')], noteTab: 'devices' }),
+  '6-bands-modifiers.csv': v5({
+    tables: [rule('colours'), rule('colour_rules')],
+    noteTab: 'colours',
+  }),
+  '7-help-menu.csv': v5({ tables: [rule('help_menu'), rule('help_menu')], noteTab: 'help_menu' }),
+  '8-eight-pathways.csv': v5({
+    tables: [rule('pathways'), rule('pathways'), rule('pathways'), rule('pathways')],
+    noteTab: 'pathways',
+  }),
+  '9-plans-tools.csv': v5({
+    tables: [
+      rule('plans_tools'),
+      rule('plans_tools'),
+      reference('plans_tools'),
+      rule('plans_tools'),
+      rule('plans_tools'),
+      rule('plans_tools'),
+    ],
+    noteTab: 'plans_tools',
+  }),
+  '10-time-drivers-demand.csv': v5({
+    tables: [
+      rule('time_demand'),
+      rule('time_demand'),
+      rule('time_demand'),
+      rule('time_demand'),
+      rule('time_demand'),
+      rule('time_demand'),
+      rule('time_demand'),
+    ],
+    noteTab: 'time_demand',
+  }),
+  '11-patterns-card.csv': v5({
+    tables: [
+      { ...rule('card_patterns'), numeric: true },
+      rule('card_rules'),
+      { ...rule('card_patterns'), numeric: true },
+    ],
+    noteTab: 'card_patterns',
+  }),
+  '12-reflect-meditate-gates.csv': v5({ tables: [rule('gates')], noteTab: 'gates' }),
+  '13-decision-sequence.csv': v5({ tables: [rule('sequence')], noteTab: 'sequence' }),
+  '14-screen-display.csv': v5({ tables: [reference('screens')], noteTab: 'screens' }),
+  '15-accounts-me.csv': v5({
+    tables: [
+      reference('accounts'),
+      reference('accounts'),
+      reference('accounts'),
+      reference('accounts'),
+      reference('accounts'),
+      reference('accounts'),
+      reference('accounts'),
+    ],
+    noteTab: 'accounts',
+  }),
+  '16-action-rules.csv': v5({
+    tables: [reference('actions'), reference('actions')],
+    noteTab: 'actions',
+  }),
+  '17-labels-copy.csv': v5({
+    tables: [rule('labels'), rule('labels'), reference('labels'), rule('labels')],
+    noteTab: 'labels',
+  }),
+  '18-all-outcomes.csv': v5({ tables: [example('outcomes')], noteTab: 'outcomes' }),
+  '19-route-by-place.csv': v5({ tables: [example('place_routes')], noteTab: 'place_routes' }),
+  '20-stories.csv': v5({ tables: [example('stories')], noteTab: 'stories' }),
+  '21-test-cases.csv': v5({
+    tables: [example('test_cases'), example('test_cases')],
+    noteTab: 'test_cases',
+  }),
+  '22-change-log.csv': v5({
+    tables: [reference('change_log'), reference('change_log')],
+    noteTab: 'change_log',
+  }),
+};
+
 /**
  * The workbook's own tabs, one CSV file each. A table the reader finds beyond the ones listed is
  * kept as reference and named in the import report (nothing is dropped).
  */
 export const FILE_LAYOUTS: Readonly<Record<string, FileLayout>> = {
-  'readme.csv': { tables: [], noteTab: 'readme' },
+  // Both editions have a README; v5.0's has an Item / Detail table, kept as reference.
+  'readme.csv': { tables: [reference('readme')], noteTab: 'readme' },
   '0-simplified-matrix.csv': {
     tables: [example('examples')],
     headerFirstCell: 'Ref',
@@ -106,6 +207,7 @@ export const FILE_LAYOUTS: Readonly<Record<string, FileLayout>> = {
   },
   '11-journey-inputs-outputs.csv': { tables: [rule('journey_layers')], noteTab: 'journey_layers' },
   '12-coverage-gaps-additions.csv': { tables: [rule('coverage_gaps')], noteTab: 'coverage_gaps' },
+  ...V5_LAYOUTS,
   // Added tables (engine-v2 format); written by an export, read back on re-import.
   'x-catalogue.csv': { tables: [rule('catalogue', [0, 1])], noteTab: 'catalogue', addition: true },
   'x-input-mappings.csv': {
@@ -117,3 +219,18 @@ export const FILE_LAYOUTS: Readonly<Record<string, FileLayout>> = {
 };
 
 export const FILE_ORDER: readonly string[] = Object.keys(FILE_LAYOUTS);
+
+/** The edition a set of files is: v5.0 when any of its own files is there, else v3.3. */
+export function editionOf(files: readonly string[]): Edition {
+  return files.some((f) => FILE_LAYOUTS[f]?.edition === '5.0') ? '5.0' : '3.3';
+}
+
+/** The files an edition's workbook has (both editions share the README). */
+export function filesOf(edition: Edition): string[] {
+  return FILE_ORDER.filter((f) => {
+    const layout = FILE_LAYOUTS[f];
+    return (
+      !layout?.addition && (layout?.edition ?? (f === 'readme.csv' ? edition : '3.3')) === edition
+    );
+  });
+}

@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   FILE_ORDER,
+  filesOf,
   parseCsv,
   readWorkbook,
   segment,
@@ -25,7 +26,7 @@ describe('reading the v3.3 workbook', () => {
   it('finds every tab file and nothing unexpected', () => {
     expect(result.report.missingFiles).toEqual([]);
     expect(result.report.unknownFiles).toEqual([]);
-    expect(result.report.files).toEqual(FILE_ORDER.filter((f) => !f.startsWith('x-')));
+    expect(result.report.files).toEqual(filesOf('3.3'));
   });
 
   it('reads the rows of each rule tab', () => {
@@ -162,9 +163,8 @@ describe('reader pieces', () => {
       'extra.csv': 'x',
     });
     expect(odd.report.unknownFiles).toEqual(['extra.csv']);
-    expect(odd.report.missingFiles.length).toBe(
-      FILE_ORDER.filter((f) => !f.startsWith('x-')).length - 1,
-    );
+    // A README alone is read as v3.3: every other v3.3 tab is missing, and none of v5.0's.
+    expect(odd.report.missingFiles).toEqual(filesOf('3.3').filter((f) => f !== 'readme.csv'));
     expect(odd.records.map((r) => r.columns[0]?.text)).toEqual(['one', 'two, "quoted"\nline']);
   });
 
