@@ -42,16 +42,21 @@ import {
 } from './simulator.schemas.js';
 
 import { DecisionsV5Service } from './decisions-v5.service.js';
+import { SimulatorV5Service } from './simulator-v5.service.js';
 import { FitSummaryService } from './fit-summary.service.js';
 import {
   checkInV5Schema,
   decisionV5Schema,
   fitSummarySchema,
   previewV5Schema,
+  simulateV5BodySchema,
+  simulateV5ResultSchema,
   type CheckInV5Body,
   type DecisionV5Dto,
   type FitSummaryDto,
   type PreviewV5Dto,
+  type SimulateV5Body,
+  type SimulateV5Result,
 } from './v5.schemas.js';
 
 const TAGS = ['Engine v2'];
@@ -195,7 +200,26 @@ export class EngineToolsController {
     private readonly tools: EngineToolsService,
     private readonly explorations: ExplorationsService,
     private readonly simulator: CheckInSimulatorService,
+    private readonly simulatorV5: SimulatorV5Service,
   ) {}
+
+  @Post(':label/simulate-check-in-v5')
+  @HttpCode(200)
+  @Route({
+    summary:
+      'Rules Engine v5.0: run a check-in, as the app sends it, through a version (drafts included) for an account on a given plan; the card as the app shows it and the rules that fired. Nothing is stored',
+    tags: TAGS,
+    access: 'staff',
+    roles: STAFF,
+    body: simulateV5BodySchema,
+    response: simulateV5ResultSchema,
+  })
+  simulateCheckInV5(
+    @Param('label', new ZodPipe(labelParam)) label: string,
+    @Body(new ZodPipe(simulateV5BodySchema)) body: SimulateV5Body,
+  ): Promise<SimulateV5Result> {
+    return this.simulatorV5.simulate(label, body);
+  }
 
   @Get(':label/check-in-options')
   @Route({

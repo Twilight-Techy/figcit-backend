@@ -136,3 +136,29 @@ export const fitSummarySchema = z.object({
     .describe('In light order: green, yellow, blue, amber, red'),
 });
 export type FitSummaryDto = z.infer<typeof fitSummarySchema>;
+
+/** The staff Simulator's v5.0 check-in: as the app sends it, with the account it stands for. */
+export const simulateV5BodySchema = z.object({
+  checkIn: checkInV5Schema.omit({ recheckOfId: true }),
+  plan: z
+    .enum(['free', 'prime', 'premium', 'organisation_seat'])
+    .default('free')
+    .describe('The plan the account is on (Tab 9)'),
+  lifeNow: z.array(z.string().max(48)).max(10).default([]).describe('Life right now (ME-4)'),
+  returnToWork: z.boolean().default(false).describe('Me: back to work, study or training (RW-1)'),
+});
+export type SimulateV5Body = z.infer<typeof simulateV5BodySchema>;
+
+export const simulateV5ResultSchema = z.object({
+  version: z.object({ label: z.string(), status: z.string() }),
+  /** The engine input the check-in and the account give. */
+  input: z.record(z.string(), z.unknown()),
+  dropped: previewV5Schema.shape.dropped,
+  risk: z.object({ matched: z.boolean() }).describe('The free text through the safety check'),
+  card: cardV5Schema.nullable(),
+  menu: previewV5Schema.shape.menu,
+  /** The rules that fired, by workbook reference ("feelings · EM03"), in run order. */
+  fired: z.array(z.string()),
+  issues: z.array(z.object({ path: z.string(), message: z.string() })),
+});
+export type SimulateV5Result = z.infer<typeof simulateV5ResultSchema>;

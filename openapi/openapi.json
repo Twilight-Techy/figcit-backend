@@ -38459,6 +38459,897 @@
         ]
       }
     },
+    "/v1/rulesets/{label}/simulate-check-in-v5": {
+      "post": {
+        "operationId": "EngineTools_simulateCheckInV5",
+        "summary": "Rules Engine v5.0: run a check-in, as the app sends it, through a version (drafts included) for an account on a given plan; the card as the app shows it and the rules that fired. Nothing is stored",
+        "tags": [
+          "Engine v2"
+        ],
+        "parameters": [
+          {
+            "name": "label",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "checkIn": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "quick",
+                          "full"
+                        ],
+                        "description": "Quick asks no body, senses or place (CTX-U)"
+                      },
+                      "state": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "grid"
+                              },
+                              "energy": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 4
+                              },
+                              "mood": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 4
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "energy",
+                              "mood"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "not_sure"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ]
+                          }
+                        ]
+                      },
+                      "emotions": {
+                        "maxItems": 2,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9_]{1,48}$"
+                            },
+                            "level": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 10,
+                              "description": "The slider"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "level"
+                          ]
+                        },
+                        "description": "Up to two emotions (Tab 2)"
+                      },
+                      "somethingElse": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 30,
+                            "description": "Checked for safety, then dropped (SE-1)"
+                          },
+                          "group": {
+                            "description": "The one tap: wound up, low, switched off, okay; skipped stays Unsorted",
+                            "type": "string",
+                            "enum": [
+                              "charged",
+                              "low",
+                              "shutdown",
+                              "settled"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "text"
+                        ]
+                      },
+                      "body": {
+                        "maxItems": 14,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "urgent": {
+                        "description": "'Something feels wrong' and 'Is this sudden or new for you?' (SF-4)",
+                        "type": "object",
+                        "properties": {
+                          "signs": {
+                            "minItems": 1,
+                            "maxItems": 5,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9_]{1,48}$"
+                            }
+                          },
+                          "answer": {
+                            "type": "string",
+                            "enum": [
+                              "sudden_new",
+                              "familiar"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "signs",
+                          "answer"
+                        ]
+                      },
+                      "senses": {
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "place": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9_]{1,48}$"
+                          },
+                          "canStepAway": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "canStepAway"
+                        ]
+                      },
+                      "devices": {
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9_]{1,48}$"
+                        }
+                      },
+                      "tasks": {
+                        "maxItems": 20,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120,
+                              "description": "Shown on the card, never to the engine"
+                            },
+                            "chip": {
+                              "description": "No chip is Usual (TK-1)",
+                              "type": "string",
+                              "pattern": "^[a-z0-9_]{1,48}$"
+                            }
+                          },
+                          "required": [
+                            "title"
+                          ]
+                        }
+                      },
+                      "helpCard": {
+                        "description": "The Help menu pick (Tab 7)",
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "state",
+                      "emotions"
+                    ]
+                  },
+                  "plan": {
+                    "default": "free",
+                    "description": "The plan the account is on (Tab 9)",
+                    "type": "string",
+                    "enum": [
+                      "free",
+                      "prime",
+                      "premium",
+                      "organisation_seat"
+                    ]
+                  },
+                  "lifeNow": {
+                    "default": [],
+                    "description": "Life right now (ME-4)",
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 48
+                    }
+                  },
+                  "returnToWork": {
+                    "default": false,
+                    "description": "Me: back to work, study or training (RW-1)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "checkIn"
+                ]
+              },
+              "example": {
+                "checkIn": {
+                  "mode": "quick",
+                  "state": {
+                    "kind": "grid",
+                    "energy": 1,
+                    "mood": 1
+                  },
+                  "emotions": [
+                    {
+                      "code": "example",
+                      "level": 1
+                    }
+                  ],
+                  "somethingElse": {
+                    "text": "Example text",
+                    "group": "charged"
+                  },
+                  "body": [
+                    "example"
+                  ],
+                  "urgent": {
+                    "signs": [
+                      "example"
+                    ],
+                    "answer": "sudden_new"
+                  },
+                  "senses": [
+                    "example"
+                  ],
+                  "place": {
+                    "code": "example",
+                    "canStepAway": true
+                  },
+                  "devices": [
+                    "example"
+                  ],
+                  "tasks": [
+                    {
+                      "title": "Example title",
+                      "chip": "example"
+                    }
+                  ],
+                  "helpCard": "example"
+                },
+                "plan": "free",
+                "lifeNow": [],
+                "returnToWork": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "input": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    },
+                    "dropped": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "input": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "why": {
+                            "type": "string",
+                            "enum": [
+                              "not_offered",
+                              "locked",
+                              "not_asked",
+                              "too_many"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "input",
+                          "code",
+                          "why"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "risk": {
+                      "type": "object",
+                      "properties": {
+                        "matched": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "matched"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The free text through the safety check"
+                    },
+                    "card": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "card",
+                                "support_screen",
+                                "urgent_screen"
+                              ]
+                            },
+                            "light": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "pattern": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "noWords": {
+                              "type": "boolean"
+                            },
+                            "headline": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "taskLine": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "primary": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "tool",
+                                        "action",
+                                        "pathway"
+                                      ]
+                                    },
+                                    "code": {
+                                      "type": "string"
+                                    },
+                                    "pathway": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "description": "Tab 17's user_label, or the action's words (LBL-1)"
+                                    },
+                                    "description": {
+                                      "description": "Tab 17's user_description",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "plan": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "prime",
+                                            "premium"
+                                          ]
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ],
+                                      "description": "A paid tool: the app shows the lock"
+                                    }
+                                  },
+                                  "required": [
+                                    "kind",
+                                    "code",
+                                    "pathway",
+                                    "label",
+                                    "description",
+                                    "plan"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "alternatives": {
+                              "maxItems": 2,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "tool",
+                                      "action",
+                                      "pathway"
+                                    ]
+                                  },
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "pathway": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "label": {
+                                    "type": "string",
+                                    "description": "Tab 17's user_label, or the action's words (LBL-1)"
+                                  },
+                                  "description": {
+                                    "description": "Tab 17's user_description",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "plan": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "enum": [
+                                          "prime",
+                                          "premium"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "description": "A paid tool: the app shows the lock"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "code",
+                                  "pathway",
+                                  "label",
+                                  "description",
+                                  "plan"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "supportVisible": {
+                              "type": "boolean",
+                              "description": "Get support now; otherwise the app shows Not now"
+                            },
+                            "suggestion": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "key": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "key",
+                                    "text"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "description": "With no task, a task that fits (TK-4)"
+                            },
+                            "prompts": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "key",
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "description": "e.g. 'Not at home? Tell us where you are' (P42)"
+                            },
+                            "tasks": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "first": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "later": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "first",
+                                    "later"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "description": "The task titles in the order to show them (TK-2)"
+                            },
+                            "helpSwap": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "card": {
+                                      "type": "string"
+                                    },
+                                    "reason": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "card",
+                                    "reason"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "description": "The card picked was blocked; why, in one line (SEQ-2)"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "light",
+                            "pattern",
+                            "noWords",
+                            "headline",
+                            "reason",
+                            "taskLine",
+                            "primary",
+                            "alternatives",
+                            "supportVisible",
+                            "suggestion",
+                            "prompts",
+                            "tasks",
+                            "helpSwap"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "menu": {
+                      "type": "object",
+                      "properties": {
+                        "cards": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "hint": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "hint"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "more": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "hint": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "label",
+                              "hint"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "cards",
+                        "more"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "fired": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "issues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "message"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "input",
+                    "dropped",
+                    "risk",
+                    "card",
+                    "menu",
+                    "fired",
+                    "issues"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "version": {
+                    "label": "Example label",
+                    "status": "Example status"
+                  },
+                  "input": {},
+                  "dropped": [
+                    {
+                      "input": "Example input",
+                      "code": "Example code",
+                      "why": "not_offered"
+                    }
+                  ],
+                  "risk": {
+                    "matched": true
+                  },
+                  "card": {
+                    "kind": "card",
+                    "light": "Example light",
+                    "pattern": "Example pattern",
+                    "noWords": true,
+                    "headline": "Example headline",
+                    "reason": "Example reason",
+                    "taskLine": "Example taskLine",
+                    "primary": {
+                      "kind": "tool",
+                      "code": "Example code",
+                      "pathway": "Example pathway",
+                      "label": "Example label",
+                      "description": "Example description",
+                      "plan": "prime"
+                    },
+                    "alternatives": [
+                      {
+                        "kind": "tool",
+                        "code": "Example code",
+                        "pathway": "Example pathway",
+                        "label": "Example label",
+                        "description": "Example description",
+                        "plan": "prime"
+                      }
+                    ],
+                    "supportVisible": true,
+                    "suggestion": {
+                      "key": "<example-key>",
+                      "text": "Example text"
+                    },
+                    "prompts": [
+                      {
+                        "key": "<example-key>",
+                        "text": "Example text"
+                      }
+                    ],
+                    "tasks": {
+                      "first": [
+                        "Example first"
+                      ],
+                      "later": [
+                        "Example later"
+                      ]
+                    },
+                    "helpSwap": {
+                      "card": "Example card",
+                      "reason": "Example reason"
+                    }
+                  },
+                  "menu": {
+                    "cards": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label",
+                        "hint": "Example hint"
+                      }
+                    ],
+                    "more": [
+                      {
+                        "code": "Example code",
+                        "label": "Example label",
+                        "hint": "Example hint"
+                      }
+                    ]
+                  },
+                  "fired": [
+                    "Example fired"
+                  ],
+                  "issues": [
+                    {
+                      "path": "Example path",
+                      "message": "Example message"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff",
+        "x-roles": [
+          "clinical_admin",
+          "admin",
+          "safety_reviewer",
+          "content_editor"
+        ]
+      }
+    },
     "/v1/rulesets/{label}/submit": {
       "post": {
         "operationId": "Rulesets_submit",
