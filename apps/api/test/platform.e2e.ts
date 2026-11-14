@@ -231,7 +231,7 @@ describe('speech without a server', () => {
 });
 
 describe('admin', () => {
-  it('needs a staff role and a two-step sign-in', async () => {
+  it('needs a staff role', async () => {
     const { token } = await api.signIn();
     expect((await api.req('GET', '/admin/metrics', { token })).status).toBe(403);
     const editor = await api.staff(['content_editor']);

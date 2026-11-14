@@ -19,7 +19,7 @@ export const STAFF_ROLES = [
  * Global guard. Every route needs a signed-in user unless its `@Route` says otherwise:
  * - 'public': anyone; a valid token is still attached if sent.
  * - 'browse': a signed-in user or a Browse-mode device token (`X-Browse-Token`).
- * - 'staff': a staff role that passed MFA in this session (SYSTEM_DESIGN §9.1). The session and
+ * - 'staff': a staff role (SYSTEM_DESIGN §9.1). The session and
  *   the roles are read as they are now, not as the token says: a staff member removed or
  *   suspended loses staff access at once, not when the token expires (E-63).
  */
@@ -64,7 +64,6 @@ export class AuthGuard implements CanActivate {
     request.user = { ...user, roles: session.user.roles };
     const allowed: readonly string[] = roles.length > 0 ? roles : STAFF_ROLES;
     if (!session.user.roles.some((r) => allowed.includes(r))) throw new Forbidden();
-    if (!user.mfa) throw new Forbidden('Staff routes need a two-step sign-in.');
   }
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {

@@ -78,17 +78,15 @@ export class OwnerService implements OnApplicationBootstrap {
       );
   }
 
-  /** The Owner hands ownership to an active admin who has set up the two-step sign-in. */
+  /** The Owner hands ownership to an active admin. */
   async handover(actor: RequestUser, userId: string, reason: string): Promise<void> {
     if (actor.id !== (await this.ownerId())) throw new Forbidden('Only the Owner hands over.');
     if (userId === actor.id) throw new BadInput('You are the Owner already.');
     const to = await this.prisma.user.findFirst({
       where: { id: userId, deletedAt: null, status: 'active', roles: { has: 'admin' } },
-      select: { _count: { select: { mfaFactors: true } } },
+      select: { id: true },
     });
     if (!to) throw new NotFound('active admin');
-    if (to._count.mfaFactors === 0)
-      throw new BadInput('They must set up the two-step sign-in before they can be the Owner.');
     await this.prisma.$transaction((tx) =>
       setOwner(tx, userId, {
         actorId: actor.id,
