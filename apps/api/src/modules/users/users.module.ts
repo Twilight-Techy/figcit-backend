@@ -9,6 +9,6 @@ import { UsersService } from './users.service.js';
   imports: [EntitlementsModule],
   controllers: [UsersController],
   providers: [UsersRepository, UsersService, ProfileService],
-  exports: [UsersService, UsersRepository],
+  exports: [UsersService, UsersRepository, ProfileService],
 })
 export class UsersModule {}

@@ -142,8 +142,7 @@ export function shownLead(
   copy: Presentation['copy'],
   rejected: readonly string[] = [],
 ): { label: string; tool: string | null } {
-  if (v2.kind !== 'card')
-    return { label: copy.get('card.support.cta') ?? '', tool: null };
+  if (v2.kind !== 'card') return { label: copy.get('card.support.cta') ?? '', tool: null };
   const { lead } = leadOf(v2, rejected);
   if (!lead) return { label: copy.get('action.open_home') ?? '', tool: null };
   return { label: fill(labelOf(lead, copy), { task: 'your task' }), tool: lead.tool };

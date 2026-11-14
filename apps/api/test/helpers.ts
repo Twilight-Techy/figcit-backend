@@ -100,9 +100,9 @@ export async function bootApi(overrides: Record<string, string | undefined> = {}
   return { app, req, signIn, grantPlus, staff, close: () => app.close() };
 }
 
-/** The workbook's CSV tabs, as an upload sends them. */
-export function workbookFiles(): Record<string, string> {
-  const dir = resolve(import.meta.dirname, '../../../docs/specs/rules-engine-v3.3');
+/** The workbook's CSV tabs, as an upload sends them (v3.3, or v5.0). */
+export function workbookFiles(edition: '3.3' | '5' = '3.3'): Record<string, string> {
+  const dir = resolve(import.meta.dirname, `../../../docs/specs/rules-engine-v${edition}`);
   const files: Record<string, string> = {};
   for (const name of readdirSync(dir))
     if (name.endsWith('.csv')) files[name] = readFileSync(resolve(dir, name), 'utf8');
@@ -113,7 +113,11 @@ export function workbookFiles(): Record<string, string> {
  * Publishes a fresh engine v2 rule set from the workbook, as an admin would, discarding any open
  * draft first. Later file runs see this version (fileParallelism is off). Returns its label.
  */
-export async function publishV2(api: Api, admin: string): Promise<string> {
+export async function publishV2(
+  api: Api,
+  admin: string,
+  edition: '3.3' | '5' = '3.3',
+): Promise<string> {
   const list = await api.req<{ items: { label: string; status: string }[] }>('GET', '/rulesets', {
     token: admin,
   });
@@ -125,7 +129,7 @@ export async function publishV2(api: Api, admin: string): Promise<string> {
   const wb = `c${String(Date.now()).slice(-9)}`;
   const imp = await api.req<{ version: { label: string } }>('POST', '/rulesets/import', {
     token: admin,
-    body: { files: workbookFiles(), workbookVersion: wb },
+    body: { files: workbookFiles(edition), workbookVersion: wb },
   });
   const label = imp.body.version.label;
   await api.req('POST', `/rulesets/${label}/submit`, { token: admin });

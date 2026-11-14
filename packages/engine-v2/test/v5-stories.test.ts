@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   cardWordsV5,
   copyOf,
+  orderTasks,
   run,
   type Card,
   type CardItem,
@@ -164,17 +165,7 @@ function inputOf(row: Record<string, string>): { input: EngineInput; tasks: Task
   return { input, tasks };
 }
 
-/** The tasks in the card's order (TK-2); `later` ones after, in their own order. */
-/** The tasks in the card's order (TK-2): the first chips in order, then the rest as entered. */
-function sortedTasks(card: Card, tasks: readonly Task[]): { first: Task[]; later: Task[] } {
-  const order = card.taskOrder?.first ?? [];
-  const first = tasks
-    .map((t, i) => ({ t, i }))
-    .filter((x) => order.includes(x.t.chip))
-    .sort((a, b) => order.indexOf(a.t.chip) - order.indexOf(b.t.chip) || a.i - b.i)
-    .map((x) => x.t);
-  return { first, later: tasks.filter((t) => !order.includes(t.chip)) };
-}
+const sortedTasks = (card: Card, tasks: readonly Task[]) => orderTasks(card, tasks);
 function ordered(card: Card, tasks: readonly Task[]): Task[] {
   const { first, later } = sortedTasks(card, tasks);
   return [...first, ...later];

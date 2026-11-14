@@ -164,6 +164,23 @@ class Words {
   }
 }
 
+/**
+ * The tasks in the card's order (TK-2): those whose chip is in `taskOrder.first`, by that order
+ * (ties as entered), then the rest as entered, which wait (`later`). O(n log n).
+ */
+export function orderTasks<T extends CardTask>(
+  card: Pick<Card, 'taskOrder'>,
+  tasks: readonly T[],
+): { first: T[]; later: T[] } {
+  const order = card.taskOrder?.first ?? [];
+  const first = tasks
+    .map((t, i) => ({ t, i }))
+    .filter((x) => order.includes(x.t.chip))
+    .sort((a, b) => order.indexOf(a.t.chip) - order.indexOf(b.t.chip) || a.i - b.i)
+    .map((x) => x.t);
+  return { first, later: tasks.filter((t) => !order.includes(t.chip)) };
+}
+
 /** The card's headline, reason and task line, for a v5.0 card (`pattern` set). */
 export function cardWordsV5(card: Card, input: EngineInput, sources: WordsSources): CardWordsV5 {
   const w = new Words(card, input, sources);

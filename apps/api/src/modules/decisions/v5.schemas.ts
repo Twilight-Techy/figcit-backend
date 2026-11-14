@@ -1,0 +1,119 @@
+import { z } from 'zod';
+
+// The Rules Engine v5.0 check-in and card (docs/engine-v2/V5.md). Codes are the published
+// version's check-in options (GET /v1/rulesets/current/check-in-options); free text (Something
+// else, task titles) passes the safety check and never reaches the engine.
+
+const code = z.string().regex(/^[a-z0-9_]{1,48}$/);
+
+export const checkInV5Schema = z.object({
+  mode: z.enum(['quick', 'full']).describe('Quick asks no body, senses or place (CTX-U)'),
+  state: z.discriminatedUnion('kind', [
+    z.object({
+      kind: z.literal('grid'),
+      energy: z.number().int().min(1).max(4),
+      mood: z.number().int().min(1).max(4),
+    }),
+    z.object({ kind: z.literal('not_sure') }),
+  ]),
+  emotions: z
+    .array(z.object({ code, level: z.number().int().min(1).max(10).describe('The slider') }))
+    .max(2)
+    .describe('Up to two emotions (Tab 2)'),
+  somethingElse: z
+    .object({
+      text: z.string().trim().min(1).max(30).describe('Checked for safety, then dropped (SE-1)'),
+      group: z
+        .enum(['charged', 'low', 'shutdown', 'settled'])
+        .optional()
+        .describe('The one tap: wound up, low, switched off, okay; skipped stays Unsorted'),
+    })
+    .optional(),
+  body: z.array(code).max(14).optional(),
+  urgent: z
+    .object({ signs: z.array(code).min(1).max(5), answer: z.enum(['sudden_new', 'familiar']) })
+    .optional()
+    .describe("'Something feels wrong' and 'Is this sudden or new for you?' (SF-4)"),
+  senses: z.array(code).max(8).optional(),
+  place: z.object({ code, canStepAway: z.boolean() }).optional(),
+  devices: z.array(code).max(6).optional(),
+  tasks: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1).max(120).describe('Shown on the card, never to the engine'),
+        chip: code.optional().describe('No chip is Usual (TK-1)'),
+      }),
+    )
+    .max(20)
+    .optional(),
+  helpCard: code.optional().describe('The Help menu pick (Tab 7)'),
+  recheckOfId: z.uuid().optional().describe('The decision this check-in re-checks'),
+});
+export type CheckInV5Body = z.infer<typeof checkInV5Schema>;
+
+const words = z.object({ key: z.string(), text: z.string() });
+
+const itemV5 = z.object({
+  kind: z.enum(['tool', 'action', 'pathway']),
+  /** The tool the button opens, the action, or the pathway. */
+  code: z.string(),
+  pathway: z.string().nullable(),
+  label: z.string().describe("Tab 17's user_label, or the action's words (LBL-1)"),
+  description: z.string().nullable().describe("Tab 17's user_description"),
+  plan: z.enum(['prime', 'premium']).nullable().describe('A paid tool: the app shows the lock'),
+});
+
+const menuCard = z.object({ code: z.string(), label: z.string(), hint: z.string().nullable() });
+
+/** What the check-in screens show as the person goes (Tab 13: the colour inline, the menu). */
+export const previewV5Schema = z.object({
+  kind: z.enum(['card', 'support_screen', 'urgent_screen']),
+  light: z.string().nullable(),
+  lowered: z.boolean().describe('The colour went down (FE-1, FE-2, BS-1, SF-4)'),
+  noWords: z.boolean().describe('No-words mode (FE-2, BS-3): tap-only, eyes open'),
+  reason: z.string().describe('One plain sentence (RT-4)'),
+  menu: z.object({ cards: z.array(menuCard), more: z.array(menuCard) }),
+  dropped: z.array(
+    z.object({
+      input: z.string(),
+      code: z.string(),
+      why: z.enum(['not_offered', 'locked', 'not_asked', 'too_many']),
+    }),
+  ),
+});
+
+export const cardV5Schema = z.object({
+  kind: z.enum(['card', 'support_screen', 'urgent_screen']),
+  light: z.string().nullable(),
+  pattern: z.string().nullable(),
+  noWords: z.boolean(),
+  headline: z.string(),
+  reason: z.string(),
+  taskLine: z.string().nullable(),
+  primary: itemV5.nullable(),
+  alternatives: z.array(itemV5).max(2),
+  supportVisible: z.boolean().describe('Get support now; otherwise the app shows Not now'),
+  suggestion: words.nullable().describe('With no task, a task that fits (TK-4)'),
+  prompts: z.array(words).describe("e.g. 'Not at home? Tell us where you are' (P42)"),
+  tasks: z
+    .object({ first: z.array(z.string()), later: z.array(z.string()) })
+    .nullable()
+    .describe('The task titles in the order to show them (TK-2)'),
+  helpSwap: z
+    .object({ card: z.string(), reason: z.string() })
+    .nullable()
+    .describe('The card picked was blocked; why, in one line (SEQ-2)'),
+});
+
+export const decisionV5Schema = z.object({
+  id: z.uuid(),
+  createdAt: z.iso.datetime(),
+  ruleset: z.object({ label: z.string(), hash: z.string() }),
+  engineVersion: z.string(),
+  card: cardV5Schema,
+  menu: previewV5Schema.shape.menu,
+  dropped: previewV5Schema.shape.dropped,
+});
+export type DecisionV5Dto = z.infer<typeof decisionV5Schema>;
+export type PreviewV5Dto = z.infer<typeof previewV5Schema>;
+export type CardV5Dto = z.infer<typeof cardV5Schema>;
