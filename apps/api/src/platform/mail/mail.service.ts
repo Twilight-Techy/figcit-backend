@@ -97,26 +97,3 @@ export class MailService {
     return to ? this.mailbox.filter((m) => m.to === to) : this.mailbox;
   }
 }
-
-/** Calm, plain emails. Each template returns text and a minimal accessible HTML version. */
-export function layout(
-  heading: string,
-  paragraphs: readonly string[],
-  action?: { label: string; url: string },
-): { text: string; html: string } {
-  const text = [
-    heading,
-    '',
-    ...paragraphs,
-    ...(action ? ['', `${action.label}: ${action.url}`] : []),
-    '',
-    '— FigCit',
-  ].join('\n');
-  const esc = (s: string): string =>
-    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const button = action
-    ? `<p><a href="${esc(action.url)}" style="display:inline-block;padding:12px 20px;background:#2f5d50;color:#fff;border-radius:999px;text-decoration:none">${esc(action.label)}</a></p>`
-    : '';
-  const html = `<!doctype html><html lang="en-GB"><body style="font-family:system-ui,sans-serif;font-size:18px;line-height:1.5;color:#1f2328;max-width:560px;margin:0 auto;padding:24px"><h1 style="font-size:24px">${esc(heading)}</h1>${paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}${button}<p style="color:#555">FigCit</p></body></html>`;
-  return { text, html };
-}

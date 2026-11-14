@@ -5,7 +5,17 @@ import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { BadInput } from '../../common/errors/errors.js';
 import { STAFF_ROLES } from '../../common/guards/auth.guard.js';
-import { layout, MailService } from '../../platform/mail/mail.service.js';
+import { MailService } from '../../platform/mail/mail.service.js';
+import { emailLayout } from '../../platform/mail/template.js';
+
+/** Staff roles in plain words, for the invite email. */
+const ROLE_NAMES: Readonly<Record<string, string>> = {
+  admin: 'Admin',
+  clinical_admin: 'Clinical admin',
+  safety_reviewer: 'Safety reviewer',
+  content_editor: 'Content editor',
+  institution_supporter: 'Organisation supporter',
+};
 import { UsersRepository } from '../users/users.repository.js';
 import type { StaffMember } from './staff.schemas.js';
 
@@ -108,15 +118,17 @@ export class StaffAccountsService {
     await this.mail.send({
       to: email,
       subject: 'You have been added to FigCit staff',
-      ...layout(
-        'You have been added to FigCit staff',
-        [
-          `Your roles: ${roles.join(', ')}.`,
-          'Open the staff app and choose "Email me a sign-in link" with this address. The first time, you will set up a two-step sign-in with an authenticator app.',
-          "If you weren't expecting this, you can ignore this email.",
+      ...emailLayout({
+        appUrl: this.env.APP_URL,
+        heading: 'You have been added to FigCit staff',
+        preheader: 'Open the staff app to sign in.',
+        paragraphs: [
+          `Your roles: ${roles.map((r) => ROLE_NAMES[r] ?? r).join(', ')}.`,
+          'Open the staff app and choose "Email me a sign-in link" with this address.',
         ],
-        { label: 'Open the staff app', url: `${base}/sign-in/` },
-      ),
+        action: { label: 'Open the staff app', url: `${base}/sign-in/` },
+        note: "If you weren't expecting this, you can ignore this email.",
+      }),
     });
   }
 }

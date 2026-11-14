@@ -13,7 +13,8 @@ import {
   Unauthorized,
   NotConfigured,
 } from '../../common/errors/errors.js';
-import { layout, MailService } from '../../platform/mail/mail.service.js';
+import { MailService } from '../../platform/mail/mail.service.js';
+import { emailLayout } from '../../platform/mail/template.js';
 import { UsersRepository } from '../users/users.repository.js';
 import { COMMON_PASSWORDS } from './common-passwords.js';
 import { SessionsService, type IssuedSession } from './sessions.service.js';
@@ -73,15 +74,15 @@ export class AuthService {
       },
     });
     const url = `${base}/enter/link/?token=${encodeURIComponent(token)}`;
-    const body = layout(
-      'Your sign-in link',
-      [
-        'Tap the button to open FigCit. The link works for 10 minutes.',
-        `If you opened this on another device, enter this code instead: ${code}`,
-        "If you didn't ask for this, you can ignore this email.",
-      ],
-      { label: 'Open FigCit', url },
-    );
+    const body = emailLayout({
+      appUrl: this.env.APP_URL,
+      heading: 'Your sign-in link',
+      preheader: `Tap to open FigCit, or enter ${code}. It works for 10 minutes.`,
+      paragraphs: ['Tap the button to open FigCit. The link works for 10 minutes.'],
+      action: { label: 'Open FigCit', url },
+      code: { label: 'On another device? Enter this code instead:', value: code },
+      note: "If you didn't ask for this, you can ignore this email. Nobody can sign in without it.",
+    });
     await this.mail.send({ to: email, subject: 'Your FigCit sign-in link', ...body });
   }
 
@@ -185,10 +186,15 @@ export class AuthService {
         await this.mail.send({
           to: email,
           subject: 'We paused password sign-in',
-          ...layout('We paused password sign-in for 15 minutes', [
-            'Someone tried your password several times. If it was you, wait 15 minutes or use a sign-in link.',
-            "If it wasn't you, nothing has been accessed. You can change your password from Settings.",
-          ]),
+          ...emailLayout({
+            appUrl: this.env.APP_URL,
+            heading: 'We paused password sign-in for 15 minutes',
+            preheader: 'Someone tried your password several times.',
+            paragraphs: [
+              'Someone tried your password several times. If it was you, wait 15 minutes or use a sign-in link.',
+              "If it wasn't you, nothing has been accessed. You can change your password from Settings.",
+            ],
+          }),
         });
       throw generic;
     }
@@ -216,14 +222,14 @@ export class AuthService {
     await this.mail.send({
       to: email,
       subject: 'Reset your FigCit password',
-      ...layout(
-        'Reset your password',
-        [
-          'The link works for 30 minutes.',
-          "If you didn't ask for this, you can ignore this email.",
-        ],
-        { label: 'Choose a new password', url },
-      ),
+      ...emailLayout({
+        appUrl: this.env.APP_URL,
+        heading: 'Reset your password',
+        preheader: 'Choose a new password. The link works for 30 minutes.',
+        paragraphs: ['Tap the button to choose a new password. The link works for 30 minutes.'],
+        action: { label: 'Choose a new password', url },
+        note: "If you didn't ask for this, you can ignore this email. Your password stays the same.",
+      }),
     });
   }
 
