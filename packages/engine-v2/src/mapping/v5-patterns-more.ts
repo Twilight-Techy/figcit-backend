@@ -1,5 +1,16 @@
 import type { RowMapping } from './types.js';
-import { all, is, light, need, propose, set, CALM_LIGHTS, unguarded } from './v5-terms.js';
+import {
+  all,
+  hasTask,
+  is,
+  light,
+  need,
+  not,
+  propose,
+  set,
+  CALM_LIGHTS,
+  unguarded,
+} from './v5-terms.js';
 
 // Rules Engine v5.0: Tab 11's patterns that v5.0's own cards (Tabs 18-20) don't reach. Three run
 // on signals the app already sends (30, 34, 37); the Help menu rows set 9, 11, 13, 28, 32, 38, 40,
@@ -106,5 +117,25 @@ export const MORE_PATTERNS: Readonly<Record<string, RowMapping>> = {
   '46': HELP('HC-4 with no task'),
   '47': HELP('HC-2'),
   '58': NOT_ASKED('the time of day'),
-  '60': NOT_ASKED("Return to work (Me, RW-1); the morning load check is the app's"),
+  '60': {
+    mapping: 'interpreted',
+    reason:
+      "RW-2's day's load check: back to work, study or training (Me), a Quick check-in with tasks, not in Red: 'Today fits …' in the chips' plain words, and See today's plan. Before a shift is the app's (RW-3).",
+    engine: {
+      stage: 'orchestration',
+      layer: 'band',
+      rules: [
+        {
+          when: all(
+            is('prefs.return_to_work', true),
+            { fact: 'checkin.mode', op: 'eq', value: 'quick' },
+            hasTask,
+            not(light('red')),
+            unguarded,
+          ),
+          then: [set('pattern.set', { pattern: '60' }), need('primary', 'rtw_load')],
+        },
+      ],
+    },
+  },
 };

@@ -41,7 +41,7 @@ const BODY_NEEDS = 'body_needs';
 const MAX_SENTENCES = 3;
 
 const fill = (text: string, values: Readonly<Record<string, string>>): string =>
-  text.replace(/\{(\w+)\}/g, (all, name: string) => values[name] ?? all);
+  text.replace(/\{([\w ]+)\}/g, (all, name: string) => values[name] ?? all);
 
 class Words {
   constructor(
@@ -67,7 +67,19 @@ class Words {
     if (['4', '48'].includes(p) && decides?.group === 'low') return this.say('card.headline.low');
     if (['2', '54'].includes(p) && ['clear_headed', 'empowered'].includes(decides?.code ?? ''))
       return this.say('card.p55.headline');
-    return this.say(`card.p${p}.headline`);
+    // Pattern 60: "Today fits {plain chip words}." (RW-2).
+    return fill(this.say(`card.p${p}.headline`), { 'plain chip words': this.chipWords() });
+  }
+
+  /** The first group's kinds of task in plain words: "the usual things and something new". */
+  private chipWords(): string {
+    const first = this.card.taskOrder?.first ?? [];
+    const plain = new Map(this.values('task_chip').map((v) => [v.code, v.note ?? v.label]));
+    return [...new Set(this.src.tasks.map((t) => t.chip))]
+      .filter((c) => first.includes(c))
+      .slice(0, MAX_CHIPS)
+      .map((c) => plain.get(c) ?? c)
+      .join(' and ');
   }
 
   /** "You're in Storm Mode, feeling angry (strong) and anxious with tension" (RT-4). */
@@ -151,13 +163,8 @@ class Words {
         .map((t) => this.say('tasks.red_cant_wait', { task: t.title }));
       return [this.say('tasks.red'), ...wait].join(' ');
     }
-    const first = this.card.taskOrder?.first ?? [];
-    const plain = new Map(this.values('task_chip').map((v) => [v.code, v.note ?? v.label]));
-    const chips = [...new Set(tasks.map((t) => t.chip))]
-      .filter((c) => first.includes(c))
-      .slice(0, MAX_CHIPS);
-    const words = chips.map((c) => plain.get(c) ?? c);
-    const line = words.length > 0 ? [this.say('tasks.line', { chips: words.join(' and ') })] : [];
+    const words = this.chipWords();
+    const line = words !== '' ? [this.say('tasks.line', { chips: words })] : [];
     const top = tasks[0];
     if (this.card.light === 'amber' && top) line.push(this.say('tasks.small', { task: top.title }));
     return line.length > 0 ? line.join(' ') : null;

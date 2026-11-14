@@ -1,8 +1,8 @@
 // Rules Engine v5.0: the Help menu (Tab 7), the gates (Tab 12) and the card rules SEQ-1, SEQ-2
 // and P42 (Tab 11), with Tab 21's T-02, T-08, T-18 and T-25.
 import { describe, expect, it } from 'vitest';
-import { run, type Card, type EngineInput } from '../src/index.js';
-import { FULL, report, ruleset } from './support/v5.js';
+import { cardWordsV5, copyOf, run, type Card, type EngineInput } from '../src/index.js';
+import { catalogue, FULL, imported, report, ruleset } from './support/v5.js';
 
 const cardOf = (input: EngineInput): Card => {
   const r = run(ruleset, { ...FULL, ...input });
@@ -179,5 +179,41 @@ describe('Rules Engine v5.0: safety and feelings rows', () => {
     expect(card.noWords).toBe(true);
     const tools = [card.primary, ...card.alternatives].map((i) => i?.tool);
     expect(tools.some((t) => t?.startsWith('reg_dance') || t === 'med_bodyscan')).toBe(false);
+  });
+});
+
+describe('Rules Engine v5.0: back to work, study or training (RW-2, pattern 60)', () => {
+  it("a Quick check-in with tasks is the day's load check, in the chips' plain words", () => {
+    const input = {
+      'state.energy': 1,
+      'state.mood': 3,
+      'checkin.mode': 'quick',
+      'prefs.return_to_work': true,
+      'tasks.count': 2,
+      'tasks.chips': ['usual', 'can_t_wait'],
+    };
+    const card = cardOf(input);
+    expect(card.light).toBe('amber');
+    expect(card.pattern).toBe('60');
+    expect(card.primary?.tool).toBe('rtw_load');
+    const words = cardWordsV5(
+      { ...card },
+      { ...FULL, ...input },
+      {
+        copy: copyOf(imported.records),
+        catalogue,
+        tasks: [
+          { title: 'Shift 10-2', chip: 'can_t_wait' },
+          { title: 'Handover', chip: 'usual' },
+        ],
+      },
+    );
+    expect(words.headline).toBe("Today fits the thing that can't wait and the usual things.");
+  });
+
+  it('not without it, and not in Red', () => {
+    const base = { 'checkin.mode': 'quick', 'tasks.count': 1, 'tasks.chips': ['usual'] };
+    expect(cardOf({ ...IN['green'], ...base }).pattern).not.toBe('60');
+    expect(cardOf({ ...IN['red'], ...base, 'prefs.return_to_work': true }).pattern).not.toBe('60');
   });
 });

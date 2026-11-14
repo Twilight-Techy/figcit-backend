@@ -5,6 +5,8 @@ export const WEEK_FILLS = [
   'studying',
   'working',
   'looking_for_work',
+  // RW-1: turns on the day's load check and the return-to-work tools.
+  'returning',
   'training',
   'caring',
   'other',

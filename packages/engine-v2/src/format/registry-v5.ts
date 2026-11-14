@@ -127,4 +127,11 @@ export const V5_FACTS: readonly FactSpec[] = [
     description:
       "v5.0 SE-1: the one tap after 'Something else' (wound up: charged, low, switched off: shutdown, okay: settled); skipped, it stays Unsorted",
   },
+  {
+    name: 'prefs.return_to_work',
+    type: 'boolean',
+    stage: 'entry',
+    description:
+      "v5.0 RW-1: Me says 'Getting back to work, study or training', which adds the day's load check (pattern 60)",
+  },
 ];

@@ -117,7 +117,7 @@ export class DecisionsV5Service {
     };
   }
 
-  /** The account's signals, its plan in v5.0's names (Tab 9) and Life right now (ME-4). */
+  /** The account's signals, its plan in v5.0's names (Tab 9), Life right now (ME-4) and RW-1. */
   private async serverFacts(
     userId: string,
     offered: CheckInOptions,
@@ -133,6 +133,8 @@ export class DecisionsV5Service {
       ...base.facts,
       'signals.plan': tier,
       ...(lifeNow.length > 0 ? { 'life.now': lifeNow } : {}),
+      // RW-1: back to work, study or training adds the day's load check (pattern 60).
+      'prefs.return_to_work': profile.weekFills.includes('returning'),
     };
   }
 }
