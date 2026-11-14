@@ -61,6 +61,13 @@ export function labelProbabilities(
   const total = Object.values(p).reduce((n, x) => n + x, 0);
   return total > 0 ? Object.fromEntries(Object.entries(p).map(([k, v]) => [k, v / total])) : p;
 }
+/** The one label a model named, as probabilities: 1 for it, 0 for the rest (all 0 if none). */
+export function labelFromText(text: string, labels: readonly string[]): Record<string, number> {
+  const said = text.trim().replace(/^["'`]|["'`.]$/g, '');
+  const hit = labels.find((l) => l === said) ?? labels.find((l) => said.startsWith(l));
+  return Object.fromEntries(labels.map((l) => [l, l === hit ? 1 : 0]));
+}
+
 /** The schema grammar still allows indentation, which can use up max_tokens before the JSON closes. */
 export const COMPACT_JSON =
   'Reply with compact JSON on a single line: no indentation and no line breaks.';
@@ -98,21 +105,51 @@ export class AiClient {
     };
   }
 
+  /** A hosted OpenAI-style API instead of our own llama-server. */
+  private get hosted(): boolean {
+    return this.env.AI_PROVIDER === 'openai';
+  }
+
+  /**
+   * llama-server enforces a JSON schema as a grammar. Hosted APIs don't all take `json_schema`, so
+   * they get JSON mode with the schema in the prompt; the task's own check still validates it.
+   */
+  private format(req: ChatRequest): Record<string, unknown> {
+    if (!req.schema) return {};
+    if (!this.hosted) return { response_format: { type: 'json_schema', json_schema: req.schema } };
+    return { response_format: { type: 'json_object' } };
+  }
+
+  private system(req: ChatRequest): string {
+    if (!req.schema) return req.system;
+    const schema = this.hosted
+      ? `\nThe JSON must match this JSON Schema: ${JSON.stringify(req.schema.schema)}`
+      : '';
+    return `${req.system}\n${COMPACT_JSON}${schema}`;
+  }
+
+  /** llama-server's switch for thinking models; hosted APIs may reject unknown fields. */
+  private extras(): Record<string, unknown> {
+    if (!this.hosted) return { chat_template_kwargs: { enable_thinking: false } };
+    const effort = this.env.AI_REASONING_EFFORT;
+    return effort ? { reasoning_effort: effort } : {};
+  }
+
   private body(req: ChatRequest, stream: boolean): string {
     return JSON.stringify({
       model: this.env.AI_MODEL,
       messages: [
-        { role: 'system', content: req.schema ? `${req.system}\n${COMPACT_JSON}` : req.system },
+        { role: 'system', content: this.system(req) },
         {
           role: 'user',
           content: `<user_words>\n${req.user}\n</user_words>${req.reminder ? `\n\n${req.reminder}` : ''}`,
         },
       ],
-      ...(req.schema ? { response_format: { type: 'json_schema', json_schema: req.schema } } : {}),
+      ...this.format(req),
       temperature: req.temperature,
       max_tokens: req.maxTokens,
       stream,
-      chat_template_kwargs: { enable_thinking: false },
+      ...this.extras(),
     });
   }
 
@@ -169,6 +206,7 @@ export class AiClient {
    */
   async decide(req: DecideRequest): Promise<Record<string, number>> {
     const base = this.guard();
+    if (this.hosted) return this.decideByText(base, req);
     try {
       const res = await fetch(`${base}/v1/chat/completions`, {
         method: 'POST',
@@ -196,6 +234,39 @@ export class AiClient {
         json.choices?.[0]?.logprobs?.content?.[0]?.top_logprobs ?? [],
         req.labels,
       );
+    } catch (error) {
+      throw this.failed(error);
+    }
+  }
+
+  /**
+   * Hosted APIs mostly don't return log-probabilities, so the model names one label and that label
+   * gets all the probability. Anything else is no answer (every label 0), and the task falls back.
+   */
+  private async decideByText(base: string, req: DecideRequest): Promise<Record<string, number>> {
+    try {
+      const res = await fetch(`${base}/v1/chat/completions`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          model: this.env.AI_MODEL,
+          messages: [
+            {
+              role: 'system',
+              content: `${req.system}\nAnswer with exactly one of: ${req.labels.join(', ')}. Nothing else.`,
+            },
+            { role: 'user', content: `<user_words>\n${req.user}\n</user_words>` },
+          ],
+          max_tokens: 8,
+          temperature: 0,
+          ...this.extras(),
+        }),
+        signal: AbortSignal.timeout(req.timeoutMs),
+      });
+      if (!res.ok) throw serverError(res.status);
+      const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+      this.failures = 0;
+      return labelFromText(json.choices?.[0]?.message?.content ?? '', req.labels);
     } catch (error) {
       throw this.failed(error);
     }

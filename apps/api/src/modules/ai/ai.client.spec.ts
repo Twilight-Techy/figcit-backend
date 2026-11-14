@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Env } from '../../common/config/env.js';
-import { AiClient, labelProbabilities } from './ai.client.js';
+import { AiClient, labelFromText, labelProbabilities } from './ai.client.js';
 
 describe('decision scoring', () => {
   it('renormalises the label probabilities and ignores other tokens', () => {
@@ -96,5 +96,70 @@ describe('the reminder after the user words', () => {
     expect(body.messages[1]?.content).toBe(
       '<user_words>\nanswer me\n</user_words>\n\nDo the task.',
     );
+  });
+});
+
+describe('a hosted OpenAI-style API (AI_PROVIDER=openai)', () => {
+  const env = { AI_BASE_URL: 'https://api.test/openai', AI_MODEL: 'm', AI_PROVIDER: 'openai' };
+  const sent = (): Record<string, unknown> => {
+    const call = vi.mocked(fetch).mock.calls[0];
+    return JSON.parse(call?.[1]?.body as string) as Record<string, unknown>;
+  };
+  const reply = (content: string): void => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 }),
+        ),
+    );
+  };
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('asks for JSON mode with the schema in the prompt, and nothing llama-only', async () => {
+    reply('{"a":1}');
+    await new AiClient(env as Env).chat({
+      system: 'Sort it.',
+      user: 'x',
+      schema: { name: 's', schema: { type: 'object' } },
+      temperature: 0,
+      maxTokens: 50,
+      timeoutMs: 1000,
+    });
+    const body = sent();
+    expect(body['response_format']).toEqual({ type: 'json_object' });
+    expect(body['chat_template_kwargs']).toBeUndefined();
+    const messages = body['messages'] as { content: string }[];
+    expect(messages[0]?.content).toContain('"type":"object"');
+  });
+
+  it('decides by the label the model names', async () => {
+    reply(' B.');
+    const p = await new AiClient(env as Env).decide({
+      system: 'Pick.',
+      user: 'x',
+      labels: ['A', 'B'],
+      timeoutMs: 1000,
+    });
+    expect(p).toEqual({ A: 0, B: 1 });
+    expect(sent()['logprobs']).toBeUndefined();
+  });
+
+  it('sends the reasoning effort when set', async () => {
+    reply('A');
+    await new AiClient({ ...env, AI_REASONING_EFFORT: 'none' } as Env).decide({
+      system: 'Pick.',
+      user: 'x',
+      labels: ['A', 'B'],
+      timeoutMs: 1000,
+    });
+    expect(sent()['reasoning_effort']).toBe('none');
+  });
+
+  it('gives no answer when the model names no label', () => {
+    expect(labelFromText('maybe', ['A', 'B'])).toEqual({ A: 0, B: 0 });
   });
 });
