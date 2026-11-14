@@ -127,6 +127,9 @@ export { COPY_FILE, COPY_HEADER, copyOf, readCopyRow } from './format/copy.js';
 export {
   checkInput,
   compile,
+  factsFromCheckInV5,
+  type CheckInV5,
+  type DroppedAnswer,
   explainCheckIn,
   factsFromCheckIn,
   foldContributions,

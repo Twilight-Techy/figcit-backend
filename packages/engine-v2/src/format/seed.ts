@@ -5,6 +5,7 @@ import { COPY_FILE, COPY_HEADER, copySeedRows } from './copy.js';
 import { INPUT_SEED } from './input-seed.js';
 import { isV5, v5SeedRows } from './seed-v5.js';
 import { v5CopyRows } from './copy-v5.js';
+import { v5InputSeed } from './input-seed-v5.js';
 import { SUPPORT_SEED, TOOL_SEED } from './tool-seed.js';
 import { INPUT_MAPPINGS_HEADER } from './inputs.js';
 import type { Domain } from './registry.js';
@@ -342,8 +343,10 @@ function seedRows(records: readonly RuleRecordDraft[], notes: string[]): SeedRow
 const frameOf = (header: readonly string[]): TableFrame => ({ header: [...header], banner: [] });
 
 /** The check-in options as first filled (E-40), as records without an order yet. */
-function inputSeedRows(): Omit<RulesetRecord, 'order'>[] {
-  return INPUT_SEED.flatMap((seed) =>
+function inputSeedRows(
+  seeds: readonly (typeof INPUT_SEED)[number][] = INPUT_SEED,
+): Omit<RulesetRecord, 'order'>[] {
+  return seeds.flatMap((seed) =>
     seed.rows.map(([code, label, group, mapsTo, note = ''], i) => {
       const cells: Record<string, string> = {
         Input: seed.input,
@@ -436,11 +439,11 @@ export function withAdditions(read: ReadResult): {
     }
   }
   let inputs = 0;
-  // The check-in options are v3.3's until v5.0's are written (V5.md); v5.0 has its own wording.
+  // v5.0's check-in options and wording come from its own tabs (V5.md).
   const v5 = isV5(read.records);
-  if (!inputMappingsGiven && !v5) {
+  if (!inputMappingsGiven) {
     frames[INPUT_MAPPINGS_FILE] = [frameOf(INPUT_MAPPINGS_HEADER)];
-    for (const row of inputSeedRows()) {
+    for (const row of inputSeedRows(v5 ? v5InputSeed(read.records, slug) : undefined)) {
       order += 1;
       inputs += 1;
       records.push({ ...row, order });

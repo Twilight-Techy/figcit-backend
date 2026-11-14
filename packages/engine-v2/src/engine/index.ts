@@ -56,6 +56,7 @@ export {
 } from './checkin-cases.js';
 export { producible, unreachable, type Producible } from './reach.js';
 export { checkInput } from './input.js';
+export { factsFromCheckInV5, type CheckInV5, type DroppedAnswer } from './check-in-v5.js';
 export { ENGINE_FORMATS, ENGINE_VERSION, run, type RunOptions } from './run.js';
 export { MAX_ALTERNATIVES } from './card.js';
 export { cardWordsV5, type CardTask, type CardWordsV5, type WordsSources } from './words-v5.js';

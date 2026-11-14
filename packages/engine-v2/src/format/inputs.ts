@@ -22,6 +22,10 @@ export const INPUTS = [
   'not_sure_energy',
   'not_sure_comfort',
   'body_region',
+  // v5.0: body signs, urgent signs ('Something feels wrong') and the Help menu's cards.
+  'body',
+  'urgent',
+  'help',
 ] as const;
 export type InputKind = (typeof INPUTS)[number];
 
