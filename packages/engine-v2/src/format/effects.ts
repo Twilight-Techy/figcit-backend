@@ -259,6 +259,19 @@ export const EFFECTS: readonly EffectSpec[] = [
       "Offer one tool of this tier from the card's suggested pathway as an alternative (Tab 6d: one labelled Advanced alternative in Green, Yellow or Blue; E-62)",
   }),
   effect({
+    kind: 'tools.swap',
+    class: 'modifier',
+    params: { from: { type: 'enum', domain: 'tool' }, to: { type: 'target' } },
+    description:
+      'v5.0 CX-R: where you are, this tool is shown as that one instead (Breathe → Breathe (discreet)); the best-ranked swap wins',
+  }),
+  effect({
+    kind: 'alternatives.limit',
+    class: 'requirement',
+    params: { max: { type: 'int', min: 0, max: 2 } },
+    description: 'v5.0: at most this many alternatives (pattern 49: none beside the silent tool)',
+  }),
+  effect({
     kind: 'pattern.set',
     class: 'modifier',
     params: { pattern: { type: 'enum', domain: 'pattern' } },

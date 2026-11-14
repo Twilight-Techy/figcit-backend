@@ -1,5 +1,6 @@
 import type { Comparison, Condition, Effect, EngineRule, Target } from '../format/types.js';
 import type { RowMapping, TabMapping } from './types.js';
+import { PATTERN_49 } from './v5-places.js';
 
 // Rules Engine v5.0: the no-task card. Each emotion's route by colour (Tab 2's two route columns,
 // made concrete by Tab 18's buttons), the patterns that override them (Tab 11: 16, 50, 51) and the
@@ -250,10 +251,9 @@ export const CARD_PATTERNS: TabMapping = {
         'Red, no task: Regulate, Dump or Connect, support visible. With no emotion: Breathe, then reach someone (Tab 18).',
     }),
     '16': pattern('16', is('mode.no_words', true), {
-      then: [need('primary', 'reg_tap'), propose('alternative', 'exp_cards')],
       layer: 'guard',
       reason:
-        "Shutdown: tap-only Breathe, then the 'I need quiet' message (Tab 17 Quick message cards).",
+        "Shutdown: tap-only Breathe, then the 'I need quiet' message (Tab 17 Quick message cards); in an exam, its silent Breathe instead (Tab 19).",
     }),
     '48': pattern(
       '48',
@@ -266,6 +266,7 @@ export const CARD_PATTERNS: TabMapping = {
       ),
       { layer: 'trigger' },
     ),
+    '49': PATTERN_49,
     '50': reference('Run from SF-4 (Tab 6): the urgent screen.'),
     '51': pattern('51', all(familiarUrgent, is('mode.no_words', false)), {
       then: [need('primary', 'reg_breathe'), propose('alternative', 'con_contact')],
@@ -313,6 +314,15 @@ const withNoFeeling = (n: string, lights: readonly string[], steps: readonly Ste
     });
 };
 withNoFeeling('53', CALM_LIGHTS, ['@plan_something']);
+const p16 = CARD_PATTERNS.rows?.['16'];
+if (p16?.mapping === 'interpreted')
+  (p16.engine.rules as EngineRule[]).push({
+    when: all(
+      is('mode.no_words', true),
+      not(eq('context.setting', 'exam_interview_or_assessment')),
+    ),
+    then: [need('primary', 'reg_tap'), propose('alternative', 'exp_cards')],
+  });
 withNoFeeling('6', ['amber'], ['reg_breathe', 'reg_rest']);
 withNoFeeling('8', ['red'], ['reg_breathe', 'con_contact']);
 

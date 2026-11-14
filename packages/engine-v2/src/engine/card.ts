@@ -208,7 +208,7 @@ export class CardBuilder {
   private alternatives(losers: readonly Group[]): CardItem[] {
     const out: CardItem[] = [];
     for (const g of merge([...this.groups('alternative'), ...losers])) {
-      if (out.length >= MAX_ALTERNATIVES) {
+      if (out.length >= Math.min(MAX_ALTERNATIVES, ...this.m.alternativeLimits)) {
         this.groupFate(g, 'over_limit');
         continue;
       }
@@ -330,8 +330,19 @@ export class CardBuilder {
 
   // ---- tools ----
 
+  /** v5.0 CX-R: what a tool is shown as here (the best-ranked swap), else the target itself. */
+  private swapped(target: Target): Target {
+    if (!('tool' in target)) return target;
+    const swaps = this.m.swaps.filter((s) => s.from === target.tool);
+    return swaps.length > 0
+      ? ([...swaps].sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)[0]?.to ??
+          target)
+      : target;
+  }
+
   /** The item a target becomes in a slot: a pathway resolves to its best allowed tool. */
-  private resolve(target: Target, slot: string, from: string): CardItem | null {
+  private resolve(given: Target, slot: string, from: string): CardItem | null {
+    const target = this.swapped(given);
     if ('action' in target) return this.actionItem(target, from);
     const pathway =
       'pathway' in target ? target.pathway : (this.toolPathway.get(target.tool) ?? null);

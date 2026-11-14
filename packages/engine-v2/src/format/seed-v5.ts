@@ -251,6 +251,69 @@ function tools(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
   return [...byCode.values()];
 }
 
+function places(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  return rows(records, 'places').map((r) => ({
+    domain: 'context',
+    mapping: 'exact',
+    cells: {
+      Code: slug(text(r, 'Place')),
+      Label: text(r, 'Place'),
+      Source: source(r),
+      Note: r.sourceRef,
+    },
+  }));
+}
+
+function devices(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  return rows(records, 'devices').map((r) => ({
+    domain: 'support',
+    mapping: 'exact',
+    cells: {
+      Code: slug(text(r, 'Device or help')),
+      Label: text(r, 'Device or help'),
+      Source: source(r),
+      Note: r.sourceRef,
+    },
+  }));
+}
+
+/**
+ * The quieter versions of tools that Tab 19 shows away from home (Tab 8's "Busy / can't move"
+ * column). Tab 17 doesn't list them, so they are read from Tab 19's words (`interpreted`; V5.md).
+ */
+const VARIANTS: readonly (readonly [string, string, string, string])[] = [
+  [
+    'reg_breathe_discreet',
+    'Breathe (discreet)',
+    'regulate',
+    'Breathing you can do where others are',
+  ],
+  [
+    'reg_breathe_silent',
+    'Breathe (silent, eyes open)',
+    'regulate',
+    'Silent, eyes open, nothing to say',
+  ],
+  ['reg_move_desk', 'Stretch at my desk', 'regulate', 'Small stretches you can do sitting down'],
+  ['reg_move_walk', 'Walk it off', 'regulate', 'Use the walk you are on'],
+  ['dmp_capture_text', 'Empty your head (text)', 'dump', 'Type it out, nothing out loud'],
+  ['reg_rest_pause', 'Pause for 2 minutes', 'regulate', 'Two quiet minutes where you are'],
+];
+
+function variants(): SeedRow[] {
+  return VARIANTS.map(([code, label, pathway, description]) => ({
+    domain: 'tool',
+    mapping: 'interpreted',
+    cells: {
+      Code: code,
+      Label: label,
+      Group: pathway,
+      Source: "place_routes (Tab 19); pathways (Tab 8, Busy / can't move)",
+      Note: description,
+    },
+  }));
+}
+
 function patterns(records: readonly RuleRecordDraft[]): SeedRow[] {
   return rows(records, 'card_patterns').map((r) => ({
     domain: 'pattern',
@@ -280,6 +343,9 @@ export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): See
     ...senses(records, slug),
     ...pathways(records, slug),
     ...tools(records, slug),
+    ...variants(),
+    ...places(records, slug),
+    ...devices(records, slug),
     ...patterns(records),
   ];
 }

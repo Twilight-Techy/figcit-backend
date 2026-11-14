@@ -57,6 +57,9 @@ export class Material {
   readonly suggestions: (Origin & { copy: string })[] = [];
   /** v5.0 SF-4: the stop is the urgent screen. */
   urgent: string | null = null;
+  /** v5.0 CX-R: tool → what it is shown as here, in run order (the card takes the best-ranked). */
+  readonly swaps: (Origin & { from: string; to: Target })[] = [];
+  readonly alternativeLimits: number[] = [];
 }
 
 const str = (e: Effect, k: string): string => String(e[k]);
@@ -219,6 +222,12 @@ function applyV5(e: Effect, origin: Origin, m: Material): boolean {
       return true;
     case 'screen.urgent':
       m.urgent ??= origin.rule.id;
+      return true;
+    case 'tools.swap':
+      m.swaps.push({ ...origin, from: str(e, 'from'), to: e['to'] as Target });
+      return true;
+    case 'alternatives.limit':
+      m.alternativeLimits.push(num(e, 'max'));
       return true;
     default:
       return false;

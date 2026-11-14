@@ -17,6 +17,7 @@ import { REFLECT_MEDITATE } from './reflect-meditate.js';
 import { TOOLS_TIERS } from './tools-tiers.js';
 import { CARD_PATTERNS, FEELINGS, SUGGESTIONS } from './v5-card.js';
 import { BODY_RULES, CAPACITY, COLOUR_RULES, COLOURS } from './v5-colours.js';
+import { DEVICES, PLACES } from './v5-places.js';
 import { COVERAGE_GAPS, DECISION_SEQUENCE, DRIVERS, JOURNEY_LAYERS } from './reference-tabs.js';
 import type { EngineColumns, EngineRule } from '../format/types.js';
 import type { RowMapping, TabMapping } from './types.js';
@@ -51,6 +52,8 @@ export const V5_MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   feelings: FEELINGS,
   card_patterns: CARD_PATTERNS,
   time_demand: SUGGESTIONS,
+  places: PLACES,
+  devices: DEVICES,
 };
 
 /** The mapping file for these rows' edition: v5.0 when they hold its capacity tab. */

@@ -6,6 +6,13 @@ import type { FactSpec } from './registry.js';
  */
 export const V5_FACTS: readonly FactSpec[] = [
   {
+    name: 'context.can_step_away',
+    type: 'boolean',
+    stage: 'context',
+    description:
+      "v5.0: the answer to 'Can you step away?' (Tab 4); asked fresh every Full check-in",
+  },
+  {
     name: 'mode.no_words',
     type: 'boolean',
     stage: 'capacity_fit',
