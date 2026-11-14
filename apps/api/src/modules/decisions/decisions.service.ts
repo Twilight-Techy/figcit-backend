@@ -166,7 +166,7 @@ export class DecisionsService {
         trace: result.trace as unknown as Prisma.InputJsonValue,
         band: result.card.band,
         light: result.card.light,
-        supportScreen: result.card.kind === 'support_screen',
+        supportScreen: result.card.kind !== 'card',
         recheckOfId: meta.recheckOfId,
         createdAt: meta.now,
       },

@@ -63,11 +63,14 @@ export interface CardItem {
   readonly tone: readonly string[];
   /** The rule whose proposal or requirement put it here. */
   readonly from: string;
+  /** v5.0 (LBL-1): the tool's approved user_label and user_description, the only words shown. */
+  readonly label?: string;
+  readonly description?: string | null;
 }
 
 export interface Card {
   /** `support_screen`: the safety override (pattern 28); nothing else is shown. */
-  readonly kind: 'card' | 'support_screen';
+  readonly kind: 'card' | 'support_screen' | 'urgent_screen';
   readonly band: string | null;
   readonly light: string | null;
   readonly primary: CardItem | null;
@@ -91,6 +94,10 @@ export interface Card {
     readonly maxMinutes: number | null;
     readonly tools: readonly string[] | null;
   }[];
+  /** v5.0: the card's pattern (Tab 11), which gives its headline. */
+  readonly pattern?: string;
+  /** v5.0 TK-4: with no task, the wording key of the task that fits right now (Tab 10). */
+  readonly suggestion?: string;
   /** No-words mode (v5.0 FE-2, BS-3): tap-only tools, eyes open; absent when off. */
   readonly noWords?: true;
   /** The input the primary's rule matched on: "Because you said X". */

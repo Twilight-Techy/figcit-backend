@@ -126,6 +126,8 @@ export class RunState {
   /** The facts Rules Engine v5.0 works out (FE-3, BS-1). */
   private v5Fact(name: string): unknown {
     switch (name) {
+      case 'mode.no_words':
+        return this.noWords;
       case 'feeling.deciding':
         return this.deciding()?.code;
       case 'feeling.deciding_group': {

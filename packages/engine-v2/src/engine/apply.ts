@@ -52,6 +52,11 @@ export class Material {
   readonly reminders: (Origin & { minutes: number; copy: string | null })[] = [];
   support: string | null = null;
   stop: string | null = null;
+  /** v5.0: the card's pattern and the no-task suggestion, each from its best-ranked rule. */
+  readonly patterns: (Origin & { pattern: string })[] = [];
+  readonly suggestions: (Origin & { copy: string })[] = [];
+  /** v5.0 SF-4: the stop is the urgent screen. */
+  urgent: string | null = null;
 }
 
 const str = (e: Effect, k: string): string => String(e[k]);
@@ -203,8 +208,26 @@ function applyToFrame(e: Effect, origin: Origin, m: Material): void {
 }
 
 /** Applies one effect of a matched rule. Every effect in the registry is handled here. */
+/** v5.0's effects on the card's frame: its pattern, the no-task suggestion, the urgent screen. */
+function applyV5(e: Effect, origin: Origin, m: Material): boolean {
+  switch (e.kind) {
+    case 'pattern.set':
+      m.patterns.push({ ...origin, pattern: str(e, 'pattern') });
+      return true;
+    case 'suggestion.set':
+      m.suggestions.push({ ...origin, copy: str(e, 'copy') });
+      return true;
+    case 'screen.urgent':
+      m.urgent ??= origin.rule.id;
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function applyEffect(e: Effect, origin: Origin, state: RunState, m: Material): void {
   if (applyToState(e, state)) return;
+  if (applyV5(e, origin, m)) return;
   if (applyToChoice(e, origin, m)) return;
   applyToFrame(e, origin, m);
 }

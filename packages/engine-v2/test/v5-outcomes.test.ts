@@ -53,7 +53,7 @@ function outcome(row: Record<string, string>): { colour: string; noWords: string
   if (!result.ok) throw new Error(`row ${row['#'] ?? ''}: ${JSON.stringify(result.issues)}`);
   const { card } = result;
   return {
-    colour: card.kind === 'support_screen' ? '—' : (LIGHT[card.light ?? ''] ?? String(card.light)),
+    colour: card.kind !== 'card' ? '—' : (LIGHT[card.light ?? ''] ?? String(card.light)),
     noWords: card.noWords ? 'Yes' : 'No',
   };
 }
@@ -126,7 +126,7 @@ describe('Rules Engine v5.0: the colour tests of Tab 21', () => {
 
   it('T-34: an urgent sign that is sudden or new is the urgent screen and nothing else', () => {
     const c = card({ 'urgent.signs': ['breathless'], 'urgent.answer': 'sudden_new' });
-    expect(c.kind).toBe('support_screen');
+    expect(c.kind).toBe('urgent_screen');
     expect(c.light).toBeNull();
   });
 

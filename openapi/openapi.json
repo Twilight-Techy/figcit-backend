@@ -9009,7 +9009,8 @@
                           "type": "string",
                           "enum": [
                             "card",
-                            "support_screen"
+                            "support_screen",
+                            "urgent_screen"
                           ]
                         },
                         "band": {
@@ -10012,7 +10013,8 @@
                               "type": "string",
                               "enum": [
                                 "card",
-                                "support_screen"
+                                "support_screen",
+                                "urgent_screen"
                               ]
                             },
                             "band": {
@@ -10630,7 +10632,8 @@
                               "type": "string",
                               "enum": [
                                 "card",
-                                "support_screen"
+                                "support_screen",
+                                "urgent_screen"
                               ]
                             },
                             "band": {
@@ -28260,7 +28263,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -28303,7 +28307,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -28364,7 +28369,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -29891,7 +29897,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -29934,7 +29941,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -29995,7 +30003,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -31515,7 +31524,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -31558,7 +31568,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -31619,7 +31630,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -33056,7 +33068,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -33099,7 +33112,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -33160,7 +33174,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -34136,7 +34151,8 @@
                               "type": "string",
                               "enum": [
                                 "card",
-                                "support_screen"
+                                "support_screen",
+                                "urgent_screen"
                               ]
                             },
                             "band": {
@@ -35754,7 +35770,8 @@
                                   "type": "string",
                                   "enum": [
                                     "card",
-                                    "support_screen"
+                                    "support_screen",
+                                    "urgent_screen"
                                   ]
                                 },
                                 "band": {
@@ -38601,7 +38618,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -38644,7 +38662,8 @@
                                             "type": "string",
                                             "enum": [
                                               "card",
-                                              "support_screen"
+                                              "support_screen",
+                                              "urgent_screen"
                                             ]
                                           },
                                           "label": {
@@ -38705,7 +38724,8 @@
                                               "type": "string",
                                               "enum": [
                                                 "card",
-                                                "support_screen"
+                                                "support_screen",
+                                                "urgent_screen"
                                               ]
                                             },
                                             "label": {
@@ -41536,7 +41556,8 @@
                                       "type": "string",
                                       "enum": [
                                         "card",
-                                        "support_screen"
+                                        "support_screen",
+                                        "urgent_screen"
                                       ]
                                     },
                                     "band": {

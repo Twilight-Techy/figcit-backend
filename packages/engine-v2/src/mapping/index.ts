@@ -15,6 +15,7 @@ import { PATTERNS_OFFER } from './patterns-offer.js';
 import { PATTERNS_TRIGGER } from './patterns-trigger.js';
 import { REFLECT_MEDITATE } from './reflect-meditate.js';
 import { TOOLS_TIERS } from './tools-tiers.js';
+import { CARD_PATTERNS, FEELINGS, SUGGESTIONS } from './v5-card.js';
 import { BODY_RULES, CAPACITY, COLOUR_RULES, COLOURS } from './v5-colours.js';
 import { COVERAGE_GAPS, DECISION_SEQUENCE, DRIVERS, JOURNEY_LAYERS } from './reference-tabs.js';
 import type { EngineColumns, EngineRule } from '../format/types.js';
@@ -47,6 +48,9 @@ export const V5_MAPPINGS: Readonly<Partial<Record<TabKey, TabMapping>>> = {
   colours: COLOURS,
   colour_rules: COLOUR_RULES,
   body_senses: BODY_RULES,
+  feelings: FEELINGS,
+  card_patterns: CARD_PATTERNS,
+  time_demand: SUGGESTIONS,
 };
 
 /** The mapping file for these rows' edition: v5.0 when they hold its capacity tab. */
@@ -108,6 +112,19 @@ function coverageOf(records: readonly RulesetRecord[]): Partial<Record<TabKey, T
   return out;
 }
 
+/** A row's mapping: its table's (sections), its own, or the tab's default; `key` when its own. */
+function mappingOf(
+  r: RulesetRecord,
+  tab: TabMapping | undefined,
+): { m: RowMapping | undefined; key: string | null } {
+  const section = Object.entries(tab?.sections ?? {}).find(([start]) =>
+    (r.section ?? '').startsWith(start),
+  );
+  const own = section?.[1][r.sourceRef] ?? tab?.rows?.[r.sourceRef];
+  if (own) return { m: own, key: `${r.tab} · ${section ? `${section[0]} · ` : ''}${r.sourceRef}` };
+  return { m: tab?.all, key: null };
+}
+
 /**
  * Applies the mapping file to an import's rows: rows that aren't rules become `reference`; rule
  * rows take their tab's mapping. A mapping that fails the format check is reported and the row is
@@ -124,10 +141,9 @@ export function applyMappings(
   const out = records.map((r) => {
     if (VALUE_TABS.includes(r.tab)) return r;
     if (r.role !== 'rule') return r.mapping === 'pending' ? applyOne(r, NOT_A_RULE) : r;
-    const tab = mappings[r.tab];
-    const m = tab?.rows?.[r.sourceRef] ?? tab?.all;
+    const { m, key } = mappingOf(r, mappings[r.tab]);
     if (!m) return r;
-    if (tab?.rows?.[r.sourceRef]) used.add(`${r.tab} · ${r.sourceRef}`);
+    if (key) used.add(key);
     const next = applyOne(r, m);
     const issues = rowIssues(next, catalogue);
     if (issues.length > 0) {
@@ -139,9 +155,12 @@ export function applyMappings(
     return next;
   });
   const unmatched = Object.entries(mappings).flatMap(([tab, m]) =>
-    Object.keys(m.rows ?? {})
-      .map((ref) => `${tab} · ${ref}`)
-      .filter((key) => !used.has(key)),
+    [
+      ...Object.keys(m.rows ?? {}).map((ref) => `${tab} · ${ref}`),
+      ...Object.entries(m.sections ?? {}).flatMap(([start, rows]) =>
+        Object.keys(rows).map((ref) => `${tab} · ${start} · ${ref}`),
+      ),
+    ].filter((key) => !used.has(key)),
   );
   return { records: out, report: { byTab: coverageOf(out), unmatched, invalid, unresolved } };
 }

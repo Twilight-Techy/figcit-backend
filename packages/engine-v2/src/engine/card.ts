@@ -56,6 +56,14 @@ export class CardBuilder {
   private readonly placed: { item: CardItem; slot: string }[] = [];
   private readonly toolPathway = new Map<string, string>();
   private readonly toolsByPathway = new Map<string, string[]>();
+  /**
+   * v5.0 (LBL-1): each tool's approved words, Tab 17's user_label and user_description; the card
+   * carries them so nothing else can be shown. Null for v3.3 rule sets, whose cards stay as they were.
+   */
+  private readonly toolWords: ReadonlyMap<
+    string,
+    { label: string; description: string | null }
+  > | null;
 
   constructor(
     private readonly m: Material,
@@ -67,6 +75,21 @@ export class CardBuilder {
       this.toolPathway.set(t.code, t.group);
       this.toolsByPathway.set(t.group, [...(this.toolsByPathway.get(t.group) ?? []), t.code]);
     }
+    this.toolWords =
+      valuesOf(catalogue, 'feeling_group').length > 0
+        ? new Map(
+            valuesOf(catalogue, 'tool').map((t) => [
+              t.code,
+              { label: t.label, description: t.note ?? null },
+            ]),
+          )
+        : null;
+  }
+
+  /** A v5.0 tool button with its approved words; anything else unchanged. */
+  private worded(item: CardItem): CardItem {
+    const words = item.tool === null ? undefined : this.toolWords?.get(item.tool);
+    return words ? { ...item, label: words.label, description: words.description } : item;
   }
 
   build(): Card {
@@ -75,14 +98,15 @@ export class CardBuilder {
     // The queue is the plan after the primary, so it is filled before the options beside it.
     const queued = this.queued(primary.item);
     const alternatives = this.offer(primary.item, this.alternatives(primary.losers));
+    const worded = (i: CardItem): CardItem => this.worded(i);
     return {
       kind: 'card',
       band: (this.state.fact('band.final') as string | undefined) ?? null,
       light: (this.state.fact('light') as string | undefined) ?? null,
-      primary: primary.item,
-      alternatives,
-      queued,
-      visible: this.visible(),
+      primary: primary.item ? worded(primary.item) : null,
+      alternatives: alternatives.map(worded),
+      queued: queued.map(worded),
+      visible: this.visible().map(worded),
       prompts: [...new Set(this.m.copyUses.filter((c) => c.slot === 'visible').map((c) => c.key))],
       reminder: this.reminder(),
       supportVisible: this.m.support !== null,
@@ -91,8 +115,24 @@ export class CardBuilder {
       minutesCap: this.m.minutesCaps.length > 0 ? Math.min(...this.m.minutesCaps) : null,
       practice: this.m.practice,
       because: primary.rule ? because(primary.rule.when, this.state, this.catalogue) : [],
-      // Only when on, so cards made before v5.0 replay unchanged.
+      // Only when set, so cards made before v5.0 replay unchanged.
+      ...this.v5Frame(),
       ...(this.state.noWords ? { noWords: true as const } : {}),
+    };
+  }
+
+  /** The best-ranked rule's value: layer first, then run order. */
+  private static best<T extends Origin>(list: readonly T[]): T | undefined {
+    return [...list].sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)[0];
+  }
+
+  /** v5.0's pattern and no-task suggestion, when rules set them. */
+  private v5Frame(): { pattern?: string; suggestion?: string } {
+    const pattern = CardBuilder.best(this.m.patterns)?.pattern;
+    const suggestion = CardBuilder.best(this.m.suggestions)?.copy;
+    return {
+      ...(pattern === undefined ? {} : { pattern }),
+      ...(suggestion === undefined ? {} : { suggestion }),
     };
   }
 
@@ -102,7 +142,8 @@ export class CardBuilder {
     });
     const item = this.actionItem({ action: 'get_support_now' }, this.m.stop ?? '');
     return {
-      kind: 'support_screen',
+      kind: this.m.urgent === null ? 'support_screen' : 'urgent_screen',
+      ...this.v5Frame(),
       band: null,
       light: null,
       primary: null,

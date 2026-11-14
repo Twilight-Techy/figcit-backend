@@ -77,7 +77,19 @@ export const COLOURS: TabMapping = {
           reason: `${row} shows ${light}.`,
           engine: {
             stage: 'capacity_fit',
-            rules: [{ when: eq('band.final', band), then: [set('light.set', { light })] }],
+            rules: [
+              { when: eq('band.final', band), then: [set('light.set', { light })] },
+              // Red: Get support now is always shown (Tab 8; patterns 7, 8).
+              ...(light === 'red'
+                ? [
+                    {
+                      stage: 'orchestration' as const,
+                      when: eq('band.final', band),
+                      then: [set('support.show')],
+                    },
+                  ]
+                : []),
+            ],
           },
         },
       ]),
@@ -140,6 +152,23 @@ export const COLOUR_RULES: TabMapping = {
       'The engine works out the deciding emotion (feeling.deciding): the higher slider, a tie to the lower group Order in the catalogue.',
     ),
     'FE-0': reference('Settled emotions, and unpleasant ones at Mild or Moderate, change nothing.'),
+    'FE-5': {
+      mapping: 'interpreted',
+      reason:
+        "'Not good enough' at Strong or above: Get support now replaces Not now; Connect is in its route; Reflect only in Green/Yellow, as 'What went well' (its route).",
+      engine: {
+        stage: 'orchestration',
+        rules: [
+          {
+            when: all(
+              eq('feeling.deciding', 'not_good_enough'),
+              atLeast('feeling.deciding_level', 'strong'),
+            ),
+            then: [set('support.show')],
+          },
+        ],
+      },
+    },
     'BS-1': {
       mapping: 'exact',
       reason:
@@ -182,7 +211,12 @@ export const COLOUR_RULES: TabMapping = {
         rules: [
           {
             when: all({ fact: 'urgent.signs', op: 'not_empty' }, eq('urgent.answer', 'sudden_new')),
-            then: [set('stop'), set('support.show')],
+            then: [
+              set('stop'),
+              set('support.show'),
+              set('screen.urgent'),
+              set('pattern.set', { pattern: '50' }),
+            ],
           },
           {
             stage: 'capacity_fit',

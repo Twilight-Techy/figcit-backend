@@ -259,6 +259,27 @@ export const EFFECTS: readonly EffectSpec[] = [
       "Offer one tool of this tier from the card's suggested pathway as an alternative (Tab 6d: one labelled Advanced alternative in Green, Yellow or Blue; E-62)",
   }),
   effect({
+    kind: 'pattern.set',
+    class: 'modifier',
+    params: { pattern: { type: 'enum', domain: 'pattern' } },
+    description:
+      "v5.0: the card's pattern (Tab 11), which gives its headline; the best-ranked rule's wins",
+  }),
+  effect({
+    kind: 'suggestion.set',
+    class: 'modifier',
+    params: { copy: { type: 'key' } },
+    description:
+      'v5.0 TK-4: with no task, the task that fits right now (Tab 10 list); the best-ranked wins',
+  }),
+  effect({
+    kind: 'screen.urgent',
+    class: 'requirement',
+    params: {},
+    description:
+      "v5.0 SF-4: with stop, the urgent screen (999 and the nation's 111 line, pattern 50) instead of the support screen",
+  }),
+  effect({
     kind: 'copy.use',
     class: 'modifier',
     params: { slot: { type: 'slot' }, key: { type: 'key' } },

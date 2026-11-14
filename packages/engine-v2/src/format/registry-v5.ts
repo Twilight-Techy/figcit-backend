@@ -6,6 +6,13 @@ import type { FactSpec } from './registry.js';
  */
 export const V5_FACTS: readonly FactSpec[] = [
   {
+    name: 'mode.no_words',
+    type: 'boolean',
+    stage: 'capacity_fit',
+    derived: true,
+    description: 'v5.0: no-words mode is on (FE-2, BS-3), so tap-only tools lead (pattern 16)',
+  },
+  {
     name: 'feeling.deciding',
     type: 'enum',
     domain: 'family',

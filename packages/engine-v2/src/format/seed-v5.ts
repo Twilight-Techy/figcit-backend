@@ -203,6 +203,54 @@ function senses(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
   }));
 }
 
+/** A pathway's code: the first word of its name (Meditate · Rituals · Prayer is `meditate`). */
+const pathwayCode = (name: string, slug: Slug): string => slug(name.split('·')[0] ?? name);
+
+function pathways(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  return rows(records, 'pathways', 'One row per pathway').map((r) => ({
+    domain: 'pathway',
+    mapping: 'exact',
+    cells: {
+      Code: pathwayCode(r.sourceRef, slug),
+      Label: text(r, 'Card label') || r.sourceRef,
+      Source: source(r),
+      Note: r.sourceRef,
+    },
+  }));
+}
+
+/** A Tab 17 tool ID as a code: REG-SOUNDS+ is `reg_sounds_plus`, never REG-SOUNDS's code. */
+export const toolCode = (id: string): string =>
+  id
+    .toLowerCase()
+    .replaceAll('+', '_plus')
+    .replace(/[^a-z0-9_]+/g, '_')
+    .replace(/^_|_$/g, '');
+
+/**
+ * Tab 17's tools: the label is the user_label and the note the user_description, the only words
+ * the app may show for a tool (LBL-1). A tool listed again under "v5.0 — New labels" (Create)
+ * takes the newer row.
+ */
+function tools(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  const byCode = new Map<string, SeedRow>();
+  for (const r of rows(records, 'labels').filter((x) => text(x, 'user_label') !== '')) {
+    const code = toolCode(r.sourceRef);
+    byCode.set(code, {
+      domain: 'tool',
+      mapping: 'exact',
+      cells: {
+        Code: code,
+        Label: text(r, 'user_label'),
+        Group: pathwayCode(text(r, 'Pathway'), slug),
+        Source: source(r),
+        Note: text(r, 'user_description'),
+      },
+    });
+  }
+  return [...byCode.values()];
+}
+
 function patterns(records: readonly RuleRecordDraft[]): SeedRow[] {
   return rows(records, 'card_patterns').map((r) => ({
     domain: 'pattern',
@@ -230,6 +278,8 @@ export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): See
     ...bodySigns(records, slug),
     ...urgent(records, slug),
     ...senses(records, slug),
+    ...pathways(records, slug),
+    ...tools(records, slug),
     ...patterns(records),
   ];
 }

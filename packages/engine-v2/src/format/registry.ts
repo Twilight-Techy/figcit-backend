@@ -121,6 +121,9 @@ export const ACTIONS = [
   'save_for_later',
   'open_home',
   'check_in',
+  // v5.0: P1-A's "Plan something" (to a task) and TK-4's suggested task (its words: the suggestion).
+  'plan_something',
+  'suggest_task',
 ] as const;
 export type Action = (typeof ACTIONS)[number];
 
