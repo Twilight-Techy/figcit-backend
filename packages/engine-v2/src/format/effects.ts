@@ -273,6 +273,26 @@ export const EFFECTS: readonly EffectSpec[] = [
       'v5.0 CX-R: where you are, this tool is shown as that one instead (Breathe → Breathe (discreet)); the best-ranked swap wins',
   }),
   effect({
+    kind: 'menu.hide',
+    class: 'requirement',
+    params: { card: { type: 'enum', domain: 'support_card' } },
+    description: "v5.0 Tab 7: this support card isn't shown in the Help menu here (its 'Shown in')",
+  }),
+  effect({
+    kind: 'menu.first',
+    class: 'modifier',
+    params: { cards: { type: 'enum_list', domain: 'support_card', min: 1 } },
+    description:
+      'v5.0 Tab 7, ME-4: these support cards come first in the Help menu (Red; Life right now)',
+  }),
+  effect({
+    kind: 'help.swap',
+    class: 'modifier',
+    params: { card: { type: 'enum', domain: 'support_card' }, copy: { type: 'key' } },
+    description:
+      'v5.0 SEQ-2: a gate or safety rule blocks the picked card; the card says why in one line (this wording key)',
+  }),
+  effect({
     kind: 'tasks.order',
     class: 'modifier',
     params: {

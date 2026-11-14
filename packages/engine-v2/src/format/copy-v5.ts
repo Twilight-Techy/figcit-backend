@@ -180,6 +180,38 @@ const SENTENCES: readonly CopyRow[] = [
     'interpreted',
   ],
   ['card.headline.low', "Let's start gently.", 'stories (Tab 20)', 'interpreted'],
+  ['card.p42.link', 'Not at home? Tell us where you are', 'card_rules · P42; CTX-U', 'exact'],
+  // SEQ-2's one line when a gate blocks the card picked (wording for clinical sign-off).
+  [
+    'help.swap.hc_3',
+    "Right now let's take care of you first; we can sort what's around you after.",
+    'card_rules · SEQ-2',
+    'interpreted',
+  ],
+  [
+    'help.swap.hc_4',
+    "Right now let's take care of you first; your task will keep.",
+    'card_rules · SEQ-2',
+    'interpreted',
+  ],
+  [
+    'help.swap.hc_5',
+    "Right now let's take care of you first; Get support now has message cards if you need words.",
+    'card_rules · SEQ-2',
+    'interpreted',
+  ],
+  [
+    'help.swap.hc_6',
+    "Making sense of it can wait until you feel steadier, so let's empty your head first.",
+    'gates · RF-1; pattern 40',
+    'interpreted',
+  ],
+  [
+    'help.swap.hc_7',
+    "Let's settle your body first, eyes open; your own practice is still here.",
+    'gates · MD-1, MD-2; pattern 41',
+    'interpreted',
+  ],
   ['tasks.line', "We've put {chips} first today.", 'time_demand · TK-2', 'exact'],
   ['tasks.small', "'{task}' is cut to one small step.", 'time_demand · TK-3', 'interpreted'],
   ['tasks.red', 'Tasks kept, not suggested now.', 'time_demand · Red', 'interpreted'],

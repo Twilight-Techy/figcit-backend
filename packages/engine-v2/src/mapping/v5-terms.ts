@@ -22,9 +22,13 @@ export const set = (kind: string, params: Record<string, unknown> = {}): Effect 
   ...params,
 });
 
-export type Step = string; // a tool code, or `@action`
+export type Step = string; // a tool code, `@action` or `~pathway`
 export const target = (step: Step): Target =>
-  step.startsWith('@') ? ({ action: step.slice(1) } as Target) : { tool: step };
+  step.startsWith('@')
+    ? ({ action: step.slice(1) } as Target)
+    : step.startsWith('~')
+      ? { pathway: step.slice(1) }
+      : { tool: step };
 export const propose = (slot: 'primary' | 'alternative', step: Step): Effect =>
   set('propose', { slot, target: target(step) });
 export const need = (slot: 'primary' | 'alternative', step: Step): Effect =>

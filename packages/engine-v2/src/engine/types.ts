@@ -104,6 +104,13 @@ export interface Card {
   readonly suggestion?: string;
   /** v5.0: the colour is lower than the state's own (FE-1, FE-2, BS-1, SF-4); the reason says so. */
   readonly lowered?: true;
+  /**
+   * v5.0 Tab 7: the Help menu here, in order: the eight support cards shown (the app shows four,
+   * then More) and the 'More needs' shown. Absent before v5.0.
+   */
+  readonly menu?: { readonly cards: readonly string[]; readonly more: readonly string[] };
+  /** v5.0 SEQ-2: the support card picked was blocked; the wording key says why in one line. */
+  readonly helpSwap?: { readonly card: string; readonly reason: string };
   /** v5.0 FE-3: the deciding emotion, its slider and its group. */
   readonly feeling?: {
     readonly code: string;

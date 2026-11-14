@@ -13,6 +13,9 @@ type Intensities = Readonly<Record<string, number | null>>;
  * rules set so far. The band and the light are kept as the effects that shape them and settled
  * when read, so the order the band rules fire in doesn't matter (Tab 10 is a set of modifiers).
  */
+/** v5.0's 'Something else' emotion (Tab 2 EM00). */
+const SOMETHING_ELSE = 'something_else';
+
 export class RunState {
   stage: StageKey = 'safety';
   private readonly bands: readonly string[];
@@ -134,7 +137,7 @@ export class RunState {
         return this.deciding()?.code;
       case 'feeling.deciding_group': {
         const d = this.deciding();
-        return d ? this.feelingGroup.get(d.code) : undefined;
+        return d ? this.groupOf(d.code) : undefined;
       }
       case 'feeling.deciding_level':
         return this.deciding()?.level;
@@ -145,6 +148,17 @@ export class RunState {
       default:
         return NOT_COMPUTED;
     }
+  }
+
+  /**
+   * An emotion's group (Tab 2). v5.0 SE-1: 'Something else' takes the group its one tap gave
+   * (wound up, low, switched off, okay); skipped, it stays Unsorted, which counts as Low does.
+   */
+  private groupOf(code: string): string | undefined {
+    const tapped = this.input['feeling.something_else_group'];
+    return code === SOMETHING_ELSE && typeof tapped === 'string'
+      ? tapped
+      : this.feelingGroup.get(code);
   }
 
   private feelings(): Intensities {
@@ -162,10 +176,10 @@ export class RunState {
    */
   private deciding(): { code: string; level: number | null } | undefined {
     const order = (code: string): number =>
-      this.groupOrder.get(this.feelingGroup.get(code) ?? '') ?? Number.MAX_SAFE_INTEGER;
+      this.groupOrder.get(this.groupOf(code) ?? '') ?? Number.MAX_SAFE_INTEGER;
     let best: { code: string; level: number | null } | undefined;
     for (const [code, level] of Object.entries(this.feelings())) {
-      if (!this.groupOrder.has(this.feelingGroup.get(code) ?? '')) continue;
+      if (!this.groupOrder.has(this.groupOf(code) ?? '')) continue;
       if (
         !best ||
         (level ?? -1) > (best.level ?? -1) ||

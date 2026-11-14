@@ -39,6 +39,10 @@ export const DOMAINS = [
   'urgent_sign',
   'urgent_answer',
   'task_chip',
+  // v5.0: the Help menu's support cards (Tab 7), Life right now (Tab 15), Quick or Full check-in.
+  'support_card',
+  'life_event',
+  'checkin_mode',
 ] as const;
 export type Domain = (typeof DOMAINS)[number];
 
@@ -76,6 +80,10 @@ export const DOMAIN_INFO: Readonly<Record<Domain, string>> = {
   urgent_answer: "The answer to 'Is this sudden or new for you?' (SF-4)",
   task_chip:
     "A task's chip (v5.0 Tab 10): New, Can't wait, Hard, Usual ... (NUCRIPCE in plain words)",
+  support_card:
+    "What the user picked in the Help menu (v5.0 Tab 7): the eight support cards and the 'More needs' list; Group is the card it is shown with",
+  life_event: "Life right now (v5.0 Tab 15 ME-3): what's going on, never the colour (LE-0)",
+  checkin_mode: 'Quick or Full check-in (v5.0 Tab 13): a Quick one asks no place (CTX-U)',
 };
 
 /** The engine's stages, in run order, each tied to its Tab 8 step. */

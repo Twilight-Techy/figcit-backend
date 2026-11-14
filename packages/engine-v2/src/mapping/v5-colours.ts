@@ -198,6 +198,50 @@ export const COLOUR_RULES: TabMapping = {
       },
     },
     'CX-R': reference('Place, "Can you step away?" and pressures never change the colour.'),
+    'CTX-U': reference(
+      'Run as pattern 42 (Tab 11 card rules, P42): discreet tools first, and the link.',
+    ),
+    'BS-2': reference(
+      'Run as pattern 59 (Tab 11): what is around you first, with a device if one helps.',
+    ),
+    'SE-1': reference(
+      "The one tap is the fact feeling.something_else_group, which the engine reads as the emotion's group (FE-3); the text's safety check is SF-1, before the engine.",
+    ),
+    'SF-1': {
+      mapping: 'interpreted',
+      reason:
+        "Risk language anywhere is safety.risk, the API's safety check on the text (clinical sign-off needed); 'I need help now' is the Help menu's own row. Help/SOS, pattern 28.",
+      engine: {
+        stage: 'safety',
+        layer: 'safety',
+        rules: [
+          {
+            when: is('safety.risk', true),
+            then: [set('stop'), set('support.show'), set('pattern.set', { pattern: '28' })],
+          },
+        ],
+      },
+    },
+    'SF-2': {
+      mapping: 'interpreted',
+      reason:
+        '"Escalates support" read as Get support now shown, as in v3.3; the colour is unchanged.',
+      engine: {
+        stage: 'orchestration',
+        rules: [
+          {
+            when: any(
+              { fact: 'signals.days_very_constrained', op: 'gte', value: 7 },
+              { fact: 'signals.days_without_improvement', op: 'gte', value: 14 },
+            ),
+            then: [set('support.show')],
+          },
+        ],
+      },
+    },
+    'SF-3': reference(
+      'The Help line under Life right now opens Help/SOS in the app; nothing is stored.',
+    ),
     'DV-R': reference('Help or devices never change the colour.'),
     'CTX-0': reference('How the app asks Where you are; nothing for the engine.'),
     'DEM-0': reference('A task never changes the colour.'),

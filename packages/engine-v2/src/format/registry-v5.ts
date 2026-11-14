@@ -96,4 +96,35 @@ export const V5_FACTS: readonly FactSpec[] = [
     stage: 'safety',
     description: "v5.0: the answer to 'Is this sudden or new for you?' (SF-4)",
   },
+  {
+    name: 'help.card',
+    type: 'enum',
+    domain: 'support_card',
+    stage: 'orchestration',
+    description:
+      'v5.0: the support card picked in the Help menu (Tab 7); it sets the pathway unless a gate blocks it (SEQ-2)',
+  },
+  {
+    name: 'life.now',
+    type: 'set',
+    domain: 'life_event',
+    stage: 'entry',
+    description:
+      'v5.0: Life right now from Me (ME-3); orders the support cards (ME-4), never the colour (LE-0)',
+  },
+  {
+    name: 'checkin.mode',
+    type: 'enum',
+    domain: 'checkin_mode',
+    stage: 'entry',
+    description: 'v5.0: a Quick or Full check-in (Tab 13); Quick asks no place (CTX-U, pattern 42)',
+  },
+  {
+    name: 'feeling.something_else_group',
+    type: 'enum',
+    domain: 'feeling_group',
+    stage: 'experience',
+    description:
+      "v5.0 SE-1: the one tap after 'Something else' (wound up: charged, low, switched off: shutdown, okay: settled); skipped, it stays Unsorted",
+  },
 ];

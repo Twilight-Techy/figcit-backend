@@ -145,6 +145,7 @@ function placeOf(row: Record<string, string>): EngineInput {
     ...(place
       ? { 'context.setting': place, 'context.can_step_away': row['Step away'] === 'Yes' }
       : {}),
+    ...((row['Place'] ?? '').startsWith('Quick check-in') ? { 'checkin.mode': 'quick' } : {}),
     'context.supports': list(row['Devices'] ?? '').map((d) => codeOf('support', d)),
   };
 }
@@ -257,9 +258,12 @@ describe("Rules Engine v5.0: Tab 20's stories", () => {
   });
 
   it('gives the main button', () => {
+    // ST-122 is a Quick check-in, where P42, CTX-U and T-08 put the discreet Breathe first; the
+    // story shows plain Breathe (docs/engine-v2/V5.md).
+    const QUICK: Readonly<Record<string, string>> = { 'ST-122': 'reg_breathe_discreet' };
     check(
       differ(
-        (r) => wantButton(r['Primary button'] ?? ''),
+        (r) => QUICK[r['ID'] ?? ''] ?? wantButton(r['Primary button'] ?? ''),
         (x) =>
           x.card.kind === 'urgent_screen'
             ? '@urgent'

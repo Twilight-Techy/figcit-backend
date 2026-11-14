@@ -385,6 +385,86 @@ function plans(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
   ];
 }
 
+/**
+ * Tab 7's eight support cards (Group: the pathway), then its 'More needs' list (Group: the
+ * pathway its route starts with; I need help now has none, it is the safety override).
+ */
+function supportCards(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
+  const cards = rows(records, 'help_menu').filter((r) => /^HC-\d$/.test(r.sourceRef));
+  const more = rows(records, 'help_menu', 'More needs');
+  return [
+    ...cards.map((r, i): SeedRow => ({
+      domain: 'support_card',
+      mapping: 'exact',
+      cells: {
+        Code: slug(r.sourceRef),
+        Label: text(r, 'What the user sees'),
+        Order: String(i + 1),
+        Group: pathwayCode(text(r, 'Pathway'), slug),
+        Source: source(r),
+        Note: text(r, 'Hint'),
+      },
+    })),
+    ...more.map((r, i): SeedRow => {
+      const route = text(r, 'Route');
+      const first = /^(Regulate|Dump|Adapt|Execute|Express|Reflect|Meditate|Connect)/.exec(route);
+      return {
+        domain: 'support_card',
+        mapping: 'interpreted',
+        cells: {
+          Code: slug(r.sourceRef),
+          Label: r.sourceRef,
+          Order: String(20 + i),
+          Group: first?.[1] ? slug(first[1]) : '',
+          Source: source(r),
+          Note: route,
+        },
+      };
+    }),
+  ];
+}
+
+/** ME-3's options, with the codes the profile stores (users/profile.schemas.ts LIFE_NOW). */
+const LIFE_CODES = [
+  'losing_someone',
+  'big_change',
+  'money',
+  'work_study_pressure',
+  'between',
+  'caring',
+  'alone',
+  'stuck',
+  'treated_unfairly',
+  'prefer_not',
+];
+function lifeEvents(records: readonly RuleRecordDraft[]): SeedRow[] {
+  const me3 = records.find((r) => r.tab === 'accounts' && r.sourceRef === 'ME-3');
+  const said = me3 ? text(me3, 'Rule in plain words') : '';
+  const options = (/Options: (.*?)\. Multi-select/.exec(said)?.[1] ?? '').split('; ');
+  return LIFE_CODES.map((code, i): SeedRow => ({
+    domain: 'life_event',
+    mapping: 'interpreted',
+    cells: {
+      Code: code,
+      Label: (options[i] ?? code).replace(/\s*\(.*\)$/, ''),
+      Source: 'accounts (Tab 15) · ME-3',
+    },
+  }));
+}
+
+const CHECKIN_MODES: readonly SeedRow[] = [
+  ...['quick', 'full'].map((code): SeedRow => ({
+    domain: 'checkin_mode',
+    mapping: 'interpreted',
+    cells: { Code: code, Label: code, Source: 'sequence (Tab 13): Quick runs steps 0-3 then 6 on' },
+  })),
+  ...['eyes_open', 'silent', 'headphones'].map((code): SeedRow => ({
+    domain: 'practice_mode',
+    mapping: 'interpreted',
+    cells: { Code: code, Label: code, Source: 'gates (Tab 12) · MD-4' },
+  })),
+];
+
 /** Every catalogue row v5.0 gives, in domain order. */
 export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): SeedRow[] {
   return [
@@ -404,5 +484,8 @@ export function v5SeedRows(records: readonly RuleRecordDraft[], slug: Slug): See
     ...chips(records, slug),
     ...patterns(records),
     ...plans(records, slug),
+    ...supportCards(records, slug),
+    ...lifeEvents(records),
+    ...CHECKIN_MODES,
   ];
 }

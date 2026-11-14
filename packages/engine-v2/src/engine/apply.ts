@@ -64,6 +64,10 @@ export class Material {
   readonly fallbacks = new Map<string, string>();
   /** v5.0 TK-2: the task order by chip, from the best-ranked rule. */
   readonly taskOrders: (Origin & { first: readonly string[]; later: readonly string[] })[] = [];
+  /** v5.0 Tab 7: support cards not shown here, those that come first, and a blocked pick. */
+  readonly menuHidden = new Set<string>();
+  readonly menuFirst: (Origin & { cards: readonly string[] })[] = [];
+  readonly helpSwaps: (Origin & { card: string; copy: string })[] = [];
 }
 
 const str = (e: Effect, k: string): string => String(e[k]);
@@ -229,6 +233,15 @@ function applyV5(e: Effect, origin: Origin, m: Material): boolean {
       return true;
     case 'tools.swap':
       m.swaps.push({ ...origin, from: str(e, 'from'), to: e['to'] as Target });
+      return true;
+    case 'menu.hide':
+      m.menuHidden.add(str(e, 'card'));
+      return true;
+    case 'menu.first':
+      m.menuFirst.push({ ...origin, cards: list(e, 'cards') });
+      return true;
+    case 'help.swap':
+      m.helpSwaps.push({ ...origin, card: str(e, 'card'), copy: str(e, 'copy') });
       return true;
     case 'tools.fallback':
       m.fallbacks.set(str(e, 'tool'), str(e, 'free'));

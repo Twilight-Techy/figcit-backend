@@ -1,5 +1,6 @@
 import type { Comparison, Condition, Effect, EngineRule } from '../format/types.js';
 import type { RowMapping, TabMapping } from './types.js';
+import { MORE_PATTERNS } from './v5-patterns-more.js';
 import { PATTERN_49 } from './v5-places.js';
 import {
   eq,
@@ -63,6 +64,7 @@ const pattern = (
  */
 export const CARD_PATTERNS: TabMapping = {
   rows: {
+    ...MORE_PATTERNS,
     '6': pattern(
       '6',
       all(light('amber'), unguarded, noTask, not(decides('something_else', 'bored'))),

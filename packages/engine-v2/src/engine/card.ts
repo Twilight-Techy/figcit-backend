@@ -119,14 +119,9 @@ export class CardBuilder {
       practice: this.m.practice,
       because: primary.rule ? because(primary.rule.when, this.state, this.catalogue) : [],
       // Only when set, so cards made before v5.0 replay unchanged.
-      ...v5Frame(this.m, this.state, (list) => CardBuilder.best(list)),
+      ...v5Frame(this.m, this.state, this.catalogue, rankOf),
       ...(this.state.noWords ? { noWords: true as const } : {}),
     };
-  }
-
-  /** The best-ranked rule's value: layer first, then run order. */
-  private static best<T extends Origin>(list: readonly T[]): T | undefined {
-    return [...list].sort((a, b) => rankOf(a) - rankOf(b) || a.rule.seq - b.rule.seq)[0];
   }
 
   private supportScreen(): Card {
@@ -136,7 +131,7 @@ export class CardBuilder {
     const item = this.actionItem({ action: 'get_support_now' }, this.m.stop ?? '');
     return {
       kind: this.m.urgent === null ? 'support_screen' : 'urgent_screen',
-      ...v5Frame(this.m, this.state, (list) => CardBuilder.best(list)),
+      ...v5Frame(this.m, this.state, this.catalogue, rankOf),
       band: null,
       light: null,
       primary: null,
