@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
-import { InstitutionsService } from './institutions.service.js';
+import { type DashboardDto, InstitutionsService } from './institutions.service.js';
 
 const joinSchema = z.object({ code: z.string().trim().min(4).max(16) }).strict();
 const joinedSchema = z.object({ tenantId: z.uuid(), name: z.string() });
@@ -21,6 +21,36 @@ const mineSchema = z.object({
   tenant: z.object({ id: z.uuid(), name: z.string(), kind: z.string() }).nullable(),
   role: z.string().nullable(),
   sharing: z.boolean(),
+});
+const weekSchema = z.object({
+  weekStart: z.iso.date(),
+  metric: z.string(),
+  dimension: z.string(),
+  value: z.number().nullable(),
+  suppressed: z.boolean(),
+});
+const dashboardSchema = z.object({
+  tenant: z.object({ name: z.string(), anonymityFloor: z.number().int() }),
+  members: z.number().int(),
+  seats: z.object({ used: z.number().int(), purchased: z.number().int().nullable() }),
+  sharing: z.number().nullable(),
+  weeks: z.array(weekSchema),
+  invoices: z.array(
+    z.object({
+      number: z.string(),
+      periodStart: z.iso.date(),
+      periodEnd: z.iso.date(),
+      seats: z.number().int(),
+      amountMinor: z.number().int(),
+      vatMinor: z.number().int(),
+      totalMinor: z.number().int(),
+      currency: z.string(),
+      status: z.enum(['sent', 'paid']),
+      issuedAt: z.iso.datetime().nullable(),
+      dueAt: z.iso.date().nullable(),
+      paidAt: z.iso.datetime().nullable(),
+    }),
+  ),
 });
 const outreachSchema = z
   .object({
@@ -35,7 +65,6 @@ const inviteSchema = z
     days: z.number().int().min(1).max(365).default(30),
   })
   .strict();
-const any = z.unknown();
 
 @Controller()
 export class InstitutionsController {
@@ -90,14 +119,14 @@ export class InstitutionsController {
 
   @Get('institutions/:id/dashboard')
   @Route({
-    summary: 'Group trends above the anonymity floor (S84)',
+    summary: 'Seats, group trends above the anonymity floor, and invoices (S84)',
     tags: ['Institutions'],
-    response: any,
+    response: dashboardSchema,
   })
   dashboard(
     @CurrentUser() user: RequestUser,
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<unknown> {
+  ): Promise<DashboardDto> {
     return this.institutions.dashboard(user.id, id);
   }
 

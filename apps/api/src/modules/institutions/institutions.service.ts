@@ -10,6 +10,36 @@ const DAY = 86_400_000;
 const WEEKS = 8;
 const LIGHTS: readonly Light[] = ['green', 'yellow', 'amber', 'red', 'blue'];
 
+/** The organisation dashboard (Developer Brief): seats, group trends above the floor, invoices. */
+export interface DashboardDto {
+  tenant: { name: string; anonymityFloor: number };
+  /** Members with a place, support leads aside. */
+  members: number;
+  seats: { used: number; purchased: number | null };
+  sharing: number | null;
+  weeks: {
+    weekStart: string;
+    metric: string;
+    dimension: string;
+    value: number | null;
+    suppressed: boolean;
+  }[];
+  invoices: {
+    number: string;
+    periodStart: string;
+    periodEnd: string;
+    seats: number;
+    amountMinor: number;
+    vatMinor: number;
+    totalMinor: number;
+    currency: string;
+    status: 'sent' | 'paid';
+    issuedAt: string | null;
+    dueAt: string | null;
+    paidAt: string | null;
+  }[];
+}
+
 export function weekStart(d: Date): Date {
   const day = (d.getUTCDay() + 6) % 7; // Monday
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day));
@@ -132,34 +162,28 @@ export class InstitutionsService {
     if (!m) throw new Forbidden('This is for your institution’s support team.');
   }
 
-  async dashboard(
-    userId: string,
-    tenantId: string,
-  ): Promise<{
-    tenant: { name: string; anonymityFloor: number };
-    members: number;
-    sharing: number | null;
-    weeks: {
-      weekStart: string;
-      metric: string;
-      dimension: string;
-      value: number | null;
-      suppressed: boolean;
-    }[];
-  }> {
+  async dashboard(userId: string, tenantId: string): Promise<DashboardDto> {
     await this.assertLead(userId, tenantId);
     const tenant = await this.prisma.tenant.findUniqueOrThrow({ where: { id: tenantId } });
-    const [members, rows] = await Promise.all([
-      this.prisma.tenantMembership.count({ where: { tenantId, leftAt: null } }),
+    const [members, rows, invoices] = await Promise.all([
+      this.prisma.tenantMembership.count({ where: { tenantId, leftAt: null, role: 'member' } }),
       this.prisma.cohortAggregate.findMany({
         where: { tenantId },
         orderBy: [{ weekStart: 'asc' }, { metric: 'asc' }],
       }),
+      // Drafts stay with FigCit staff until they send them.
+      this.prisma.tenantInvoice.findMany({
+        where: { tenantId, status: { in: ['sent', 'paid'] } },
+        orderBy: { createdAt: 'desc' },
+        take: 24,
+      }),
     ]);
     const sharing = rows.filter((r) => r.metric === 'sharing_members').at(-1);
+    const day = (d: Date | null): string | null => d?.toISOString().slice(0, 10) ?? null;
     return {
       tenant: { name: tenant.name, anonymityFloor: tenant.anonymityFloor },
       members,
+      seats: { used: members, purchased: tenant.seatsPurchased },
       sharing: sharing?.suppressed ? null : (sharing?.value ?? null),
       weeks: rows.map((r) => ({
         weekStart: r.weekStart.toISOString().slice(0, 10),
@@ -167,6 +191,20 @@ export class InstitutionsService {
         dimension: r.dimension,
         value: r.suppressed ? null : r.value,
         suppressed: r.suppressed,
+      })),
+      invoices: invoices.map((i) => ({
+        number: i.number,
+        periodStart: day(i.periodStart) ?? '',
+        periodEnd: day(i.periodEnd) ?? '',
+        seats: i.seats,
+        amountMinor: i.amountMinor,
+        vatMinor: i.vatMinor,
+        totalMinor: i.amountMinor + i.vatMinor,
+        currency: i.currency,
+        status: i.status === 'paid' ? 'paid' : 'sent',
+        issuedAt: i.issuedAt?.toISOString() ?? null,
+        dueAt: day(i.dueAt),
+        paidAt: i.paidAt?.toISOString() ?? null,
       })),
     };
   }
@@ -260,16 +298,44 @@ export class InstitutionsService {
     return ids;
   }
 
+  /**
+   * The week's check-ins: v3 cards (first cards only, not "try another"), and v5.0 decisions, which
+   * have no card row (they carry the check-in's mode in their input).
+   */
+  private async checkIns(
+    users: string[],
+    start: Date,
+    end: Date,
+  ): Promise<{ userId: string; light: string }[]> {
+    const [v3, v5] = await Promise.all([
+      this.prisma.recommendation.findMany({
+        where: { userId: { in: users }, createdAt: { gte: start, lt: end }, parentId: null },
+        select: { userId: true, light: true },
+      }),
+      this.prisma.decisionRecord.findMany({
+        where: {
+          userId: { in: users },
+          createdAt: { gte: start, lt: end },
+          OR: (['quick', 'full'] as const).map((mode) => ({
+            input: { path: ['checkin.mode'], equals: mode },
+          })),
+        },
+        select: { userId: true, light: true },
+      }),
+    ]);
+    return [
+      ...v3,
+      ...v5.flatMap((r) => (r.userId ? [{ userId: r.userId, light: r.light ?? '' }] : [])),
+    ];
+  }
+
   private async aggregateTenant(tenantId: string, floor: number, now: Date): Promise<number> {
     const users = await this.sharingMembers(tenantId);
     let written = 0;
     for (let w = 0; w < WEEKS; w += 1) {
       const start = weekStart(new Date(now.getTime() - w * 7 * DAY));
       const end = new Date(start.getTime() + 7 * DAY);
-      const recs = await this.prisma.recommendation.findMany({
-        where: { userId: { in: users }, createdAt: { gte: start, lt: end }, parentId: null },
-        select: { userId: true, light: true },
-      });
+      const recs = await this.checkIns(users, start, end);
       const cells: { metric: string; dimension: string; value: number; people: number }[] = [
         { metric: 'sharing_members', dimension: '', value: users.length, people: users.length },
         {

@@ -3,6 +3,7 @@
 // published again afterwards, for the files that follow.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
+import { InstitutionsService } from '../src/modules/institutions/institutions.service.js';
 import type { DecisionV5Dto, PreviewV5Dto } from '../src/modules/decisions/v5.schemas.js';
 import { bootApi, publishV2, type Api } from './helpers.js';
 
@@ -227,5 +228,35 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(res.body.dropped).toEqual([
       { input: 'feeling', code: 'not_a_feeling', why: 'not_offered' },
     ]);
+  });
+
+  it('counts v5.0 check-ins in an organisation’s group trends', async () => {
+    const prisma = api.app.get(PrismaService);
+    const floor = 5;
+    const tenant = await prisma.tenant.create({
+      data: {
+        name: 'Trend test',
+        slug: `trend-${String(Date.now())}`,
+        kind: 'other',
+        anonymityFloor: floor,
+      },
+    });
+    const code = `V5${String(Date.now()).slice(-6)}`;
+    await prisma.inviteCode.create({ data: { code, tenantId: tenant.id } });
+    for (let i = 0; i < floor; i += 1) {
+      const m = await api.signIn();
+      await api.req('POST', '/institutions/join', { token: m.token, body: { code } });
+      await api.req('POST', '/me/consents', {
+        token: m.token,
+        body: { choices: [{ purpose: 'institution_sharing', granted: true }], source: 'settings' },
+      });
+      expect((await decide({}, m.token)).status).toBe(201);
+    }
+    await api.app.get(InstitutionsService).aggregate();
+    const rows = await prisma.cohortAggregate.findMany({
+      where: { tenantId: tenant.id, metric: 'checkins' },
+      orderBy: { weekStart: 'desc' },
+    });
+    expect(rows[0]).toMatchObject({ value: floor, suppressed: false });
   });
 });

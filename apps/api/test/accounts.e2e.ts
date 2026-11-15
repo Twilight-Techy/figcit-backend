@@ -149,6 +149,121 @@ describe('organisation codes (ENT-7, T-22)', () => {
     expect(Math.round(days)).toBe(42);
   });
 
+  it('staff set seats, add a support lead and invoice by hand; the lead sees seats and invoices', async () => {
+    type Invoice = {
+      id: string;
+      number: string;
+      seats: number;
+      amountMinor: number;
+      vatMinor: number;
+      totalMinor: number;
+      periodEnd: string;
+      status: string;
+      dueAt: string | null;
+    };
+    const admin = await api.staff(['admin']);
+    const org = await api.req<Org>('POST', '/admin/organisations', {
+      token: admin.token,
+      body: { name: 'Riverside Works', kind: 'employer' },
+    });
+    const id = org.body.id;
+    const seats = await api.req<Org & { seatsPurchased: number | null }>(
+      'PATCH',
+      `/admin/organisations/${id}`,
+      { token: admin.token, body: { seatsPurchased: 25 } },
+    );
+    expect(seats.body.seatsPurchased).toBe(25);
+
+    // The lead: an existing account, not counted as a seat.
+    const lead = await api.signIn();
+    const email = (await prisma.user.findUniqueOrThrow({ where: { id: lead.userId } })).email ?? '';
+    const added = await api.req<Org & { leads: string[] }>(
+      'POST',
+      `/admin/organisations/${id}/leads`,
+      { token: admin.token, body: { email: email.toUpperCase() } },
+    );
+    expect(added.status).toBe(201);
+    expect(added.body.leads).toEqual([email]);
+    expect(added.body.seatsUsed).toBe(0);
+    const nobody = await api.req('POST', `/admin/organisations/${id}/leads`, {
+      token: admin.token,
+      body: { email: 'nobody-here@example.com' },
+    });
+    expect(nobody.status).toBe(400);
+
+    const code = await api.req<{ code: string }>('POST', `/admin/organisations/${id}/codes`, {
+      token: admin.token,
+      body: {},
+    });
+    const member = await api.signIn();
+    await api.req('POST', '/institutions/join', {
+      token: member.token,
+      body: { code: code.body.code },
+    });
+
+    // A month of the 25 seats at £10, VAT on top; then a year at the year price.
+    const inv = await api.req<Invoice>('POST', `/admin/organisations/${id}/invoices`, {
+      token: admin.token,
+      body: { periodStart: '2027-01-01' },
+    });
+    expect(inv.status).toBe(201);
+    expect(inv.body).toMatchObject({
+      seats: 25,
+      amountMinor: 25_000,
+      vatMinor: 5_000,
+      totalMinor: 30_000,
+      periodEnd: '2027-01-31',
+      status: 'draft',
+    });
+    expect(inv.body.number).toMatch(/^FC-2027-\d{4}$/);
+    const year = await api.req<Invoice>('POST', `/admin/organisations/${id}/invoices`, {
+      token: admin.token,
+      body: { periodStart: '2027-02-01', interval: 'year', seats: 3, note: 'Pilot group' },
+    });
+    expect(year.body).toMatchObject({ seats: 3, amountMinor: 30_000, periodEnd: '2028-01-31' });
+    expect(year.body.number).not.toBe(inv.body.number);
+
+    // Drafts stay with staff; a sent invoice shows on the lead's dashboard, then paid.
+    const dash = async () =>
+      api.req<{
+        members: number;
+        seats: { used: number; purchased: number | null };
+        invoices: { number: string; status: string; totalMinor: number }[];
+      }>('GET', `/institutions/${id}/dashboard`, { token: lead.token });
+    const before = await dash();
+    expect(before.status).toBe(200);
+    expect(before.body.seats).toEqual({ used: 1, purchased: 25 });
+    expect(before.body.invoices).toEqual([]);
+    const sent = await api.req<Invoice>(
+      'PATCH',
+      `/admin/organisations/${id}/invoices/${inv.body.id}`,
+      { token: admin.token, body: { status: 'sent' } },
+    );
+    expect(sent.body.status).toBe('sent');
+    expect(sent.body.dueAt).toBeTruthy();
+    expect((await dash()).body.invoices).toMatchObject([
+      { number: inv.body.number, status: 'sent', totalMinor: 30_000 },
+    ]);
+    await api.req('PATCH', `/admin/organisations/${id}/invoices/${inv.body.id}`, {
+      token: admin.token,
+      body: { status: 'paid' },
+    });
+    expect((await dash()).body.invoices[0]?.status).toBe('paid');
+    const again = await api.req('PATCH', `/admin/organisations/${id}/invoices/${inv.body.id}`, {
+      token: admin.token,
+      body: { status: 'void' },
+    });
+    expect(again.status).toBe(409);
+    const list = await api.req<{ items: Invoice[] }>('GET', `/admin/organisations/${id}/invoices`, {
+      token: admin.token,
+    });
+    expect(list.body.items.map((i) => i.status).sort()).toEqual(['draft', 'paid']);
+    // Members never see the dashboard.
+    expect(
+      (await api.req('GET', `/institutions/${id}/dashboard`, { token: member.token })).status,
+    ).toBe(403);
+  });
+
   it('is for staff admins only', async () => {
     const u = await api.signIn();
     const r = await api.req('GET', '/admin/organisations', { token: u.token });
