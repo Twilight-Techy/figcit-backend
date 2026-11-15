@@ -13,6 +13,8 @@ model Tenant {
   kind           String   @default("employer") @db.VarChar(16) // school | university | employer | other
   anonymityFloor Int      @default(10) @map("anonymity_floor") @db.SmallInt // D-16
   seatsPlanCode  String?  @map("seats_plan_code") @db.VarChar(24)
+  /// Seats the organisation has agreed to pay for; null until set. Members beyond it still join.
+  seatsPurchased Int?     @map("seats_purchased")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   users        User[]
@@ -22,8 +24,36 @@ model Tenant {
   outreach     OutreachRequest[]
   shares       Share[]
   entitlements Entitlement[]
+  invoices     TenantInvoice[]
 
   @@map("tenants")
+}
+
+/// An invoice FigCit staff raise by hand for an organisation's seats (Developer Brief, Organisation
+/// seats: invoiced by hand at launch). Amounts in pence, before VAT, with the VAT worked out.
+model TenantInvoice {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  number      String    @unique @db.VarChar(24)
+  periodStart DateTime  @map("period_start") @db.Date
+  periodEnd   DateTime  @map("period_end") @db.Date
+  seats       Int
+  unitMinor   Int       @map("unit_minor")
+  amountMinor Int       @map("amount_minor")
+  vatMinor    Int       @map("vat_minor")
+  currency    String    @default("GBP") @db.VarChar(3)
+  /// draft | sent | paid | void
+  status      String    @default("draft") @db.VarChar(8)
+  note        String?   @db.VarChar(300)
+  issuedAt    DateTime? @map("issued_at") @db.Timestamptz(3)
+  dueAt       DateTime? @map("due_at") @db.Date
+  paidAt      DateTime? @map("paid_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("tenant_invoices")
 }
 
 model TenantMembership {
