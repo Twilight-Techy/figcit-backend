@@ -9,6 +9,7 @@ import { bootApi, publishV2, type Api } from './helpers.js';
 let api: Api;
 let admin: string;
 let user: string;
+let label: string;
 
 const GREEN = { kind: 'grid', energy: 3, mood: 3 } as const;
 const decide = (body: object, token = user) =>
@@ -25,7 +26,7 @@ const preview = (body: object) =>
 beforeAll(async () => {
   api = await bootApi();
   admin = (await api.staff(['clinical_admin'])).token;
-  await publishV2(api, admin, '5');
+  label = await publishV2(api, admin, '5');
   // The runtime and the options cache for 30 s; a fresh app reads the new version at once.
   await api.close();
   api = await bootApi();
@@ -171,6 +172,46 @@ describe('Rules Engine v5.0 decisions', () => {
         chips: [{ chip: 'can_t_wait', label: "Can't wait", checkIns: 1 }],
       },
     ]);
+  });
+
+  it('the staff Simulator runs a v5.0 check-in for a plan, with the card and the rules that fired', async () => {
+    const sim = (body: object) =>
+      api.req<{
+        card: { headline: string; primary: { code: string; plan: string | null } | null } | null;
+        dropped: { input: string; code: string; why: string }[];
+        fired: string[];
+        input: Record<string, unknown>;
+      }>('POST', `/rulesets/${label}/simulate-check-in-v5`, { token: admin, body });
+    const checkIn = {
+      mode: 'full',
+      state: GREEN,
+      emotions: [{ code: 'not_good_enough', level: 2 }],
+    };
+    const free = await sim({ checkIn });
+    expect(free.status).toBe(200);
+    expect(free.body.card?.primary?.code).toBe('rfl_today');
+    expect(free.body.fired.some((f) => f.startsWith('feelings'))).toBe(true);
+    const premium = await sim({ checkIn, plan: 'premium' });
+    expect(premium.body.card?.primary).toMatchObject({ code: 'rfl_helped', plan: 'prime' });
+    const locked = await sim({
+      checkIn: { ...checkIn, emotions: [{ code: 'frustrated', level: 6 }] },
+    });
+    expect(locked.body.dropped).toEqual([{ input: 'feeling', code: 'frustrated', why: 'locked' }]);
+    const back = await sim({
+      checkIn: { ...checkIn, mode: 'quick', tasks: [{ title: 'Shift', chip: 'can_t_wait' }] },
+      returnToWork: true,
+    });
+    expect(back.body.input['prefs.return_to_work']).toBe(true);
+    expect(back.body.card?.headline).toMatch(/^Today fits/);
+    expect((await sim({ checkIn, plan: 'nope' })).status).toBe(400);
+    expect(
+      (
+        await api.req('POST', `/rulesets/${label}/simulate-check-in-v5`, {
+          token: user,
+          body: { checkIn },
+        })
+      ).status,
+    ).toBe(403);
   });
 
   it('needs an account (SU-1)', async () => {

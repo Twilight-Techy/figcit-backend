@@ -8,6 +8,7 @@ import { DecisionsController, EngineToolsController } from './decisions.controll
 import { DecisionsService } from './decisions.service.js';
 import { DecisionsV5Service } from './decisions-v5.service.js';
 import { FitSummaryService } from './fit-summary.service.js';
+import { SimulatorV5Service } from './simulator-v5.service.js';
 import { EngineRuntimeService } from './engine-runtime.service.js';
 import { EngineToolsService } from './engine-tools.service.js';
 import { ExplorationsService } from './explorations.service.js';
@@ -24,6 +25,7 @@ import { ScenariosService } from './scenarios.service.js';
     DecisionsService,
     DecisionsV5Service,
     FitSummaryService,
+    SimulatorV5Service,
     EngineRuntimeService,
     EngineToolsService,
     ExplorationsService,
