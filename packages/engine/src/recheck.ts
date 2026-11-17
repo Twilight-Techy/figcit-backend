@@ -80,8 +80,8 @@ export function recoveryPlan(f: Facts): Plan {
       },
     ],
     title: demand
-      ? "You're steadier — want to pick up gently?"
-      : "You're steadier — rest is still a good choice",
+      ? "You're steadier. Want to pick up gently?"
+      : "You're steadier. Rest is still a good choice",
   };
 }
 

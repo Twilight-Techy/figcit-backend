@@ -66,7 +66,7 @@ export const REFLECT_VARIANTS: readonly ReflectVariant[] = [
           'Rest',
           'Finishing something',
           'Music',
-          "Nothing much — that's okay",
+          "Nothing much, and that's okay",
         ],
       },
       {

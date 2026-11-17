@@ -49,7 +49,7 @@ describe('the FigCit email layout', () => {
         '',
         "If you didn't ask for this, you can ignore this email.",
         '',
-        '— FigCit',
+        'FigCit',
         'https://figcit.vercel.app',
       ].join('\n'),
     );

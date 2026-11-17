@@ -9,6 +9,7 @@ import {
 import type { RulesetVersion } from '@prisma/client';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { NotConfigured, NotFound } from '../../common/errors/errors.js';
+import { noEmDashes } from '../../common/text/no-em-dash.js';
 
 /** A version the engine can run. `hash` is null only for an open draft (simulation). */
 export interface Runnable {
@@ -96,11 +97,13 @@ export class EngineRuntimeService {
       },
     });
     const live = rows.map((r) => ({ ...r, columns: r.columns as unknown as WorkbookCell[] }));
-    const { catalogue } = catalogueOf(live);
+    const { catalogue: source } = catalogueOf(live);
     const ruleset = compile(
       rows.map((r) => ({ ...r, id: r.recordId })),
-      catalogue,
+      source,
     );
+    // The words the app shows (labels, hints): no em dashes. Codes and rules are untouched.
+    const catalogue = noEmDashes(ruleset.catalogue);
     const patternOf = new Map(
       ruleset.rules.flatMap((r) => {
         const n = /^patterns · (\d+)$/.exec(r.ref)?.[1];
@@ -110,8 +113,8 @@ export class EngineRuntimeService {
     const refOf = new Map(ruleset.rules.map((r) => [r.id, r.ref]));
     const runnable: Runnable = {
       ...v,
-      ruleset,
-      copy: copyOf(live),
+      ruleset: { ...ruleset, catalogue },
+      copy: noEmDashes(copyOf(live)),
       patternOf,
       refOf,
       safetyRows: new Set(rows.filter((r) => r.safety).map((r) => r.recordId)),

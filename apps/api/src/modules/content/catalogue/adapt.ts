@@ -46,7 +46,7 @@ export const ADAPT_LIBRARY: readonly AdaptKind[] = [
     options: [
       { code: 'first_sentence', label: 'Just the first sentence', detail: '~2 min' },
       { code: 'outline_only', label: 'Only an outline in bullets', detail: '~4 min' },
-      { code: 'open_file', label: "Open the file — that's it", detail: '~30 sec' },
+      { code: 'open_file', label: "Open the file, that's it", detail: '~30 sec' },
       { code: 'smaller_piece', label: 'One smaller piece', detail: 'Pick the easiest part' },
       { code: 'good_enough', label: 'Good enough, not perfect', detail: 'Lower the bar for today' },
     ],

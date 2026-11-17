@@ -212,8 +212,8 @@ export const FAMILY_RULES: readonly Rule[] = [
           alternatives: [tool('express', ['comm_cards', 'rewrite'], 'Type it in the chat')],
           title:
             f.input.context?.environment === 'online_meeting'
-              ? 'Take a breath — camera off for a minute is fine'
-              : 'Take a breath — one minute is fine',
+              ? 'Take a breath. Camera off for a minute is fine'
+              : 'Take a breath. One minute is fine',
           supportVisible: notSupport(f),
         };
       }
@@ -233,7 +233,7 @@ export const FAMILY_RULES: readonly Rule[] = [
               tool('connect', ['quick_message', 'trusted_contact'], 'Talk to someone'),
             ],
         supportVisible: notSupport(f),
-        ...(reply ? { title: "Let's draft it — you choose if and when to send" } : {}),
+        ...(reply ? { title: "Let's draft it. You choose if and when to send" } : {}),
       };
     },
   },

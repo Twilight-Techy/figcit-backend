@@ -175,7 +175,7 @@ export const PRACTICE_RULES: readonly Rule[] = [
       primary: tool('reflect', ['what_helped', 'reflect_checkout'], 'Reflect'),
       alternatives: [tool('regulate', ['rest'], 'Just rest')],
       ...(f.state.cell && f.state.cell.energy <= 2
-        ? { title: 'Rest first — want to note what helped later?' }
+        ? { title: 'Rest first. Want to note what helped later?' }
         : {}),
     }),
   },
