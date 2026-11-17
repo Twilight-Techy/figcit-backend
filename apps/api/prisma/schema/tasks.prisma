@@ -41,6 +41,11 @@ model Task {
   planSlot        DayPlanSlot?  @map("plan_slot")
   planDate        DateTime?     @map("plan_date") @db.Date
   skipCount       Int           @default(0) @map("skip_count") @db.SmallInt
+  // Adapt on the task: its pace (minutes per step, break between) and Adapt library codes for
+  // where and how it's done (environment, instructions, communication). Codes, never free text.
+  stepMinutes     Int?          @map("step_minutes") @db.SmallInt
+  breakMinutes    Int?          @map("break_minutes") @db.SmallInt
+  adaptCodes      String[]      @default([]) @map("adapt_codes")
   doneAt          DateTime?     @map("done_at") @db.Timestamptz(3)
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -65,6 +70,9 @@ model TaskStep {
   position  Int       @db.SmallInt
   textEnc   Bytes     @map("text_enc")
   source    String    @default("user") @db.VarChar(8) // user | template | ai
+  // Adapt on the step: "Cut it down" sets it aside for later; codes for a smaller or different way.
+  later      Boolean  @default(false)
+  adaptCodes String[] @default([]) @map("adapt_codes")
   doneAt    DateTime? @map("done_at") @db.Timestamptz(3)
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 

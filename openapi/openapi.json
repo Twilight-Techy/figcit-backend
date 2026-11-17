@@ -50259,6 +50259,39 @@
                             "minimum": -9007199254740991,
                             "maximum": 9007199254740991
                           },
+                          "stepMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Adapt's pace: minutes per step"
+                          },
+                          "breakMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Adapt's pace: break between steps"
+                          },
+                          "adaptCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Adapt library codes for where and how"
+                          },
                           "doneAt": {
                             "anyOf": [
                               {
@@ -50304,6 +50337,17 @@
                                 },
                                 "done": {
                                   "type": "boolean"
+                                },
+                                "later": {
+                                  "type": "boolean",
+                                  "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                                },
+                                "adaptCodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Adapt library codes: a smaller or different way"
                                 }
                               },
                               "required": [
@@ -50311,7 +50355,9 @@
                                 "position",
                                 "text",
                                 "source",
-                                "done"
+                                "done",
+                                "later",
+                                "adaptCodes"
                               ],
                               "additionalProperties": false
                             }
@@ -50334,6 +50380,9 @@
                           "planSlot",
                           "planDate",
                           "skipCount",
+                          "stepMinutes",
+                          "breakMinutes",
+                          "adaptCodes",
                           "doneAt",
                           "createdAt",
                           "updatedAt",
@@ -50369,6 +50418,11 @@
                       "planSlot": "now",
                       "planDate": "2026-01-15",
                       "skipCount": 1,
+                      "stepMinutes": 1,
+                      "breakMinutes": 1,
+                      "adaptCodes": [
+                        "Example adaptCodes"
+                      ],
                       "doneAt": "2026-01-15T09:30:00.000Z",
                       "createdAt": "2026-01-15T09:30:00.000Z",
                       "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -50378,7 +50432,11 @@
                           "position": 1,
                           "text": "Example text",
                           "source": "Example source",
-                          "done": true
+                          "done": true,
+                          "later": true,
+                          "adaptCodes": [
+                            "Example adaptCodes"
+                          ]
                         }
                       ]
                     }
@@ -50675,6 +50733,39 @@
                       "minimum": -9007199254740991,
                       "maximum": 9007199254740991
                     },
+                    "stepMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: minutes per step"
+                    },
+                    "breakMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: break between steps"
+                    },
+                    "adaptCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Adapt library codes for where and how"
+                    },
                     "doneAt": {
                       "anyOf": [
                         {
@@ -50720,6 +50811,17 @@
                           },
                           "done": {
                             "type": "boolean"
+                          },
+                          "later": {
+                            "type": "boolean",
+                            "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                          },
+                          "adaptCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Adapt library codes: a smaller or different way"
                           }
                         },
                         "required": [
@@ -50727,7 +50829,9 @@
                           "position",
                           "text",
                           "source",
-                          "done"
+                          "done",
+                          "later",
+                          "adaptCodes"
                         ],
                         "additionalProperties": false
                       }
@@ -50750,6 +50854,9 @@
                     "planSlot",
                     "planDate",
                     "skipCount",
+                    "stepMinutes",
+                    "breakMinutes",
+                    "adaptCodes",
                     "doneAt",
                     "createdAt",
                     "updatedAt",
@@ -50776,6 +50883,11 @@
                   "planSlot": "now",
                   "planDate": "2026-01-15",
                   "skipCount": 1,
+                  "stepMinutes": 1,
+                  "breakMinutes": 1,
+                  "adaptCodes": [
+                    "Example adaptCodes"
+                  ],
                   "doneAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z",
                   "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -50785,7 +50897,11 @@
                       "position": 1,
                       "text": "Example text",
                       "source": "Example source",
-                      "done": true
+                      "done": true,
+                      "later": true,
+                      "adaptCodes": [
+                        "Example adaptCodes"
+                      ]
                     }
                   ]
                 }
@@ -50964,6 +51080,39 @@
                       "minimum": -9007199254740991,
                       "maximum": 9007199254740991
                     },
+                    "stepMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: minutes per step"
+                    },
+                    "breakMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: break between steps"
+                    },
+                    "adaptCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Adapt library codes for where and how"
+                    },
                     "doneAt": {
                       "anyOf": [
                         {
@@ -51009,6 +51158,17 @@
                           },
                           "done": {
                             "type": "boolean"
+                          },
+                          "later": {
+                            "type": "boolean",
+                            "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                          },
+                          "adaptCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Adapt library codes: a smaller or different way"
                           }
                         },
                         "required": [
@@ -51016,7 +51176,9 @@
                           "position",
                           "text",
                           "source",
-                          "done"
+                          "done",
+                          "later",
+                          "adaptCodes"
                         ],
                         "additionalProperties": false
                       }
@@ -51039,6 +51201,9 @@
                     "planSlot",
                     "planDate",
                     "skipCount",
+                    "stepMinutes",
+                    "breakMinutes",
+                    "adaptCodes",
                     "doneAt",
                     "createdAt",
                     "updatedAt",
@@ -51065,6 +51230,11 @@
                   "planSlot": "now",
                   "planDate": "2026-01-15",
                   "skipCount": 1,
+                  "stepMinutes": 1,
+                  "breakMinutes": 1,
+                  "adaptCodes": [
+                    "Example adaptCodes"
+                  ],
                   "doneAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z",
                   "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -51074,7 +51244,11 @@
                       "position": 1,
                       "text": "Example text",
                       "source": "Example source",
-                      "done": true
+                      "done": true,
+                      "later": true,
+                      "adaptCodes": [
+                        "Example adaptCodes"
+                      ]
                     }
                   ]
                 }
@@ -51259,6 +51433,38 @@
                   "skipped": {
                     "type": "boolean"
                   },
+                  "stepMinutes": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 60
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "breakMinutes": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 60
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "adaptCodes": {
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,40}$"
+                    }
+                  },
                   "clientUpdatedAt": {
                     "type": "string",
                     "format": "date-time",
@@ -51282,6 +51488,11 @@
                 "planSlot": "now",
                 "planDate": "2026-01-15",
                 "skipped": true,
+                "stepMinutes": 1,
+                "breakMinutes": 1,
+                "adaptCodes": [
+                  "example"
+                ],
                 "clientUpdatedAt": "2026-01-15T09:30:00.000Z"
               }
             }
@@ -51423,6 +51634,39 @@
                       "minimum": -9007199254740991,
                       "maximum": 9007199254740991
                     },
+                    "stepMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: minutes per step"
+                    },
+                    "breakMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: break between steps"
+                    },
+                    "adaptCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Adapt library codes for where and how"
+                    },
                     "doneAt": {
                       "anyOf": [
                         {
@@ -51468,6 +51712,17 @@
                           },
                           "done": {
                             "type": "boolean"
+                          },
+                          "later": {
+                            "type": "boolean",
+                            "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                          },
+                          "adaptCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Adapt library codes: a smaller or different way"
                           }
                         },
                         "required": [
@@ -51475,7 +51730,9 @@
                           "position",
                           "text",
                           "source",
-                          "done"
+                          "done",
+                          "later",
+                          "adaptCodes"
                         ],
                         "additionalProperties": false
                       }
@@ -51498,6 +51755,9 @@
                     "planSlot",
                     "planDate",
                     "skipCount",
+                    "stepMinutes",
+                    "breakMinutes",
+                    "adaptCodes",
                     "doneAt",
                     "createdAt",
                     "updatedAt",
@@ -51524,6 +51784,11 @@
                   "planSlot": "now",
                   "planDate": "2026-01-15",
                   "skipCount": 1,
+                  "stepMinutes": 1,
+                  "breakMinutes": 1,
+                  "adaptCodes": [
+                    "Example adaptCodes"
+                  ],
                   "doneAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z",
                   "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -51533,7 +51798,11 @@
                       "position": 1,
                       "text": "Example text",
                       "source": "Example source",
-                      "done": true
+                      "done": true,
+                      "later": true,
+                      "adaptCodes": [
+                        "Example adaptCodes"
+                      ]
                     }
                   ]
                 }
@@ -51817,6 +52086,39 @@
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
                         },
+                        "stepMinutes": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Adapt's pace: minutes per step"
+                        },
+                        "breakMinutes": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Adapt's pace: break between steps"
+                        },
+                        "adaptCodes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Adapt library codes for where and how"
+                        },
                         "doneAt": {
                           "anyOf": [
                             {
@@ -51862,6 +52164,17 @@
                               },
                               "done": {
                                 "type": "boolean"
+                              },
+                              "later": {
+                                "type": "boolean",
+                                "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                              },
+                              "adaptCodes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Adapt library codes: a smaller or different way"
                               }
                             },
                             "required": [
@@ -51869,7 +52182,9 @@
                               "position",
                               "text",
                               "source",
-                              "done"
+                              "done",
+                              "later",
+                              "adaptCodes"
                             ],
                             "additionalProperties": false
                           }
@@ -51892,6 +52207,9 @@
                         "planSlot",
                         "planDate",
                         "skipCount",
+                        "stepMinutes",
+                        "breakMinutes",
+                        "adaptCodes",
                         "doneAt",
                         "createdAt",
                         "updatedAt",
@@ -51938,6 +52256,11 @@
                     "planSlot": "now",
                     "planDate": "2026-01-15",
                     "skipCount": 1,
+                    "stepMinutes": 1,
+                    "breakMinutes": 1,
+                    "adaptCodes": [
+                      "Example adaptCodes"
+                    ],
                     "doneAt": "2026-01-15T09:30:00.000Z",
                     "createdAt": "2026-01-15T09:30:00.000Z",
                     "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -51947,7 +52270,11 @@
                         "position": 1,
                         "text": "Example text",
                         "source": "Example source",
-                        "done": true
+                        "done": true,
+                        "later": true,
+                        "adaptCodes": [
+                          "Example adaptCodes"
+                        ]
                       }
                     ]
                   }
@@ -52026,6 +52353,19 @@
                             "template",
                             "ai"
                           ]
+                        },
+                        "later": {
+                          "default": false,
+                          "type": "boolean"
+                        },
+                        "adaptCodes": {
+                          "default": [],
+                          "maxItems": 12,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9_]{1,40}$"
+                          }
                         }
                       },
                       "required": [
@@ -52046,7 +52386,9 @@
                     "id": "00000000-0000-4000-8000-000000000001",
                     "text": "Example text",
                     "done": false,
-                    "source": "user"
+                    "source": "user",
+                    "later": false,
+                    "adaptCodes": []
                   }
                 ]
               }
@@ -52189,6 +52531,39 @@
                       "minimum": -9007199254740991,
                       "maximum": 9007199254740991
                     },
+                    "stepMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: minutes per step"
+                    },
+                    "breakMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Adapt's pace: break between steps"
+                    },
+                    "adaptCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Adapt library codes for where and how"
+                    },
                     "doneAt": {
                       "anyOf": [
                         {
@@ -52234,6 +52609,17 @@
                           },
                           "done": {
                             "type": "boolean"
+                          },
+                          "later": {
+                            "type": "boolean",
+                            "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                          },
+                          "adaptCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Adapt library codes: a smaller or different way"
                           }
                         },
                         "required": [
@@ -52241,7 +52627,9 @@
                           "position",
                           "text",
                           "source",
-                          "done"
+                          "done",
+                          "later",
+                          "adaptCodes"
                         ],
                         "additionalProperties": false
                       }
@@ -52264,6 +52652,9 @@
                     "planSlot",
                     "planDate",
                     "skipCount",
+                    "stepMinutes",
+                    "breakMinutes",
+                    "adaptCodes",
                     "doneAt",
                     "createdAt",
                     "updatedAt",
@@ -52290,6 +52681,11 @@
                   "planSlot": "now",
                   "planDate": "2026-01-15",
                   "skipCount": 1,
+                  "stepMinutes": 1,
+                  "breakMinutes": 1,
+                  "adaptCodes": [
+                    "Example adaptCodes"
+                  ],
                   "doneAt": "2026-01-15T09:30:00.000Z",
                   "createdAt": "2026-01-15T09:30:00.000Z",
                   "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -52299,7 +52695,11 @@
                       "position": 1,
                       "text": "Example text",
                       "source": "Example source",
-                      "done": true
+                      "done": true,
+                      "later": true,
+                      "adaptCodes": [
+                        "Example adaptCodes"
+                      ]
                     }
                   ]
                 }
@@ -52704,6 +53104,39 @@
                             "minimum": -9007199254740991,
                             "maximum": 9007199254740991
                           },
+                          "stepMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Adapt's pace: minutes per step"
+                          },
+                          "breakMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Adapt's pace: break between steps"
+                          },
+                          "adaptCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Adapt library codes for where and how"
+                          },
                           "doneAt": {
                             "anyOf": [
                               {
@@ -52749,6 +53182,17 @@
                                 },
                                 "done": {
                                   "type": "boolean"
+                                },
+                                "later": {
+                                  "type": "boolean",
+                                  "description": "Set aside by \"Cut it down\"; Focus leaves it for later"
+                                },
+                                "adaptCodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Adapt library codes: a smaller or different way"
                                 }
                               },
                               "required": [
@@ -52756,7 +53200,9 @@
                                 "position",
                                 "text",
                                 "source",
-                                "done"
+                                "done",
+                                "later",
+                                "adaptCodes"
                               ],
                               "additionalProperties": false
                             }
@@ -52788,6 +53234,9 @@
                           "planSlot",
                           "planDate",
                           "skipCount",
+                          "stepMinutes",
+                          "breakMinutes",
+                          "adaptCodes",
                           "doneAt",
                           "createdAt",
                           "updatedAt",
@@ -52830,6 +53279,11 @@
                       "planSlot": "now",
                       "planDate": "2026-01-15",
                       "skipCount": 1,
+                      "stepMinutes": 1,
+                      "breakMinutes": 1,
+                      "adaptCodes": [
+                        "Example adaptCodes"
+                      ],
                       "doneAt": "2026-01-15T09:30:00.000Z",
                       "createdAt": "2026-01-15T09:30:00.000Z",
                       "updatedAt": "2026-01-15T09:30:00.000Z",
@@ -52839,7 +53293,11 @@
                           "position": 1,
                           "text": "Example text",
                           "source": "Example source",
-                          "done": true
+                          "done": true,
+                          "later": true,
+                          "adaptCodes": [
+                            "Example adaptCodes"
+                          ]
                         }
                       ],
                       "whyNow": "Example whyNow",

@@ -15,6 +15,10 @@ const DRIVER = z.enum([
 ]);
 const title = z.string().trim().min(1).max(200);
 const stepText = z.string().trim().min(1).max(200);
+/** An Adapt library option code (content `adapt.library`); the app shows its label. */
+const adaptCodes = z.array(z.string().regex(/^[a-z0-9_]{1,40}$/)).max(12);
+/** Pace from Adapt: minutes per step and break between steps (S123). */
+const paceMinutes = z.number().int().min(1).max(60);
 
 export const taskCreateSchema = z
   .object({
@@ -48,6 +52,9 @@ export const taskUpdateSchema = z
     planSlot: z.enum(['now', 'later', 'not_today']).nullable().optional(),
     planDate: z.iso.date().nullable().optional(),
     skipped: z.boolean().optional(),
+    stepMinutes: paceMinutes.nullable().optional(),
+    breakMinutes: paceMinutes.nullable().optional(),
+    adaptCodes: adaptCodes.optional(),
     clientUpdatedAt: z.iso.datetime().optional(),
   })
   .strict();
@@ -63,6 +70,8 @@ export const stepsPutSchema = z
             text: stepText,
             done: z.boolean().default(false),
             source: z.enum(['user', 'template', 'ai']).default('user'),
+            later: z.boolean().default(false),
+            adaptCodes: adaptCodes.default([]),
           })
           .strict(),
       )
@@ -80,6 +89,8 @@ export const stepSchema = z.object({
   text: z.string(),
   source: z.string(),
   done: z.boolean(),
+  later: z.boolean().describe('Set aside by "Cut it down"; Focus leaves it for later'),
+  adaptCodes: z.array(z.string()).describe('Adapt library codes: a smaller or different way'),
 });
 export const taskSchema = z.object({
   id: z.uuid(),
@@ -98,6 +109,9 @@ export const taskSchema = z.object({
   planSlot: z.enum(['now', 'later', 'not_today']).nullable(),
   planDate: z.iso.date().nullable(),
   skipCount: z.number().int(),
+  stepMinutes: z.number().int().nullable().describe("Adapt's pace: minutes per step"),
+  breakMinutes: z.number().int().nullable().describe("Adapt's pace: break between steps"),
+  adaptCodes: z.array(z.string()).describe('Adapt library codes for where and how'),
   doneAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

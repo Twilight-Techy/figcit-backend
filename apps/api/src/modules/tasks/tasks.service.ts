@@ -46,6 +46,16 @@ function updateData(
       ? { planDate: input.planDate ? new Date(input.planDate) : null }
       : {}),
     ...(input.skipped ? { skipCount: { increment: 1 } } : {}),
+    ...adaptData(input),
+  };
+}
+
+/** What Adapt changed on the task: its pace and the library codes for where and how. */
+function adaptData(input: TaskUpdate): Prisma.TaskUncheckedUpdateInput {
+  return {
+    ...(input.stepMinutes !== undefined ? { stepMinutes: input.stepMinutes } : {}),
+    ...(input.breakMinutes !== undefined ? { breakMinutes: input.breakMinutes } : {}),
+    ...(input.adaptCodes !== undefined ? { adaptCodes: [...new Set(input.adaptCodes)] } : {}),
   };
 }
 
@@ -228,6 +238,8 @@ export class TasksService {
           textEnc: c.cipher.enc(s.text),
           source: s.source,
           doneAt: s.done ? c.now : null,
+          later: s.later,
+          adaptCodes: [...new Set(s.adaptCodes)],
         })),
       });
       await tx.task.update({ where: { id }, data: { clientUpdatedAt: c.now } });
