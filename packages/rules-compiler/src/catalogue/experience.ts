@@ -275,7 +275,7 @@ export const EMOTIONS: readonly SnapshotEmotion[] = [
   e('uneasy_ahead', "Uneasy about what's coming", '😬', 'anticipatory', 'harder'),
   e('going_over', 'Going over and over it', '🔁', 'rumination', 'harder'),
   e('bored', 'Bored', '🥱', 'boredom', 'harder'),
-  e('stuck_start', "Stuck — can't start", '🧱', 'task_paralysis', 'harder'),
+  e('stuck_start', "Stuck, can't start", '🧱', 'task_paralysis', 'harder'),
   e('hurt_comment', 'Hurt by a comment', '💢', 'rejection', 'harder'),
   e('peopled_out', 'Peopled out', '🫠', 'social_hangover', 'harder'),
   e('overloaded', 'Too much input', '🔊', 'sensory_overload', 'harder'),

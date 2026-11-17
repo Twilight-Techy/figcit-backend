@@ -330,7 +330,7 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   ),
   p(
     10,
-    "Let's draft this — you choose when to send it",
+    "Let's draft this. You choose when to send it",
     'Draft',
     ['Regulate first'],
     'drafting it now and sending only when you choose',
@@ -366,7 +366,7 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   ),
   p(
     16,
-    "Let's just breathe — no words needed",
+    "Let's just breathe. No words needed",
     'Start',
     ["Send my 'I need quiet' message", 'Get support now'],
     'something you can do with one tap and no words',
@@ -415,7 +415,7 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   ),
   p(
     23,
-    'Time to recharge — quiet counts as doing something',
+    'Time to recharge. Quiet counts as doing something',
     'Quiet reset',
     ['Do it later'],
     'a quiet recharge',
@@ -443,7 +443,7 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   ),
   p(
     27,
-    "Not sure is okay — let's start with your body",
+    "Not sure is okay. Let's start with your body",
     'Quick body check',
     ['Pick a state anyway'],
     'starting with your body',
@@ -457,21 +457,21 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   ),
   p(
     29,
-    "Body basics first — then we'll pick this back up",
+    "Body basics first, then we'll pick this back up",
     "I've sorted it",
     ['Remind me in 10 minutes', 'Skip'],
     'meeting your body’s needs first',
   ),
   p(
     30,
-    "No problem — I'll stay out of your way",
+    "No problem. I'll stay out of your way",
     'Open Home',
     ['Check in later', 'Remind me tomorrow'],
     'giving you some space',
   ),
   p(
     31,
-    "You're steadier — want to pick up gently?",
+    "You're steadier. Want to pick up gently?",
     'Start small',
     ['Rest a bit longer', 'Reflect on what helped'],
     'picking up gently',
@@ -480,7 +480,7 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   p(33, 'Want to note what helped today?', 'Reflect', ['Just rest'], 'noting what helped'),
   p(
     34,
-    'This has come up a few times — want to look at what helps?',
+    'This has come up a few times. Want to look at what helps?',
     'Look at my pattern',
     ["Don't show me this pattern"],
     'looking at what has helped before',
@@ -523,7 +523,7 @@ export const PATTERNS: readonly SnapshotPattern[] = [
   ),
   p(
     41,
-    "Let's just breathe — no words needed",
+    "Let's just breathe. No words needed",
     'Start',
     ['Get support now'],
     'breathing along first, eyes open',

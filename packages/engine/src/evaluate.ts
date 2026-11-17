@@ -152,7 +152,7 @@ function stateOf(f: Facts): EngineResult['state'] {
   const cell = f.state.cell;
   const shown = cell
     ? { name: cell.name, icon: cell.icon, meaning: cell.meaning }
-    : { name: 'Not sure yet', icon: '❔', meaning: "That's okay — let's start with your body." };
+    : { name: 'Not sure yet', icon: '❔', meaning: "That's okay. Let's start with your body." };
   return { cellId: f.state.cellId, ...shown, confirmed: f.state.confirmed };
 }
 

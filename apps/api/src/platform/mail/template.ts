@@ -66,7 +66,7 @@ export function emailLayout(m: EmailContent): { html: string; text: string } {
     ...(m.action ? [`${m.action.label}: ${m.action.url}`, ''] : []),
     ...(m.code ? [`${m.code.label} ${m.code.value}`, ''] : []),
     ...(m.note ? [m.note, ''] : []),
-    '— FigCit',
+    'FigCit',
     app,
   ].join('\n');
   const para = (p: string): string =>

@@ -37,13 +37,13 @@ export interface OrderedTask {
 export const WHY_NOW_TEXT: Readonly<Record<WhyNowCode, string>> = {
   due_now: 'Due within the hour',
   due_today: 'Due later today',
-  overdue_small_step: 'Past its date — one small step counts',
-  familiar: "A familiar one — you've done this before",
+  overdue_small_step: 'Past its date. One small step counts',
+  familiar: "A familiar one. You've done this before",
   enjoyable: 'Something you usually enjoy',
   quick: 'Quick to finish',
   picked_for_now: 'You picked this for now',
   gentle_start: 'A gentle place to start',
-  no_rush: 'No rush — when you have room',
+  no_rush: 'No rush. Do it when you have room',
   later: 'Saved for later',
 };
 

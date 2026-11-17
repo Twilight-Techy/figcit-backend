@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service.js';
+import { noEmDashes } from '../../common/text/no-em-dash.js';
 import { DEFAULT_CONTENT, type ContentBody, type ContentKey } from './catalogue/index.js';
 
 const TTL_MS = 60_000;
@@ -29,13 +30,19 @@ export class ContentService {
     });
     const items = new Map<string, ContentEntry>();
     for (const [key, d] of Object.entries(DEFAULT_CONTENT))
-      items.set(key, { key, kind: d.kind, version: 0, body: d.body });
+      items.set(key, { key, kind: d.kind, version: 0, body: noEmDashes(d.body) });
     let release = 0;
     for (const r of rows) {
       release = Math.max(release, r.releaseId ?? 0);
       const current = items.get(r.key);
       if (!current || current.version < r.version)
-        items.set(r.key, { key: r.key, kind: r.kind, version: r.version, body: r.body });
+        // FigCit's own words, as published or edited by staff: no em dashes (owner, 17 Nov 2026).
+        items.set(r.key, {
+          key: r.key,
+          kind: r.kind,
+          version: r.version,
+          body: noEmDashes(r.body),
+        });
     }
     this.cache = { at: Date.now(), release, items };
     return this.cache;

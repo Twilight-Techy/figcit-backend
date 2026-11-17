@@ -7,6 +7,7 @@ import {
   type WorkbookCell,
 } from '@figcit/engine-v2';
 import { PrismaService } from '../../common/db/prisma.service.js';
+import { noEmDashes } from '../../common/text/no-em-dash.js';
 
 /** Everything the check-in screens offer, from the published rule set (E-40). */
 export interface CheckInOptionsDto extends CheckInOptionsView {
@@ -93,7 +94,8 @@ export class CheckInOptionsService {
       return null;
     }
     return {
-      dto: { version: label, hash, ...built.view },
+      // The words on the check-in screens: no em dashes (codes never hold one).
+      dto: { version: label, hash, ...noEmDashes(built.view) },
       options: built.options,
       catalogue: built.catalogue,
     };

@@ -7,7 +7,7 @@ export interface Starter {
 }
 
 export const STARTERS: readonly Starter[] = [
-  { code: 'text_later', text: 'Rough day — could you text me later? 💜', kind: 'ask' },
+  { code: 'text_later', text: 'Rough day. Could you text me later? 💜', kind: 'ask' },
   { code: 'sit_quietly', text: 'Can we sit together quietly for a bit?', kind: 'quiet' },
   { code: 'no_reply', text: 'Just checking in. No reply needed.', kind: 'checkin' },
   { code: 'call_me', text: 'Could you call me when you are free?', kind: 'ask' },
