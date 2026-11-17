@@ -19,12 +19,23 @@ export const TASK_SELECT = {
   planSlot: true,
   planDate: true,
   skipCount: true,
+  stepMinutes: true,
+  breakMinutes: true,
+  adaptCodes: true,
   doneAt: true,
   createdAt: true,
   updatedAt: true,
   steps: {
     orderBy: { position: 'asc' },
-    select: { id: true, position: true, textEnc: true, source: true, doneAt: true },
+    select: {
+      id: true,
+      position: true,
+      textEnc: true,
+      source: true,
+      doneAt: true,
+      later: true,
+      adaptCodes: true,
+    },
   },
 } satisfies Prisma.TaskSelect;
 export type TaskRow = Prisma.TaskGetPayload<{ select: typeof TASK_SELECT }>;
@@ -71,6 +82,9 @@ export function toTaskDto(
     planSlot: row.planSlot,
     planDate: row.planDate?.toISOString().slice(0, 10) ?? null,
     skipCount: row.skipCount,
+    stepMinutes: row.stepMinutes,
+    breakMinutes: row.breakMinutes,
+    adaptCodes: row.adaptCodes,
     doneAt: row.doneAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
@@ -80,6 +94,8 @@ export function toTaskDto(
       text: cipher.dec(s.textEnc),
       source: s.source,
       done: s.doneAt !== null,
+      later: s.later,
+      adaptCodes: s.adaptCodes,
     })),
   };
 }

@@ -55,6 +55,49 @@ describe('tasks', () => {
     expect(finished.body.items.some((x) => x.id === t.body.id)).toBe(true);
   });
 
+  it('keeps what Adapt changed: pace and codes on the task, later and codes on a step', async () => {
+    const t = await api.req<Task>('POST', '/tasks', {
+      token,
+      body: { title: 'Write the report', steps: ['Open the file', 'Write the intro'] },
+    });
+    expect(t.body).toMatchObject({ stepMinutes: null, breakMinutes: null, adaptCodes: [] });
+    const paced = await api.req<Task & { stepMinutes: number; adaptCodes: string[] }>(
+      'PATCH',
+      `/tasks/${t.body.id}`,
+      {
+        token,
+        body: { stepMinutes: 10, breakMinutes: 2, adaptCodes: ['block_sound', 'block_sound'] },
+      },
+    );
+    expect(paced.body).toMatchObject({
+      stepMinutes: 10,
+      breakMinutes: 2,
+      adaptCodes: ['block_sound'],
+    });
+    const s = await api.req<{ steps: { later: boolean; adaptCodes: string[] }[] }>(
+      'PUT',
+      `/tasks/${t.body.id}/steps`,
+      {
+        token,
+        body: {
+          steps: [
+            { text: 'Open the file', adaptCodes: ['first_sentence', 'speak_it'] },
+            { text: 'Write the intro', later: true },
+          ],
+        },
+      },
+    );
+    expect(s.body.steps.map((x) => [x.later, x.adaptCodes])).toEqual([
+      [false, ['first_sentence', 'speak_it']],
+      [true, []],
+    ]);
+    const bad = await api.req('PATCH', `/tasks/${t.body.id}`, {
+      token,
+      body: { adaptCodes: ['Not a code!'] },
+    });
+    expect(bad.status).toBe(400);
+  });
+
   it('rolls a recurring task forward when done', async () => {
     const t = await api.req<Task>('POST', '/tasks', {
       token,
