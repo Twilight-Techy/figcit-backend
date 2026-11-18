@@ -53,6 +53,14 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(feelings.find((o) => o.code === 'anxious')?.group).toBe('always_free');
     expect(feelings.find((o) => o.code === 'frustrated')?.group).toBe('prime');
     expect((res.body.inputs['help'] ?? []).length).toBeGreaterThan(8);
+    // Not sure's three pictures, with the Energy and Mood level each one stands for (S150).
+    const levels = (input: string) =>
+      ((res.body.inputs[input] ?? []) as { code: string; level?: number }[]).map(
+        (o) => `${o.code}${o.level === undefined ? '' : `:${String(o.level)}`}`,
+      );
+    expect(levels('not_sure_body')).toEqual(['heavy', 'floaty', 'buzzy', 'settled']);
+    expect(levels('not_sure_energy')).toEqual(['empty:1', 'low:2', 'some:3', 'full:4']);
+    expect(levels('not_sure_comfort')).toEqual(['hard:1', 'uneasy:2', 'okay:3', 'good:4']);
     // Tab 13 step 2: each state's name, icon and meaning, from Tab 1.
     const cells = (res.body as unknown as { cells: { id: string; name: string }[] }).cells;
     expect(cells).toHaveLength(16);

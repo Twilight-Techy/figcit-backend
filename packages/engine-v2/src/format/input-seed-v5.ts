@@ -1,5 +1,6 @@
 import type { RuleRecordDraft, TabKey } from '../ruleset/types.js';
 import { cellText } from './catalogue.js';
+import { INPUT_SEED } from './input-seed.js';
 import type { InputKind } from './inputs.js';
 
 // Rules Engine v5.0's check-in options (docs/engine-v2/V5.md): one row per option of each
@@ -114,5 +115,8 @@ export function v5InputSeed(records: readonly RuleRecordDraft[], slug: Slug): In
         ];
       }),
     },
+    // Not sure's three pictures (Figma S150): the app turns the energy and comfort taps into an Energy
+    // and Mood state itself, by the levels these carry (E-45), so they are published with v5.0 too.
+    ...INPUT_SEED.filter((seed) => seed.input.startsWith('not_sure_')),
   ];
 }
