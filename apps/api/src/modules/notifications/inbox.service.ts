@@ -28,7 +28,9 @@ const COPY: Readonly<
   reminder_recheck: {
     title: 'How are you now?',
     body: 'A quick re-check, if you like.',
-    href: (id) => (id ? `/check/?recheck=${id}` : '/check/?mode=quick'),
+    // refId is a legacy check-in id (reminders.assertSubject reads the CheckIn table), never a v5.0
+    // decision id, and /check/?recheck= takes a decision id: so open a Quick check-in instead.
+    href: () => '/check/?mode=quick',
   },
   reminder_custom: { title: 'Reminder', body: 'A gentle reminder.', href: () => '/reminders/' },
   export_ready: {
