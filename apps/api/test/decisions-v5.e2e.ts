@@ -299,6 +299,26 @@ describe('Rules Engine v5.0 decisions', () => {
       expect(nudge).toBe('held_capacity');
     });
 
+    it('a v5.0 check-in counts for the profile prompt (ME-1) and for Progress', async () => {
+      const me = await api.signIn();
+      type View = { promptDue: boolean };
+      expect((await api.req<View>('GET', '/me/profile', { token: me.token })).body.promptDue).toBe(
+        false,
+      );
+      await decide({ state: RED }, me.token);
+      expect((await api.req<View>('GET', '/me/profile', { token: me.token })).body.promptDue).toBe(
+        true,
+      );
+      const progress = await api.req<{
+        checkIns: number;
+        lights: Record<string, number>;
+        days: { light: string | null; averageEnergy: number | null }[];
+      }>('GET', '/progress?range=7', { token: me.token });
+      expect(progress.body.checkIns).toBe(1);
+      expect(progress.body.lights['red']).toBe(1);
+      expect(progress.body.days.at(-1)).toMatchObject({ light: 'red', averageEnergy: 1 });
+    });
+
     it('the newest check-in counts: a Green one after a Red one lets Reflect through', async () => {
       const me = await api.signIn();
       await decide({ state: RED }, me.token);

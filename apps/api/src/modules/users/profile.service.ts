@@ -79,18 +79,20 @@ export class ProfileService {
   }
 
   private async promptDue(userId: string, now: Date): Promise<boolean> {
-    const [user, checkIns, safety] = await Promise.all([
+    const [user, checkIns, v5, safety] = await Promise.all([
       this.prisma.user.findUniqueOrThrow({
         where: { id: userId },
         select: { profilePromptDismissals: true, profilePromptAt: true, profileEnc: true },
       }),
       this.prisma.checkIn.count({ where: { userId }, take: 1 }),
+      // A v5.0 check-in is a decision record (it never reaches the old table).
+      this.prisma.decisionRecord.count({ where: { userId, light: { not: null } }, take: 1 }),
       this.prisma.safetyEvent.count({
         where: { userId, at: { gt: new Date(now.getTime() - SAFETY_QUIET_DAYS * DAY) } },
         take: 1,
       }),
     ]);
-    if (user.profileEnc || checkIns === 0 || safety > 0) return false;
+    if (user.profileEnc || (checkIns === 0 && v5 === 0) || safety > 0) return false;
     if (user.profilePromptDismissals >= PROMPT_MAX) return false;
     const last = user.profilePromptAt?.getTime();
     return last === undefined || now.getTime() - last >= PROMPT_GAP_DAYS * DAY;

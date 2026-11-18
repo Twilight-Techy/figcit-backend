@@ -89,7 +89,7 @@ export class ProgressService {
       where: { id: userId },
       select: { timezone: true },
     });
-    const [checkIns, pathways, didItHelp, done, stepsDone, open, reflections, wins] =
+    const [checkIns, v5, pathways, didItHelp, done, stepsDone, open, reflections, wins] =
       await Promise.all([
         this.prisma.checkIn.findMany({
           where: { userId, deletedAt: null, createdAt: { gt: since } },
@@ -99,6 +99,11 @@ export class ProgressService {
             energy: true,
             recommendations: { orderBy: { createdAt: 'desc' }, take: 1, select: { light: true } },
           },
+        }),
+        this.prisma.decisionRecord.findMany({
+          where: { userId, createdAt: { gt: since }, light: { not: null } },
+          select: { createdAt: true, light: true, input: true },
+          take: 2000,
         }),
         this.prisma.pathwaySession.groupBy({
           by: ['pathway'],
@@ -117,12 +122,16 @@ export class ProgressService {
           where: { userId, deletedAt: null, variant: 'win', createdAt: { gt: since } },
         }),
       ]);
-    const rows = checkIns.map((c) => ({
-      createdAt: c.createdAt,
-      mood: c.mood,
-      energy: c.energy,
-      light: c.recommendations[0]?.light ?? null,
-    }));
+    const rows = [
+      ...checkIns.map((c) => ({
+        createdAt: c.createdAt,
+        mood: c.mood,
+        energy: c.energy,
+        light: c.recommendations[0]?.light ?? null,
+      })),
+      // v5.0 check-ins are decision records (a record with `checkin.mode`), not CheckIn rows.
+      ...v5Rows(v5),
+    ];
     const lights = { green: 0, yellow: 0, amber: 0, red: 0, blue: 0 };
     for (const r of rows) if (r.light) lights[r.light] += 1;
     const days = this.days(rangeDays, now, user.timezone, rows);
@@ -154,4 +163,29 @@ export class ProgressService {
       notes,
     };
   }
+}
+
+const LIGHTS: readonly string[] = ['green', 'yellow', 'amber', 'red', 'blue'];
+
+/** The v5.0 decision records as progress rows: the colour and the Energy and Mood given, if any. */
+function v5Rows(records: readonly { createdAt: Date; light: string | null; input: unknown }[]): {
+  createdAt: Date;
+  mood: number | null;
+  energy: number | null;
+  light: Light | null;
+}[] {
+  return records.flatMap((r) => {
+    const facts = r.input as Record<string, unknown>;
+    if (typeof facts['checkin.mode'] !== 'string') return [];
+    const level = (v: unknown): number | null => (typeof v === 'number' ? v : null);
+    const light = LIGHTS.includes(r.light ?? '') ? (r.light as Light) : null;
+    return [
+      {
+        createdAt: r.createdAt,
+        mood: level(facts['state.mood']),
+        energy: level(facts['state.energy']),
+        light,
+      },
+    ];
+  });
 }
