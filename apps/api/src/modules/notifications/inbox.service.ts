@@ -7,9 +7,36 @@ import type { inboxItemSchema } from './notifications.schemas.js';
 type Item = z.infer<typeof inboxItemSchema>;
 
 /** What each inbox item says. Text comes from here, never from the user's data. */
-const COPY: Readonly<
-  Record<string, { title: string; body: string; href: (refId: string | null) => string }>
-> = {
+interface Copy {
+  readonly title: string;
+  readonly body: string;
+  readonly href: (refId: string | null) => string;
+  /** Words that depend on the item's refType (a guest space's days left). */
+  readonly text?: (refType: string | null) => { title: string; body: string };
+}
+
+/** "days_7" is 7 days left; the sweep writes one item for each of 7, 3 and 1 (GUEST_NOTICE_DAYS). */
+const guestDays = (refType: string | null): number =>
+  Number(/^days_(\d+)$/.exec(refType ?? '')?.[1] ?? 0);
+
+const COPY: Readonly<Record<string, Copy>> = {
+  guest_expiring: {
+    title: 'Your guest space is ending',
+    body: 'Create an account if you would like to keep what is here.',
+    href: () => '/me/guest/',
+    text: (refType) => {
+      const days = guestDays(refType);
+      return {
+        title:
+          days === 1
+            ? 'Your guest space ends tomorrow'
+            : days > 1
+              ? `Your guest space has ${String(days)} days left`
+              : 'Your guest space is ending',
+        body: 'Create an account if you would like to keep what is here. If not, nothing else is needed: it clears on its own.',
+      };
+    },
+  },
   reminder_checkin: {
     title: 'Check-in',
     body: 'A gentle check-in is here when you want it.',
@@ -66,6 +93,12 @@ const COPY: Readonly<
   system: { title: 'FigCit', body: 'Something new is here.', href: () => '/home/' },
 };
 
+/** An item's title and body: its own words when they depend on the ref, else the kind's. */
+function wordsOf(copy: Copy | undefined, refType: string | null): { title: string; body: string } {
+  const own = copy?.text?.(refType);
+  return { title: own?.title ?? copy?.title ?? '', body: own?.body ?? copy?.body ?? '' };
+}
+
 @Injectable()
 export class InboxService {
   constructor(private readonly prisma: PrismaService) {}
@@ -98,8 +131,7 @@ export class InboxService {
           kind: r.kind,
           refType: r.refType,
           refId: r.refId,
-          title: copy?.title ?? '',
-          body: copy?.body ?? '',
+          ...wordsOf(copy, r.refType),
           href: copy?.href(r.refId) ?? '/home/',
           readAt: r.readAt?.toISOString() ?? null,
           createdAt: r.createdAt.toISOString(),

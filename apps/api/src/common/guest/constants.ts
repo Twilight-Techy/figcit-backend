@@ -11,3 +11,6 @@ export const GUEST_NICKNAME = 'Guest';
 /** What a guest may keep. Past these a guest gets 403 `guest_limit`: an account has no such limit. */
 export const GUEST_MAX_OPEN_TASKS = 20;
 export const GUEST_MAX_DUMPS = 50;
+
+/** Days left at which a guest is told, in the inbox, how long the space has left. */
+export const GUEST_NOTICE_DAYS = [7, 3, 1] as const;

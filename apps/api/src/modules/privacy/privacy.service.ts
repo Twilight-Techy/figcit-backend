@@ -4,6 +4,7 @@ import { AppError } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
 import { JobsService } from '../../platform/jobs/jobs.service.js';
 import { StorageService } from '../../platform/storage/storage.service.js';
+import { GUEST_NOTICE_DAYS } from '../../common/guest/constants.js';
 import { InboxService } from '../notifications/inbox.service.js';
 import { ExportBuilder } from './export.builder.js';
 
@@ -227,6 +228,45 @@ export class PrivacyService {
     });
     if (erased) this.logger.log(`erased ${String(erased)} guest spaces`);
     return erased;
+  }
+
+  /**
+   * Worker (daily): tells each guest space, in its inbox, how long it has left, at 7, 3 and 1 days.
+   * One item per user and threshold, however often this runs or whether a day was missed (the
+   * smallest threshold reached is the one written). Guests only; an account never has one.
+   */
+  async notifyGuestsExpiring(now = new Date()): Promise<number> {
+    const widest = Math.max(...GUEST_NOTICE_DAYS);
+    let written = 0;
+    let after: string | undefined;
+    for (;;) {
+      const page = await this.prisma.user.findMany({
+        where: {
+          isGuest: true,
+          deletedAt: null,
+          guestExpiresAt: { gt: now, lte: new Date(now.getTime() + widest * DAY) },
+        },
+        orderBy: { id: 'asc' },
+        take: 200,
+        ...(after ? { cursor: { id: after }, skip: 1 } : {}),
+        select: { id: true, guestExpiresAt: true },
+      });
+      for (const g of page) {
+        const left = Math.ceil(((g.guestExpiresAt?.getTime() ?? 0) - now.getTime()) / DAY);
+        const threshold = Math.min(...GUEST_NOTICE_DAYS.filter((d) => left <= d));
+        if (!Number.isFinite(threshold)) continue;
+        const refType = `days_${String(threshold)}`;
+        const had = await this.prisma.inboxItem.count({
+          where: { userId: g.id, kind: 'guest_expiring', refType },
+        });
+        if (had > 0) continue;
+        await this.inbox.add(g.id, 'guest_expiring', { type: refType });
+        written += 1;
+      }
+      if (page.length < 200) break;
+      after = page.at(-1)?.id;
+    }
+    return written;
   }
 
   /** Worker (nightly): drop what we no longer need (Privacy notice §7). */

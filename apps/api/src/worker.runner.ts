@@ -81,6 +81,7 @@ export class WorkerRunner implements OnApplicationBootstrap {
         },
         'privacy.purge-guests': async () => {
           await this.privacy.purgeGuests();
+          await this.privacy.notifyGuestsExpiring();
         },
         'retention.nightly': async () => {
           this.logger.log({ removed: await this.privacy.retention() }, 'retention');

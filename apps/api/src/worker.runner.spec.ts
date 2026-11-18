@@ -6,8 +6,11 @@ import { PrivacyService } from './modules/privacy/privacy.service.js';
 import { WorkerRunner } from './worker.runner.js';
 
 describe('the worker schedule', () => {
-  it('runs the guest purge daily, and the purge calls purgeGuests', async () => {
-    const privacy = { purgeGuests: vi.fn().mockResolvedValue(0) };
+  it('runs the guest purge daily, and the purge calls purgeGuests and the expiring notices', async () => {
+    const privacy = {
+      purgeGuests: vi.fn().mockResolvedValue(0),
+      notifyGuestsExpiring: vi.fn().mockResolvedValue(0),
+    };
     const refs = {
       get: (type: unknown) => (type === PrivacyService ? privacy : {}),
     } as unknown as ModuleRef;
@@ -24,5 +27,6 @@ describe('the worker schedule', () => {
     expect(schedules['privacy.purge-guests']).toMatch(/^\d+ \d+ \* \* \*$/);
     await handlers['privacy.purge-guests']?.({});
     expect(privacy.purgeGuests).toHaveBeenCalledOnce();
+    expect(privacy.notifyGuestsExpiring).toHaveBeenCalledOnce();
   });
 });
