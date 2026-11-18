@@ -160,3 +160,15 @@ model BrowseToken {
   @@index([expiresAt])
   @@map("browse_tokens")
 }
+
+// One row per guest space made, to limit how many one network address and the whole service can
+// make in a day. The address is kept only as a keyed hash, and the rows are deleted after two days.
+model GuestSignup {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  addrHash  String   @map("addr_hash") @db.Char(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([addrHash, createdAt])
+  @@index([createdAt])
+  @@map("guest_signups")
+}

@@ -78,6 +78,10 @@ model User {
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
   deletedAt       DateTime?  @map("deleted_at") @db.Timestamptz(3)
+  // A guest space: a real account with no email or password, deleted at guestExpiresAt (30 days
+  // after it was made, never extended). Linking an email clears both, on the same user.
+  isGuest         Boolean    @default(false) @map("is_guest")
+  guestExpiresAt  DateTime?  @map("guest_expires_at") @db.Timestamptz(3)
 
   tenant               Tenant?               @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   preferences          Preferences?
@@ -135,6 +139,8 @@ model User {
 
   @@index([tenantId])
   @@index([status, deletedAt])
+  // The daily guest purge and the expiring-soon sweep.
+  @@index([isGuest, guestExpiresAt])
   @@map("users")
 }
 
