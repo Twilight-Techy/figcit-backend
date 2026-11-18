@@ -1,8 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Post, Res } from '@nestjs/common';
+import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
+import { BadInput } from '../../common/errors/errors.js';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
+import { REFRESH_COOKIE } from '../auth/sessions.service.js';
 import { PrivacyService } from './privacy.service.js';
 
 const exportJobSchema = z.object({ id: z.uuid(), status: z.string() });
@@ -50,16 +53,26 @@ export class PrivacyController {
   @Delete()
   @HttpCode(202)
   @Route({
-    summary: 'Delete my account (hard delete after 30 days; S57)',
+    summary:
+      'Delete my account (hard delete after 30 days; S57). A guest space is erased at once and gets 204',
     tags: ['Privacy'],
     body: deleteSchema,
     response: deletedSchema,
     status: 202,
   })
-  remove(
+  async remove(
     @CurrentUser() user: RequestUser,
-    @Body(new ZodPipe(deleteSchema)) _body: z.infer<typeof deleteSchema>,
-  ): Promise<z.infer<typeof deletedSchema>> {
+    // A guest space needs no confirmation words: "Clear this device" has its own confirm dialog.
+    @Body(new ZodPipe(deleteSchema.optional())) body: z.infer<typeof deleteSchema> | undefined,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<z.infer<typeof deletedSchema> | undefined> {
+    if (await this.privacy.isGuest(user.id)) {
+      await this.privacy.eraseNow(user.id);
+      void reply.clearCookie(REFRESH_COOKIE, { path: '/v1/auth' });
+      void reply.status(204);
+      return undefined;
+    }
+    if (!body) throw new BadInput('Confirm with "delete my account".');
     return this.privacy.requestDeletion(user.id);
   }
 }

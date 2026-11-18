@@ -122,6 +122,15 @@ export class PrivacyService {
     );
   }
 
+  /** A guest space is erased the moment it is deleted: there is no grace period and no way back. */
+  async isGuest(userId: string): Promise<boolean> {
+    const row = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { isGuest: true },
+    });
+    return row?.isGuest === true;
+  }
+
   /** Soft delete now: signed out everywhere, data hidden. Hard delete after the grace period. */
   async requestDeletion(userId: string): Promise<{ scheduledFor: string }> {
     const scheduledFor = new Date(Date.now() + GRACE_DAYS * DAY);

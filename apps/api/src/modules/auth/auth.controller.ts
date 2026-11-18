@@ -31,9 +31,8 @@ import { AuthService, type SignedIn } from './auth.service.js';
 import { GoogleService } from './google.service.js';
 import { GuestService } from './guest.service.js';
 import { MailService } from '../../platform/mail/mail.service.js';
-import { SessionsService, type IssuedSession } from './sessions.service.js';
+import { REFRESH_COOKIE, SessionsService, type IssuedSession } from './sessions.service.js';
 
-const REFRESH_COOKIE = 'figcit_rt';
 const GOOGLE_COOKIE = 'figcit_g';
 const STRICT = { rateLimit: { max: 10, timeWindow: '1 minute' } };
 

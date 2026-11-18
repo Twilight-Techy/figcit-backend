@@ -318,6 +318,12 @@ export class AuthService {
    * Password sign-in doesn't, so only someone with the mailbox can bring an account back.
    */
   private async restoreIfPending(userId: string): Promise<void> {
+    // A guest space is never restored: it has no mailbox to prove, and deleting one erases it.
+    const who = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { isGuest: true },
+    });
+    if (who?.isGuest) return;
     const pending = await this.prisma.deletionRequest.findFirst({
       where: { userId, cancelledAt: null, scheduledFor: { gt: new Date() } },
       select: { userId: true },

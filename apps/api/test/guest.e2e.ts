@@ -377,3 +377,75 @@ describe('a guest keeps its name (B2)', () => {
     expect(res.body.nickname).toBeNull();
   });
 });
+
+describe('clearing a guest space (B3)', () => {
+  it('DELETE /me erases it at once: 204, no grace period, the data key and the data gone', async () => {
+    const guest = await start(api);
+    const token = guest.body.accessToken;
+    const id = guest.body.user.id;
+    await api.req('POST', '/tasks', { token, body: { title: 'A private task' } });
+    await api.req('POST', '/dumps', { token, body: { text: 'A private thought' } });
+    const res = await api.req('DELETE', '/me', { token });
+    expect(res.status).toBe(204);
+    expect(res.body).toBeNull();
+    expect(await prisma.user.findUnique({ where: { id } })).toBeNull();
+    expect(await prisma.task.count({ where: { userId: id } })).toBe(0);
+    expect(await prisma.dump.count({ where: { userId: id } })).toBe(0);
+    expect(await prisma.deletionRequest.count({ where: { userId: id } })).toBe(0);
+    // Signed out: the refresh token is gone with the session.
+    const again = await api.req('POST', '/auth/refresh', {
+      body: { refreshToken: guest.body.refreshToken },
+      headers: NATIVE,
+    });
+    expect(again.status).toBe(401);
+  });
+
+  it('also accepts the confirmation words, as an account does', async () => {
+    const guest = await start(api);
+    const res = await api.req('DELETE', '/me', {
+      token: guest.body.accessToken,
+      body: { confirm: 'delete my account' },
+    });
+    expect(res.status).toBe(204);
+  });
+
+  it('an account is deleted as before: 202, a grace period, the words needed', async () => {
+    const me = await api.signIn();
+    expect((await api.req('DELETE', '/me', { token: me.token })).status).toBe(400);
+    expect(
+      (await api.req('DELETE', '/me', { token: me.token, body: { confirm: 'yes' } })).status,
+    ).toBe(400);
+    const res = await api.req<{ scheduledFor: string }>('DELETE', '/me', {
+      token: me.token,
+      body: { confirm: 'delete my account' },
+    });
+    expect(res.status).toBe(202);
+    expect(res.body.scheduledFor).toBeTruthy();
+  });
+
+  it('a guest space is never restored by a sign-in link, even with a deletion request on it', async () => {
+    const guest = await start(api);
+    const id = guest.body.user.id;
+    await prisma.deletionRequest.create({
+      data: { userId: id, scheduledFor: new Date(Date.now() + 7 * DAY) },
+    });
+    await prisma.user.update({ where: { id }, data: { status: 'deleted', deletedAt: new Date() } });
+    const { sha256 } = await import('../src/common/crypto/envelope.js');
+    const token = 'guest-restore-attempt-token-0123456789';
+    await prisma.magicLink.create({
+      data: {
+        email: 'someone@example.test',
+        tokenHash: sha256(token),
+        codeHash: sha256('someone@example.test:123456'),
+        userId: id,
+        purpose: 'sign_in',
+        expiresAt: new Date(Date.now() + 600_000),
+      },
+    });
+    const res = await api.req('POST', '/auth/magic-link/verify', { body: { token } });
+    expect(res.status).toBe(401);
+    const row = await prisma.user.findUniqueOrThrow({ where: { id } });
+    expect(row.status).toBe('deleted');
+    expect(row.deletedAt).not.toBeNull();
+  });
+});

@@ -20276,7 +20276,7 @@
       },
       "delete": {
         "operationId": "Privacy_remove",
-        "summary": "Delete my account (hard delete after 30 days; S57)",
+        "summary": "Delete my account (hard delete after 30 days; S57). A guest space is erased at once and gets 204",
         "tags": [
           "Privacy"
         ],

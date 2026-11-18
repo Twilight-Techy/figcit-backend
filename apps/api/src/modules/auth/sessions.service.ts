@@ -6,6 +6,9 @@ import { Unauthorized } from '../../common/errors/errors.js';
 import { AccessTokens } from '../../common/guards/tokens.js';
 import { STAFF_ROLES } from '../../common/guards/auth.guard.js';
 
+/** The browser's refresh cookie. */
+export const REFRESH_COOKIE = 'figcit_rt';
+
 export interface IssuedSession {
   readonly accessToken: string;
   readonly refreshToken: string;
