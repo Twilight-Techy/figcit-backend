@@ -139,7 +139,9 @@ describe('dump', () => {
 describe('express', () => {
   it('simplifies by rules without a model, with what changed', async () => {
     const off = await bootApi({ AI_BASE_URL: '' });
-    const { token: t } = await off.signIn();
+    // Simplify is a paid mode (the owner's call, 18 Nov 2026).
+    const { token: t, userId: paid } = await off.signIn();
+    await off.grantPlus(paid);
     const d = await off.req<Draft>('POST', '/drafts', {
       token: t,
       body: {
@@ -162,8 +164,10 @@ describe('express', () => {
   });
 
   it('streams model text and replaces it when a check fails', async () => {
+    const { token: pt, userId: paid } = await api.signIn();
+    await api.grantPlus(paid);
     const d = await api.req<Draft>('POST', '/drafts', {
-      token,
+      token: pt,
       body: { body: 'Could we move the meeting to later please?' },
     });
     model.reply('Could we move the meeting later?');
@@ -171,7 +175,7 @@ describe('express', () => {
       method: 'POST',
       url: `/v1/drafts/${d.body.id}/assist`,
       headers: {
-        authorization: `Bearer ${token}`,
+        authorization: `Bearer ${pt}`,
         'content-type': 'application/json',
         accept: 'text/event-stream',
       },
@@ -189,21 +193,29 @@ describe('express', () => {
     const bad = await api.req<{ source: string; replaced: boolean }>(
       'POST',
       `/drafts/${d.body.id}/assist`,
-      { token, body: { mode: 'simplify' } },
+      { token: pt, body: { mode: 'simplify' } },
     );
     expect(bad.body).toMatchObject({ source: 'fallback', replaced: true });
   });
 
-  it('keeps structure and script for Plus and enforces the free allowance', async () => {
+  it('keeps simplify, structure and script for paid plans, Draft free, and enforces the free allowance', async () => {
     const d = await api.req<Draft>('POST', '/drafts', {
       token,
       body: { body: 'I need an extension. My laptop broke.' },
     });
-    const locked = await api.req<{ code: string }>('POST', `/drafts/${d.body.id}/assist`, {
+    for (const mode of ['simplify', 'structure', 'script']) {
+      const locked = await api.req<{ code: string }>('POST', `/drafts/${d.body.id}/assist`, {
+        token,
+        body: { mode },
+      });
+      expect(locked.status).toBe(402);
+    }
+    model.reply('I need a few more days for the report, as my laptop broke.');
+    const draft = await api.req('POST', `/drafts/${d.body.id}/assist`, {
       token,
-      body: { mode: 'structure' },
+      body: { mode: 'draft' },
     });
-    expect(locked.status).toBe(402);
+    expect(draft.status).toBe(201);
     const plus = await api.signIn();
     await api.grantPlus(plus.userId);
     const pd = await api.req<Draft>('POST', '/drafts', {
