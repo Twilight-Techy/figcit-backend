@@ -19,6 +19,8 @@ import type { CardDto } from './recommendation.schemas.js';
 import { SignalsService } from './signals.service.js';
 
 const STATE_FRESH_MS = 6 * 3_600_000;
+const LIGHTS: readonly string[] = ['green', 'yellow', 'amber', 'red', 'blue'];
+const isLight = (v: string | null): v is Light => v !== null && LIGHTS.includes(v);
 
 /** What is stored in `recommendations.trace` so a card can be re-rendered and the decision replayed. */
 interface StoredTrace {
@@ -137,7 +139,9 @@ export class RecommendationService {
 
   /**
    * The user's state from their latest card in the last few hours (Yellow when unknown), with the
-   * check-in's peak negative intensity and families. Used by task order and the Reflect gate.
+   * check-in's peak negative intensity and families. Used by task order, the Reflect gate and the
+   * nudge policy. A v5.0 check-in is a decision record, not a recommendation: the newest of the two
+   * counts, so a Red or Amber v5.0 colour holds Reflect and nudges and orders tasks like the old one.
    */
   async currentState(
     userId: string,
@@ -149,19 +153,26 @@ export class RecommendationService {
     families: string[];
     setting: string | null;
   }> {
-    const rec = await this.prisma.recommendation.findFirst({
-      where: { userId, createdAt: { gt: new Date(now.getTime() - STATE_FRESH_MS) } },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        light: true,
-        checkIn: {
-          select: {
-            emotions: { select: { familyCode: true, intensity: true } },
-            context: { select: { environment: true } },
+    const since = new Date(now.getTime() - STATE_FRESH_MS);
+    const [rec, v5] = await Promise.all([
+      this.prisma.recommendation.findFirst({
+        where: { userId, createdAt: { gt: since } },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          createdAt: true,
+          light: true,
+          checkIn: {
+            select: {
+              emotions: { select: { familyCode: true, intensity: true } },
+              context: { select: { environment: true } },
+            },
           },
         },
-      },
-    });
+      }),
+      this.latestV5Light(userId, since),
+    ]);
+    if (v5 && (!rec || v5.at > rec.createdAt))
+      return { light: v5.light, known: true, peakNegative: 0, families: [], setting: null };
     if (!rec)
       return { light: 'yellow', known: false, peakNegative: 0, families: [], setting: null };
     const { snapshot } = await this.rules.current();
@@ -180,6 +191,23 @@ export class RecommendationService {
       families: [...new Set(emotions.map((e) => e.familyCode))],
       setting: rec.checkIn.context?.environment ?? null,
     };
+  }
+
+  /** The colour of the account's latest v5.0 decision since `since` (a record with `checkin.mode`). */
+  private async latestV5Light(
+    userId: string,
+    since: Date,
+  ): Promise<{ light: Light; at: Date } | null> {
+    const rows = await this.prisma.decisionRecord.findMany({
+      where: { userId, createdAt: { gt: since }, light: { not: null } },
+      orderBy: { createdAt: 'desc' },
+      select: { light: true, createdAt: true, input: true },
+      take: 10,
+    });
+    const found = rows.find(
+      (r) => typeof (r.input as Record<string, unknown>)['checkin.mode'] === 'string',
+    );
+    return found && isLight(found.light) ? { light: found.light, at: found.createdAt } : null;
   }
 
   signalsFor(userId: string, now = new Date()): Promise<UserSignals> {

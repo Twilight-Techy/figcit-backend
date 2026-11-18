@@ -3,6 +3,8 @@
 // published again afterwards, for the files that follow.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
+import { decide as nudgePolicy } from '../src/modules/notifications/policy.js';
+import { RecommendationService } from '../src/modules/recommendation/recommendation.service.js';
 import { InstitutionsService } from '../src/modules/institutions/institutions.service.js';
 import type { DecisionV5Dto, PreviewV5Dto } from '../src/modules/decisions/v5.schemas.js';
 import { bootApi, publishV2, type Api } from './helpers.js';
@@ -258,5 +260,51 @@ describe('Rules Engine v5.0 decisions', () => {
       orderBy: { weekStart: 'desc' },
     });
     expect(rows[0]).toMatchObject({ value: floor, suppressed: false });
+  });
+
+  describe('the modules that read how the person is (B-01)', () => {
+    const RED = { kind: 'grid', energy: 1, mood: 1 } as const;
+    const gate = (token: string) =>
+      api.req<{ allowed: boolean; reason: string; light: string }>('GET', '/reflect/gate', {
+        token,
+      });
+    const ordered = (token: string) =>
+      api.req<{ light: string; lightKnown: boolean }>('GET', '/tasks/ordered', { token });
+
+    it('a Red v5.0 check-in holds Reflect, orders tasks by the light and holds task nudges', async () => {
+      const me = await api.signIn();
+      expect((await gate(me.token)).body).toMatchObject({ allowed: true, light: 'yellow' });
+      expect((await decide({ state: RED }, me.token)).body.card.light).toBe('red');
+      expect((await gate(me.token)).body).toMatchObject({
+        allowed: false,
+        reason: 'regulate_first',
+        light: 'red',
+      });
+      expect((await ordered(me.token)).body).toMatchObject({ light: 'red', lightKnown: true });
+      const state = await api.app.get(RecommendationService).currentState(me.userId);
+      expect(state).toMatchObject({ light: 'red', known: true });
+      const nudge = nudgePolicy({
+        now: new Date('2026-11-18T12:00:00Z'),
+        timeZone: 'UTC',
+        category: 'tasks',
+        style: 'standard',
+        categories: ['tasks'],
+        quietStart: null,
+        quietEnd: null,
+        inWorship: false,
+        inWorshipUntil: null,
+        taskNudgesToday: 0,
+        light: state.known ? state.light : null,
+      });
+      expect(nudge).toBe('held_capacity');
+    });
+
+    it('the newest check-in counts: a Green one after a Red one lets Reflect through', async () => {
+      const me = await api.signIn();
+      await decide({ state: RED }, me.token);
+      expect((await gate(me.token)).body.allowed).toBe(false);
+      await decide({ state: GREEN }, me.token);
+      expect((await gate(me.token)).body).toMatchObject({ allowed: true, light: 'green' });
+    });
   });
 });
