@@ -175,6 +175,22 @@ describe('safety', () => {
     ).toBe(401);
   });
 
+  it('screens text for the screens whose own save does not: tasks, practices and the rest', async () => {
+    for (const sourceModule of ['tasks', 'practices', 'institution', 'reminders']) {
+      const res = await api.req<{ safety: boolean }>('POST', '/safety/screen', {
+        token,
+        body: { sourceModule, texts: ['I want to kill myself'] },
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.safety).toBe(true);
+    }
+    const unknown = await api.req('POST', '/safety/screen', {
+      token,
+      body: { sourceModule: 'nowhere', texts: ['x'] },
+    });
+    expect(unknown.status).toBe(400);
+  });
+
   it('keeps an encrypted support plan', async () => {
     const empty = await api.req<{ messages: string[] }>('GET', '/me/support-plan', { token });
     expect(empty.body.messages).toEqual([]);
