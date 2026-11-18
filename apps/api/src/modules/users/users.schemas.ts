@@ -78,6 +78,9 @@ export const meSchema = z.object({
   setupDone: z.boolean(),
   /** Your details (S04a) are done: a name, the age rule passed, and Terms and Privacy accepted. */
   detailsDone: z.boolean(),
+  /** A guest space: no email, erased when `guestExpiresAt` comes (30 days after it was made). */
+  isGuest: z.boolean(),
+  guestExpiresAt: z.iso.datetime().nullable(),
   productUpdates: z.boolean(),
   hasPassword: z.boolean(),
   /** @deprecated Use `tier`: any paid plan reads as `plus` here. */

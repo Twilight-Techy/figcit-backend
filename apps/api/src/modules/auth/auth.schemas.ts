@@ -30,6 +30,19 @@ export const refreshSchema = z
   .strict();
 export const mfaCodeSchema = z.object({ code: z.string().regex(/^\d{6}$/) }).strict();
 
+/**
+ * A guest space (docs/GUEST_SPACE.md): adults only (the age is asked first, and nothing is made for
+ * a child), and the Terms and Privacy are accepted on the notice page. `botToken` is the answer to
+ * the bot challenge, when the server asks for one.
+ */
+export const guestSignUpSchema = z
+  .object({
+    ageBand: z.literal('18_plus'),
+    acceptTerms: z.literal(true),
+    botToken: z.string().min(1).max(4096).optional(),
+  })
+  .strict();
+
 export const sessionSchema = z.object({
   accessToken: z.string(),
   expiresIn: z.number().int(),
@@ -40,6 +53,8 @@ export const sessionSchema = z.object({
     roles: z.array(z.string()),
     isNew: z.boolean(),
     mfaRequired: z.boolean(),
+    /** A guest space: no email, deleted after 30 days. */
+    isGuest: z.boolean(),
   }),
 });
 export type SessionDto = z.infer<typeof sessionSchema>;

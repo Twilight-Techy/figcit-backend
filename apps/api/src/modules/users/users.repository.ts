@@ -20,6 +20,8 @@ const ME_SELECT = {
   productUpdates: true,
   passwordHash: true,
   createdAt: true,
+  isGuest: true,
+  guestExpiresAt: true,
   status: true,
   tenant: { select: { id: true, name: true } },
   preferences: true,
@@ -72,6 +74,8 @@ export class UsersRepository {
       emailVerified: boolean;
       passwordHash?: string;
       nickname?: string | null;
+      /** A guest space: made adult and with the terms accepted, so its details are done (SU-4, SU-8). */
+      guest?: { expiresAt: Date };
     },
     tx?: Tx,
   ): Promise<{ id: string }> {
@@ -83,6 +87,15 @@ export class UsersRepository {
         emailVerifiedAt: data.emailVerified ? new Date() : null,
         ...(data.passwordHash ? { passwordHash: data.passwordHash } : {}),
         ...(data.nickname ? { nickname: data.nickname } : {}),
+        ...(data.guest
+          ? {
+              isGuest: true,
+              guestExpiresAt: data.guest.expiresAt,
+              ageBand: 'adult' as const,
+              ageConfirmedAt: new Date(),
+              termsAcceptedAt: new Date(),
+            }
+          : {}),
         // Quiet hours 21:00–08:00 by default (D-27).
         preferences: { create: { quietHoursStart: 21 * 60, quietHoursEnd: 8 * 60 } },
         entitlements: { create: { planCode: 'free', source: 'none' } },

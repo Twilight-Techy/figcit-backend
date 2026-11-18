@@ -14,6 +14,10 @@ export interface IssuedSession {
   readonly userId: string;
   readonly roles: readonly string[];
   readonly mfaRequired: boolean;
+  /** A guest space: its refresh token cannot outlive guestExpiresAt. */
+  readonly isGuest: boolean;
+  /** When the session ends; for a guest, never later than the space itself. */
+  readonly expiresAt: Date;
 }
 
 const isStaff = (roles: readonly string[]): boolean =>
@@ -31,11 +35,13 @@ export class SessionsService {
     private readonly tokens: AccessTokens,
   ) {}
 
-  private refreshExpiry(staff: boolean): Date {
+  private refreshExpiry(staff: boolean, guestExpiresAt: Date | null = null): Date {
     const ms = staff
       ? this.env.STAFF_SESSION_HOURS * 3_600_000
       : this.env.REFRESH_TTL_DAYS * 86_400_000;
-    return new Date(Date.now() + ms);
+    const at = new Date(Date.now() + ms);
+    // A guest space ends at guestExpiresAt, whatever the session would otherwise last.
+    return guestExpiresAt && guestExpiresAt < at ? guestExpiresAt : at;
   }
 
   async issue(
@@ -45,10 +51,12 @@ export class SessionsService {
   ): Promise<IssuedSession> {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { roles: true },
+      select: { roles: true, isGuest: true, guestExpiresAt: true },
     });
+    if (user.isGuest && (user.guestExpiresAt ?? new Date(0)) <= new Date())
+      throw new Unauthorized('This guest space has ended.');
     const staff = isStaff(user.roles);
-    const expiresAt = this.refreshExpiry(staff);
+    const expiresAt = this.refreshExpiry(staff, user.isGuest ? user.guestExpiresAt : null);
     const refreshToken = randomToken();
     const session = await this.prisma.session.create({
       data: {
@@ -65,6 +73,8 @@ export class SessionsService {
     return this.tokensFor(session.id, userId, user.roles, {
       refreshToken: refreshToken,
       mfa: mfaVerified,
+      guest: user.isGuest,
+      expiresAt,
     });
   }
 
@@ -72,7 +82,12 @@ export class SessionsService {
     sessionId: string,
     userId: string,
     roles: readonly string[],
-    { refreshToken, mfa }: { refreshToken: string; mfa: boolean },
+    {
+      refreshToken,
+      mfa,
+      guest,
+      expiresAt,
+    }: { refreshToken: string; mfa: boolean; guest: boolean; expiresAt: Date },
   ): Promise<IssuedSession> {
     const accessToken = await this.tokens.sign({ sub: userId, sid: sessionId, roles, mfa });
     return {
@@ -83,6 +98,8 @@ export class SessionsService {
       userId,
       roles,
       mfaRequired: isStaff(roles) && !mfa,
+      isGuest: guest,
+      expiresAt,
     };
   }
 
@@ -101,7 +118,15 @@ export class SessionsService {
             revokedAt: true,
             expiresAt: true,
             mfaVerifiedAt: true,
-            user: { select: { roles: true, status: true, deletedAt: true } },
+            user: {
+              select: {
+                roles: true,
+                status: true,
+                deletedAt: true,
+                isGuest: true,
+                guestExpiresAt: true,
+              },
+            },
           },
         },
       },
@@ -111,7 +136,10 @@ export class SessionsService {
       found.session.revokedAt ||
       found.expiresAt < new Date() ||
       found.session.user.status !== 'active' ||
-      found.session.user.deletedAt
+      found.session.user.deletedAt ||
+      // A guest space that has ended cannot be refreshed, whatever the token says.
+      (found.session.user.isGuest &&
+        (found.session.user.guestExpiresAt ?? new Date(0)) <= new Date())
     ) {
       throw new Unauthorized();
     }
@@ -138,6 +166,8 @@ export class SessionsService {
     return this.tokensFor(found.session.id, found.session.userId, found.session.user.roles, {
       refreshToken: next,
       mfa: found.session.mfaVerifiedAt !== null,
+      guest: found.session.user.isGuest,
+      expiresAt: found.session.expiresAt,
     });
   }
 
@@ -159,6 +189,8 @@ export class SessionsService {
     return this.tokensFor(sessionId, userId, session.user.roles, {
       refreshToken: refreshToken,
       mfa: true,
+      guest: false,
+      expiresAt,
     });
   }
 

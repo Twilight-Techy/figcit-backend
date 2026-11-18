@@ -89,6 +89,8 @@ export class UsersService {
       setupDone: row.setupDoneAt !== null,
       detailsDone:
         row.nickname !== null && row.ageConfirmedAt !== null && row.termsAcceptedAt !== null,
+      isGuest: row.isGuest,
+      guestExpiresAt: row.isGuest ? (row.guestExpiresAt?.toISOString() ?? null) : null,
       productUpdates: row.productUpdates,
       hasPassword: row.passwordHash !== null,
       plan: tier === 'free' ? 'free' : 'plus',

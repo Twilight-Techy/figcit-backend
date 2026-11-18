@@ -31,6 +31,14 @@ const envSchema = z.object({
   JWT_PUBLIC_KEY: z.string().min(1),
   REFRESH_TTL_DAYS: z.coerce.number().int().min(1).default(30),
   STAFF_SESSION_HOURS: z.coerce.number().int().min(1).default(8),
+  // Guest spaces (docs/GUEST_SPACE.md): sign-ups are limited per network address and in all, and an
+  // optional bot challenge (a siteverify-style check: Turnstile, hCaptcha, reCAPTCHA) is off by default.
+  GUEST_BOT_CHALLENGE: bool.default(false),
+  GUEST_BOT_SECRET: z.string().optional(),
+  GUEST_BOT_VERIFY_URL: z.url().optional(),
+  GUEST_DAILY_CAP: z.coerce.number().int().min(0).default(2000),
+  GUEST_SIGNUPS_PER_DAY: z.coerce.number().int().min(1).default(20),
+  GUEST_SIGNUPS_PER_HOUR: z.coerce.number().int().min(1).default(5),
   // Encryption (SOPS + age in production; see SYSTEM_DESIGN §9.3)
   MASTER_KEYS: z.string().min(1),
   // Jobs: run them in the API process with no polling, so an idle database can sleep (ADR 0010).

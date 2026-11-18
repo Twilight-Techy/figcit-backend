@@ -12,6 +12,7 @@ import {
   authMethodsSchema,
   browseTokenSchema,
   forgotSchema,
+  guestSignUpSchema,
   magicLinkRequestSchema,
   magicLinkVerifySchema,
   mfaCodeSchema,
@@ -28,6 +29,7 @@ import {
 } from './auth.schemas.js';
 import { AuthService, type SignedIn } from './auth.service.js';
 import { GoogleService } from './google.service.js';
+import { GuestService } from './guest.service.js';
 import { MailService } from '../../platform/mail/mail.service.js';
 import { SessionsService, type IssuedSession } from './sessions.service.js';
 
@@ -68,6 +70,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly sessions: SessionsService,
     private readonly google: GoogleService,
+    private readonly guests: GuestService,
     private readonly mail: MailService,
   ) {}
 
@@ -88,7 +91,10 @@ export class AuthController {
       secure,
       sameSite: 'lax',
       path: '/v1/auth',
-      maxAge: this.env.REFRESH_TTL_DAYS * 86_400,
+      // A guest space's cookie ends with the space.
+      maxAge: session.isGuest
+        ? Math.max(0, Math.floor((session.expiresAt.getTime() - Date.now()) / 1000))
+        : this.env.REFRESH_TTL_DAYS * 86_400,
     });
     return {
       accessToken: session.accessToken,
@@ -99,12 +105,34 @@ export class AuthController {
         roles: [...session.roles],
         isNew,
         mfaRequired: session.mfaRequired,
+        isGuest: session.isGuest,
       },
     };
   }
 
   private signedIn(req: FastifyRequest, reply: FastifyReply, s: SignedIn): SessionDto {
     return this.respond(req, reply, s, s.isNew);
+  }
+
+  @Post('guest')
+  @HttpCode(201)
+  @RouteConfig(STRICT)
+  @Route({
+    summary:
+      'Start a guest space: an account with no email, for adults, kept for 30 days at most (limited per address and per day)',
+    tags: ['Auth'],
+    access: 'public',
+    body: guestSignUpSchema,
+    response: sessionSchema,
+    status: 201,
+  })
+  async guest(
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+    @Body(new ZodPipe(guestSignUpSchema)) body: z.infer<typeof guestSignUpSchema>,
+  ): Promise<SessionDto> {
+    const session = await this.guests.create(req.ip, body.botToken, device(req));
+    return this.respond(req, reply, session, true);
   }
 
   @Post('magic-link')
