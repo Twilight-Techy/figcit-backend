@@ -50,7 +50,11 @@ const checkInV5Base = z.object({
   recheckOfId: z.uuid().optional().describe('The decision this check-in re-checks'),
 });
 
-/** The rules between answers: each emotion once, and Something else's own words go with its emotion. */
+/**
+ * The rule between answers: each emotion once. Something else's own words may arrive before the
+ * feeling is rated, while the app leaves the emotion out; the words are only screened for safety and
+ * are not used without that emotion, so they are not refused.
+ */
 export const checkInV5Schema = checkInV5Base
   .superRefine((b, ctx) => {
     const seen = new Set<string>();
@@ -63,12 +67,6 @@ export const checkInV5Schema = checkInV5Base
         });
       seen.add(e.code);
     });
-    if (b.somethingElse && !seen.has('something_else'))
-      ctx.addIssue({
-        code: 'custom',
-        path: ['somethingElse'],
-        message: 'Your own words go with the "Something else" feeling. Pick that feeling too.',
-      });
   })
   .meta({
     examples: [

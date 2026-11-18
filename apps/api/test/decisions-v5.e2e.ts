@@ -314,11 +314,24 @@ describe('Rules Engine v5.0 decisions', () => {
       );
     });
 
-    it('refuses Something else words without the Something else feeling', async () => {
-      await bad(
-        { somethingElse: { text: 'gutted' }, emotions: [{ code: 'calm', level: 3 }] },
-        'somethingElse',
-      );
+    it('accepts Something else words before the feeling is rated, and neither stores nor uses them', async () => {
+      // The app sends the words while the strength is still unrated, with the emotion left out.
+      const body = {
+        somethingElse: { text: 'gutted-orphan' },
+        emotions: [{ code: 'calm', level: 3 }],
+      };
+      const seen = await preview(body);
+      expect(seen.status).toBe(200);
+      const plain = await preview({ emotions: [{ code: 'calm', level: 3 }] });
+      expect(seen.body.light).toBe(plain.body.light);
+      expect(seen.body.reason).toBe(plain.body.reason);
+      const made = await decide(body);
+      expect(made.status).toBe(201);
+      expect(JSON.stringify(made.body)).not.toContain('gutted-orphan');
+      const record = await api.app
+        .get(PrismaService)
+        .decisionRecord.findUniqueOrThrow({ where: { id: made.body.id } });
+      expect(JSON.stringify(record)).not.toContain('gutted-orphan');
     });
 
     it('takes them together, and still ignores keys it does not know (Not sure answers stay stripped)', async () => {
