@@ -29,6 +29,12 @@ import type {
 } from './decisions.schemas.js';
 import { EngineRuntimeService, type Runnable } from './engine-runtime.service.js';
 
+/**
+ * How long after a v5.0 decision a finished support session still counts for its re-check (RC-1):
+ * the same day, and no more. A longer gap is a different day's support, not what the card offered.
+ */
+const SUPPORT_WINDOW_MS = 24 * 3_600_000;
+
 /** A check-in turned into the published engine's input. */
 export interface Prepared {
   readonly engine: Runnable;
@@ -241,24 +247,40 @@ export class DecisionsService {
   }
 
   /**
-   * Whether the person finished a support session since an earlier v5.0 decision (RC-1, T-23). A v5.0
-   * card is not a Recommendation, so a session carries no link to it: it counts if it is one of the
-   * card's pathways, started after the decision, and completed.
+   * Whether the person finished a support session after an earlier v5.0 decision (RC-1, T-23). A v5.0
+   * card is not a Recommendation, so a session carries no link to it, and the match is by time: a
+   * completed session of one of the card's pathways that started after the decision and within
+   * SUPPORT_WINDOW_MS of it. A decision older than that window at the re-check is not matched at all
+   * (undefined: `recheck.support_completed` is left unset), so an unrelated session days later can
+   * never make a recovery look earned.
    */
-  async supportCompletedSince(userId: string, decisionId: string): Promise<boolean> {
+  async supportCompletedSince(
+    userId: string,
+    decisionId: string,
+    now = new Date(),
+  ): Promise<boolean | undefined> {
     const previous = await this.prisma.decisionRecord.findFirst({
       where: { id: decisionId, userId },
       select: { createdAt: true, card: true },
     });
-    if (!previous) return false;
+    if (!previous || now.getTime() - previous.createdAt.getTime() > SUPPORT_WINDOW_MS)
+      return undefined;
     const card = previous.card as unknown as Pick<Card, 'primary' | 'alternatives'>;
     const offered = new Set(
       [card.primary, ...card.alternatives].flatMap((i) => (i?.pathway ? [i.pathway] : [])),
     );
     const done = await this.prisma.pathwaySession.findMany({
-      where: { userId, completed: true, startedAt: { gte: previous.createdAt } },
+      where: {
+        userId,
+        completed: true,
+        startedAt: {
+          gte: previous.createdAt,
+          lte: new Date(previous.createdAt.getTime() + SUPPORT_WINDOW_MS),
+        },
+      },
+      orderBy: { startedAt: 'desc' },
       select: { pathway: true },
-      take: 50,
+      take: 10,
     });
     return done.some((d) => offered.size === 0 || offered.has(d.pathway));
   }

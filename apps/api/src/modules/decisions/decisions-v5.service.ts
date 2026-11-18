@@ -56,7 +56,7 @@ export class DecisionsV5Service {
           userId,
           body.recheckOfId,
           // RC-1: Blue needs the support finished, as the v3.3 bridge reads it from the session.
-          await this.decisions.supportCompletedSince(userId, body.recheckOfId),
+          await this.decisions.supportCompletedSince(userId, body.recheckOfId, now),
         )
       : undefined;
     const p = await this.prepare(body, userId, now, recheck);

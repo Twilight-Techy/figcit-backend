@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
 import { decide as nudgePolicy } from '../src/modules/notifications/policy.js';
 import { RecommendationService } from '../src/modules/recommendation/recommendation.service.js';
+import { DecisionsV5Service } from '../src/modules/decisions/decisions-v5.service.js';
 import { InstitutionsService } from '../src/modules/institutions/institutions.service.js';
 import type { DecisionV5Dto, PreviewV5Dto } from '../src/modules/decisions/v5.schemas.js';
 import { bootApi, publishV2, type Api } from './helpers.js';
@@ -348,13 +349,30 @@ describe('Rules Engine v5.0 decisions', () => {
   describe('Blue on a re-check (RC-1, B-04)', () => {
     const RED = { kind: 'grid', energy: 1, mood: 1 } as const;
     const BETTER = { kind: 'grid', energy: 3, mood: 3 } as const;
-    const recheck = async (finished: boolean) => {
+    const HOUR = 3_600_000;
+    /**
+     * Red, then a completed (or not) support session, then a much better re-check. Decision records
+     * cannot be changed, so time is set the other way round: the session starts `sessionHours`
+     * after the decision (the API takes a start time) and the re-check is made `recheckHours`
+     * after it (the service takes the time it runs at).
+     */
+    const recheck = async (
+      finished: boolean,
+      when: { sessionHours: number; recheckHours: number } = { sessionHours: 0, recheckHours: 0 },
+    ) => {
       const me = await api.signIn();
       const first = await decide({ state: RED }, me.token);
       expect(first.body.card.light).toBe('red');
+      const t0 = new Date(first.body.createdAt).getTime();
       const session = await api.req<{ id: string }>('POST', '/sessions', {
         token: me.token,
-        body: { pathway: 'regulate', toolId: 'breathe' },
+        body: {
+          pathway: 'regulate',
+          toolId: 'breathe',
+          ...(when.sessionHours !== 0
+            ? { startedAt: new Date(t0 + when.sessionHours * HOUR).toISOString() }
+            : {}),
+        },
       });
       expect(session.status).toBe(201);
       if (finished)
@@ -362,19 +380,48 @@ describe('Rules Engine v5.0 decisions', () => {
           token: me.token,
           body: { endedAt: new Date().toISOString(), lengthSeconds: 180, completed: true },
         });
-      return decide({ state: BETTER, recheckOfId: first.body.id }, me.token);
+      const now = new Date(Math.max(Date.now(), t0 + when.recheckHours * HOUR));
+      return {
+        card: (
+          await api.app
+            .get(DecisionsV5Service)
+            .decide(
+              { mode: 'full', state: BETTER, emotions: [], recheckOfId: first.body.id },
+              me.userId,
+              now,
+            )
+        ).card,
+      };
     };
 
     it('is reached when the support was finished and the state is much better', async () => {
       const second = await recheck(true);
-      expect(second.status).toBe(201);
-      expect(second.body.card.light).toBe('blue');
+      expect(second.card.light).toBe('blue');
     });
 
     it('is not reached when the support was not finished', async () => {
       const second = await recheck(false);
-      expect(second.status).toBe(201);
-      expect(second.body.card.light).not.toBe('blue');
+      expect(second.card.light).not.toBe('blue');
+    });
+
+    it('is reached for a session finished inside the day after the decision', async () => {
+      const second = await recheck(true, { sessionHours: 1, recheckHours: 5 });
+      expect(second.card.light).toBe('blue');
+    });
+
+    it('is not reached by an unrelated session two days later', async () => {
+      const second = await recheck(true, { sessionHours: 48, recheckHours: 49 });
+      expect(second.card.light).not.toBe('blue');
+    });
+
+    it('is not reached when the decision is older than a day, even for a session soon after it', async () => {
+      const second = await recheck(true, { sessionHours: 1, recheckHours: 30 });
+      expect(second.card.light).not.toBe('blue');
+    });
+
+    it('is not reached by a session finished before the decision', async () => {
+      const second = await recheck(true, { sessionHours: -3, recheckHours: 5 });
+      expect(second.card.light).not.toBe('blue');
     });
   });
 
