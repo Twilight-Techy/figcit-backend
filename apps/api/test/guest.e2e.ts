@@ -1,8 +1,11 @@
 // Guest space (docs/GUEST_SPACE.md): a real account with no email, kept for 30 days at most.
+import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
+import { SessionsService } from '../src/modules/auth/sessions.service.js';
+import { PrivacyService } from '../src/modules/privacy/privacy.service.js';
 import { bootApi, type Api } from './helpers.js';
 
 let api: Api;
@@ -431,7 +434,7 @@ describe('clearing a guest space (B3)', () => {
     });
     await prisma.user.update({ where: { id }, data: { status: 'deleted', deletedAt: new Date() } });
     const { sha256 } = await import('../src/common/crypto/envelope.js');
-    const token = 'guest-restore-attempt-token-0123456789';
+    const token = `guest-restore-${randomUUID()}`;
     await prisma.magicLink.create({
       data: {
         email: 'someone@example.test',
@@ -447,5 +450,74 @@ describe('clearing a guest space (B3)', () => {
     const row = await prisma.user.findUniqueOrThrow({ where: { id } });
     expect(row.status).toBe('deleted');
     expect(row.deletedAt).not.toBeNull();
+  });
+});
+
+describe('the daily guest purge (B4)', () => {
+  const privacy = () => api.app.get(PrivacyService);
+  const expireAt = (id: string, at: Date) =>
+    prisma.user.update({ where: { id }, data: { guestExpiresAt: at } });
+
+  it('erases the guest spaces whose time has come, in batches, and nothing else', async () => {
+    const now = new Date('2030-01-01T03:10:00Z');
+    const old: string[] = [];
+    for (let i = 0; i < 5; i += 1) {
+      const g = await start(api);
+      await api.req('POST', '/tasks', { token: g.body.accessToken, body: { title: 'Mine' } });
+      await expireAt(g.body.user.id, new Date(now.getTime() - (i + 1) * 1000));
+      old.push(g.body.user.id);
+    }
+    const alive = await start(api);
+    await expireAt(alive.body.user.id, new Date(now.getTime() + DAY));
+    const account = await api.signIn();
+    // An account is never touched, whatever its dates say.
+    await prisma.user.update({
+      where: { id: account.userId },
+      data: { guestExpiresAt: new Date(now.getTime() - DAY) },
+    });
+    // The "now" in the test is 2030: only guest spaces expired before it are due, and those made
+    // by the earlier tests in this file have expired by then too, so count what this test made.
+    const before = await prisma.user.count({ where: { isGuest: true } });
+    const erased = await privacy().purgeGuests(now, 2);
+    expect(erased).toBeGreaterThanOrEqual(5);
+    for (const id of old) {
+      expect(await prisma.user.findUnique({ where: { id } })).toBeNull();
+      expect(await prisma.task.count({ where: { userId: id } })).toBe(0);
+    }
+    expect(await prisma.user.findUnique({ where: { id: alive.body.user.id } })).not.toBeNull();
+    expect(await prisma.user.findUnique({ where: { id: account.userId } })).not.toBeNull();
+    expect(await prisma.user.count({ where: { isGuest: true } })).toBe(before - erased);
+  });
+
+  it('is a no-op when nothing is due, and drops sign-up counter rows older than two days', async () => {
+    const now = new Date('2031-06-01T03:10:00Z');
+    await prisma.guestSignup.deleteMany();
+    await prisma.guestSignup.create({
+      data: { addrHash: 'b'.repeat(64), createdAt: new Date(now.getTime() - 3 * DAY) },
+    });
+    await prisma.guestSignup.create({
+      data: { addrHash: 'c'.repeat(64), createdAt: new Date(now.getTime() - DAY) },
+    });
+    // Guests still alive at this date: none are due before the clock reaches them.
+    await prisma.user.updateMany({
+      where: { isGuest: true },
+      data: { guestExpiresAt: new Date(now.getTime() + DAY) },
+    });
+    expect(await privacy().purgeGuests(now)).toBe(0);
+    const left = await prisma.guestSignup.findMany();
+    expect(left.map((r) => r.addrHash)).toEqual(['c'.repeat(64)]);
+  });
+
+  it('a guest space past its time cannot start a session or refresh one', async () => {
+    const g = await start(api);
+    await expireAt(g.body.user.id, new Date(Date.now() - 1000));
+    await expect(api.app.get(SessionsService).issue(g.body.user.id, 'test')).rejects.toThrow(
+      /ended/,
+    );
+    const res = await api.req('POST', '/auth/refresh', {
+      body: { refreshToken: g.body.refreshToken },
+      headers: NATIVE,
+    });
+    expect(res.status).toBe(401);
   });
 });

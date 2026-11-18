@@ -193,6 +193,42 @@ export class PrivacyService {
     return due.length;
   }
 
+  /**
+   * Worker (daily): erases the guest spaces that have reached guestExpiresAt, with eraseNow, in
+   * batches until none are due, and drops the sign-up counter rows older than two days. A guest
+   * space is never extended, so there is nothing to check but the date.
+   */
+  async purgeGuests(now = new Date(), batch = 100): Promise<number> {
+    let erased = 0;
+    // Each round erases a batch; a failure on one account is logged and does not stop the rest, and
+    // it is tried again tomorrow. The cap on rounds keeps one run bounded.
+    for (let round = 0; round < 1000; round += 1) {
+      const due = await this.prisma.user.findMany({
+        where: { isGuest: true, guestExpiresAt: { lte: now } },
+        orderBy: { guestExpiresAt: 'asc' },
+        select: { id: true },
+        take: batch,
+      });
+      if (due.length === 0) break;
+      let done = 0;
+      for (const { id } of due)
+        try {
+          await this.eraseNow(id);
+          done += 1;
+        } catch (e) {
+          this.logger.warn({ err: String(e) }, 'guest space not erased; will retry');
+        }
+      erased += done;
+      // Nothing erased in a whole round would only repeat itself.
+      if (done === 0) break;
+    }
+    await this.prisma.guestSignup.deleteMany({
+      where: { createdAt: { lt: new Date(now.getTime() - 2 * DAY) } },
+    });
+    if (erased) this.logger.log(`erased ${String(erased)} guest spaces`);
+    return erased;
+  }
+
   /** Worker (nightly): drop what we no longer need (Privacy notice §7). */
   async retention(now = new Date()): Promise<Record<string, number>> {
     const ago = (days: number): Date => new Date(now.getTime() - days * DAY);

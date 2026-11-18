@@ -12,6 +12,7 @@ export const QUEUES = [
   'dump.sort', // sortDump (Advanced)
   'privacy.export',
   'privacy.purge', // hard delete after the grace period
+  'privacy.purge-guests', // erase guest spaces at their 30 days
   'retention.nightly',
   'analytics.rollup',
   'reflect.topic-counts',

@@ -79,6 +79,9 @@ export class WorkerRunner implements OnApplicationBootstrap {
         'privacy.purge': async () => {
           await this.privacy.purgeDue();
         },
+        'privacy.purge-guests': async () => {
+          await this.privacy.purgeGuests();
+        },
         'retention.nightly': async () => {
           this.logger.log({ removed: await this.privacy.retention() }, 'retention');
           this.logger.log(
@@ -99,6 +102,7 @@ export class WorkerRunner implements OnApplicationBootstrap {
         'checkin.sustained-red': '15 6 * * *',
         'decisions.replay-sample': '50 4 * * *',
         'privacy.purge': '30 3 * * *',
+        'privacy.purge-guests': '10 3 * * *',
         'retention.nightly': '0 3 * * *',
         'reflect.topic-counts': '45 2 * * *',
         'analytics.rollup': '20 1 * * *',
