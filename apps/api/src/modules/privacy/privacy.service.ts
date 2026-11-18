@@ -195,33 +195,73 @@ export class PrivacyService {
   }
 
   /**
-   * Worker (daily): erases the guest spaces that have reached guestExpiresAt, with eraseNow, in
-   * batches until none are due, and drops the sign-up counter rows older than two days. A guest
-   * space is never extended, so there is nothing to check but the date.
+   * Erases one guest space, and only if it is still a guest space that has reached its date. The
+   * user row is locked and checked again inside the transaction, so a space that was linked to an
+   * email after it was chosen for erasing, an account, or a space not yet due, is left exactly as it
+   * is: nothing is deleted and no file is removed. Files go after the transaction has committed,
+   * from the keys read inside it. True when it erased.
    */
-  async purgeGuests(now = new Date(), batch = 100): Promise<number> {
+  async eraseExpiredGuest(userId: string, now = new Date()): Promise<boolean> {
+    const keys: string[] = [];
+    const erased = await this.prisma.purge(async (tx) => {
+      const locked = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM users
+        WHERE id = ${userId}::uuid AND is_guest = true AND guest_expires_at <= ${now}
+        FOR UPDATE`;
+      if (locked.length === 0) return false;
+      const files = await tx.storedFile.findMany({
+        where: { userId },
+        select: { storageKey: true },
+      });
+      keys.push(...files.map((f) => f.storageKey));
+      await tx.safetyEvent.updateMany({ where: { userId }, data: { userId: null } });
+      // Engine v2 decisions stay, unlinked (E-05, E-52; O-06 decides retention).
+      await tx.decisionRecord.updateMany({ where: { userId }, data: { userId: null } });
+      await tx.user.delete({ where: { id: userId } });
+      return true;
+    });
+    if (erased) for (const key of keys) await this.storage.remove(key).catch(() => undefined);
+    return erased;
+  }
+
+  /**
+   * Worker (daily): erases the guest spaces that have reached guestExpiresAt, in batches, with
+   * eraseExpiredGuest, and drops the sign-up counter rows older than two days. One that fails is
+   * logged, left out for the rest of this run and tried again tomorrow, so it cannot block the
+   * batch behind it. `between` is a test seam: it runs after a space is chosen and before it is
+   * erased.
+   */
+  async purgeGuests(
+    now = new Date(),
+    batch = 100,
+    between?: (userId: string) => Promise<void>,
+  ): Promise<number> {
     let erased = 0;
-    // Each round erases a batch; a failure on one account is logged and does not stop the rest, and
-    // it is tried again tomorrow. The cap on rounds keeps one run bounded.
+    const failed: string[] = [];
+    // The cap on rounds keeps one run bounded.
     for (let round = 0; round < 1000; round += 1) {
       const due = await this.prisma.user.findMany({
-        where: { isGuest: true, guestExpiresAt: { lte: now } },
-        orderBy: { guestExpiresAt: 'asc' },
+        where: {
+          isGuest: true,
+          guestExpiresAt: { lte: now },
+          ...(failed.length > 0 ? { id: { notIn: failed } } : {}),
+        },
+        orderBy: [{ guestExpiresAt: 'asc' }, { id: 'asc' }],
         select: { id: true },
         take: batch,
       });
       if (due.length === 0) break;
-      let done = 0;
       for (const { id } of due)
         try {
-          await this.eraseNow(id);
-          done += 1;
+          await between?.(id);
+          if (await this.eraseExpiredGuest(id, now)) erased += 1;
         } catch (e) {
-          this.logger.warn({ err: String(e) }, 'guest space not erased; will retry');
+          failed.push(id);
+          this.logger.warn({ err: String(e) }, 'guest space not erased; will retry tomorrow');
         }
-      erased += done;
-      // Nothing erased in a whole round would only repeat itself.
-      if (done === 0) break;
+      // Chosen, but linked or otherwise no longer due: out of this run too, or it would be chosen
+      // again for ever.
+      for (const { id } of due) if (!failed.includes(id)) failed.push(id);
     }
     await this.prisma.guestSignup.deleteMany({
       where: { createdAt: { lt: new Date(now.getTime() - 2 * DAY) } },

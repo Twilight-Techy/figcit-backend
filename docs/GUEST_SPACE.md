@@ -37,7 +37,7 @@ The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the a
 ## Lifecycle
 
 - A session of a guest, and its refresh tokens, end no later than `guest_expires_at`. A guest past it cannot refresh or get a new session.
-- A daily worker job (`privacy.purge-guests`, 03:10 Europe/London) erases guest spaces with `guest_expires_at <= now` through `eraseNow`, in batches of 100, then writes the expiring notices. A space that fails to erase is logged and tried again the next day.
+- A daily worker job (`privacy.purge-guests`, 03:10 Europe/London) erases guest spaces with `guest_expires_at <= now` through `eraseExpiredGuest`, which locks the user row and checks `is_guest` and the date again inside the transaction (so a space linked after it was chosen, or an account, is never touched, and its files are removed only after the commit), in batches of 100, then writes the expiring notices. A space that fails to erase is logged, left out of the rest of that run, so it cannot block the ones behind it, and tried again the next day.
 - **Inbox notices** `guest_expiring` at 7, 3 and 1 days left, one per user and threshold (if days were missed, the smallest threshold reached). Plain and calm ("Your guest space has 3 days left"); they open `/me/guest/`. Never for an account.
 
 ## Abuse limits
