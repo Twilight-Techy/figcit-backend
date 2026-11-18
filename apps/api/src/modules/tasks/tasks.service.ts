@@ -142,7 +142,6 @@ export class TasksService {
       });
       if (existing) return this.get(userId, existing.id);
     }
-    await this.guestCaps.assertTaskRoom(userId);
     const c = await this.ctx(userId);
     if (
       (await this.prisma.task.count({ where: { userId, status: 'open', deletedAt: null } })) >=
@@ -156,26 +155,31 @@ export class TasksService {
         : input.recurrenceRule
           ? 'TR'
           : 'T6');
-    const row = await this.prisma.task.create({
-      data: {
-        ...(input.id ? { id: input.id } : {}),
-        userId,
-        titleEnc: c.cipher.enc(input.title),
-        type: input.kind ?? null,
-        timelineCode: timeline,
-        dueAt: input.dueAt ? new Date(input.dueAt) : null,
-        recurrenceRule: input.recurrenceRule ?? null,
-        puttingOff: input.puttingOff,
-        nucripceTags: input.drivers,
-        source: input.source,
-        planSlot: input.planSlot ?? null,
-        clientUpdatedAt: input.clientUpdatedAt ? new Date(input.clientUpdatedAt) : c.now,
-        steps: {
-          create: input.steps.map((text, position) => ({ position, textEnc: c.cipher.enc(text) })),
+    const row = await this.guestCaps.withRoom(userId, 'task', (db) =>
+      db.task.create({
+        data: {
+          ...(input.id ? { id: input.id } : {}),
+          userId,
+          titleEnc: c.cipher.enc(input.title),
+          type: input.kind ?? null,
+          timelineCode: timeline,
+          dueAt: input.dueAt ? new Date(input.dueAt) : null,
+          recurrenceRule: input.recurrenceRule ?? null,
+          puttingOff: input.puttingOff,
+          nucripceTags: input.drivers,
+          source: input.source,
+          planSlot: input.planSlot ?? null,
+          clientUpdatedAt: input.clientUpdatedAt ? new Date(input.clientUpdatedAt) : c.now,
+          steps: {
+            create: input.steps.map((text, position) => ({
+              position,
+              textEnc: c.cipher.enc(text),
+            })),
+          },
         },
-      },
-      select: TASK_SELECT,
-    });
+        select: TASK_SELECT,
+      }),
+    );
     return toTaskDto(row, c.cipher, c.snapshot, c.now, c.tz);
   }
 
@@ -195,7 +199,13 @@ export class TasksService {
       clientUpdatedAt: clientAt,
       ...this.statusChange(before, input.status, c.now, c.tz),
     };
-    const row = await this.prisma.task.update({ where: { id }, data, select: TASK_SELECT });
+    // Bringing a finished task back is a new open task as far as a guest space's cap goes.
+    const reopening = input.status === 'open' && before.status !== 'open';
+    const row = reopening
+      ? await this.guestCaps.withRoom(userId, 'task', (db) =>
+          db.task.update({ where: { id }, data, select: TASK_SELECT }),
+        )
+      : await this.prisma.task.update({ where: { id }, data, select: TASK_SELECT });
     if (input.status === 'done' && before.recurrenceRule && data.status === 'open')
       await this.prisma.taskStep.updateMany({ where: { taskId: id }, data: { doneAt: null } });
     return toTaskDto(row, c.cipher, c.snapshot, c.now, c.tz);

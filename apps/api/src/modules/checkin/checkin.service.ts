@@ -3,6 +3,7 @@ import type { Band, PreviousOutcome } from '@figcit/engine';
 import { CryptoService, type UserCipher } from '../../common/crypto/crypto.service.js';
 import { PrismaService, type Tx } from '../../common/db/prisma.service.js';
 import { NotFound } from '../../common/errors/errors.js';
+import { claimGuestRoom } from '../../common/guest/guest-caps.service.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
 import type { CardDto } from '../recommendation/recommendation.schemas.js';
 import {
@@ -113,6 +114,8 @@ export class CheckInService {
       return owned.id;
     }
     if (!demand?.title) return null;
+    // A task typed into a check-in is a new open task like any other: a guest space's cap applies.
+    await claimGuestRoom(tx, userId, 'task');
     const task = await tx.task.create({
       data: taskData(userId, { ...demand, title: demand.title }, t.timeline, t.cipher),
       select: { id: true },

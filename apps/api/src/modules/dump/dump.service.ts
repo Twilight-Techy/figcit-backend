@@ -114,28 +114,30 @@ export class DumpService implements OnModuleInit {
       });
       if (existing) return { ...dumpDto(existing, c), safety: false, crisisRoutes: [] };
     }
-    await this.guestCaps.assertDumpRoom(userId);
     const items =
       input.items ?? splitItems(input.text ?? '').map((text) => ({ text, bucket: undefined }));
+    await this.guestCaps.assertItems(userId, items.length);
     const match = await this.safety.check(items.map((i) => i.text));
-    const row = await this.prisma.dump.create({
-      data: {
-        ...(input.id ? { id: input.id } : {}),
-        userId,
-        source: input.source,
-        transcriptionId: input.transcriptionId ?? null,
-        origin: input.origin,
-        items: {
-          create: items.map((i, position) => ({
-            userId,
-            position,
-            textEnc: c.enc(i.text),
-            bucket: i.bucket ?? null,
-          })),
+    const row = await this.guestCaps.withRoom(userId, 'dump', (db) =>
+      db.dump.create({
+        data: {
+          ...(input.id ? { id: input.id } : {}),
+          userId,
+          source: input.source,
+          transcriptionId: input.transcriptionId ?? null,
+          origin: input.origin,
+          items: {
+            create: items.map((i, position) => ({
+              userId,
+              position,
+              textEnc: c.enc(i.text),
+              bucket: i.bucket ?? null,
+            })),
+          },
         },
-      },
-      select: DUMP_SELECT,
-    });
+        select: DUMP_SELECT,
+      }),
+    );
     if (!match) this.events.emit('dump.created', { userId, dumpId: row.id });
     const crisisRoutes = match ? await this.safety.flag(userId, 'dump', match, input.origin) : [];
     return { ...dumpDto(row, c), safety: match !== null, crisisRoutes };
@@ -203,16 +205,22 @@ export class DumpService implements OnModuleInit {
     if (dump._count.items >= 200)
       throw new BadInput('A dump holds up to 200 items. Start a new one.');
     const c = await this.crypto.forUser(userId);
-    const row = await this.prisma.dumpItem.create({
-      data: {
-        dumpId,
-        userId,
-        position: dump._count.items,
-        textEnc: c.enc(input.text),
-        bucket: input.bucket ?? null,
-      },
-      select: ITEM_SELECT,
-    });
+    const row = await this.guestCaps.withRoom(
+      userId,
+      'item',
+      (db) =>
+        db.dumpItem.create({
+          data: {
+            dumpId,
+            userId,
+            position: dump._count.items,
+            textEnc: c.enc(input.text),
+            bucket: input.bucket ?? null,
+          },
+          select: ITEM_SELECT,
+        }),
+      dumpId,
+    );
     return itemDto(row, c);
   }
 
