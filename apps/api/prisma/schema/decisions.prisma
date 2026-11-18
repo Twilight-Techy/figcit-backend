@@ -22,6 +22,9 @@ model DecisionRecord {
   engineVersion String         @map("engine_version") @db.VarChar(20)
   // The engine's input facts: standard values only, never free text (E-04, E-13).
   input         Json
+  // The body map (S09): where each body sign is felt, as codes. No rule reads it (IG-06); kept
+  // with the check-in for the person and for later review.
+  bodyRegions   Json           @default("[]") @map("body_regions")
   card          Json
   // The light trace: the rules that fired and the run's notes. The full trace is rebuilt by
   // replay (E-21, E-57), which keeps a record under 4 KB (ENGINEERING_RULES §1.3).

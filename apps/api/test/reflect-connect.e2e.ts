@@ -332,4 +332,25 @@ describe('connect and adapt', () => {
     expect(res.body.kinds.map((k) => k.kind)).toContain('scope');
     expect(res.body.commCards.length).toBeGreaterThan(3);
   });
+
+  it('remembers what helps me, shows it first, and forgets it again', async () => {
+    type Lib = { kinds: { kind: string; options: { code: string; saved: boolean }[] }[] };
+    const env = (b: Lib) => b.kinds.find((k) => k.kind === 'environment')?.options ?? [];
+    const saved = await api.req('POST', '/adapt/saved', {
+      token,
+      body: { kind: 'environment', detailCode: 'block_sound' },
+    });
+    expect(saved.status).toBe(204);
+    const after = await api.req<Lib>('GET', '/adapt', { token });
+    expect(env(after.body)[0]).toMatchObject({ code: 'block_sound', saved: true });
+    const unknown = await api.req('POST', '/adapt/saved', {
+      token,
+      body: { kind: 'environment', detailCode: 'not_a_thing' },
+    });
+    expect(unknown.status).toBe(400);
+    const gone = await api.req('DELETE', '/adapt/saved/environment/block_sound', { token });
+    expect(gone.status).toBe(204);
+    const again = await api.req<Lib>('GET', '/adapt', { token });
+    expect(env(again.body).some((o) => o.saved)).toBe(false);
+  });
 });

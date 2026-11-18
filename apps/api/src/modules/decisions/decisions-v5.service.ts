@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   factsFromCheckInV5,
+  INPUT_SEED,
   run,
   type Card,
   type CheckInV5,
@@ -33,6 +34,24 @@ const USUAL = 'usual';
  * on its free text (SF-1, SE-1). Both need an account (SU-1). The preview runs it as the person goes and stores nothing; the
  * decision is recorded as every engine v2 decision is, so it replays the same.
  */
+/** The body map's regions (S09): seeded codes, the same lists the check-in screens show. */
+const REGIONS = new Set(
+  (INPUT_SEED.find((s) => s.input === 'body_region')?.rows ?? []).map(([code]) => code),
+);
+
+/**
+ * The body map's answers worth keeping: a Full check-in's (CTX-U), for a body sign it picked, in
+ * regions the map has. Nothing here reaches the engine (IG-06).
+ */
+export function bodyRegionsOf(body: CheckInV5Body): { sign: string; regions: string[] }[] {
+  if (body.mode !== 'full') return [];
+  const signs = new Set(body.body ?? []);
+  return (body.bodyRegions ?? []).flatMap((b) => {
+    const regions = [...new Set(b.regions.filter((r) => REGIONS.has(r)))];
+    return signs.has(b.sign) && regions.length > 0 ? [{ sign: b.sign, regions }] : [];
+  });
+}
+
 @Injectable()
 export class DecisionsV5Service {
   constructor(
@@ -64,6 +83,7 @@ export class DecisionsV5Service {
       userId,
       recheckOfId: recheck ? (body.recheckOfId ?? null) : null,
       now,
+      bodyRegions: bodyRegionsOf(body),
     });
     return {
       id: record.id,

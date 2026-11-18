@@ -145,7 +145,13 @@ export class DecisionsService {
   async record(
     db: Tx | PrismaService,
     p: Pick<Prepared, 'engine' | 'input'>,
-    meta: { userId: string | undefined; recheckOfId: string | null; now: Date },
+    meta: {
+      userId: string | undefined;
+      recheckOfId: string | null;
+      now: Date;
+      /** The body map's answers (v5.0, Full only); kept, not read by any rule. */
+      bodyRegions?: readonly { sign: string; regions: readonly string[] }[];
+    },
   ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
     // The record keeps the light trace (the rules that fired, under 1 KB); the full trace is
     // rebuilt by replay when staff open the record (E-21, E-23, E-57; ENGINEERING_RULES §1.3).
@@ -168,6 +174,7 @@ export class DecisionsService {
         rulesetHash: p.engine.hash ?? '',
         engineVersion: ENGINE_VERSION,
         input: p.input as Prisma.InputJsonValue,
+        bodyRegions: meta.bodyRegions ?? [],
         card: result.card as unknown as Prisma.InputJsonValue,
         trace: result.trace as unknown as Prisma.InputJsonValue,
         band: result.card.band,
@@ -183,7 +190,13 @@ export class DecisionsService {
   /** Runs and stores a prepared input in its own transaction (the v5.0 decisions use it). */
   store(
     p: Pick<Prepared, 'engine' | 'input'>,
-    meta: { userId: string | undefined; recheckOfId: string | null; now: Date },
+    meta: {
+      userId: string | undefined;
+      recheckOfId: string | null;
+      now: Date;
+      /** The body map's answers (v5.0, Full only); kept, not read by any rule. */
+      bodyRegions?: readonly { sign: string; regions: readonly string[] }[];
+    },
   ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
     return this.record(this.prisma, p, meta);
   }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   checkInOptionsOf,
+  INPUT_SEED,
   type Catalogue,
   type CheckInOptionsView,
   type InputOptions,
@@ -31,6 +32,28 @@ const FROZEN = new Set(['published', 'retired']);
  * publish reaches every instance without a restart. Null when no v2 version with options is
  * published yet (the v1 lists are used then).
  */
+/**
+ * Lists the v5.0 workbook asks for on screen but doesn't publish: Not sure's three picture taps
+ * (NS-1, S150; energy and comfort carry the State Grid level the suggestion uses) and the body
+ * map's regions (S09). They come from the engine's own seed when a version has none.
+ */
+const SEEDED = ['not_sure_body', 'not_sure_energy', 'not_sure_comfort', 'body_region'] as const;
+const AXIS = /^(?:energy|mood):([1-4])$/;
+
+export function withSeedLists(view: CheckInOptionsView): CheckInOptionsView {
+  const inputs = { ...view.inputs };
+  for (const input of SEEDED) {
+    if (inputs[input].length > 0) continue;
+    const seed = INPUT_SEED.find((s) => s.input === input);
+    if (!seed) continue;
+    inputs[input] = seed.rows.map(([code, label, group, mapsTo]) => {
+      const level = AXIS.exec(mapsTo)?.[1];
+      return { code, label, group: group || null, ...(level ? { level: Number(level) } : {}) };
+    });
+  }
+  return { ...view, inputs };
+}
+
 @Injectable()
 export class CheckInOptionsService {
   private readonly logger = new Logger('CheckInOptions');
@@ -95,7 +118,7 @@ export class CheckInOptionsService {
     }
     return {
       // The words on the check-in screens: no em dashes (codes never hold one).
-      dto: { version: label, hash, ...noEmDashes(built.view) },
+      dto: { version: label, hash, ...noEmDashes(withSeedLists(built.view)) },
       options: built.options,
       catalogue: built.catalogue,
     };
