@@ -13459,52 +13459,51 @@
                   "mode",
                   "state",
                   "emotions"
+                ],
+                "examples": [
+                  {
+                    "mode": "full",
+                    "state": {
+                      "kind": "grid",
+                      "energy": 2,
+                      "mood": 3
+                    },
+                    "emotions": [
+                      {
+                        "code": "anxious",
+                        "level": 6
+                      }
+                    ],
+                    "body": [
+                      "tension"
+                    ],
+                    "place": {
+                      "code": "home",
+                      "canStepAway": true
+                    }
+                  }
                 ]
               },
               "example": {
-                "mode": "quick",
+                "mode": "full",
                 "state": {
                   "kind": "grid",
-                  "energy": 1,
-                  "mood": 1
+                  "energy": 2,
+                  "mood": 3
                 },
                 "emotions": [
                   {
-                    "code": "example",
-                    "level": 1
+                    "code": "anxious",
+                    "level": 6
                   }
                 ],
-                "somethingElse": {
-                  "text": "Example text",
-                  "group": "charged"
-                },
                 "body": [
-                  "example"
-                ],
-                "urgent": {
-                  "signs": [
-                    "example"
-                  ],
-                  "answer": "sudden_new"
-                },
-                "senses": [
-                  "example"
+                  "tension"
                 ],
                 "place": {
-                  "code": "example",
+                  "code": "home",
                   "canStepAway": true
-                },
-                "devices": [
-                  "example"
-                ],
-                "tasks": [
-                  {
-                    "title": "Example title",
-                    "chip": "example"
-                  }
-                ],
-                "helpCard": "example",
-                "recheckOfId": "00000000-0000-4000-8000-000000000001"
+                }
               }
             }
           }
@@ -14381,52 +14380,51 @@
                   "mode",
                   "state",
                   "emotions"
+                ],
+                "examples": [
+                  {
+                    "mode": "full",
+                    "state": {
+                      "kind": "grid",
+                      "energy": 2,
+                      "mood": 3
+                    },
+                    "emotions": [
+                      {
+                        "code": "anxious",
+                        "level": 6
+                      }
+                    ],
+                    "body": [
+                      "tension"
+                    ],
+                    "place": {
+                      "code": "home",
+                      "canStepAway": true
+                    }
+                  }
                 ]
               },
               "example": {
-                "mode": "quick",
+                "mode": "full",
                 "state": {
                   "kind": "grid",
-                  "energy": 1,
-                  "mood": 1
+                  "energy": 2,
+                  "mood": 3
                 },
                 "emotions": [
                   {
-                    "code": "example",
-                    "level": 1
+                    "code": "anxious",
+                    "level": 6
                   }
                 ],
-                "somethingElse": {
-                  "text": "Example text",
-                  "group": "charged"
-                },
                 "body": [
-                  "example"
-                ],
-                "urgent": {
-                  "signs": [
-                    "example"
-                  ],
-                  "answer": "sudden_new"
-                },
-                "senses": [
-                  "example"
+                  "tension"
                 ],
                 "place": {
-                  "code": "example",
+                  "code": "home",
                   "canStepAway": true
-                },
-                "devices": [
-                  "example"
-                ],
-                "tasks": [
-                  {
-                    "title": "Example title",
-                    "chip": "example"
-                  }
-                ],
-                "helpCard": "example",
-                "recheckOfId": "00000000-0000-4000-8000-000000000001"
+                }
               }
             }
           }

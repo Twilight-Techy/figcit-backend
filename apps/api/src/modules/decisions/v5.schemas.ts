@@ -51,24 +51,37 @@ const checkInV5Base = z.object({
 });
 
 /** The rules between answers: each emotion once, and Something else's own words go with its emotion. */
-export const checkInV5Schema = checkInV5Base.superRefine((b, ctx) => {
-  const seen = new Set<string>();
-  b.emotions.forEach((e, i) => {
-    if (seen.has(e.code))
+export const checkInV5Schema = checkInV5Base
+  .superRefine((b, ctx) => {
+    const seen = new Set<string>();
+    b.emotions.forEach((e, i) => {
+      if (seen.has(e.code))
+        ctx.addIssue({
+          code: 'custom',
+          path: ['emotions', i, 'code'],
+          message: `Emotion ${e.code} is there twice. Pick each feeling once.`,
+        });
+      seen.add(e.code);
+    });
+    if (b.somethingElse && !seen.has('something_else'))
       ctx.addIssue({
         code: 'custom',
-        path: ['emotions', i, 'code'],
-        message: `Emotion ${e.code} is there twice. Pick each feeling once.`,
+        path: ['somethingElse'],
+        message: 'Your own words go with the "Something else" feeling. Pick that feeling too.',
       });
-    seen.add(e.code);
+  })
+  .meta({
+    examples: [
+      {
+        mode: 'full',
+        state: { kind: 'grid', energy: 2, mood: 3 },
+        emotions: [{ code: 'anxious', level: 6 }],
+        body: ['tension'],
+        place: { code: 'home', canStepAway: true },
+      },
+    ],
   });
-  if (b.somethingElse && !seen.has('something_else'))
-    ctx.addIssue({
-      code: 'custom',
-      path: ['somethingElse'],
-      message: 'Your own words go with the "Something else" feeling. Pick that feeling too.',
-    });
-});
+
 export type CheckInV5Body = z.infer<typeof checkInV5Schema>;
 
 const words = z.object({ key: z.string(), text: z.string() });
