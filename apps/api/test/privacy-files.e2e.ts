@@ -77,6 +77,11 @@ describe('privacy', () => {
       token,
       body: { state: { kind: 'grid', energy: 3, mood: 3 }, ownWords: 'my own words here' },
     });
+    const decided = await api.req<{ id: string }>('POST', '/decisions', {
+      token,
+      body: { state: { kind: 'grid', energy: 1, mood: 1 } },
+    });
+    expect(decided.status).toBe(201);
     const job = await api.req<{ id: string }>('POST', '/me/export', { token });
     expect(job.status).toBe(202);
     await privacy.runExport(job.body.id);
@@ -88,9 +93,16 @@ describe('privacy', () => {
     const data = JSON.parse(file.body) as {
       tasks: { title: string }[];
       checkIns: { need: { ownWords: string } }[];
+      decisions: { id: string; light: string; ruleset: string; input: object; card: object }[];
     };
     expect(data.tasks[0]?.title).toBe('Secret task title');
     expect(data.checkIns[0]?.need.ownWords).toBe('my own words here');
+    // Decision records (E-52) are the person's data too: their input and the card they got.
+    const record = data.decisions.find((d) => d.id === decided.body.id);
+    expect(record).toMatchObject({ light: 'red' });
+    expect(record?.ruleset).toBeTruthy();
+    expect(Object.keys(record?.input ?? {}).length).toBeGreaterThan(0);
+    expect(Object.keys(record?.card ?? {}).length).toBeGreaterThan(0);
     expect(file.body).not.toContain('Enc"');
     const inbox = await api.req<{ items: { kind: string }[] }>('GET', '/inbox', { token });
     expect(inbox.body.items[0]?.kind).toBe('export_ready');

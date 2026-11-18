@@ -80,7 +80,7 @@ export class ExportBuilder {
 
   private async checkIns(userId: string, c: UserCipher): Promise<Section> {
     const where = { userId };
-    const [checkIns, recommendations, sessions] = await Promise.all([
+    const [checkIns, recommendations, decisions, sessions] = await Promise.all([
       this.prisma.checkIn.findMany({
         where,
         include: { emotions: true, sensations: true, context: true, need: true },
@@ -97,6 +97,27 @@ export class ExportBuilder {
           alternatives: true,
           patterns: true,
           createdAt: true,
+        },
+        orderBy: { createdAt: 'asc' },
+      }),
+      // Engine v2 and v5.0 decisions (E-52): the check-in's input facts and the card it made. Standard
+      // values only, never free text (E-04), so nothing in them is encrypted.
+      this.prisma.decisionRecord.findMany({
+        where,
+        select: {
+          id: true,
+          createdAt: true,
+          mode: true,
+          rulesetHash: true,
+          engineVersion: true,
+          version: { select: { label: true } },
+          input: true,
+          card: true,
+          trace: true,
+          band: true,
+          light: true,
+          supportScreen: true,
+          recheckOfId: true,
         },
         orderBy: { createdAt: 'asc' },
       }),
@@ -128,6 +149,7 @@ export class ExportBuilder {
           : null,
       })),
       recommendations,
+      decisions: decisions.map(({ version, ...d }) => ({ ...d, ruleset: version.label })),
       sessions,
     };
   }
