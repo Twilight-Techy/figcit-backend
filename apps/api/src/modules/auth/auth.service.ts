@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
+import { Prisma, type MagicLink } from '@prisma/client';
 import argon2 from 'argon2';
 import { ENV, type Env } from '../../common/config/env.js';
 import { CryptoService } from '../../common/crypto/crypto.service.js';
@@ -158,7 +159,7 @@ export class AuthService {
         throw new Unauthorized('That code is not right. Check the email and try again.');
       }
     }
-    if (link.purpose === 'link_guest') throw new Gone('This link cannot be used yet.');
+    if (link.purpose === 'link_guest') return this.verifyGuestLink(link, deviceLabel);
     if (link.usedAt) throw new Gone('This link has already been used. Request a new one.');
     if (link.expiresAt < new Date()) throw new Gone('Links last 10 minutes. Request a new one.');
     await this.prisma.magicLink.update({ where: { id: link.id }, data: { usedAt: new Date() } });
@@ -184,6 +185,64 @@ export class AuthService {
     await this.assertActive(userId);
     await this.event(userId, 'magic_link', 'success');
     return { ...(await this.sessions.issue(userId, deviceLabel)), isNew };
+  }
+
+  /**
+   * Opening a guest space's confirmation link (docs/GUEST_SPACE.md). The link is spent first. An
+   * email that already has an account is never attached: 409 email_has_account, and the guest space
+   * stays as it was. Otherwise the same user keeps the email, verified, and stops being a guest:
+   * same id, same data key, nothing copied. Opening the link again, for an email that is already
+   * this account's, signs in the same account (a mail scanner may open it first).
+   */
+  private async verifyGuestLink(link: MagicLink, deviceLabel?: string): Promise<SignedIn> {
+    const invalid = (): Unauthorized =>
+      new Unauthorized('That link is not valid. Request a new one.');
+    if (!link.userId) throw invalid();
+    const user = await this.prisma.user.findUnique({
+      where: { id: link.userId },
+      select: { id: true, email: true, isGuest: true, guestExpiresAt: true, deletedAt: true },
+    });
+    if (!user || user.deletedAt) throw invalid();
+    if (link.expiresAt < new Date()) throw new Gone('Links last 10 minutes. Request a new one.');
+    const spent = await this.prisma.magicLink.updateMany({
+      where: { id: link.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    if (spent.count === 0 || link.usedAt) {
+      if (user.email === link.email)
+        return { ...(await this.sessions.issue(user.id, deviceLabel)), isNew: false };
+      throw new Gone('This link has already been used. Request a new one.');
+    }
+    if (!user.isGuest) throw new Gone('This guest space already has an account.');
+    if ((user.guestExpiresAt ?? new Date(0)) <= new Date())
+      throw new Gone('This guest space has ended.');
+    await this.attachEmail(user.id, link.email);
+    await this.sessions.lengthenAfterLink(user.id);
+    await this.event(user.id, 'magic_link', 'success');
+    return { ...(await this.sessions.issue(user.id, deviceLabel)), isNew: false };
+  }
+
+  /**
+   * Gives a guest space its confirmed email and ends its guest status, on the same user. An email
+   * that has an account is refused with 409 email_has_account, however it is found out: by the
+   * lookup, or by the unique email when two confirm the same one at once.
+   */
+  private async attachEmail(userId: string, email: string): Promise<void> {
+    const taken = new Conflict(
+      'That email already has an account. Sign in with it instead; this guest space stays as it is.',
+      'email_has_account',
+    );
+    const other = await this.users.findByEmail(email);
+    if (other && other.id !== userId) throw taken;
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { email, emailVerifiedAt: new Date(), isGuest: false, guestExpiresAt: null },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') throw taken;
+      throw e;
+    }
   }
 
   // --- Password (optional) -------------------------------------------------------------------

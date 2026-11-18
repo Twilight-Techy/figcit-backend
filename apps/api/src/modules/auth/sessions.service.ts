@@ -174,6 +174,22 @@ export class SessionsService {
     });
   }
 
+  /**
+   * A guest space has become an account: its sessions, which ended with the space, now last as long
+   * as any other, so the app carries on without signing in again.
+   */
+  async lengthenAfterLink(userId: string): Promise<void> {
+    const expiresAt = this.refreshExpiry(false);
+    await this.prisma.session.updateMany({
+      where: { userId, revokedAt: null },
+      data: { expiresAt },
+    });
+    await this.prisma.refreshToken.updateMany({
+      where: { session: { userId, revokedAt: null }, usedAt: null },
+      data: { expiresAt },
+    });
+  }
+
   async markMfa(sessionId: string, userId: string): Promise<IssuedSession> {
     const session = await this.prisma.session.update({
       where: { id: sessionId },
