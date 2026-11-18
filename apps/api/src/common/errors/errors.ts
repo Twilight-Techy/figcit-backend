@@ -66,6 +66,35 @@ export class NotEntitled extends AppError {
   }
 }
 
+/** A guest space asked for something that needs an account (docs/GUEST_SPACE.md). */
+export class AccountRequired extends AppError {
+  constructor(detail = 'Create an account to use this.') {
+    super(403, 'account_required', 'This needs an account', detail);
+  }
+}
+
+/** A guest space is full: what it may keep is limited, an account's is not. */
+export class GuestLimit extends AppError {
+  constructor(detail: string) {
+    super(403, 'guest_limit', 'This guest space is full', detail);
+  }
+}
+
+/** The error codes of the problem details the app handles, for the OpenAPI file. */
+export const PROBLEM_CODES: Readonly<Record<string, string>> = {
+  invalid_input: 'Something in the request needs another look (400).',
+  unauthorized: 'Sign in again (401).',
+  not_entitled: 'The feature is part of a paid plan (402).',
+  forbidden: 'The account may not do this (403).',
+  account_required: 'A guest space cannot do this: create an account first (403).',
+  guest_limit: 'The guest space is full: what a guest may keep is limited (403).',
+  not_found: 'There is nothing with that id (404).',
+  conflict: 'That clashes with something already saved (409).',
+  account_exists: 'There is already an account for that email (409).',
+  email_has_account: 'The email already belongs to an account: sign in instead (409).',
+  rate_limited: 'Too many tries for now (429).',
+};
+
 export class NotConfigured extends AppError {
   constructor(feature: string) {
     super(

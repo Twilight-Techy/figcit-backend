@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { createApp } from './app.factory.js';
 import { loadDotEnv } from './common/config/dotenv.js';
 import { loadEnv } from './common/config/env.js';
+import { PROBLEM_CODES } from './common/errors/errors.js';
 import { ROUTE_DOC, type RouteDoc } from './common/http/route.js';
 import { exampleFor } from './common/openapi/example.js';
 
@@ -193,7 +194,11 @@ async function main(): Promise<void> {
             type: { type: 'string' },
             title: { type: 'string' },
             status: { type: 'integer' },
-            code: { type: 'string' },
+            code: {
+              type: 'string',
+              description: 'A stable error code the app can act on.',
+              'x-known-codes': PROBLEM_CODES,
+            },
             detail: { type: 'string' },
             instance: { type: 'string' },
           },

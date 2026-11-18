@@ -5090,6 +5090,140 @@
         "x-access": "public"
       }
     },
+    "/v1/auth/guest": {
+      "post": {
+        "operationId": "Auth_guest",
+        "summary": "Start a guest space: an account with no email, for adults, kept for 30 days at most (limited per address and per day)",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ageBand": {
+                    "type": "string",
+                    "const": "18_plus"
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "botToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "ageBand",
+                  "acceptTerms"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "ageBand": "18_plus",
+                "acceptTerms": true,
+                "botToken": "<example-botToken>"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "isNew": {
+                          "type": "boolean"
+                        },
+                        "mfaRequired": {
+                          "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "roles",
+                        "isNew",
+                        "mfaRequired",
+                        "isGuest"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "accessToken",
+                    "expiresIn",
+                    "user"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "accessToken": "<example-accessToken>",
+                  "expiresIn": 1,
+                  "refreshToken": "<example-refreshToken>",
+                  "user": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "roles": [
+                      "Example roles"
+                    ],
+                    "isNew": true,
+                    "mfaRequired": true,
+                    "isGuest": true
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "x-access": "public"
+      }
+    },
     "/v1/auth/magic-link": {
       "post": {
         "operationId": "Auth_magicLink",
@@ -5272,13 +5406,17 @@
                         },
                         "mfaRequired": {
                           "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
                         "id",
                         "roles",
                         "isNew",
-                        "mfaRequired"
+                        "mfaRequired",
+                        "isGuest"
                       ],
                       "additionalProperties": false
                     }
@@ -5300,7 +5438,8 @@
                       "Example roles"
                     ],
                     "isNew": true,
-                    "mfaRequired": true
+                    "mfaRequired": true,
+                    "isGuest": true
                   }
                 }
               }
@@ -5498,13 +5637,17 @@
                         },
                         "mfaRequired": {
                           "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
                         "id",
                         "roles",
                         "isNew",
-                        "mfaRequired"
+                        "mfaRequired",
+                        "isGuest"
                       ],
                       "additionalProperties": false
                     }
@@ -5526,7 +5669,8 @@
                       "Example roles"
                     ],
                     "isNew": true,
-                    "mfaRequired": true
+                    "mfaRequired": true,
+                    "isGuest": true
                   }
                 }
               }
@@ -5772,13 +5916,17 @@
                         },
                         "mfaRequired": {
                           "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
                         "id",
                         "roles",
                         "isNew",
-                        "mfaRequired"
+                        "mfaRequired",
+                        "isGuest"
                       ],
                       "additionalProperties": false
                     }
@@ -5800,7 +5948,8 @@
                       "Example roles"
                     ],
                     "isNew": true,
-                    "mfaRequired": true
+                    "mfaRequired": true,
+                    "isGuest": true
                   }
                 }
               }
@@ -5898,13 +6047,17 @@
                         },
                         "mfaRequired": {
                           "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
                         "id",
                         "roles",
                         "isNew",
-                        "mfaRequired"
+                        "mfaRequired",
+                        "isGuest"
                       ],
                       "additionalProperties": false
                     }
@@ -5926,7 +6079,8 @@
                       "Example roles"
                     ],
                     "isNew": true,
-                    "mfaRequired": true
+                    "mfaRequired": true,
+                    "isGuest": true
                   }
                 }
               }
@@ -6024,13 +6178,17 @@
                         },
                         "mfaRequired": {
                           "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
                         "id",
                         "roles",
                         "isNew",
-                        "mfaRequired"
+                        "mfaRequired",
+                        "isGuest"
                       ],
                       "additionalProperties": false
                     }
@@ -6052,7 +6210,8 @@
                       "Example roles"
                     ],
                     "isNew": true,
-                    "mfaRequired": true
+                    "mfaRequired": true,
+                    "isGuest": true
                   }
                 }
               }
@@ -6139,13 +6298,17 @@
                         },
                         "mfaRequired": {
                           "type": "boolean"
+                        },
+                        "isGuest": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
                         "id",
                         "roles",
                         "isNew",
-                        "mfaRequired"
+                        "mfaRequired",
+                        "isGuest"
                       ],
                       "additionalProperties": false
                     }
@@ -6167,7 +6330,8 @@
                       "Example roles"
                     ],
                     "isNew": true,
-                    "mfaRequired": true
+                    "mfaRequired": true,
+                    "isGuest": true
                   }
                 }
               }
@@ -19367,6 +19531,21 @@
                     "detailsDone": {
                       "type": "boolean"
                     },
+                    "isGuest": {
+                      "type": "boolean"
+                    },
+                    "guestExpiresAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "productUpdates": {
                       "type": "boolean"
                     },
@@ -19569,6 +19748,8 @@
                     "journeySeen",
                     "setupDone",
                     "detailsDone",
+                    "isGuest",
+                    "guestExpiresAt",
                     "productUpdates",
                     "hasPassword",
                     "plan",
@@ -19598,6 +19779,8 @@
                   "journeySeen": true,
                   "setupDone": true,
                   "detailsDone": true,
+                  "isGuest": true,
+                  "guestExpiresAt": "2026-01-15T09:30:00.000Z",
                   "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
@@ -19788,6 +19971,21 @@
                     "detailsDone": {
                       "type": "boolean"
                     },
+                    "isGuest": {
+                      "type": "boolean"
+                    },
+                    "guestExpiresAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "productUpdates": {
                       "type": "boolean"
                     },
@@ -19990,6 +20188,8 @@
                     "journeySeen",
                     "setupDone",
                     "detailsDone",
+                    "isGuest",
+                    "guestExpiresAt",
                     "productUpdates",
                     "hasPassword",
                     "plan",
@@ -20019,6 +20219,8 @@
                   "journeySeen": true,
                   "setupDone": true,
                   "detailsDone": true,
+                  "isGuest": true,
+                  "guestExpiresAt": "2026-01-15T09:30:00.000Z",
                   "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
@@ -20267,6 +20469,21 @@
                     "detailsDone": {
                       "type": "boolean"
                     },
+                    "isGuest": {
+                      "type": "boolean"
+                    },
+                    "guestExpiresAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "productUpdates": {
                       "type": "boolean"
                     },
@@ -20469,6 +20686,8 @@
                     "journeySeen",
                     "setupDone",
                     "detailsDone",
+                    "isGuest",
+                    "guestExpiresAt",
                     "productUpdates",
                     "hasPassword",
                     "plan",
@@ -20498,6 +20717,8 @@
                   "journeySeen": true,
                   "setupDone": true,
                   "detailsDone": true,
+                  "isGuest": true,
+                  "guestExpiresAt": "2026-01-15T09:30:00.000Z",
                   "productUpdates": true,
                   "hasPassword": true,
                   "plan": "free",
@@ -20948,6 +21169,21 @@
                             "detailsDone": {
                               "type": "boolean"
                             },
+                            "isGuest": {
+                              "type": "boolean"
+                            },
+                            "guestExpiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "productUpdates": {
                               "type": "boolean"
                             },
@@ -21150,6 +21386,8 @@
                             "journeySeen",
                             "setupDone",
                             "detailsDone",
+                            "isGuest",
+                            "guestExpiresAt",
                             "productUpdates",
                             "hasPassword",
                             "plan",
@@ -21193,6 +21431,8 @@
                     "journeySeen": true,
                     "setupDone": true,
                     "detailsDone": true,
+                    "isGuest": true,
+                    "guestExpiresAt": "2026-01-15T09:30:00.000Z",
                     "productUpdates": true,
                     "hasPassword": true,
                     "plan": "free",
@@ -53801,7 +54041,21 @@
             "type": "integer"
           },
           "code": {
-            "type": "string"
+            "type": "string",
+            "description": "A stable error code the app can act on.",
+            "x-known-codes": {
+              "invalid_input": "Something in the request needs another look (400).",
+              "unauthorized": "Sign in again (401).",
+              "not_entitled": "The feature is part of a paid plan (402).",
+              "forbidden": "The account may not do this (403).",
+              "account_required": "A guest space cannot do this: create an account first (403).",
+              "guest_limit": "The guest space is full: what a guest may keep is limited (403).",
+              "not_found": "There is nothing with that id (404).",
+              "conflict": "That clashes with something already saved (409).",
+              "account_exists": "There is already an account for that email (409).",
+              "email_has_account": "The email already belongs to an account: sign in instead (409).",
+              "rate_limited": "Too many tries for now (429)."
+            }
           },
           "detail": {
             "type": "string"
