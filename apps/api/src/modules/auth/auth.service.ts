@@ -101,13 +101,24 @@ export class AuthService {
     });
     if (!guest?.isGuest) throw new Forbidden('Only a guest space can do this.');
     const since = new Date(Date.now() - 15 * 60_000);
-    const [byEmail, byGuest] = await Promise.all([
+    const [byEmail, byGuest, today] = await Promise.all([
       this.prisma.magicLink.count({ where: { email, createdAt: { gt: since } } }),
       this.prisma.magicLink.count({
         where: { userId, purpose: 'link_guest', createdAt: { gt: since } },
       }),
+      this.prisma.magicLink.count({
+        where: {
+          email,
+          purpose: 'link_guest',
+          createdAt: { gt: new Date(Date.now() - 24 * 3_600_000) },
+        },
+      }),
     ]);
-    if (byEmail >= 5 || byGuest >= 5) throw new TooMany();
+    // The guest's own limit is answered (it is their own doing). The address's limits are not: an
+    // address that has had its share is answered like any other, and nothing is sent, so nobody can
+    // use this to tell which addresses are busy, and nobody can bury one in mail.
+    if (byGuest >= 5) throw new TooMany();
+    if (byEmail >= 5 || today >= this.env.GUEST_LINK_MAILS_PER_ADDRESS) return;
     const token = randomToken();
     await this.prisma.magicLink.create({
       data: {

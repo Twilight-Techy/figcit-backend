@@ -73,12 +73,12 @@ describe('POST /v1/auth/guest/link/email (C1)', () => {
     expect(anon.status).toBe(401);
   });
 
-  it('is limited like the magic link: a few a quarter hour per address and per guest space', async () => {
+  it('is limited: a guest space is answered 429 after 5 asks in a quarter hour; an address is never told', async () => {
     const guest = await start(api);
     const email = fresh();
-    for (let i = 0; i < 5; i += 1)
+    // The same address, asked again and again: always 202, and only 3 are sent (see item 7).
+    for (let i = 0; i < 6; i += 1)
       expect((await link(guest.body.accessToken, email)).status).toBe(202);
-    expect((await link(guest.body.accessToken, email)).status).toBe(429);
     const other = await start(api);
     for (let i = 0; i < 5; i += 1)
       expect((await link(other.body.accessToken, fresh())).status).toBe(202);
@@ -350,5 +350,61 @@ describe('no way to take an account over through the link (item 2)', () => {
     expect((await open(token)).status).toBe(200);
     const row = await prisma.user.findUniqueOrThrow({ where: { id: guest.body.user.id } });
     expect(row).toMatchObject({ email, passwordHash: null });
+  });
+});
+
+describe('one address cannot be mail-bombed through guest spaces (item 7)', () => {
+  const confirmMails = async (email: string): Promise<number> => {
+    const res = await api.req<{ mail: { to: string; subject: string }[] }>(
+      'GET',
+      `/dev/mailbox?to=${encodeURIComponent(email)}`,
+    );
+    return res.body.mail.filter((m) => m.to === email && m.subject === 'Confirm your email').length;
+  };
+
+  it('at most 3 confirmation mails a day reach one address, from any number of guests, all answered 202', async () => {
+    const target = fresh();
+    const statuses: number[] = [];
+    for (let i = 0; i < 6; i += 1) {
+      const g = await start(api);
+      statuses.push((await link(g.body.accessToken, target)).status);
+    }
+    expect(statuses).toEqual([202, 202, 202, 202, 202, 202]);
+    expect(await confirmMails(target)).toBe(3);
+    // A link that was not sent was not stored either: nothing to open.
+    expect(await prisma.magicLink.count({ where: { email: target, purpose: 'link_guest' } })).toBe(
+      3,
+    );
+  });
+
+  it('the answer does not tell a busy address from a quiet one', async () => {
+    const busy = fresh();
+    for (let i = 0; i < 3; i += 1) await link((await start(api)).body.accessToken, busy);
+    const g = await start(api);
+    const over = await link(g.body.accessToken, busy);
+    const quiet = await link(g.body.accessToken, fresh());
+    expect(over.status).toBe(quiet.status);
+    expect(over.body).toEqual(quiet.body);
+  });
+
+  it('is a setting: GUEST_LINK_MAILS_PER_ADDRESS', async () => {
+    const tight = await bootApi({ ...MANY, GUEST_LINK_MAILS_PER_ADDRESS: '1' });
+    try {
+      const target = fresh();
+      const a = await start(tight);
+      const b = await start(tight);
+      for (const g of [a, b])
+        await tight.req('POST', '/auth/guest/link/email', {
+          token: g.body.accessToken,
+          body: { email: target },
+        });
+      const res = await tight.req<{ mail: { to: string; subject: string }[] }>(
+        'GET',
+        `/dev/mailbox?to=${encodeURIComponent(target)}`,
+      );
+      expect(res.body.mail.filter((m) => m.subject === 'Confirm your email')).toHaveLength(1);
+    } finally {
+      await tight.close();
+    }
   });
 });

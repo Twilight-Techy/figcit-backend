@@ -36,6 +36,8 @@ const envSchema = z.object({
   GUEST_BOT_CHALLENGE: bool.default(false),
   GUEST_BOT_SECRET: z.string().optional(),
   GUEST_BOT_VERIFY_URL: z.url().optional(),
+  // Confirmation mails one address may be sent in a day, from all guest spaces together.
+  GUEST_LINK_MAILS_PER_ADDRESS: z.coerce.number().int().min(1).default(3),
   GUEST_DAILY_CAP: z.coerce.number().int().min(0).default(2000),
   GUEST_SIGNUPS_PER_DAY: z.coerce.number().int().min(1).default(20),
   GUEST_SIGNUPS_PER_HOUR: z.coerce.number().int().min(1).default(5),
