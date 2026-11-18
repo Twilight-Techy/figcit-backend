@@ -41,7 +41,7 @@ NUCCESS is provided by Figcit Ltd, a company registered in England and Wales (co
 
 | **Type**               | **Examples**                                                                                                                                                    | **Where it comes from**                                |
 |------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
-| **Account details**    | Name or nickname, email, password (encrypted), confirmation that you're 18 or over, your subscription                                                           | You                                                    |
+| **Account details**    | Name or nickname, email, password (encrypted), confirmation that you're 18 or over, your subscription. A guest space has none of the email, password or subscription | You                                                    |
 | **Check-ins**          | Energy and mood, emotions and their intensity, optional body sensations (including pain and things like hunger or tiredness), where you are and who you're with | You                                                    |
 | **Tasks and notes**    | Tasks, deadlines, brain dumps, drafts you write in Express, reflections                                                                                         | You                                                    |
 | **Preferences**        | Interests, sensory settings, reminder times, trusted contact (if you add one)                                                                                   | You                                                    |
@@ -98,7 +98,9 @@ Your data is stored in \[the UK / the European Economic Area\]. If a provider pr
 | **Information**                         | **How long**                                                                                                                   |
 |-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | **Account, check-ins, tasks and notes** | While your account is open. When you delete your account, we delete it within \[30\] days, and from backups within \[90\] days |
+| **A guest space** (no email)            | 30 days from when it was made, and not extended. Then we delete it. If you create an account first, it becomes your account and the account row applies. Deleting a guest space deletes it at once. From backups the same \[90\] days apply |
 | **Safety records**                      | \[Period to be set on legal advice\], then deleted                                                                             |
+| **Guest sign-up limit**                 | A keyed hash of the network address that made a guest space, 2 days, to stop misuse. It cannot be turned back into the address |
 | **Payment and tax records**             | 6 years, as the law requires                                                                                                   |
 | **Support and complaint records**       | \[3\] years                                                                                                                    |
 | **Anonymised, aggregated information**  | May be kept, because it no longer identifies you                                                                               |
