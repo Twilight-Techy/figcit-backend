@@ -83,6 +83,10 @@ const envSchema = z.object({
   // Prices are shown before VAT; checkout adds it and shows the total before payment.
   VAT_PERCENT: z.coerce.number().min(0).max(100).default(20),
   BILLING_WEBHOOK_SECRET: z.string().default('dev-webhook-secret'),
+  // How many proxies in front of the API add to X-Forwarded-For. The address that limits and logs
+  // use is the one the nearest of OUR proxies saw, never a value the client sent. 1 fits Heroku,
+  // Render and a single Caddy or nginx; 2 when a CDN also sits in front; 0 trusts no header.
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(1),
   // Abuse protection
   RATE_LIMIT_ENABLED: bool.default(true),
   // Errors

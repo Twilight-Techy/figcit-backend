@@ -49,16 +49,18 @@ The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the a
 | `GUEST_SIGNUPS_PER_HOUR` per address | 5 |
 | `GUEST_SIGNUPS_PER_DAY` per address | 20 |
 | `GUEST_DAILY_CAP` in all, per day | 2000 |
+| `TRUST_PROXY_HOPS` | 1 (proxies in front of the API: 1 for Heroku, Render or one Caddy or nginx; 2 with a CDN too; 0 trusts no header) |
 | `GUEST_BOT_CHALLENGE` | off |
 | `GUEST_BOT_VERIFY_URL`, `GUEST_BOT_SECRET` | unset |
 
-The bot challenge, when on, needs a `botToken` in the body and checks it with any siteverify-style service (Turnstile, hCaptcha, reCAPTCHA): `POST` of `secret`, `response` and `remoteip`, answer `{ success: true }`. On without the URL and secret it answers 501, never waves through. Behind a proxy the address is the one Fastify trusts (`trustProxy` is on), so the proxy must set `X-Forwarded-For`.
+The bot challenge, when on, needs a `botToken` in the body and checks it with any siteverify-style service (Turnstile, hCaptcha, reCAPTCHA): `POST` of `secret`, `response` and `remoteip`, answer `{ success: true }`. On without the URL and secret it answers 501, never waves through. The address every limit sees (this one, the sign-in link, password sign-in, the global limit) is the one the nearest of **our own proxies** saw, set by `TRUST_PROXY_HOPS` (default 1): a value the client writes into `X-Forwarded-For` is never used. Before this setting the API trusted the left-most entry, which the client chooses, so every per-address limit could be skipped by changing that header.
 
 ## Deploy
 
 1. Run the migrations (`pnpm --filter @figcit/api db:migrate`): `guest_space` adds the two user columns, an index and `guest_signups`; `link_guest_magic_link` adds the enum value. Both are backward compatible: existing users read `is_guest = false`.
 2. The settings above have safe defaults; set them only to change the limits. The worker already runs the new job; nothing else to schedule.
-3. The front end needs `GET /me` and the session to carry `isGuest`, so deploy the API first.
+3. Set `TRUST_PROXY_HOPS` to the number of proxies in front of the API. Too high lets a client choose the address the limits see; too low makes every visitor look like the proxy. Check it once with two requests from different networks and a spoofed `X-Forwarded-For`.
+4. The front end needs `GET /me` and the session to carry `isGuest`, so deploy the API first.
 
 ## Not in this version (phase 2)
 

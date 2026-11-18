@@ -22,7 +22,11 @@ export async function createApp(
 ): Promise<NestFastifyApplication> {
   const adapter = new FastifyAdapter({
     bodyLimit: DEFAULT_BODY_LIMIT,
-    trustProxy: true,
+    // Never `true`: that trusts the left-most X-Forwarded-For, which the client writes.
+    trustProxy:
+      env.TRUST_PROXY_HOPS > 0
+        ? (_address: string, hop: number) => hop < env.TRUST_PROXY_HOPS
+        : false,
     logger:
       options.logger === false
         ? false
