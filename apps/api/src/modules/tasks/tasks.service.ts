@@ -3,6 +3,7 @@ import { orderTasks, type Driver, type Light, type TimelineCode } from '@figcit/
 import type { Prisma } from '@prisma/client';
 import type { z } from 'zod';
 import { CryptoService } from '../../common/crypto/crypto.service.js';
+import { GuestCaps } from '../../common/guest/guest-caps.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { BadInput, NotFound } from '../../common/errors/errors.js';
 import { nextOccurrence, parseRule } from '../../common/time/rrule.js';
@@ -78,6 +79,7 @@ export class TasksService {
     private readonly rules: RulesService,
     private readonly ai: AiService,
     private readonly recs: RecommendationService,
+    private readonly guestCaps: GuestCaps,
   ) {}
 
   private async ctx(userId: string): Promise<{
@@ -140,6 +142,7 @@ export class TasksService {
       });
       if (existing) return this.get(userId, existing.id);
     }
+    await this.guestCaps.assertTaskRoom(userId);
     const c = await this.ctx(userId);
     if (
       (await this.prisma.task.count({ where: { userId, status: 'open', deletedAt: null } })) >=

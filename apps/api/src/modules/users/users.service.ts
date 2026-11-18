@@ -102,8 +102,11 @@ export class UsersService {
   }
 
   async update(userId: string, patch: z.infer<typeof mePatchSchema>): Promise<MeDto> {
+    // A guest space always has a name: clearing it would undo its finished details. It may be
+    // changed to another name, never removed.
+    const keepName = patch.nickname === null && (await this.repo.findMe(userId))?.isGuest === true;
     const data: Prisma.UserUpdateInput = {
-      ...(patch.nickname !== undefined ? { nickname: patch.nickname } : {}),
+      ...(patch.nickname !== undefined && !keepName ? { nickname: patch.nickname } : {}),
       ...(patch.locale ? { locale: patch.locale } : {}),
       ...(patch.region ? { region: patch.region } : {}),
       ...(patch.timezone ? { timezone: patch.timezone } : {}),

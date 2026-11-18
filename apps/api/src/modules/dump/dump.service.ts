@@ -2,6 +2,7 @@ import { Injectable, type OnModuleInit } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import type { z } from 'zod';
 import { CryptoService, type UserCipher } from '../../common/crypto/crypto.service.js';
+import { GuestCaps } from '../../common/guest/guest-caps.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
 import { AppError, BadInput, NotFound } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
@@ -91,6 +92,7 @@ export class DumpService implements OnModuleInit {
     private readonly safety: SafetyService,
     private readonly tasks: TasksService,
     private readonly events: DomainEvents,
+    private readonly guestCaps: GuestCaps,
   ) {}
 
   onModuleInit(): void {
@@ -112,6 +114,7 @@ export class DumpService implements OnModuleInit {
       });
       if (existing) return { ...dumpDto(existing, c), safety: false, crisisRoutes: [] };
     }
+    await this.guestCaps.assertDumpRoom(userId);
     const items =
       input.items ?? splitItems(input.text ?? '').map((text) => ({ text, bucket: undefined }));
     const match = await this.safety.check(items.map((i) => i.text));
