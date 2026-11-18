@@ -13,14 +13,26 @@ export const THEMES = [
 /** A UK nation (sets the Help/SOS lines, SU-5), or a two-letter country code outside the UK. */
 export const REGION_RE = /^(GB-(ENG|WLS|SCT|NIR)|GB|[A-Z]{2})$/;
 
-/** A name or nickname in any script (SU-6): 1–30 characters, counted as the user sees them. */
+/** The nickname column is VARCHAR(120): 120 code points, which a few long emoji can reach in 30 characters. */
+export const NAME_MAX_CODE_POINTS = 120;
+
+/**
+ * A name or nickname in any script (SU-6): 1–30 characters, counted as the user sees them, and at
+ * most 120 code points, which is what the column holds (an emoji family is one character but seven
+ * code points).
+ */
 const nameSchema = z
   .string()
   .trim()
-  .refine((v) => {
+  .superRefine((v, ctx) => {
     const n = graphemes(v).length;
-    return n >= 1 && n <= 30;
-  }, 'Use 1 to 30 characters.');
+    if (n < 1 || n > 30) ctx.addIssue({ code: 'custom', message: 'Use 1 to 30 characters.' });
+    else if (Array.from(v).length > NAME_MAX_CODE_POINTS)
+      ctx.addIssue({
+        code: 'custom',
+        message: 'That name is too long. Use fewer emoji, or shorten it.',
+      });
+  });
 
 export const preferencesSchema = z.object({
   textSize: z.number().int().min(0).max(3),

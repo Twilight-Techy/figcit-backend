@@ -56,6 +56,23 @@ describe('your details (S04a) and the age rule', () => {
       body: details('18_plus', { nickname: 'x'.repeat(31) }),
     });
     expect(long.status).toBe(400);
+    // 30 characters as the user sees them, but 210 code points: more than the column holds (B-08).
+    const family = '👨‍👩‍👧‍👦';
+    const emoji = await api.req<{ title: string; detail: string }>('POST', '/me/details', {
+      token: u.token,
+      body: details('18_plus', { nickname: family.repeat(30) }),
+    });
+    expect(emoji.status).toBe(400);
+    const patched = await api.req('PATCH', '/me', {
+      token: u.token,
+      body: { nickname: family.repeat(30) },
+    });
+    expect(patched.status).toBe(400);
+    const some = await api.req<{ me: { nickname: string } }>('PATCH', '/me', {
+      token: u.token,
+      body: { nickname: family.repeat(10) },
+    });
+    expect(some.status).toBe(200);
     const arabic = await api.req<Result>('POST', '/me/details', {
       token: u.token,
       body: details('18_plus', { nickname: 'تُريرا', region: 'IE' }),

@@ -6,6 +6,7 @@ import { PrismaService } from '../../common/db/prisma.service.js';
 import { NotConfigured, Unauthorized } from '../../common/errors/errors.js';
 import { UsersRepository } from '../users/users.repository.js';
 import { graphemes } from '../../common/text/graphemes.js';
+import { NAME_MAX_CODE_POINTS } from '../users/users.schemas.js';
 
 export interface GoogleStart {
   readonly url: string;
@@ -101,9 +102,19 @@ export class GoogleService {
   }
 }
 
-/** Google's first name as a starting nickname (SU-6): trimmed to the 30 characters a name allows. */
+/**
+ * Google's first name as a starting nickname (SU-6): trimmed to the 30 characters a name allows, and
+ * to the 120 code points the column holds, by whole characters (never half an emoji).
+ */
 export function firstName(given: unknown): string | null {
   if (typeof given !== 'string') return null;
-  const name = graphemes(given.trim()).slice(0, 30).join('');
+  let name = '';
+  let points = 0;
+  for (const g of graphemes(given.trim()).slice(0, 30)) {
+    const size = Array.from(g).length;
+    if (points + size > NAME_MAX_CODE_POINTS) break;
+    name += g;
+    points += size;
+  }
   return name.length ? name : null;
 }
