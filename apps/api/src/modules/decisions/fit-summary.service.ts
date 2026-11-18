@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service.js';
-import { Forbidden } from '../../common/errors/errors.js';
+import { NotEntitled } from '../../common/errors/errors.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
 import { EngineRuntimeService } from './engine-runtime.service.js';
 import type { FitSummaryDto } from './v5.schemas.js';
@@ -24,7 +24,7 @@ export class FitSummaryService {
 
   async summary(userId: string, now = new Date()): Promise<FitSummaryDto> {
     if ((await this.entitlements.tierFor(userId, now)) !== 'premium')
-      throw new Forbidden('My fit summary is part of Premium.');
+      throw new NotEntitled('My fit summary', 'Premium');
     const from = new Date(now.getTime() - DAYS * 86_400_000);
     const rows = await this.prisma.decisionRecord.findMany({
       where: { userId, createdAt: { gte: from }, light: { not: null } },

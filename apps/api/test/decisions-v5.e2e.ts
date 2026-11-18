@@ -147,8 +147,19 @@ describe('Rules Engine v5.0 decisions', () => {
   });
 
   it('My fit summary is Premium: colours with the kinds of task brought (RW-5)', async () => {
-    const free = await api.req('GET', '/decisions/v5/fit-summary', { token: user });
-    expect(free.status).toBe(403);
+    // Like every other paid feature: 402 not_entitled, naming the plan (B-10).
+    const free = await api.req<{ code: string; detail: string }>(
+      'GET',
+      '/decisions/v5/fit-summary',
+      {
+        token: user,
+      },
+    );
+    expect(free.status).toBe(402);
+    expect(free.body).toMatchObject({
+      code: 'not_entitled',
+      detail: 'My fit summary is part of Premium.',
+    });
     const premium = await api.signIn();
     await api.app.get(PrismaService).entitlement.create({
       data: {

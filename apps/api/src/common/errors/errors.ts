@@ -60,8 +60,9 @@ export class TooMany extends AppError {
 }
 
 export class NotEntitled extends AppError {
-  constructor(feature: string) {
-    super(402, 'not_entitled', 'This is an Advanced tool', `${feature} is part of FigCit Plus.`);
+  /** `plans` is who has it: Prime and Premium by default; a Premium-only feature says so. */
+  constructor(feature: string, plans = 'Prime and Premium') {
+    super(402, 'not_entitled', 'This is an Advanced tool', `${feature} is part of ${plans}.`);
   }
 }
 
