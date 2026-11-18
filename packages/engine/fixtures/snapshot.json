@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0+e9af132c",
+  "version": "3.3.0+70a603ce",
   "workbookVersion": "3.3",
   "cells": [
     {
@@ -561,7 +561,7 @@
     },
     {
       "code": "stuck_start",
-      "label": "Stuck — can't start",
+      "label": "Stuck, can't start",
       "emoji": "🧱",
       "family": "task_paralysis",
       "side": "harder"
@@ -3333,7 +3333,7 @@
     },
     {
       "id": 10,
-      "title": "Let's draft this — you choose when to send it",
+      "title": "Let's draft this. You choose when to send it",
       "button": "Draft",
       "alternatives": [
         "Regulate first"
@@ -3387,7 +3387,7 @@
     },
     {
       "id": 16,
-      "title": "Let's just breathe — no words needed",
+      "title": "Let's just breathe. No words needed",
       "button": "Start",
       "alternatives": [
         "Send my 'I need quiet' message",
@@ -3453,7 +3453,7 @@
     },
     {
       "id": 23,
-      "title": "Time to recharge — quiet counts as doing something",
+      "title": "Time to recharge. Quiet counts as doing something",
       "button": "Quiet reset",
       "alternatives": [
         "Do it later"
@@ -3491,7 +3491,7 @@
     },
     {
       "id": 27,
-      "title": "Not sure is okay — let's start with your body",
+      "title": "Not sure is okay. Let's start with your body",
       "button": "Quick body check",
       "alternatives": [
         "Pick a state anyway"
@@ -3510,7 +3510,7 @@
     },
     {
       "id": 29,
-      "title": "Body basics first — then we'll pick this back up",
+      "title": "Body basics first, then we'll pick this back up",
       "button": "I've sorted it",
       "alternatives": [
         "Remind me in 10 minutes",
@@ -3520,7 +3520,7 @@
     },
     {
       "id": 30,
-      "title": "No problem — I'll stay out of your way",
+      "title": "No problem. I'll stay out of your way",
       "button": "Open Home",
       "alternatives": [
         "Check in later",
@@ -3530,7 +3530,7 @@
     },
     {
       "id": 31,
-      "title": "You're steadier — want to pick up gently?",
+      "title": "You're steadier. Want to pick up gently?",
       "button": "Start small",
       "alternatives": [
         "Rest a bit longer",
@@ -3556,7 +3556,7 @@
     },
     {
       "id": 34,
-      "title": "This has come up a few times — want to look at what helps?",
+      "title": "This has come up a few times. Want to look at what helps?",
       "button": "Look at my pattern",
       "alternatives": [
         "Don't show me this pattern"
@@ -3621,7 +3621,7 @@
     },
     {
       "id": 41,
-      "title": "Let's just breathe — no words needed",
+      "title": "Let's just breathe. No words needed",
       "button": "Start",
       "alternatives": [
         "Get support now"
