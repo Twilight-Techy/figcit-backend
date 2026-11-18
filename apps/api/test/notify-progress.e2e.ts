@@ -90,13 +90,14 @@ describe('reminders and inbox', () => {
 
   it("opens the check-in and the re-check at the PWA's /check/ routes (A1-01)", async () => {
     const inbox = api.app.get(InboxService);
+    const me = await api.signIn(); // its own inbox: earlier tests fill the shared one
     // A re-check reminder's refId is a legacy check-in id, which /check/?recheck= (a decision id) would
     // refuse with a 404; so both open a Quick check-in.
     const checkInId = '01a1deb2-0a2d-7ff3-af2a-c0766852cb26';
-    await inbox.add(userId, 'reminder_recheck', { type: 'recheck', id: checkInId });
-    await inbox.add(userId, 'reminder_recheck', { type: 'recheck', id: null });
+    await inbox.add(me.userId, 'reminder_recheck', { type: 'recheck', id: checkInId });
+    await inbox.add(me.userId, 'reminder_recheck', { type: 'recheck', id: null });
     const list = await api.req<{ items: { kind: string; href: string }[] }>('GET', '/inbox', {
-      token,
+      token: me.token,
     });
     const hrefs = list.body.items.filter((i) => i.kind === 'reminder_recheck').map((i) => i.href);
     expect(hrefs).toEqual(['/check/?mode=quick', '/check/?mode=quick']);
