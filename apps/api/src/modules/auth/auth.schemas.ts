@@ -22,6 +22,8 @@ export const passwordSignUpSchema = z.object({ email, password }).strict();
 export const passwordSignInSchema = z
   .object({ email, password: z.string().min(1).max(200) })
   .strict();
+/** The email a guest space will keep once it is confirmed (docs/GUEST_SPACE.md). */
+export const guestLinkSchema = z.object({ email }).strict();
 export const forgotSchema = z.object({ email }).strict();
 export const resetSchema = z.object({ token: z.string().min(20).max(200), password }).strict();
 export const setPasswordSchema = z.object({ password }).strict();

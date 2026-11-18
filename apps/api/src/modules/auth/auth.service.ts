@@ -8,6 +8,7 @@ import { PrismaService } from '../../common/db/prisma.service.js';
 import {
   BadInput,
   Conflict,
+  Forbidden,
   Gone,
   TooMany,
   Unauthorized,
@@ -86,6 +87,53 @@ export class AuthService {
     await this.mail.send({ to: email, subject: 'Your FigCit sign-in link', ...body });
   }
 
+  /**
+   * A guest space asks to keep an email (docs/GUEST_SPACE.md). The email is not attached here: only
+   * opening the link from that mailbox does it. The answer is the same whether or not the address
+   * has an account, so this cannot be used to find out. The mail says whose request it is and that
+   * it can be ignored. Limited like the sign-in link, by address and by guest space.
+   */
+  async requestGuestLink(userId: string, email: string): Promise<void> {
+    const guest = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { isGuest: true },
+    });
+    if (!guest?.isGuest) throw new Forbidden('Only a guest space can do this.');
+    const since = new Date(Date.now() - 15 * 60_000);
+    const [byEmail, byGuest] = await Promise.all([
+      this.prisma.magicLink.count({ where: { email, createdAt: { gt: since } } }),
+      this.prisma.magicLink.count({
+        where: { userId, purpose: 'link_guest', createdAt: { gt: since } },
+      }),
+    ]);
+    if (byEmail >= 5 || byGuest >= 5) throw new TooMany();
+    const token = randomToken();
+    await this.prisma.magicLink.create({
+      data: {
+        email,
+        tokenHash: sha256(token),
+        // A confirmation link has no 6-digit code: it can only be opened, never typed in elsewhere.
+        codeHash: sha256(`${email}:${randomToken()}`),
+        userId,
+        purpose: 'link_guest',
+        expiresAt: new Date(Date.now() + MAGIC_TTL_MS),
+      },
+    });
+    const url = `${this.env.APP_URL}/enter/link/?token=${encodeURIComponent(token)}`;
+    const body = emailLayout({
+      appUrl: this.env.APP_URL,
+      heading: 'Confirm your email',
+      preheader:
+        'Confirm this email to keep your FigCit guest space. The link works for 10 minutes.',
+      paragraphs: [
+        'Someone, probably you, asked to keep a FigCit guest space with this email address. Tap the button to confirm it and keep everything in it. The link works for 10 minutes.',
+      ],
+      action: { label: 'Confirm my email', url },
+      note: "If this wasn't you, ignore this email. Nothing happens unless the link is opened.",
+    });
+    await this.mail.send({ to: email, subject: 'Confirm your email', ...body });
+  }
+
   async verifyMagicLink(
     input: { token: string } | { email: string; code: string },
     deviceLabel?: string,
@@ -94,7 +142,9 @@ export class AuthService {
       'token' in input
         ? await this.prisma.magicLink.findUnique({ where: { tokenHash: sha256(input.token) } })
         : await this.prisma.magicLink.findFirst({
-            where: { email: input.email, usedAt: null },
+            // A guest space's confirmation link is only ever opened: it is never the "newest link" a
+            // typed code is checked against, so asking for one cannot get in the way of a sign-in.
+            where: { email: input.email, usedAt: null, purpose: { not: 'link_guest' } },
             orderBy: { createdAt: 'desc' },
           });
     if (!link) throw new Unauthorized('That link or code is not valid. Request a new one.');
@@ -108,6 +158,7 @@ export class AuthService {
         throw new Unauthorized('That code is not right. Check the email and try again.');
       }
     }
+    if (link.purpose === 'link_guest') throw new Gone('This link cannot be used yet.');
     if (link.usedAt) throw new Gone('This link has already been used. Request a new one.');
     if (link.expiresAt < new Date()) throw new Gone('Links last 10 minutes. Request a new one.');
     await this.prisma.magicLink.update({ where: { id: link.id }, data: { usedAt: new Date() } });

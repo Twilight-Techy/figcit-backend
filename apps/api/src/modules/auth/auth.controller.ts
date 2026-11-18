@@ -12,6 +12,7 @@ import {
   authMethodsSchema,
   browseTokenSchema,
   forgotSchema,
+  guestLinkSchema,
   guestSignUpSchema,
   magicLinkRequestSchema,
   magicLinkVerifySchema,
@@ -132,6 +133,25 @@ export class AuthController {
   ): Promise<SessionDto> {
     const session = await this.guests.create(req.ip, body.botToken, device(req));
     return this.respond(req, reply, session, true);
+  }
+
+  @Post('guest/link/email')
+  @HttpCode(202)
+  @RouteConfig(STRICT)
+  @Route({
+    summary:
+      'Guest space: email a link to confirm the address it will keep (always 202; the address is attached only once it is confirmed)',
+    tags: ['Auth'],
+    body: guestLinkSchema,
+    response: okSchema,
+    status: 202,
+  })
+  async linkGuest(
+    @CurrentUser() user: RequestUser,
+    @Body(new ZodPipe(guestLinkSchema)) body: z.infer<typeof guestLinkSchema>,
+  ): Promise<{ ok: true }> {
+    await this.auth.requestGuestLink(user.id, body.email);
+    return { ok: true };
   }
 
   @Post('magic-link')

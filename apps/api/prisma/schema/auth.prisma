@@ -26,6 +26,8 @@ enum SignInResult {
 enum MagicLinkPurpose {
   sign_in
   upgrade_from_browse
+  // A guest space confirming the email it will keep (docs/GUEST_SPACE.md); bound to that guest's user.
+  link_guest
 
   @@map("magic_link_purpose")
 }
