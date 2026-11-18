@@ -17,7 +17,18 @@ export const safetyEventInputSchema = z
 /** Browse: screen text kept on the phone with the server's phrase rules (E-59). Not stored. */
 export const screenInputSchema = z
   .object({
-    sourceModule: z.enum(['dump', 'reflect', 'express', 'connect', 'checkin']),
+    // Every screen that takes typed text: the ones whose own write doesn't screen it call this.
+    sourceModule: z.enum([
+      'dump',
+      'reflect',
+      'express',
+      'connect',
+      'checkin',
+      'tasks',
+      'practices',
+      'institution',
+      'reminders',
+    ]),
     texts: z.array(z.string().max(5000)).min(1).max(50),
   })
   .strict();
