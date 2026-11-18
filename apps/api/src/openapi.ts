@@ -11,6 +11,7 @@ import { createApp } from './app.factory.js';
 import { loadDotEnv } from './common/config/dotenv.js';
 import { loadEnv } from './common/config/env.js';
 import { PROBLEM_CODES } from './common/errors/errors.js';
+import { REQUIRES_ACCOUNT } from './common/guest/requires-account.js';
 import { ROUTE_DOC, type RouteDoc } from './common/http/route.js';
 import { exampleFor } from './common/openapi/example.js';
 
@@ -97,7 +98,7 @@ function okResponse(schema: z.ZodType, given: unknown, where: string): Json {
   };
 }
 
-function operation(doc: RouteDoc, path: string, where: string): Json {
+function operation(doc: RouteDoc, path: string, where: string, needsAccount = false): Json {
   const params = [...path.matchAll(/\{([A-Za-z]+)\}/g)].map((m) => ({
     name: m[1],
     in: 'path',
@@ -119,6 +120,17 @@ function operation(doc: RouteDoc, path: string, where: string): Json {
         status === '204' || !doc.response
           ? { description: 'Done' }
           : okResponse(doc.response, ex.response, where),
+      ...(needsAccount
+        ? {
+            '403': {
+              description:
+                'A guest space cannot do this: problem code account_required ("Create an account to use this.")',
+              content: {
+                'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } },
+              },
+            },
+          }
+        : {}),
       default: {
         description: 'Problem details (RFC 9457)',
         content: {
@@ -132,6 +144,7 @@ function operation(doc: RouteDoc, path: string, where: string): Json {
         : access === 'browse'
           ? [{ bearer: [] }, { browse: [] }]
           : [{ bearer: [] }],
+    ...(needsAccount ? { 'x-requires-account': true } : {}),
     'x-access': access,
     ...(doc.roles?.length ? { 'x-roles': doc.roles } : {}),
     ...(doc.contractOnly ? { 'x-contract-only': true } : {}),
@@ -162,7 +175,13 @@ async function main(): Promise<void> {
           ...paths[path],
           [method]: {
             operationId: `${type.name.replace(/Controller$/, '')}_${key}`,
-            ...operation(doc, path, `${method.toUpperCase()} ${path}`),
+            ...operation(
+              doc,
+              path,
+              `${method.toUpperCase()} ${path}`,
+              (Reflect.getMetadata(REQUIRES_ACCOUNT, handler) ??
+                Reflect.getMetadata(REQUIRES_ACCOUNT, type)) === true,
+            ),
           },
         };
       }

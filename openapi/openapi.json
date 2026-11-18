@@ -3985,6 +3985,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -4004,6 +4014,7 @@
             "browse": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "browse"
       }
     },
@@ -4205,6 +4216,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -4224,6 +4245,7 @@
             "browse": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "browse"
       }
     },
@@ -4360,6 +4382,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -4379,6 +4411,7 @@
             "browse": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "browse"
       }
     },
@@ -4607,6 +4640,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -4626,6 +4669,7 @@
             "browse": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "browse"
       }
     },
@@ -5825,6 +5869,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -5841,6 +5895,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -6653,6 +6708,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -6669,6 +6734,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -6758,6 +6824,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -6774,6 +6850,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -6832,6 +6909,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -6848,6 +6935,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -16465,6 +16553,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -16481,6 +16579,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -18302,6 +18401,16 @@
           "204": {
             "description": "Done"
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -18318,6 +18427,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -18562,6 +18672,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -18578,6 +18698,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -19505,6 +19626,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -19521,6 +19652,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -22056,6 +22188,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -22072,6 +22214,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -49778,6 +49921,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -49794,6 +49947,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       },
       "get": {
@@ -50067,6 +50221,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -50083,6 +50247,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -50160,6 +50325,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -50176,6 +50351,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -50286,6 +50462,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -50302,6 +50488,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
@@ -52982,6 +53169,16 @@
               }
             }
           },
+          "403": {
+            "description": "A guest space cannot do this: problem code account_required (\"Create an account to use this.\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "default": {
             "description": "Problem details (RFC 9457)",
             "content": {
@@ -52998,6 +53195,7 @@
             "bearer": []
           }
         ],
+        "x-requires-account": true,
         "x-access": "user"
       }
     },
