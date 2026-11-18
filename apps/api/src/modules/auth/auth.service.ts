@@ -217,7 +217,8 @@ export class AuthService {
     if ((user.guestExpiresAt ?? new Date(0)) <= new Date())
       throw new Gone('This guest space has ended.');
     await this.attachEmail(user.id, link.email);
-    await this.sessions.lengthenAfterLink(user.id);
+    // Whoever holds a session of this guest space no longer does: only the one who opened the link,
+    // from the mailbox, has one now.
     await this.event(user.id, 'magic_link', 'success');
     return { ...(await this.sessions.issue(user.id, deviceLabel)), isNew: false };
   }
@@ -235,10 +236,23 @@ export class AuthService {
     const other = await this.users.findByEmail(email);
     if (other && other.id !== userId) throw taken;
     try {
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { email, emailVerifiedAt: new Date(), isGuest: false, guestExpiresAt: null },
-      });
+      // One transaction: the email arrives with no password on the account and no other session.
+      await this.prisma.$transaction([
+        this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            email,
+            emailVerifiedAt: new Date(),
+            isGuest: false,
+            guestExpiresAt: null,
+            passwordHash: null,
+          },
+        }),
+        this.prisma.session.updateMany({
+          where: { userId, revokedAt: null },
+          data: { revokedAt: new Date(), revokeReason: 'guest_linked' },
+        }),
+      ]);
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') throw taken;
       throw e;

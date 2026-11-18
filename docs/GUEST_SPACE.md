@@ -15,13 +15,13 @@ An adult can use NUCCESS without an account. A **guest space** is a real account
 
 ## API
 
-| Route | |
-|---|---|
-| `POST /v1/auth/guest` (public) | `{ ageBand: "18_plus", acceptTerms: true, botToken? }` gives 201 and the same session as sign-in, with `user.isGuest: true`. 400 for anything else, 429 over a per-address limit, 503 `guest_unavailable` over the daily cap. |
-| `GET /v1/me` | adds `isGuest` and `guestExpiresAt` (ISO, null for an account). The app counts the days left from it, rounding up. |
-| `POST /v1/auth/guest/link/email` (guest session) | `{ email }` gives 202 always, whether or not the address has an account. Mails "Confirm your email" with a link. 403 for an account. |
-| `POST /v1/auth/magic-link/verify` `{ token }` | for that link: attaches the email and returns a normal session (below). 409 `email_has_account` if the address belongs to another account. |
-| `DELETE /v1/me` | a guest: 204 at once, no body needed. An account: 202 with the words, as before. |
+| Route                                            |                                                                                                                                                                                                                               |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /v1/auth/guest` (public)                   | `{ ageBand: "18_plus", acceptTerms: true, botToken? }` gives 201 and the same session as sign-in, with `user.isGuest: true`. 400 for anything else, 429 over a per-address limit, 503 `guest_unavailable` over the daily cap. |
+| `GET /v1/me`                                     | adds `isGuest` and `guestExpiresAt` (ISO, null for an account). The app counts the days left from it, rounding up.                                                                                                            |
+| `POST /v1/auth/guest/link/email` (guest session) | `{ email }` gives 202 always, whether or not the address has an account. Mails "Confirm your email" with a link. 403 for an account.                                                                                          |
+| `POST /v1/auth/magic-link/verify` `{ token }`    | for that link: attaches the email and returns a normal session (below). 409 `email_has_account` if the address belongs to another account.                                                                                    |
+| `DELETE /v1/me`                                  | a guest: 204 at once, no body needed. An account: 202 with the words, as before.                                                                                                                                              |
 
 The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the app acts on (`x-known-codes`): `account_required`, `guest_limit`, `email_has_account`, `not_entitled`, `rate_limited` and the others.
 
@@ -30,7 +30,7 @@ The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the a
 1. The guest asks (`link/email`). A magic link is stored with the purpose `link_guest`, bound to the guest's user id, and the mail is sent. Nothing is attached.
 2. Opening the link (the existing verify endpoint, token only: a confirmation link has no typed code, and is never the "newest link" a sign-in code is checked against) spends it, then:
    - the address belongs to another account: **409 `email_has_account`**, nothing is attached, the guest space stays as it was and the link is spent;
-   - otherwise the same user gets the email, verified, and stops being a guest; its sessions last as long as any other, and a normal session is issued;
+   - otherwise the same user gets the email, verified, stops being a guest, **has its password cleared if one was somehow there, and every existing session of it is revoked** (one transaction); the person who opened the link gets the one fresh session, as long as any other;
    - opening it again for an address that is already this account's signs in the same account (a mail scanner may open it first); an expired link or an ended guest space is 410.
 3. The email is never attached before it is confirmed, so an address cannot be claimed without its mailbox. Two guests confirming the same address: the unique email decides, the second gets 409.
 
@@ -44,14 +44,14 @@ The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the a
 
 `POST /v1/auth/guest` is public, so it is limited three ways, all from the table `guest_signups` (one row per guest space made, holding only a keyed hash of the network address, deleted after 2 days; Postgres, so it holds with several API instances), plus the route's own burst limit of 10 a minute:
 
-| Setting | Default |
-|---|---|
-| `GUEST_SIGNUPS_PER_HOUR` per address | 5 |
-| `GUEST_SIGNUPS_PER_DAY` per address | 20 |
-| `GUEST_DAILY_CAP` in all, per day | 2000 |
-| `TRUST_PROXY_HOPS` | 1 (proxies in front of the API: 1 for Heroku, Render or one Caddy or nginx; 2 with a CDN too; 0 trusts no header) |
-| `GUEST_BOT_CHALLENGE` | off |
-| `GUEST_BOT_VERIFY_URL`, `GUEST_BOT_SECRET` | unset |
+| Setting                                    | Default                                                                                                           |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `GUEST_SIGNUPS_PER_HOUR` per address       | 5                                                                                                                 |
+| `GUEST_SIGNUPS_PER_DAY` per address        | 20                                                                                                                |
+| `GUEST_DAILY_CAP` in all, per day          | 2000                                                                                                              |
+| `TRUST_PROXY_HOPS`                         | 1 (proxies in front of the API: 1 for Heroku, Render or one Caddy or nginx; 2 with a CDN too; 0 trusts no header) |
+| `GUEST_BOT_CHALLENGE`                      | off                                                                                                               |
+| `GUEST_BOT_VERIFY_URL`, `GUEST_BOT_SECRET` | unset                                                                                                             |
 
 The bot challenge, when on, needs a `botToken` in the body and checks it with any siteverify-style service (Turnstile, hCaptcha, reCAPTCHA): `POST` of `secret`, `response` and `remoteip`, answer `{ success: true }`. On without the URL and secret it answers 501, never waves through. The address every limit sees (this one, the sign-in link, password sign-in, the global limit) is the one the nearest of **our own proxies** saw, set by `TRUST_PROXY_HOPS` (default 1): a value the client writes into `X-Forwarded-For` is never used. Before this setting the API trusted the left-most entry, which the client chooses, so every per-address limit could be skipped by changing that header.
 
@@ -69,4 +69,5 @@ Linking a Google account, setting a password after linking, a "Where in the UK?"
 ## Things to know
 
 - A guest can reach AI only through the helpers inside tasks and Dump, which fall back to templates and count against the daily allowance; the `/ai` routes and Express assist refuse a guest. The free Express modes (Draft among them) are assist calls, so a guest cannot use them: the drafts editor itself (create, save, versions) works.
-- The confirmation email tells the person who it is for and that it can be ignored. A person who opens a link they did not ask for would attach their address to the guest space of whoever asked, and see that space; ignoring the email is safe. Signing everyone else out of the space on linking would close that, at the cost of the app's own session on another device.
+- **Linking signs every other session out.** A guest space's access token carries a guest claim, and the guard checks its session and the space's date on every request, so a token issued before the link, or before the date, stops working at once and not when the 15 minutes end. The consequence for the person: if they open the confirmation link on another device or browser than the one the guest space is in, the guest space there is signed out. The app should say so when it asks for the email ("open the link on this device, or sign in again with your email").
+- **Why.** Anyone can ask for a link for any address, so the link used to hand the account to whoever held a session of the guest space (the attacker's) once the address's real owner opened it. Now a guest cannot set a password (`POST /auth/password` is 403 `account_required`), the link clears any password, and the owner's session is the only one left.

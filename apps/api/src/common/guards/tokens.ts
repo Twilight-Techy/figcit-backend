@@ -7,6 +7,8 @@ export interface AccessClaims {
   readonly sid: string; // session id
   readonly roles: readonly string[];
   readonly mfa: boolean;
+  /** Issued to a guest space: the guard then checks the session and the space's date on each request. */
+  readonly guest?: boolean;
 }
 
 const ISSUER = 'figcit-api';
@@ -35,7 +37,12 @@ export class AccessTokens {
 
   async sign(claims: AccessClaims, ttlSeconds = this.env.ACCESS_TTL_SECONDS): Promise<string> {
     const { priv } = await this.load();
-    return new SignJWT({ sid: claims.sid, roles: claims.roles, mfa: claims.mfa })
+    return new SignJWT({
+      sid: claims.sid,
+      roles: claims.roles,
+      mfa: claims.mfa,
+      ...(claims.guest ? { g: true } : {}),
+    })
       .setProtectedHeader({ alg: 'EdDSA' })
       .setSubject(claims.sub)
       .setIssuer(ISSUER)
@@ -57,7 +64,13 @@ export class AccessTokens {
       const roles = Array.isArray(payload['roles'])
         ? payload['roles'].filter((r): r is string => typeof r === 'string')
         : [];
-      return { sub: payload.sub, sid: payload['sid'], roles, mfa: payload['mfa'] === true };
+      return {
+        sub: payload.sub,
+        sid: payload['sid'],
+        roles,
+        mfa: payload['mfa'] === true,
+        ...(payload['g'] === true ? { guest: true } : {}),
+      };
     } catch {
       return null;
     }

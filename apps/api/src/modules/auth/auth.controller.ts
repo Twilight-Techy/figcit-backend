@@ -6,6 +6,7 @@ import type { z } from 'zod';
 import { ENV, type Env } from '../../common/config/env.js';
 import { Unauthorized } from '../../common/errors/errors.js';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import {
@@ -272,6 +273,7 @@ export class AuthController {
   }
 
   @Post('password')
+  @RequiresAccount()
   @HttpCode(200)
   @Route({
     summary: 'Set or change the password for the signed-in account',

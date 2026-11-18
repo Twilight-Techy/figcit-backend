@@ -35,7 +35,10 @@ export class AuthGuard implements CanActivate {
     const header = request.headers.authorization;
     const bearer = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
     const claims = bearer ? await this.tokens.verify(bearer) : null;
-    if (claims)
+    // A guest space's token is checked against its session and its date on every request (one
+    // indexed read, only for guests): linking an email signs every other session out, and a space
+    // past its date stops working at once, not when the 15 minute token runs out.
+    if (claims && (!claims.guest || (await this.guestStillValid(claims))))
       request.user = {
         id: claims.sub,
         sessionId: claims.sid,
@@ -44,6 +47,19 @@ export class AuthGuard implements CanActivate {
       };
     const browse = request.headers['x-browse-token'];
     if (typeof browse === 'string' && browse.length >= 20) request.browseToken = browse;
+  }
+
+  private async guestStillValid(claims: { sub: string; sid: string }): Promise<boolean> {
+    const now = new Date();
+    const session = await this.prisma.session.findFirst({
+      where: { id: claims.sid, userId: claims.sub, revokedAt: null, expiresAt: { gt: now } },
+      select: {
+        user: { select: { isGuest: true, guestExpiresAt: true, status: true, deletedAt: true } },
+      },
+    });
+    const user = session?.user;
+    if (!user || user.status !== 'active' || user.deletedAt) return false;
+    return !user.isGuest || (user.guestExpiresAt ?? new Date(0)) > now;
   }
 
   private async checkStaff(request: AuthedRequest, roles: readonly string[]): Promise<void> {

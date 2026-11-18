@@ -163,19 +163,26 @@ describe('opening the confirmation link (C2)', () => {
     });
     expect(JSON.stringify(dumps.body)).toContain('A guest thought');
     expect(await prisma.checkIn.count({ where: { id: checkedIn.body.id, userId: id } })).toBe(1);
-    // The guest session in the app carries on, as the same user, now with an account.
-    const same = await api.req<Me>('GET', '/me', { token: guestToken });
-    expect(same.body).toMatchObject({ id, email, isGuest: false });
+    // Linking signs every other session out: the guest's own token is dead, the opener's works.
+    expect((await api.req('GET', '/me', { token: guestToken })).status).toBe(401);
+    expect(
+      (
+        await api.req('POST', '/auth/refresh', {
+          body: { refreshToken: guest.body.refreshToken },
+          headers: NATIVE,
+        })
+      ).status,
+    ).toBe(401);
     // An account has no guest limits and can use what needs one.
     const checkout = await api.req<{ code?: string }>('POST', '/billing/checkout', {
-      token: guestToken,
+      token: res.body.accessToken,
       body: {},
     });
     expect(checkout.body.code).not.toBe('account_required');
-    // Its sessions no longer end with the guest space.
+    // One fresh session, as long as any other.
     const sessions = await prisma.session.findMany({ where: { userId: id, revokedAt: null } });
-    expect(sessions.length).toBeGreaterThan(0);
-    for (const s of sessions) expect(s.expiresAt.getTime()).toBeGreaterThan(Date.now() + 60 * DAY);
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0]?.expiresAt.getTime()).toBeGreaterThan(Date.now() + 60 * DAY);
   });
 
   it('is idempotent: opening it again signs in the same account, and changes nothing', async () => {
@@ -256,5 +263,92 @@ describe('opening the confirmation link (C2)', () => {
     expect(
       (await prisma.user.findUniqueOrThrow({ where: { id: ended.guest.body.user.id } })).email,
     ).toBeNull();
+  });
+});
+
+describe('no way to take an account over through the link (item 2)', () => {
+  it('a guest cannot set a password; a linked account can', async () => {
+    const guest = await start(api);
+    const refused = await api.req<{ code: string }>('POST', '/auth/password', {
+      token: guest.body.accessToken,
+      body: { password: 'correct horse battery' },
+    });
+    expect(refused.status).toBe(403);
+    expect(refused.body.code).toBe('account_required');
+    expect(
+      (await prisma.user.findUniqueOrThrow({ where: { id: guest.body.user.id } })).passwordHash,
+    ).toBeNull();
+    const { token } = await asking();
+    const account = await open(token);
+    const ok = await api.req('POST', '/auth/password', {
+      token: account.body.accessToken,
+      body: { password: 'correct horse battery' },
+    });
+    expect(ok.status).toBe(200);
+  });
+
+  it('the attacker has no way back in after the victim opens the link', async () => {
+    const victim = fresh();
+    const attacker = await start(api);
+    const aToken = attacker.body.accessToken;
+    const planted = await api.req<{ id: string }>('POST', '/tasks', {
+      token: aToken,
+      body: { title: 'Planted by the attacker' },
+    });
+    await link(aToken, victim);
+    const token = tokenIn((await mailTo(victim)).text);
+    // The victim opens it in a browser of their own.
+    const opened = await open(token);
+    expect(opened.status).toBe(200);
+    expect(opened.body.user).toMatchObject({ id: attacker.body.user.id, isGuest: false });
+    // Every token the attacker holds is dead.
+    expect((await api.req('GET', '/me', { token: aToken })).status).toBe(401);
+    expect((await api.req('GET', '/tasks', { token: aToken })).status).toBe(401);
+    const refreshed = await api.req('POST', '/auth/refresh', {
+      body: { refreshToken: attacker.body.refreshToken },
+      headers: NATIVE,
+    });
+    expect(refreshed.status).toBe(401);
+    // No password can be used to sign in as the victim.
+    for (const password of ['attacker knows this', 'correct horse battery']) {
+      const signIn = await api.req('POST', '/auth/password/sign-in', {
+        body: { email: victim, password },
+        headers: NATIVE,
+      });
+      expect(signIn.status).toBe(401);
+    }
+    // The victim's session works, and the victim's own later sign-in lands in the same clean account.
+    const me = await api.req<Me>('GET', '/me', { token: opened.body.accessToken });
+    expect(me.body).toMatchObject({ email: victim, isGuest: false });
+    await api.req('POST', '/auth/magic-link', { body: { email: victim } });
+    const mail = await api.req<{ mail: { to: string; subject: string; text: string }[] }>(
+      'GET',
+      `/dev/mailbox?to=${encodeURIComponent(victim)}`,
+    );
+    const code = /\b(\d{6})\b/.exec(
+      mail.body.mail.find((m) => m.to === victim && m.subject !== 'Confirm your email')?.text ?? '',
+    )?.[1];
+    const again = await api.req<Linked>('POST', '/auth/magic-link/verify', {
+      body: { email: victim, code },
+      headers: NATIVE,
+    });
+    expect(again.status).toBe(200);
+    expect(again.body.user.id).toBe(attacker.body.user.id);
+    const live = await prisma.session.findMany({
+      where: { userId: attacker.body.user.id, revokedAt: null },
+    });
+    expect(live).toHaveLength(2);
+    expect(planted.status).toBe(201);
+  });
+
+  it('clears any password hash on the account at the moment it is linked', async () => {
+    const { guest, email, token } = await asking();
+    await prisma.user.update({
+      where: { id: guest.body.user.id },
+      data: { passwordHash: '$argon2id$legacy-hash-that-should-not-survive' },
+    });
+    expect((await open(token)).status).toBe(200);
+    const row = await prisma.user.findUniqueOrThrow({ where: { id: guest.body.user.id } });
+    expect(row).toMatchObject({ email, passwordHash: null });
   });
 });

@@ -242,3 +242,35 @@ describe('guest_expiring notices (B5)', () => {
     for (const t of texts) expect(t).not.toMatch(/[—!]|URGENT|WARNING|deleted|lose/i);
   });
 });
+
+describe('a guest token stops at the date of the space (item 9)', () => {
+  it('an access token issued before the date is refused after it, before any purge runs', async () => {
+    const g = await start(api);
+    const token = g.body.accessToken;
+    expect((await api.req('GET', '/me', { token })).status).toBe(200);
+    await prisma.user.update({
+      where: { id: g.body.user.id },
+      data: { guestExpiresAt: new Date(Date.now() - 1000) },
+    });
+    expect((await api.req('GET', '/me', { token })).status).toBe(401);
+    expect((await api.req('POST', '/tasks', { token, body: { title: 'Late' } })).status).toBe(401);
+  });
+
+  it('an account is not checked this way: its tokens are not guest tokens', async () => {
+    const me = await api.signIn();
+    await prisma.user.update({
+      where: { id: me.userId },
+      data: { isGuest: false, guestExpiresAt: new Date(Date.now() - 1000) },
+    });
+    expect((await api.req('GET', '/me', { token: me.token })).status).toBe(200);
+  });
+
+  it('a guest whose session was revoked is signed out at once', async () => {
+    const g = await start(api);
+    await prisma.session.updateMany({
+      where: { userId: g.body.user.id },
+      data: { revokedAt: new Date() },
+    });
+    expect((await api.req('GET', '/me', { token: g.body.accessToken })).status).toBe(401);
+  });
+});

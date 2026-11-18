@@ -92,7 +92,13 @@ export class SessionsService {
       expiresAt,
     }: { refreshToken: string; mfa: boolean; guest: boolean; expiresAt: Date },
   ): Promise<IssuedSession> {
-    const accessToken = await this.tokens.sign({ sub: userId, sid: sessionId, roles, mfa });
+    const accessToken = await this.tokens.sign({
+      sub: userId,
+      sid: sessionId,
+      roles,
+      mfa,
+      guest,
+    });
     return {
       accessToken,
       refreshToken,
@@ -171,22 +177,6 @@ export class SessionsService {
       mfa: found.session.mfaVerifiedAt !== null,
       guest: found.session.user.isGuest,
       expiresAt: found.session.expiresAt,
-    });
-  }
-
-  /**
-   * A guest space has become an account: its sessions, which ended with the space, now last as long
-   * as any other, so the app carries on without signing in again.
-   */
-  async lengthenAfterLink(userId: string): Promise<void> {
-    const expiresAt = this.refreshExpiry(false);
-    await this.prisma.session.updateMany({
-      where: { userId, revokedAt: null },
-      data: { expiresAt },
-    });
-    await this.prisma.refreshToken.updateMany({
-      where: { session: { userId, revokedAt: null }, usedAt: null },
-      data: { expiresAt },
     });
   }
 
