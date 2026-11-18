@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
 import { bootApi } from './helpers.js';
-import { ADULT, NATIVE } from './guest-helpers.js';
+import { ADULT, MANY, NATIVE } from './guest-helpers.js';
 
 /** A request as a proxy forwards it: the client's own (spoofable) value, then the address the proxy saw. */
 const via = (spoof: string, seen: string) => ({
@@ -12,10 +12,10 @@ const via = (spoof: string, seen: string) => ({
   'x-forwarded-for': `${spoof}, ${seen}`,
 });
 
-// bootApi keeps its overrides in process.env, so every test here sets TRUST_PROXY_HOPS itself.
 describe('TRUST_PROXY_HOPS', () => {
   it('guest sign-ups from one address are limited however the client spoofs X-Forwarded-For', async () => {
     const strict = await bootApi({
+      ...MANY,
       GUEST_SIGNUPS_PER_HOUR: '2',
       GUEST_SIGNUPS_PER_DAY: '2',
       TRUST_PROXY_HOPS: '1',
@@ -46,6 +46,7 @@ describe('TRUST_PROXY_HOPS', () => {
 
   it('with 0 hops the header is ignored: the address is the connection', async () => {
     const strict = await bootApi({
+      ...MANY,
       GUEST_SIGNUPS_PER_HOUR: '2',
       GUEST_SIGNUPS_PER_DAY: '2',
       TRUST_PROXY_HOPS: '0',
@@ -69,7 +70,7 @@ describe('TRUST_PROXY_HOPS', () => {
   });
 
   it('the route limits (sign-in link) see the same address: a spoofed header does not reset them', async () => {
-    const limited = await bootApi({ RATE_LIMIT_ENABLED: 'true', TRUST_PROXY_HOPS: '1' });
+    const limited = await bootApi({ ...MANY, RATE_LIMIT_ENABLED: 'true' });
     try {
       const statuses: number[] = [];
       for (let i = 0; i < 12; i += 1)

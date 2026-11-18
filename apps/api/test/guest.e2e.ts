@@ -12,6 +12,9 @@ let prisma: PrismaService;
 beforeAll(async () => {
   api = await bootApi(MANY);
   prisma = api.app.get(PrismaService);
+  // Hermetic: the sign-up counter holds rows from earlier runs in the last hour, which the tests
+  // that boot an app with its own limits would otherwise see.
+  await prisma.guestSignup.deleteMany();
 });
 afterAll(() => api.close());
 
@@ -89,7 +92,7 @@ describe('POST /v1/auth/guest', () => {
   });
 
   it('ends its sessions with the space, and refuses to refresh one that has ended', async () => {
-    const wide = await bootApi({ REFRESH_TTL_DAYS: '90' });
+    const wide = await bootApi({ ...MANY, REFRESH_TTL_DAYS: '90' });
     try {
       const res = await start(wide);
       const db = wide.app.get(PrismaService);
@@ -121,7 +124,7 @@ describe('POST /v1/auth/guest', () => {
 
 describe('limits on making guest spaces', () => {
   it('limits one address per hour', async () => {
-    const strict = await bootApi({ GUEST_SIGNUPS_PER_HOUR: '2' });
+    const strict = await bootApi({ ...MANY, GUEST_SIGNUPS_PER_HOUR: '2' });
     try {
       await strict.app.get(PrismaService).guestSignup.deleteMany();
       expect((await start(strict)).status).toBe(201);
@@ -135,7 +138,7 @@ describe('limits on making guest spaces', () => {
   });
 
   it('limits one address per day, and the whole service per day', async () => {
-    const strict = await bootApi({ GUEST_SIGNUPS_PER_HOUR: '99', GUEST_SIGNUPS_PER_DAY: '1' });
+    const strict = await bootApi({ ...MANY, GUEST_SIGNUPS_PER_DAY: '1' });
     try {
       await strict.app.get(PrismaService).guestSignup.deleteMany();
       expect((await start(strict)).status).toBe(201);
@@ -143,11 +146,7 @@ describe('limits on making guest spaces', () => {
     } finally {
       await strict.close();
     }
-    const capped = await bootApi({
-      GUEST_SIGNUPS_PER_HOUR: '99',
-      GUEST_SIGNUPS_PER_DAY: '99',
-      GUEST_DAILY_CAP: '1',
-    });
+    const capped = await bootApi({ ...MANY, GUEST_DAILY_CAP: '1' });
     try {
       await capped.app.get(PrismaService).guestSignup.deleteMany();
       expect((await start(capped)).status).toBe(201);
@@ -172,6 +171,7 @@ describe('limits on making guest spaces', () => {
     await prisma.guestSignup.deleteMany();
     expect((await start(api)).status).toBe(201);
     const asking = await bootApi({
+      ...MANY,
       GUEST_BOT_CHALLENGE: 'true',
       GUEST_BOT_VERIFY_URL: undefined,
       GUEST_BOT_SECRET: undefined,
@@ -198,6 +198,7 @@ describe('limits on making guest spaces', () => {
     await new Promise<void>((done) => verify.listen(0, '127.0.0.1', done));
     const port = (verify.address() as AddressInfo).port;
     const asking = await bootApi({
+      ...MANY,
       GUEST_BOT_CHALLENGE: 'true',
       GUEST_BOT_VERIFY_URL: `http://127.0.0.1:${String(port)}/`,
       GUEST_BOT_SECRET: 'test-secret',

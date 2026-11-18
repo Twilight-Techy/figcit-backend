@@ -21,7 +21,16 @@ export const NATIVE = { 'x-client': 'native' };
 export const DAY = 86_400_000;
 
 /** Every file makes guests from one address: the per-address limits are tested on their own. */
-export const MANY = { GUEST_SIGNUPS_PER_HOUR: '1000', GUEST_SIGNUPS_PER_DAY: '1000' };
+export const MANY = {
+  GUEST_SIGNUPS_PER_HOUR: '1000',
+  GUEST_SIGNUPS_PER_DAY: '1000',
+  // bootApi keeps its overrides in process.env, so the other settings are pinned here too: a test
+  // that tightens one must not leave it tightened for the next.
+  GUEST_DAILY_CAP: '2000',
+  GUEST_BOT_CHALLENGE: 'false',
+  GUEST_LINK_MAILS_PER_ADDRESS: '3',
+  TRUST_PROXY_HOPS: '1',
+};
 
 export const start = (
   a: Api,
