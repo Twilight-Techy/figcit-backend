@@ -7,7 +7,7 @@ import {
   type DroppedAnswer,
   type EngineInput,
 } from '@figcit/engine-v2';
-import { AppError, NotConfigured } from '../../common/errors/errors.js';
+import { AppError, BadInput, NotConfigured } from '../../common/errors/errors.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
 import { CheckInOptionsService, type CheckInOptions } from '../rulesets/checkin-options.service.js';
 import { SafetyService } from '../safety/safety.service.js';
@@ -95,6 +95,14 @@ export class DecisionsV5Service {
     if (!offered) throw new NotConfigured('No engine v2 rule set is published yet.');
     if (!isV5(offered))
       throw new AppError(409, 'ruleset_not_v5', 'The published rule set is not v5.0 yet.');
+    // An urgent sign the rule set does not publish is never dropped quietly: that would give a
+    // normal card to someone who said something feels wrong (SF-4).
+    const known = new Set(offered.options.urgent.map((o) => o.code));
+    const unknown = (body.urgent?.signs ?? []).filter((c) => !known.has(c));
+    if (unknown.length > 0)
+      throw new BadInput(`urgent.signs: unknown sign ${unknown.join(', ')}.`, {
+        issues: unknown.map((c) => ({ path: 'urgent.signs', message: `Unknown sign ${c}.` })),
+      });
     const risk = await this.safety.check([
       body.somethingElse?.text,
       ...(body.tasks ?? []).map((t) => t.title),

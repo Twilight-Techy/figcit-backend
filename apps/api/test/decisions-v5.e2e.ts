@@ -262,6 +262,57 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(rows[0]).toMatchObject({ value: floor, suppressed: false });
   });
 
+  describe('what the check-in may hold (B-09)', () => {
+    type Problem = { code: string; detail?: string; issues?: { path: string; message: string }[] };
+    const bad = async (body: object, path: string) => {
+      const res = await api.req<Problem>('POST', '/decisions/v5', {
+        token: user,
+        body: { mode: 'full', state: GREEN, emotions: [], ...body },
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('invalid_input');
+      // The problem names the field, in `issues` and in a readable `detail`.
+      expect(res.body.issues?.some((i) => i.path.startsWith(path))).toBe(true);
+      expect(res.body.detail).toContain(path);
+    };
+
+    it('refuses an urgent sign the rule set does not publish, instead of a normal card', async () => {
+      await bad(
+        { urgent: { signs: ['chest_pain', 'not_a_sign'], answer: 'sudden_new' } },
+        'urgent.signs',
+      );
+    });
+
+    it('refuses the same emotion twice', async () => {
+      await bad(
+        {
+          emotions: [
+            { code: 'calm', level: 3 },
+            { code: 'calm', level: 5 },
+          ],
+        },
+        'emotions.1.code',
+      );
+    });
+
+    it('refuses Something else words without the Something else feeling', async () => {
+      await bad(
+        { somethingElse: { text: 'gutted' }, emotions: [{ code: 'calm', level: 3 }] },
+        'somethingElse',
+      );
+    });
+
+    it('takes them together, and still ignores keys it does not know (Not sure answers stay stripped)', async () => {
+      const ok = await decide({
+        emotions: [{ code: 'something_else', level: 4 }],
+        somethingElse: { text: 'gutted' },
+        state: { kind: 'not_sure', answers: ['heavy', 'low', 'uneasy'] },
+        extra: 'ignored',
+      });
+      expect(ok.status).toBe(201);
+    });
+  });
+
   describe('Blue on a re-check (RC-1, B-04)', () => {
     const RED = { kind: 'grid', energy: 1, mood: 1 } as const;
     const BETTER = { kind: 'grid', energy: 3, mood: 3 } as const;

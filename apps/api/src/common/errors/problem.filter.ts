@@ -57,8 +57,14 @@ function fromException(error: unknown): Problem {
       ...(error.extra ?? {}),
     });
   if (error instanceof ZodError) {
+    const issues = error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }));
     return problem('invalid_input', 'Something in the request needs another look', 400, {
-      issues: error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+      // The first few, with the field each is about, so a client can show them without the list.
+      detail: issues
+        .slice(0, 3)
+        .map((i) => (i.path ? `${i.path}: ${i.message}` : i.message))
+        .join(' '),
+      issues,
     });
   }
   if (error instanceof HttpException) return httpProblem(error.getStatus());
