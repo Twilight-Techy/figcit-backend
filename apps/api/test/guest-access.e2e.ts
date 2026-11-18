@@ -28,6 +28,8 @@ describe('what needs an account (B1)', () => {
     ['POST', '/ai/suggest-drivers'],
     ['POST', '/ai/map-feeling'],
     ['POST', '/ai/split-tasks'],
+    // The task helper that calls the model (Break down, S21).
+    ['POST', `/tasks/${ID}/break-down`],
   ];
 
   it.each(ROUTES)('%s %s refuses a guest space with account_required', async (method, url) => {

@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import type { z } from 'zod';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import {
@@ -136,6 +137,7 @@ export class TasksController {
   }
 
   @Post(':id/break-down')
+  @RequiresAccount()
   @Route({
     summary: 'Break a task into steps within its timeline cap (S21)',
     tags: ['Tasks'],
