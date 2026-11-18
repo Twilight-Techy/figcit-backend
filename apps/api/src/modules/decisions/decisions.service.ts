@@ -240,6 +240,29 @@ export class DecisionsService {
     };
   }
 
+  /**
+   * Whether the person finished a support session since an earlier v5.0 decision (RC-1, T-23). A v5.0
+   * card is not a Recommendation, so a session carries no link to it: it counts if it is one of the
+   * card's pathways, started after the decision, and completed.
+   */
+  async supportCompletedSince(userId: string, decisionId: string): Promise<boolean> {
+    const previous = await this.prisma.decisionRecord.findFirst({
+      where: { id: decisionId, userId },
+      select: { createdAt: true, card: true },
+    });
+    if (!previous) return false;
+    const card = previous.card as unknown as Pick<Card, 'primary' | 'alternatives'>;
+    const offered = new Set(
+      [card.primary, ...card.alternatives].flatMap((i) => (i?.pathway ? [i.pathway] : [])),
+    );
+    const done = await this.prisma.pathwaySession.findMany({
+      where: { userId, completed: true, startedAt: { gte: previous.createdAt } },
+      select: { pathway: true },
+      take: 50,
+    });
+    return done.some((d) => offered.size === 0 || offered.has(d.pathway));
+  }
+
   /** The owner sees the card; staff also see the input and the full trace. */
   async get(
     id: string,

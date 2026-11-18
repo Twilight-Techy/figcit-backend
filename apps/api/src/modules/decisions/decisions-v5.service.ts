@@ -52,7 +52,12 @@ export class DecisionsV5Service {
 
   async decide(body: CheckInV5Body, userId: string, now = new Date()): Promise<DecisionV5Dto> {
     const recheck = body.recheckOfId
-      ? await this.decisions.previousFacts(userId, body.recheckOfId)
+      ? await this.decisions.previousFacts(
+          userId,
+          body.recheckOfId,
+          // RC-1: Blue needs the support finished, as the v3.3 bridge reads it from the session.
+          await this.decisions.supportCompletedSince(userId, body.recheckOfId),
+        )
       : undefined;
     const p = await this.prepare(body, userId, now, recheck);
     const { record, card } = await this.decisions.store(p, {

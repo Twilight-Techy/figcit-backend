@@ -262,6 +262,39 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(rows[0]).toMatchObject({ value: floor, suppressed: false });
   });
 
+  describe('Blue on a re-check (RC-1, B-04)', () => {
+    const RED = { kind: 'grid', energy: 1, mood: 1 } as const;
+    const BETTER = { kind: 'grid', energy: 3, mood: 3 } as const;
+    const recheck = async (finished: boolean) => {
+      const me = await api.signIn();
+      const first = await decide({ state: RED }, me.token);
+      expect(first.body.card.light).toBe('red');
+      const session = await api.req<{ id: string }>('POST', '/sessions', {
+        token: me.token,
+        body: { pathway: 'regulate', toolId: 'breathe' },
+      });
+      expect(session.status).toBe(201);
+      if (finished)
+        await api.req('PATCH', `/sessions/${session.body.id}`, {
+          token: me.token,
+          body: { endedAt: new Date().toISOString(), lengthSeconds: 180, completed: true },
+        });
+      return decide({ state: BETTER, recheckOfId: first.body.id }, me.token);
+    };
+
+    it('is reached when the support was finished and the state is much better', async () => {
+      const second = await recheck(true);
+      expect(second.status).toBe(201);
+      expect(second.body.card.light).toBe('blue');
+    });
+
+    it('is not reached when the support was not finished', async () => {
+      const second = await recheck(false);
+      expect(second.status).toBe(201);
+      expect(second.body.card.light).not.toBe('blue');
+    });
+  });
+
   describe('the modules that read how the person is (B-01)', () => {
     const RED = { kind: 'grid', energy: 1, mood: 1 } as const;
     const gate = (token: string) =>
