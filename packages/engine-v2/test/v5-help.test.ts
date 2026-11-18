@@ -101,8 +101,17 @@ describe('Rules Engine v5.0: the Help menu (Tab 7)', () => {
   });
 
   it('I need help now is the safety override (pattern 28)', () => {
-    const card = cardOf({ ...IN['green'], 'help.card': 'i_need_help_now' });
+    const input = { ...IN['green'], 'help.card': 'i_need_help_now' };
+    const card = cardOf(input);
     expect(card.kind).toBe('support_screen');
+    // Pattern 28 and its Help/SOS headline, not the generic support screen (53).
+    expect(card.pattern).toBe('28');
+    const words = cardWordsV5(
+      { ...card },
+      { ...FULL, ...input },
+      { copy: copyOf(imported.records), catalogue, tasks: [] },
+    );
+    expect(words.headline).toBe("You don't have to go through this alone.");
   });
 
   it("T-02: a support card and a task in Green ask 'Which first?'; the task is never a practice", () => {

@@ -29,7 +29,7 @@ const rules = (
   {
     mapping = 'interpreted',
     layer,
-  }: { mapping?: 'exact' | 'interpreted'; layer?: 'guard' | 'band' } = {},
+  }: { mapping?: 'exact' | 'interpreted'; layer?: 'safety' | 'guard' | 'band' } = {},
 ): RowMapping => ({
   mapping,
   reason,
@@ -259,9 +259,18 @@ export const HELP_MENU: TabMapping = {
         ),
       ]),
     ),
-    'I need help now': rules('The safety override (pattern 28): Help/SOS, nothing else.', [
-      { when: picked('i_need_help_now'), then: [set('stop'), set('support.show'), pattern('28')] },
-    ]),
+    // On the safety layer, like SF-1: a row with no layer ranks below every other, so the band's
+    // default pattern (53) won over this one and the card got the generic headline.
+    'I need help now': rules(
+      'The safety override (pattern 28): Help/SOS, nothing else.',
+      [
+        {
+          when: picked('i_need_help_now'),
+          then: [set('stop'), set('support.show'), pattern('28')],
+        },
+      ],
+      { layer: 'safety' },
+    ),
   },
 };
 
