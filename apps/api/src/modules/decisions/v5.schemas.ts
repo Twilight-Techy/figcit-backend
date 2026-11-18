@@ -34,6 +34,11 @@ const checkInV5Base = z.object({
     .object({ signs: z.array(code).min(1).max(5), answer: z.enum(['sudden_new', 'familiar']) })
     .optional()
     .describe("'Something feels wrong' and 'Is this sudden or new for you?' (SF-4)"),
+  bodyRegions: z
+    .array(z.object({ sign: code, regions: z.array(code).min(1).max(12) }).strict())
+    .max(14)
+    .optional()
+    .describe('The body map (S09, Full only): where each picked body sign is felt. Kept, not read'),
   senses: z.array(code).max(8).optional(),
   place: z.object({ code, canStepAway: z.boolean() }).optional(),
   devices: z.array(code).max(6).optional(),
