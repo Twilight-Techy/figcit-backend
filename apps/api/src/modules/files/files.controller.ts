@@ -19,6 +19,7 @@ import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import { StorageService } from '../../platform/storage/storage.service.js';
 import { FilesService } from './files.service.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 const uploadRequestSchema = z
   .object({
@@ -49,6 +50,7 @@ export class FilesController {
   ) {}
 
   @Post('uploads')
+  @RequiresAccount()
   @Route({
     summary: 'Get a link to upload a file to',
     tags: ['Files'],
@@ -64,6 +66,7 @@ export class FilesController {
   }
 
   @Post(':id/complete')
+  @RequiresAccount()
   @HttpCode(204)
   @Route({ summary: 'Tell us an S3 upload finished', tags: ['Files'], status: 204 })
   complete(

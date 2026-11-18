@@ -5,6 +5,7 @@ import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import { FilesService } from '../files/files.service.js';
 import { SpeechService, type TranscriptionDto } from './speech.service.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 const uploadSchema = z
   .object({ contentType: z.string().max(64), sizeBytes: z.number().int().min(1) })
@@ -33,6 +34,7 @@ const transcriptionSchema = z.object({
   safety: z.boolean(),
 });
 
+@RequiresAccount()
 @Controller('speech')
 export class SpeechController {
   constructor(

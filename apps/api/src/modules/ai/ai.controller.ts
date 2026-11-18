@@ -21,11 +21,13 @@ import {
 } from './ai.schemas.js';
 import { AiService } from './ai.service.js';
 import { mapFeeling, parseNeed, splitTasks, suggestDrivers } from './ai.tasks.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 /** Tab 11: below this confidence the app asks instead of choosing. */
 const CONFIDENT = 0.7;
 
 /** The AI helpers the check-in uses; also open to Browse mode (rate-limited, nothing stored). */
+@RequiresAccount()
 @Controller('ai')
 export class AiController {
   constructor(

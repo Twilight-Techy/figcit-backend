@@ -14,6 +14,7 @@ import { CurrentUser, type RequestUser } from '../../common/guards/request-user.
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import { type DashboardDto, InstitutionsService } from './institutions.service.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 const joinSchema = z.object({ code: z.string().trim().min(4).max(16) }).strict();
 const joinedSchema = z.object({ tenantId: z.uuid(), name: z.string() });
@@ -71,6 +72,7 @@ export class InstitutionsController {
   constructor(private readonly institutions: InstitutionsService) {}
 
   @Post('institutions/join')
+  @RequiresAccount()
   @Route({
     summary: 'Join with an institution code (S80)',
     tags: ['Institutions'],
@@ -103,6 +105,7 @@ export class InstitutionsController {
   }
 
   @Post('me/institution/outreach')
+  @RequiresAccount()
   @Route({
     summary: 'Ask my institution for support (S82)',
     tags: ['Institutions'],

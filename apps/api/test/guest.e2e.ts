@@ -9,7 +9,8 @@ let api: Api;
 let prisma: PrismaService;
 
 beforeAll(async () => {
-  api = await bootApi();
+  // Every test here makes guests from one address: the per-address limits are tested on their own.
+  api = await bootApi({ GUEST_SIGNUPS_PER_HOUR: '1000', GUEST_SIGNUPS_PER_DAY: '1000' });
   prisma = api.app.get(PrismaService);
 });
 afterAll(() => api.close());
@@ -232,5 +233,60 @@ describe('limits on making guest spaces', () => {
       await asking.close();
       verify.close();
     }
+  });
+});
+
+describe('what needs an account (B1)', () => {
+  const ID = '01a1deb2-0a2d-7ff3-af2a-c0766852cb26';
+  const ROUTES: readonly [string, string][] = [
+    ['POST', '/billing/checkout'],
+    ['POST', '/billing/fake/complete'],
+    ['POST', '/billing/cancel'],
+    ['POST', '/institutions/join'],
+    ['POST', '/me/institution/outreach'],
+    ['POST', '/shares'],
+    ['POST', `/drafts/${ID}/assist`],
+    ['POST', '/files/uploads'],
+    ['POST', `/files/${ID}/complete`],
+    ['POST', '/speech/uploads'],
+    ['POST', '/speech/transcriptions'],
+    ['POST', '/ai/parse-need'],
+    ['POST', '/ai/suggest-drivers'],
+    ['POST', '/ai/map-feeling'],
+    ['POST', '/ai/split-tasks'],
+  ];
+
+  it.each(ROUTES)('%s %s refuses a guest space with account_required', async (method, url) => {
+    const guest = await start(api);
+    const res = await api.req<{ code: string; detail: string }>(method as 'POST', url, {
+      token: guest.body.accessToken,
+      body: {},
+    });
+    expect(res.status).toBe(403);
+    expect(res.body).toMatchObject({
+      code: 'account_required',
+      detail: 'Create an account to use this.',
+    });
+  });
+
+  it.each(ROUTES)('%s %s is not refused for an account', async (method, url) => {
+    const me = await api.signIn();
+    const res = await api.req<{ code?: string }>(method as 'POST', url, {
+      token: me.token,
+      body: {},
+    });
+    expect(res.body.code).not.toBe('account_required');
+  });
+
+  it('leaves everything else to a guest: plans, tasks, dumps, progress, support', async () => {
+    const guest = await start(api);
+    const token = guest.body.accessToken;
+    expect((await api.req('GET', '/plans', { token })).status).toBe(200);
+    expect((await api.req('GET', '/me/entitlements', { token })).status).toBe(200);
+    expect((await api.req('POST', '/tasks', { token, body: { title: 'Wash up' } })).status).toBe(
+      201,
+    );
+    expect((await api.req('GET', '/progress?range=7', { token })).status).toBe(200);
+    expect((await api.req('GET', '/me/consents', { token })).status).toBe(200);
   });
 });

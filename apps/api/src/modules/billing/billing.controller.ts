@@ -6,6 +6,7 @@ import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import { EntitlementsService, PLAN_TIERS } from '../entitlements/entitlements.service.js';
 import { BillingService } from './billing.service.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 const planSchema = z.object({
   code: z.string(),
@@ -93,6 +94,7 @@ export class BillingController {
   }
 
   @Post('billing/checkout')
+  @RequiresAccount()
   @Route({
     summary: 'Start buying Prime or Premium (S61): the total with VAT, before payment',
     tags: ['Plans'],
@@ -108,6 +110,7 @@ export class BillingController {
   }
 
   @Post('billing/fake/complete')
+  @RequiresAccount()
   @HttpCode(200)
   @Route({
     summary: 'Fake provider: finish a checkout',
@@ -124,6 +127,7 @@ export class BillingController {
   }
 
   @Post('billing/cancel')
+  @RequiresAccount()
   @HttpCode(200)
   @Route({
     summary: 'Cancel at the end of the period (S62)',

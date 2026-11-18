@@ -21,12 +21,14 @@ import {
   sharedViewSchema,
 } from './shares.schemas.js';
 import { SharesService } from './shares.service.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 @Controller()
 export class SharesController {
   constructor(private readonly shares: SharesService) {}
 
   @Post('shares')
+  @RequiresAccount()
   @Route({
     summary: 'Share a read-only report (S50)',
     tags: ['Progress'],

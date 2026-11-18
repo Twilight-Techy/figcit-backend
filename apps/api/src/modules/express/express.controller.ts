@@ -31,6 +31,7 @@ import {
   type DraftUpdate,
 } from './express.schemas.js';
 import { ExpressService } from './express.service.js';
+import { RequiresAccount } from '../../common/guest/requires-account.js';
 
 @Controller('drafts')
 export class ExpressController {
@@ -98,6 +99,7 @@ export class ExpressController {
    * stream `delta` events and end with one `done` event carrying the saved result.
    */
   @Post(':id/assist')
+  @RequiresAccount()
   @Route({
     summary: 'Help me say this (S19, Figma S115)',
     tags: ['Express'],
