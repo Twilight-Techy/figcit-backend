@@ -98,6 +98,32 @@ function okResponse(schema: z.ZodType, given: unknown, where: string): Json {
   };
 }
 
+/** The 403 a route that needs an account adds to its responses. */
+const ACCOUNT_REQUIRED_RESPONSE = {
+  '403': {
+    description:
+      'A guest space cannot do this: problem code account_required ("Create an account to use this.")',
+    content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } } },
+  },
+};
+
+function responsesOf(doc: RouteDoc, status: string, where: string, needsAccount: boolean): Json {
+  const ex = doc.example ?? {};
+  return {
+    [status]:
+      status === '204' || !doc.response
+        ? { description: 'Done' }
+        : okResponse(doc.response, ex.response, where),
+    ...(needsAccount ? ACCOUNT_REQUIRED_RESPONSE : {}),
+    default: {
+      description: 'Problem details (RFC 9457)',
+      content: {
+        'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } },
+      },
+    },
+  };
+}
+
 function operation(doc: RouteDoc, path: string, where: string, needsAccount = false): Json {
   const params = [...path.matchAll(/\{([A-Za-z]+)\}/g)].map((m) => ({
     name: m[1],
@@ -115,29 +141,7 @@ function operation(doc: RouteDoc, path: string, where: string, needsAccount = fa
       ? { parameters: [...params, ...queryParams(doc.query, ex.query, where)] }
       : {}),
     ...(doc.body ? { requestBody: requestBody(doc.body, ex.body, where) } : {}),
-    responses: {
-      [status]:
-        status === '204' || !doc.response
-          ? { description: 'Done' }
-          : okResponse(doc.response, ex.response, where),
-      ...(needsAccount
-        ? {
-            '403': {
-              description:
-                'A guest space cannot do this: problem code account_required ("Create an account to use this.")',
-              content: {
-                'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } },
-              },
-            },
-          }
-        : {}),
-      default: {
-        description: 'Problem details (RFC 9457)',
-        content: {
-          'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } },
-        },
-      },
-    },
+    responses: responsesOf(doc, status, where, needsAccount),
     security:
       access === 'public'
         ? []
