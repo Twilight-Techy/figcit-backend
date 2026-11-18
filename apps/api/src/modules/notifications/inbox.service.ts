@@ -13,7 +13,7 @@ const COPY: Readonly<
   reminder_checkin: {
     title: 'Check-in',
     body: 'A gentle check-in is here when you want it.',
-    href: () => '/check-in/',
+    href: () => '/check/?mode=quick',
   },
   reminder_task: {
     title: 'A task reminder',
@@ -28,7 +28,7 @@ const COPY: Readonly<
   reminder_recheck: {
     title: 'How are you now?',
     body: 'A quick re-check, if you like.',
-    href: (id) => (id ? `/check-in/?recheck=${id}` : '/check-in/'),
+    href: (id) => (id ? `/check/?recheck=${id}` : '/check/?mode=quick'),
   },
   reminder_custom: { title: 'Reminder', body: 'A gentle reminder.', href: () => '/reminders/' },
   export_ready: {

@@ -43,8 +43,7 @@ const ACTION_HREF: Readonly<
   own_practice: (a, c) =>
     `/meditate/session/${q({ practice: a.practiceId, rec: c.recommendationId })}`,
   open_home: () => '/home/',
-  check_in_again: (a) =>
-    a.label.toLowerCase().includes('body') ? '/check-in/not-sure/' : '/check-in/',
+  check_in_again: (a) => (a.label.toLowerCase().includes('body') ? '/check/not-sure/' : '/check/'),
   skip_to_task: (_a, c) => taskHref(c, 'start_task'),
   try_anyway: (_a, c) => taskHref(c, 'start_task'),
   quiet_message: (_a, c) =>

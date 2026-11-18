@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { InboxService } from '../src/modules/notifications/inbox.service.js';
 import { DispatcherService } from '../src/modules/notifications/dispatcher.service.js';
 import { PrismaService } from '../src/common/db/prisma.service.js';
 import { bootApi, type Api } from './helpers.js';
@@ -64,7 +65,10 @@ describe('reminders and inbox', () => {
       unread: number;
       items: { kind: string; href: string; title: string }[];
     }>('GET', '/inbox', { token });
-    expect(inbox.body.items[0]).toMatchObject({ kind: 'reminder_checkin', href: '/check-in/' });
+    expect(inbox.body.items[0]).toMatchObject({
+      kind: 'reminder_checkin',
+      href: '/check/?mode=quick',
+    });
     const after = await prisma.reminder.findUniqueOrThrow({ where: { id: r.body.id } });
     expect(after.active).toBe(false);
 
@@ -82,6 +86,20 @@ describe('reminders and inbox', () => {
     expect(log?.result).toBe('held_quiet_hours');
     await api.req('POST', '/inbox/read-all', { token });
     expect((await api.req<{ unread: number }>('GET', '/inbox', { token })).body.unread).toBe(0);
+  });
+
+  it("opens the check-in and the re-check at the PWA's /check/ routes (A1-01)", async () => {
+    const inbox = api.app.get(InboxService);
+    const decisionId = '01a1deb2-0a2d-7ff3-af2a-c0766852cb26';
+    await inbox.add(userId, 'reminder_recheck', { type: 'recheck', id: decisionId });
+    await inbox.add(userId, 'reminder_recheck', { type: 'recheck', id: null });
+    const list = await api.req<{ items: { kind: string; href: string }[] }>('GET', '/inbox', {
+      token,
+    });
+    const hrefs = list.body.items.filter((i) => i.kind === 'reminder_recheck').map((i) => i.href);
+    expect(hrefs).toContain(`/check/?recheck=${decisionId}`);
+    expect(hrefs).toContain('/check/?mode=quick');
+    expect(list.body.items.map((i) => i.href).filter((h) => h.includes('/check-in/'))).toEqual([]);
   });
 
   it('stores push subscriptions and serves the public key', async () => {

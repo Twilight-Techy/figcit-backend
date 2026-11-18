@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decide, inQuietHours, type PolicyInput } from './policy.js';
+import { decide, inQuietHours, PUSH_TEXT, type PolicyInput } from './policy.js';
 
 const base: PolicyInput = {
   now: new Date('2026-10-28T12:00:00Z'),
@@ -44,5 +44,13 @@ describe('notification policy', () => {
   it('respects style and categories', () => {
     expect(decide({ ...base, style: 'off' })).toBe('held_style');
     expect(decide({ ...base, categories: ['checkin'] })).toBe('held_category');
+  });
+});
+
+describe('where a push opens the app (A1-01)', () => {
+  it('goes to the PWA routes under /check/, never the removed /check-in/', () => {
+    for (const { url } of Object.values(PUSH_TEXT)) expect(url).not.toContain('/check-in/');
+    expect(PUSH_TEXT.checkin.url).toBe('/check/?mode=quick');
+    expect(PUSH_TEXT.recheck.url).toBe('/check/?mode=quick');
   });
 });

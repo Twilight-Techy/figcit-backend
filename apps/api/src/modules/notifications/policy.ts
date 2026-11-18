@@ -63,14 +63,14 @@ export const PUSH_TEXT: Readonly<Record<Category, { title: string; body: string;
   checkin: {
     title: 'FigCit',
     body: 'A gentle check-in is here when you want it.',
-    url: '/check-in/',
+    url: '/check/?mode=quick',
   },
   tasks: { title: 'FigCit', body: 'A gentle reminder is waiting.', url: '/tasks/' },
   practices: { title: 'FigCit', body: 'Your practice time is coming up.', url: '/meditate/' },
   recheck: {
     title: 'FigCit',
     body: 'Want to check how you are now?',
-    url: '/check-in/?recheck=1',
+    url: '/check/?mode=quick',
   },
   custom: { title: 'FigCit', body: 'A gentle reminder is waiting.', url: '/inbox/' },
 };

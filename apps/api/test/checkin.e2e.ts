@@ -118,7 +118,7 @@ describe('check-in → card', () => {
   it('handles Not sure with the body questions', async () => {
     const res = await checkIn({ state: { kind: 'not_sure', answers: [] } });
     expect(res.body.card.state.confirmed).toBe(false);
-    expect(res.body.card.primary.href).toBe('/check-in/not-sure/');
+    expect(res.body.card.primary.href).toBe('/check/not-sure/');
   });
 
   it('lists history with a cursor and reads one check-in', async () => {
