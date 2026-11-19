@@ -36,15 +36,11 @@ async function history(
     const when = at(d, 8 + Math.floor(r() * 12), Math.floor(r() * 60));
     const c = await s.checkIn(userId, key, when);
     if (r() < 0.75) {
-      const rec = await s.prisma.recommendation.findUniqueOrThrow({
-        where: { id: c.recId },
-        select: { primary: true },
-      });
-      const primary = rec.primary as { pathway?: string; toolId?: string };
-      if (primary.pathway && primary.toolId) {
+      const primary = c.tool;
+      if (primary) {
         const outcome = pick(r, ['helped', 'helped', 'a_bit', 'not_really'] as const);
         await s.session(userId, {
-          recId: c.recId,
+          recId: c.recId ?? undefined,
           pathway: primary.pathway,
           toolId: primary.toolId,
           at: new Date(when.getTime() + 5 * 60_000),
