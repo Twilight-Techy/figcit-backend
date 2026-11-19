@@ -83,6 +83,10 @@ function scoreOf(t: OrderableTask, light: Light, snapshot: Snapshot): number {
   return Math.round(score * 10) / 10;
 }
 
+/** Picked as a Quick win (S128), or only a step or two left. */
+const isQuick = (t: OrderableTask): boolean =>
+  t.planSlot === 'quick' || (t.stepsLeft > 0 && t.stepsLeft <= 2);
+
 function whyNowOf(t: OrderableTask, light: Light): WhyNowCode {
   const gentle = STRAINED.has(light) || light === 'blue';
   if (t.planSlot === 'not_today') return 'later';
@@ -90,7 +94,7 @@ function whyNowOf(t: OrderableTask, light: Light): WhyNowCode {
   if (t.timeline === 'TX') return 'overdue_small_step';
   if (t.planSlot === 'now') return 'picked_for_now';
   if (t.timeline === 'T1') return 'due_today';
-  if (t.planSlot === 'quick' || (t.stepsLeft > 0 && t.stepsLeft <= 2)) return 'quick';
+  if (isQuick(t)) return 'quick';
   if (t.drivers.includes('routine') || t.traits?.includes('done_before')) return 'familiar';
   if (t.drivers.includes('interest') || t.drivers.includes('passion')) return 'enjoyable';
   return gentle ? 'gentle_start' : 'no_rush';
