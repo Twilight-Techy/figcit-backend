@@ -50822,6 +50822,7 @@
                                 "enum": [
                                   "now",
                                   "later",
+                                  "quick",
                                   "not_today"
                                 ]
                               },
@@ -51184,6 +51185,7 @@
                     "enum": [
                       "now",
                       "later",
+                      "quick",
                       "not_today"
                     ]
                   },
@@ -51326,6 +51328,7 @@
                           "enum": [
                             "now",
                             "later",
+                            "quick",
                             "not_today"
                           ]
                         },
@@ -51703,6 +51706,7 @@
                           "enum": [
                             "now",
                             "later",
+                            "quick",
                             "not_today"
                           ]
                         },
@@ -52088,6 +52092,7 @@
                         "enum": [
                           "now",
                           "later",
+                          "quick",
                           "not_today"
                         ]
                       },
@@ -52313,6 +52318,7 @@
                           "enum": [
                             "now",
                             "later",
+                            "quick",
                             "not_today"
                           ]
                         },
@@ -52795,6 +52801,7 @@
                               "enum": [
                                 "now",
                                 "later",
+                                "quick",
                                 "not_today"
                               ]
                             },
@@ -53270,6 +53277,7 @@
                           "enum": [
                             "now",
                             "later",
+                            "quick",
                             "not_today"
                           ]
                         },
@@ -53612,6 +53620,7 @@
                               "enum": [
                                 "now",
                                 "later",
+                                "quick",
                                 "not_today"
                               ]
                             },
@@ -53873,6 +53882,7 @@
                                 "enum": [
                                   "now",
                                   "later",
+                                  "quick",
                                   "not_today"
                                 ]
                               },

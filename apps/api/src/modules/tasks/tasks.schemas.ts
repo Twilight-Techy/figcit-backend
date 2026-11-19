@@ -35,7 +35,7 @@ export const taskCreateSchema = z
     drivers: z.array(DRIVER).max(8).default([]),
     steps: z.array(stepText).max(20).default([]),
     source: z.enum(['manual', 'dump', 'express']).default('manual'),
-    planSlot: z.enum(['now', 'later', 'not_today']).optional(),
+    planSlot: z.enum(['now', 'later', 'quick', 'not_today']).optional(),
     clientUpdatedAt: z.iso.datetime().optional(),
   })
   .strict();
@@ -52,7 +52,7 @@ export const taskUpdateSchema = z
     drivers: z.array(DRIVER).max(8).optional(),
     status: z.enum(['open', 'done', 'dropped']).optional(),
     snoozedUntil: z.iso.datetime().nullable().optional(),
-    planSlot: z.enum(['now', 'later', 'not_today']).nullable().optional(),
+    planSlot: z.enum(['now', 'later', 'quick', 'not_today']).nullable().optional(),
     planDate: z.iso.date().nullable().optional(),
     planStart: planStart.nullable().optional(),
     planMinutes: planMinutes.nullable().optional(),
@@ -111,7 +111,7 @@ export const taskSchema = z.object({
   status: z.enum(['open', 'done', 'dropped']),
   source: z.string(),
   snoozedUntil: z.iso.datetime().nullable(),
-  planSlot: z.enum(['now', 'later', 'not_today']).nullable(),
+  planSlot: z.enum(['now', 'later', 'quick', 'not_today']).nullable(),
   planDate: z.iso.date().nullable(),
   planStart: z
     .number()
@@ -162,7 +162,7 @@ export const orderInputSchema = z
             stepsLeft: z.number().int().min(0).max(200),
             puttingOff: z.boolean(),
             skipCount: z.number().int().min(0).max(1000),
-            planSlot: z.enum(['now', 'later', 'not_today']).nullable(),
+            planSlot: z.enum(['now', 'later', 'quick', 'not_today']).nullable(),
           })
           .strict(),
       )

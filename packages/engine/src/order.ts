@@ -10,7 +10,7 @@ export interface OrderableTask {
   readonly stepsLeft: number;
   readonly puttingOff: boolean;
   readonly skipCount: number;
-  readonly planSlot?: 'now' | 'later' | 'not_today' | null;
+  readonly planSlot?: 'now' | 'later' | 'quick' | 'not_today' | null;
 }
 
 export type WhyNowCode =
@@ -68,7 +68,8 @@ function driverScore(t: OrderableTask, gentle: boolean): number {
   return score;
 }
 
-const SLOT_SCORE = { now: 50, later: 0, not_today: -80 } as const;
+// Quick wins (S128) rise a little: picked to fill a gap, never above what was picked for now.
+const SLOT_SCORE = { now: 50, later: 0, quick: 15, not_today: -80 } as const;
 
 function scoreOf(t: OrderableTask, light: Light, snapshot: Snapshot): number {
   const strained = STRAINED.has(light);
@@ -88,6 +89,7 @@ function whyNowOf(t: OrderableTask, light: Light): WhyNowCode {
   if (t.timeline === 'T0') return 'due_now';
   if (t.timeline === 'TX') return 'overdue_small_step';
   if (t.planSlot === 'now') return 'picked_for_now';
+  if (t.planSlot === 'quick') return 'quick';
   if (t.timeline === 'T1') return 'due_today';
   if (t.stepsLeft > 0 && t.stepsLeft <= 2) return 'quick';
   if (t.drivers.includes('routine') || t.traits?.includes('done_before')) return 'familiar';

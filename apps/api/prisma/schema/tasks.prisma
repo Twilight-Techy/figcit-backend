@@ -18,6 +18,8 @@ enum TaskSource {
 enum DayPlanSlot {
   now
   later
+  // Quick wins (S128): small and easy, picked to do when there's a gap.
+  quick
   not_today
 
   @@map("day_plan_slot")
