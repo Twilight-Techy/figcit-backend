@@ -89,9 +89,8 @@ function whyNowOf(t: OrderableTask, light: Light): WhyNowCode {
   if (t.timeline === 'T0') return 'due_now';
   if (t.timeline === 'TX') return 'overdue_small_step';
   if (t.planSlot === 'now') return 'picked_for_now';
-  if (t.planSlot === 'quick') return 'quick';
   if (t.timeline === 'T1') return 'due_today';
-  if (t.stepsLeft > 0 && t.stepsLeft <= 2) return 'quick';
+  if (t.planSlot === 'quick' || (t.stepsLeft > 0 && t.stepsLeft <= 2)) return 'quick';
   if (t.drivers.includes('routine') || t.traits?.includes('done_before')) return 'familiar';
   if (t.drivers.includes('interest') || t.drivers.includes('passion')) return 'enjoyable';
   return gentle ? 'gentle_start' : 'no_rush';
