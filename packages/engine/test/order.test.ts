@@ -34,6 +34,16 @@ describe('orderTasks', () => {
     expect(orderTasks(tasks, 'red', snapshot).find((o) => o.id === 'hard')?.onlyIfMust).toBe(true);
   });
 
+  it('lifts a Quick win a little, never above what was picked for now (S128)', () => {
+    const order = orderTasks(
+      [task('plain'), task('quick', { planSlot: 'quick' }), task('picked', { planSlot: 'now' })],
+      'green',
+      snapshot,
+    );
+    expect(order.map((o) => o.id)).toEqual(['picked', 'quick', 'plain']);
+    expect(order[1]?.whyNow).toBe('quick');
+  });
+
   it('is stable and explains every task', () => {
     const same = [task('a'), task('b'), task('c')];
     expect(orderTasks(same, 'yellow', snapshot).map((o) => o.id)).toEqual(['a', 'b', 'c']);
