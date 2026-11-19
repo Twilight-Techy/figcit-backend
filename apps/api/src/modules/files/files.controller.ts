@@ -22,7 +22,7 @@ import { FilesService } from './files.service.js';
 
 const uploadRequestSchema = z
   .object({
-    purpose: z.enum(['practice_audio', 'voice_note', 'transcription_input']),
+    purpose: z.enum(['practice_audio', 'voice_note', 'transcription_input', 'feedback_screenshot']),
     contentType: z.string().max(64),
     sizeBytes: z.number().int().min(1),
   })

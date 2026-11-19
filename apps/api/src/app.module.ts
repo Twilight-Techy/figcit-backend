@@ -3,6 +3,7 @@ import { ConfigModule } from './common/config/config.module.js';
 import { CryptoModule } from './common/crypto/crypto.module.js';
 import { DbModule } from './common/db/db.module.js';
 import { GuardsModule } from './common/guards/guards.module.js';
+import { AppFeedbackModule } from './modules/app-feedback/app-feedback.module.js';
 import { AdaptModule } from './modules/adapt/adapt.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
@@ -54,6 +55,7 @@ import { StorageModule } from './platform/storage/storage.module.js';
     MailModule,
     StorageModule,
     AdaptModule,
+    AppFeedbackModule,
     AdminModule,
     AiModule,
     AnalyticsModule,
