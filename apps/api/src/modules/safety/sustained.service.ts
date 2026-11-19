@@ -44,7 +44,9 @@ export class SustainedService {
       });
       if (recent) continue;
       const points = await this.prisma.recommendation.findMany({
-        where: { userId, createdAt: { gt: since }, parentId: null },
+        // A Help/SOS screen has no band of its own (stored as Conditional), so it never counts as
+        // getting better: risk words on a hard day must not quiet SF-2.
+        where: { userId, createdAt: { gt: since }, parentId: null, safetyTriggered: false },
         select: { createdAt: true, band: true },
       });
       const flag = sustainedFlag(

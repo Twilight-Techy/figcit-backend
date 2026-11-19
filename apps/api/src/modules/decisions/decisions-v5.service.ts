@@ -11,7 +11,7 @@ import {
 import { AppError, BadInput, NotConfigured } from '../../common/errors/errors.js';
 import { EntitlementsService } from '../entitlements/entitlements.service.js';
 import { CheckInOptionsService, type CheckInOptions } from '../rulesets/checkin-options.service.js';
-import { SafetyService } from '../safety/safety.service.js';
+import { SafetyService, type SafetyMatch } from '../safety/safety.service.js';
 import { ProfileService } from '../users/profile.service.js';
 import { DecisionsService } from './decisions.service.js';
 import { EngineRuntimeService, type Runnable } from './engine-runtime.service.js';
@@ -24,6 +24,8 @@ interface PreparedV5 {
   readonly input: EngineInput;
   readonly dropped: readonly DroppedAnswer[];
   readonly sources: PresentV5Sources;
+  /** The free-text safety screen's match, if any (SF-1). */
+  readonly risk: SafetyMatch | null;
 }
 
 const USUAL = 'usual';
@@ -85,6 +87,7 @@ export class DecisionsV5Service {
       now,
       bodyRegions: bodyRegionsOf(body),
     });
+    this.logSafety(userId, card, p.risk);
     return {
       id: record.id,
       createdAt: record.createdAt.toISOString(),
@@ -94,6 +97,22 @@ export class DecisionsV5Service {
       menu: menuOf(card, p.sources.catalogue),
       dropped: [...p.dropped],
     };
+  }
+
+  /**
+   * The safety log (SE-1), as the v3.3 check-in keeps it: a Help/SOS or urgent screen is a
+   * safety event. Risk words are a phrase match; otherwise an answer picked it (SF-4's urgent sign,
+   * or the engine's own safety rules). The row also feeds `signals.safety_event_recently`.
+   */
+  private logSafety(userId: string, card: Card, risk: SafetyMatch | null): void {
+    if (card.kind === 'card') return;
+    void this.safety.record({
+      userId,
+      sourceModule: 'checkin',
+      trigger: risk ? 'phrase' : 'option',
+      ruleId: risk?.ruleId ?? (card.kind === 'urgent_screen' ? 'SF-4' : 'SF-1'),
+      category: risk?.category ?? null,
+    });
   }
 
   private cardOf(p: PreparedV5): Card {
@@ -146,6 +165,7 @@ export class DecisionsV5Service {
       engine,
       input,
       dropped,
+      risk,
       sources: { copy: engine.copy, catalogue: engine.ruleset.catalogue, tasks, input },
     };
   }

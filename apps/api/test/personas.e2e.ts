@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { seedInstitution } from '../prisma/seed/personas/institution.js';
 import { DOMAIN, seedPersonas } from '../prisma/seed/personas/personas.js';
 import { DEMO_PASSWORD, Seeder } from '../prisma/seed/personas/seeder.js';
+import { PrismaService } from '../src/common/db/prisma.service.js';
 import { SustainedService } from '../src/modules/safety/sustained.service.js';
 import { bootApi, type Api } from './helpers.js';
 
@@ -76,6 +77,16 @@ describe('demo personas', () => {
     const t = await signIn('chi');
     const inbox = await api.req<{ items: { kind: string }[] }>('GET', '/inbox', { token: t });
     expect(inbox.body.items.some((i) => i.kind === 'support_prompt')).toBe(true);
+  });
+
+  it("Chi's own words are in the safety log as a phrase match (SE-1)", async () => {
+    const chi = await api.app
+      .get(PrismaService)
+      .user.findFirstOrThrow({ where: { email: `chi@${DOMAIN}` }, select: { id: true } });
+    const events = await api.app
+      .get(PrismaService)
+      .safetyEvent.findMany({ where: { userId: chi.id, trigger: 'phrase' } });
+    expect(events.length).toBeGreaterThan(0);
   });
 
   it('Hana keeps comfort settings and Fin keeps Plus until the end date', async () => {
