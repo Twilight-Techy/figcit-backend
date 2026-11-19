@@ -27,10 +27,14 @@ const rows = (records: readonly RuleRecordDraft[], tab: TabKey, section?: string
 const text = (r: RuleRecordDraft, header: string): string =>
   cellText(r.columns, header).replace(/\s+/g, ' ').trim();
 
-/** "Free (on screen)" is free, "Prime (under More)" Prime; "Always free" never locks. */
+/**
+ * "Free (on screen)" is free, "Prime (under More)" Prime; "Always free" never locks. "Free (under
+ * More)" is `more`: any plan picks it, and the app keeps it under More so the screen stays short.
+ */
 function planOf(plan: string, alwaysFree = false): string {
   if (alwaysFree) return 'always_free';
-  return /^prime|^premium/i.test(plan) ? 'prime' : 'free';
+  if (/^prime|^premium/i.test(plan)) return 'prime';
+  return /under more/i.test(plan) ? 'more' : 'free';
 }
 
 /** The emotions Tab 9 lists as always free (Tab 2's "Never locked?" says the same). */

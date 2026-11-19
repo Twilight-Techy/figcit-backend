@@ -52,7 +52,9 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(res.status).toBe(200);
     const feelings = res.body.inputs['feeling'] ?? [];
     expect(feelings.find((o) => o.code === 'anxious')?.group).toBe('always_free');
-    expect(feelings.find((o) => o.code === 'frustrated')?.group).toBe('prime');
+    // Every emotion is free; ten wait under More (owner, 19 Nov 2026).
+    expect(feelings.find((o) => o.code === 'frustrated')?.group).toBe('more');
+    expect(feelings.filter((o) => o.group === 'prime')).toEqual([]);
     expect((res.body.inputs['help'] ?? []).length).toBeGreaterThan(8);
     // Not sure's three pictures, with the Energy and Mood level each one stands for (S150).
     const levels = (input: string) =>
@@ -123,10 +125,10 @@ describe('Rules Engine v5.0 decisions', () => {
     expect(card.alternatives.some((a) => a.code === 'rfl_helped' && a.plan === 'prime')).toBe(true);
   });
 
-  it('drops a locked option for a free user (ENT-12) and says so', async () => {
-    const res = await decide({ emotions: [{ code: 'frustrated', level: 6 }] });
+  it('drops a locked option for a free user (ENT-12) and says so; never an emotion', async () => {
+    const res = await decide({ emotions: [{ code: 'frustrated', level: 6 }], body: ['headache'] });
     expect(res.status).toBe(201);
-    expect(res.body.dropped).toEqual([{ input: 'feeling', code: 'frustrated', why: 'locked' }]);
+    expect(res.body.dropped).toEqual([{ input: 'body', code: 'headache', why: 'locked' }]);
   });
 
   it('shows the urgent screen for an urgent sign that is sudden or new (SF-4, T-34)', async () => {
@@ -217,9 +219,9 @@ describe('Rules Engine v5.0 decisions', () => {
     const premium = await sim({ checkIn, plan: 'premium' });
     expect(premium.body.card?.primary).toMatchObject({ code: 'rfl_helped', plan: 'prime' });
     const locked = await sim({
-      checkIn: { ...checkIn, emotions: [{ code: 'frustrated', level: 6 }] },
+      checkIn: { ...checkIn, mode: 'full', body: ['headache'] },
     });
-    expect(locked.body.dropped).toEqual([{ input: 'feeling', code: 'frustrated', why: 'locked' }]);
+    expect(locked.body.dropped).toEqual([{ input: 'body', code: 'headache', why: 'locked' }]);
     const back = await sim({
       checkIn: { ...checkIn, mode: 'quick', tasks: [{ title: 'Shift', chip: 'can_t_wait' }] },
       returnToWork: true,
