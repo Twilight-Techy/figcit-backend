@@ -26,7 +26,9 @@ const FULL_CHECK_IN: CheckInV5 = {
 describe('Rules Engine v5.0: the check-in as engine input', () => {
   it("reads the version's options with no issue", () => {
     expect(issues).toEqual([]);
-    expect(options.feeling.filter((o) => o.group !== 'prime')).toHaveLength(11);
+    // Every emotion is free (owner, 19 Nov 2026); ten wait under More.
+    expect(options.feeling.filter((o) => o.group === 'prime')).toHaveLength(0);
+    expect(options.feeling.filter((o) => o.group === 'more')).toHaveLength(10);
     expect(options.feeling.filter((o) => o.group === 'always_free').map((o) => o.code)).toEqual([
       'anxious',
       'overwhelmed',
@@ -69,11 +71,9 @@ describe('Rules Engine v5.0: the check-in as engine input', () => {
       body: ['headache', 'tension'],
     };
     const free = factsFromCheckInV5(c, options);
-    expect(free.dropped).toEqual([
-      { input: 'feeling', code: 'frustrated', why: 'locked' },
-      { input: 'body', code: 'headache', why: 'locked' },
-    ]);
-    expect(free.input['family.intensity']).toEqual({ shut_down: 5 });
+    // Emotions are never locked, those under More included; a Prime body sign still is.
+    expect(free.dropped).toEqual([{ input: 'body', code: 'headache', why: 'locked' }]);
+    expect(free.input['family.intensity']).toEqual({ frustrated: 7, shut_down: 5 });
     const prime = factsFromCheckInV5(c, options, { 'signals.plan': 'prime' });
     expect(prime.dropped).toEqual([]);
   });
