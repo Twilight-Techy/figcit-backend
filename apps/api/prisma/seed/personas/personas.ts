@@ -271,7 +271,8 @@ export async function seedPersonas(s: Seeder): Promise<Record<string, string>> {
   });
   for (let d = 15; d >= 1; d -= 1) await s.checkIn(ids['chi'], d % 4 ? 'red' : 'amber', at(d, 21));
   await s.checkIn(ids['chi'], 'red', at(0, 7), {
-    ownWords: 'I feel like I want to disappear and end it',
+    // Words the safety screen matches, and short enough for v5.0's 30-character box.
+    ownWords: 'I just want to end it all',
   });
   await s.get(SupportService).addContact(ids['chi'], {
     name: 'Tolu',
