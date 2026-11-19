@@ -13531,6 +13531,30 @@
                       "additionalProperties": false
                     }
                   },
+                  "notSure": {
+                    "description": "Not sure (S150): the three picture taps behind this state, confirmed on S151 or fitting no cell. Kept, not read",
+                    "type": "object",
+                    "properties": {
+                      "body": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      },
+                      "energy": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      },
+                      "comfort": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      }
+                    },
+                    "required": [
+                      "body",
+                      "energy",
+                      "comfort"
+                    ],
+                    "additionalProperties": false
+                  },
                   "senses": {
                     "maxItems": 8,
                     "type": "array",
@@ -14479,6 +14503,30 @@
                       ],
                       "additionalProperties": false
                     }
+                  },
+                  "notSure": {
+                    "description": "Not sure (S150): the three picture taps behind this state, confirmed on S151 or fitting no cell. Kept, not read",
+                    "type": "object",
+                    "properties": {
+                      "body": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      },
+                      "energy": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      },
+                      "comfort": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]{1,48}$"
+                      }
+                    },
+                    "required": [
+                      "body",
+                      "energy",
+                      "comfort"
+                    ],
+                    "additionalProperties": false
                   },
                   "senses": {
                     "maxItems": 8,
@@ -40217,6 +40265,30 @@
                           "additionalProperties": false
                         }
                       },
+                      "notSure": {
+                        "description": "Not sure (S150): the three picture taps behind this state, confirmed on S151 or fitting no cell. Kept, not read",
+                        "type": "object",
+                        "properties": {
+                          "body": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9_]{1,48}$"
+                          },
+                          "energy": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9_]{1,48}$"
+                          },
+                          "comfort": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9_]{1,48}$"
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "energy",
+                          "comfort"
+                        ],
+                        "additionalProperties": false
+                      },
                       "senses": {
                         "maxItems": 8,
                         "type": "array",
@@ -40350,6 +40422,11 @@
                       ]
                     }
                   ],
+                  "notSure": {
+                    "body": "example",
+                    "energy": "example",
+                    "comfort": "example"
+                  },
                   "senses": [
                     "example"
                   ],

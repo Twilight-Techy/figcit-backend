@@ -25,6 +25,9 @@ model DecisionRecord {
   // The body map (S09): where each body sign is felt, as codes. No rule reads it (IG-06); kept
   // with the check-in for the person and for later review.
   bodyRegions   Json           @default("[]") @map("body_regions")
+  // Not sure (S150): the three picture taps (body, energy, comfort) the state came from. No rule
+  // reads it; it says the person didn't pick the state themselves.
+  notSure       Json?          @map("not_sure")
   card          Json
   // The light trace: the rules that fired and the run's notes. The full trace is rebuilt by
   // replay (E-21, E-57), which keeps a record under 4 KB (ENGINEERING_RULES §1.3).
