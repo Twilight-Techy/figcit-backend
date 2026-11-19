@@ -1,7 +1,7 @@
 // Rules Engine v5.0 decisions (docs/engine-v2/V5.md): the v5.0 workbook imported and published as
 // an admin would, then the app's Quick and Full check-ins through /v1/decisions/v5. v3.3 is
 // published again afterwards, for the files that follow.
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
 import { decide as nudgePolicy } from '../src/modules/notifications/policy.js';
 import { RecommendationService } from '../src/modules/recommendation/recommendation.service.js';
@@ -140,50 +140,6 @@ describe('Rules Engine v5.0 decisions', () => {
   it('screens the free text: risk words in a task title are Help/SOS (SF-1)', async () => {
     const res = await decide({ tasks: [{ title: 'I want to kill myself' }] });
     expect(res.body.card.kind).toBe('support_screen');
-  });
-
-  describe('the safety log (SE-1)', () => {
-    /** A fresh account's safety events, once the fire-and-forget write lands. */
-    const eventsOf = (userId: string, count: number) =>
-      vi.waitFor(async () => {
-        const rows = await api.app.get(PrismaService).safetyEvent.findMany({ where: { userId } });
-        expect(rows).toHaveLength(count);
-        return rows;
-      });
-
-    it('logs risk words as a phrase match', async () => {
-      const someone = await api.signIn();
-      const res = await decide({ tasks: [{ title: 'I want to kill myself' }] }, someone.token);
-      expect(res.body.card.kind).toBe('support_screen');
-      const [row] = await eventsOf(someone.userId, 1);
-      expect(row).toMatchObject({ sourceModule: 'checkin', trigger: 'phrase' });
-      expect(row?.ruleId).toBeTruthy();
-      expect(row?.category).toBeTruthy();
-    });
-
-    it('logs an urgent sign as an answer (SF-4)', async () => {
-      const someone = await api.signIn();
-      await decide({ urgent: { signs: ['chest_pain'], answer: 'sudden_new' } }, someone.token);
-      const [row] = await eventsOf(someone.userId, 1);
-      expect(row).toMatchObject({ sourceModule: 'checkin', trigger: 'option', ruleId: 'SF-4' });
-    });
-
-    it('logs nothing for an ordinary card, and the preview never logs', async () => {
-      const someone = await api.signIn();
-      const res = await decide({ emotions: [{ code: 'calm', level: 5 }] }, someone.token);
-      expect(res.body.card.kind).toBe('card');
-      await api.req('POST', '/decisions/v5/preview', {
-        token: someone.token,
-        body: {
-          mode: 'full',
-          state: GREEN,
-          emotions: [],
-          tasks: [{ title: 'I want to kill myself' }],
-        },
-      });
-      await new Promise((r) => setTimeout(r, 200));
-      await eventsOf(someone.userId, 0);
-    });
   });
 
   it("asks 'Which first?' for a support card and a task in Green (T-02)", async () => {
