@@ -40,6 +40,10 @@ model Task {
   snoozedUntil    DateTime?     @map("snoozed_until") @db.Timestamptz(3)
   planSlot        DayPlanSlot?  @map("plan_slot")
   planDate        DateTime?     @map("plan_date") @db.Date
+  // Plan your time (S130): a block on planDate, from planStart (minutes after midnight, the
+  // person's own clock) for planMinutes. Both null when the task is on the day but not timed.
+  planStart       Int?          @map("plan_start") @db.SmallInt
+  planMinutes     Int?          @map("plan_minutes") @db.SmallInt
   skipCount       Int           @default(0) @map("skip_count") @db.SmallInt
   // Adapt on the task: its pace (minutes per step, break between) and Adapt library codes for
   // where and how it's done (environment, instructions, communication). Codes, never free text.

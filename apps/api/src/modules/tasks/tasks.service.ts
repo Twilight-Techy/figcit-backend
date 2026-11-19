@@ -45,8 +45,18 @@ function updateData(
     ...(input.planDate !== undefined
       ? { planDate: input.planDate ? new Date(input.planDate) : null }
       : {}),
+    ...planBlock(input),
     ...(input.skipped ? { skipCount: { increment: 1 } } : {}),
     ...adaptData(input),
+  };
+}
+
+/** The task's block in Plan your time; off the day plan, it has no block either. */
+function planBlock(input: TaskUpdate): Prisma.TaskUncheckedUpdateInput {
+  if (input.planDate === null) return { planStart: null, planMinutes: null };
+  return {
+    ...(input.planStart !== undefined ? { planStart: input.planStart } : {}),
+    ...(input.planMinutes !== undefined ? { planMinutes: input.planMinutes } : {}),
   };
 }
 

@@ -98,6 +98,39 @@ describe('tasks', () => {
     expect(bad.status).toBe(400);
   });
 
+  it('keeps a block in Plan your time, and clears it when the task leaves the day', async () => {
+    type Planned = Task & {
+      planDate: string | null;
+      planStart: number | null;
+      planMinutes: number | null;
+    };
+    const t = await api.req<Planned>('POST', '/tasks', { token, body: { title: 'Budget sheet' } });
+    expect([t.body.planStart, t.body.planMinutes]).toEqual([null, null]);
+    const placed = await api.req<Planned>('PATCH', `/tasks/${t.body.id}`, {
+      token,
+      body: { planDate: '2026-11-19', planStart: 14 * 60, planMinutes: 90 },
+    });
+    expect([placed.body.planDate, placed.body.planStart, placed.body.planMinutes]).toEqual([
+      '2026-11-19',
+      840,
+      90,
+    ]);
+    const tooLong = await api.req('PATCH', `/tasks/${t.body.id}`, {
+      token,
+      body: { planMinutes: 600 },
+    });
+    expect(tooLong.status).toBe(400);
+    const off = await api.req<Planned>('PATCH', `/tasks/${t.body.id}`, {
+      token,
+      body: { planDate: null },
+    });
+    expect([off.body.planDate, off.body.planStart, off.body.planMinutes]).toEqual([
+      null,
+      null,
+      null,
+    ]);
+  });
+
   it('rolls a recurring task forward when done', async () => {
     const t = await api.req<Task>('POST', '/tasks', {
       token,

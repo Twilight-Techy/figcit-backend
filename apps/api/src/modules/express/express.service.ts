@@ -44,7 +44,8 @@ const SELECT = {
 } satisfies Prisma.DraftSelect;
 type Row = Prisma.DraftGetPayload<{ select: typeof SELECT }>;
 
-const ADVANCED = new Set(['draft', 'structure', 'script']);
+// Paid modes. The owner's call (18 Nov 2026): Draft is free; Simplify and Structure are paid.
+const ADVANCED = new Set(['simplify', 'structure', 'script']);
 const TEXT_TASKS = { simplify, rewrite, draft } as const;
 
 function toDto(r: Row, c: UserCipher): DraftDto {

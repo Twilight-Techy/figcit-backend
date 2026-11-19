@@ -19,6 +19,9 @@ const stepText = z.string().trim().min(1).max(200);
 const adaptCodes = z.array(z.string().regex(/^[a-z0-9_]{1,40}$/)).max(12);
 /** Pace from Adapt: minutes per step and break between steps (S123). */
 const paceMinutes = z.number().int().min(1).max(60);
+/** A block in Plan your time: when it starts (minutes after midnight) and how long it is. */
+const planStart = z.number().int().min(0).max(1439);
+const planMinutes = z.number().int().min(15).max(480);
 
 export const taskCreateSchema = z
   .object({
@@ -51,6 +54,8 @@ export const taskUpdateSchema = z
     snoozedUntil: z.iso.datetime().nullable().optional(),
     planSlot: z.enum(['now', 'later', 'not_today']).nullable().optional(),
     planDate: z.iso.date().nullable().optional(),
+    planStart: planStart.nullable().optional(),
+    planMinutes: planMinutes.nullable().optional(),
     skipped: z.boolean().optional(),
     stepMinutes: paceMinutes.nullable().optional(),
     breakMinutes: paceMinutes.nullable().optional(),
@@ -108,6 +113,12 @@ export const taskSchema = z.object({
   snoozedUntil: z.iso.datetime().nullable(),
   planSlot: z.enum(['now', 'later', 'not_today']).nullable(),
   planDate: z.iso.date().nullable(),
+  planStart: z
+    .number()
+    .int()
+    .nullable()
+    .describe('Plan your time: the block starts this many minutes after midnight on planDate'),
+  planMinutes: z.number().int().nullable().describe('Plan your time: how long the block is'),
   skipCount: z.number().int(),
   stepMinutes: z.number().int().nullable().describe("Adapt's pace: minutes per step"),
   breakMinutes: z.number().int().nullable().describe("Adapt's pace: break between steps"),

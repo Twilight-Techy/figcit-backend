@@ -50463,6 +50463,32 @@
                               }
                             ]
                           },
+                          "planStart": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                          },
+                          "planMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Plan your time: how long the block is"
+                          },
                           "skipCount": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -50588,6 +50614,8 @@
                           "snoozedUntil",
                           "planSlot",
                           "planDate",
+                          "planStart",
+                          "planMinutes",
                           "skipCount",
                           "stepMinutes",
                           "breakMinutes",
@@ -50626,6 +50654,8 @@
                       "snoozedUntil": "2026-01-15T09:30:00.000Z",
                       "planSlot": "now",
                       "planDate": "2026-01-15",
+                      "planStart": 1,
+                      "planMinutes": 1,
                       "skipCount": 1,
                       "stepMinutes": 1,
                       "breakMinutes": 1,
@@ -50937,6 +50967,32 @@
                         }
                       ]
                     },
+                    "planStart": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                    },
+                    "planMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: how long the block is"
+                    },
                     "skipCount": {
                       "type": "integer",
                       "minimum": -9007199254740991,
@@ -51062,6 +51118,8 @@
                     "snoozedUntil",
                     "planSlot",
                     "planDate",
+                    "planStart",
+                    "planMinutes",
                     "skipCount",
                     "stepMinutes",
                     "breakMinutes",
@@ -51091,6 +51149,8 @@
                   "snoozedUntil": "2026-01-15T09:30:00.000Z",
                   "planSlot": "now",
                   "planDate": "2026-01-15",
+                  "planStart": 1,
+                  "planMinutes": 1,
                   "skipCount": 1,
                   "stepMinutes": 1,
                   "breakMinutes": 1,
@@ -51284,6 +51344,32 @@
                         }
                       ]
                     },
+                    "planStart": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                    },
+                    "planMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: how long the block is"
+                    },
                     "skipCount": {
                       "type": "integer",
                       "minimum": -9007199254740991,
@@ -51409,6 +51495,8 @@
                     "snoozedUntil",
                     "planSlot",
                     "planDate",
+                    "planStart",
+                    "planMinutes",
                     "skipCount",
                     "stepMinutes",
                     "breakMinutes",
@@ -51438,6 +51526,8 @@
                   "snoozedUntil": "2026-01-15T09:30:00.000Z",
                   "planSlot": "now",
                   "planDate": "2026-01-15",
+                  "planStart": 1,
+                  "planMinutes": 1,
                   "skipCount": 1,
                   "stepMinutes": 1,
                   "breakMinutes": 1,
@@ -51639,6 +51729,30 @@
                       }
                     ]
                   },
+                  "planStart": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1439
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "planMinutes": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 15,
+                        "maximum": 480
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "skipped": {
                     "type": "boolean"
                   },
@@ -51696,6 +51810,8 @@
                 "snoozedUntil": "2026-01-15T09:30:00.000Z",
                 "planSlot": "now",
                 "planDate": "2026-01-15",
+                "planStart": 0,
+                "planMinutes": 15,
                 "skipped": true,
                 "stepMinutes": 1,
                 "breakMinutes": 1,
@@ -51838,6 +51954,32 @@
                         }
                       ]
                     },
+                    "planStart": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                    },
+                    "planMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: how long the block is"
+                    },
                     "skipCount": {
                       "type": "integer",
                       "minimum": -9007199254740991,
@@ -51963,6 +52105,8 @@
                     "snoozedUntil",
                     "planSlot",
                     "planDate",
+                    "planStart",
+                    "planMinutes",
                     "skipCount",
                     "stepMinutes",
                     "breakMinutes",
@@ -51992,6 +52136,8 @@
                   "snoozedUntil": "2026-01-15T09:30:00.000Z",
                   "planSlot": "now",
                   "planDate": "2026-01-15",
+                  "planStart": 1,
+                  "planMinutes": 1,
                   "skipCount": 1,
                   "stepMinutes": 1,
                   "breakMinutes": 1,
@@ -52290,6 +52436,32 @@
                             }
                           ]
                         },
+                        "planStart": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                        },
+                        "planMinutes": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Plan your time: how long the block is"
+                        },
                         "skipCount": {
                           "type": "integer",
                           "minimum": -9007199254740991,
@@ -52415,6 +52587,8 @@
                         "snoozedUntil",
                         "planSlot",
                         "planDate",
+                        "planStart",
+                        "planMinutes",
                         "skipCount",
                         "stepMinutes",
                         "breakMinutes",
@@ -52464,6 +52638,8 @@
                     "snoozedUntil": "2026-01-15T09:30:00.000Z",
                     "planSlot": "now",
                     "planDate": "2026-01-15",
+                    "planStart": 1,
+                    "planMinutes": 1,
                     "skipCount": 1,
                     "stepMinutes": 1,
                     "breakMinutes": 1,
@@ -52735,6 +52911,32 @@
                         }
                       ]
                     },
+                    "planStart": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                    },
+                    "planMinutes": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Plan your time: how long the block is"
+                    },
                     "skipCount": {
                       "type": "integer",
                       "minimum": -9007199254740991,
@@ -52860,6 +53062,8 @@
                     "snoozedUntil",
                     "planSlot",
                     "planDate",
+                    "planStart",
+                    "planMinutes",
                     "skipCount",
                     "stepMinutes",
                     "breakMinutes",
@@ -52889,6 +53093,8 @@
                   "snoozedUntil": "2026-01-15T09:30:00.000Z",
                   "planSlot": "now",
                   "planDate": "2026-01-15",
+                  "planStart": 1,
+                  "planMinutes": 1,
                   "skipCount": 1,
                   "stepMinutes": 1,
                   "breakMinutes": 1,
@@ -53308,6 +53514,32 @@
                               }
                             ]
                           },
+                          "planStart": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Plan your time: the block starts this many minutes after midnight on planDate"
+                          },
+                          "planMinutes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Plan your time: how long the block is"
+                          },
                           "skipCount": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -53442,6 +53674,8 @@
                           "snoozedUntil",
                           "planSlot",
                           "planDate",
+                          "planStart",
+                          "planMinutes",
                           "skipCount",
                           "stepMinutes",
                           "breakMinutes",
@@ -53487,6 +53721,8 @@
                       "snoozedUntil": "2026-01-15T09:30:00.000Z",
                       "planSlot": "now",
                       "planDate": "2026-01-15",
+                      "planStart": 1,
+                      "planMinutes": 1,
                       "skipCount": 1,
                       "stepMinutes": 1,
                       "breakMinutes": 1,

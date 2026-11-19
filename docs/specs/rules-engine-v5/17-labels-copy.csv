@@ -16,9 +16,9 @@ DMP-CAPTURE,Dump,Empty your head,Type or say it. Nothing has to become a task,Fr
 DMP-SORT,Dump,Sort it,"Put thoughts into To-do, Notes, Ideas or Worries",Free
 DMP-SUGGEST,Dump,Sorting suggestions,We suggest where each thought could go,Prime
 EXP-CARDS,Express,Quick message cards,Ready cards like 'I need a minute',Free
-EXP-SIMPLIFY,Express,Make it simpler,Rewrite your words more simply,Free
+EXP-SIMPLIFY,Express,Make it simpler,Rewrite your words more simply,Prime
 EXP-TONE,Express,Check the tone,See how your message might land,Prime
-EXP-DRAFT,Express,Draft it for me,Start a message or document from scratch,Premium
+EXP-DRAFT,Express,Draft it for me,Start a message or document from scratch,Free
 EXP-SCRIPT,Express,Script for a call,"Words for a meeting, call or presentation",Premium
 EXE-STEP,Execute,Smallest next step,One small step you can start now,Free
 EXE-BREAK,Execute,Break it down,Split the task into a few small steps,Free
