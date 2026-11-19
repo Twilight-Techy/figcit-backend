@@ -13751,10 +13751,10 @@
                     "type": "object",
                     "properties": {
                       "text": {
+                        "description": "Prime: typed words, checked for safety, then dropped (SE-1). Free sends the tap only",
                         "type": "string",
                         "minLength": 1,
-                        "maxLength": 30,
-                        "description": "Checked for safety, then dropped (SE-1)"
+                        "maxLength": 30
                       },
                       "group": {
                         "description": "The one tap: wound up, low, switched off, okay; skipped stays Unsorted",
@@ -13766,10 +13766,7 @@
                           "settled"
                         ]
                       }
-                    },
-                    "required": [
-                      "text"
-                    ]
+                    }
                   },
                   "body": {
                     "maxItems": 14,
@@ -14724,10 +14721,10 @@
                     "type": "object",
                     "properties": {
                       "text": {
+                        "description": "Prime: typed words, checked for safety, then dropped (SE-1). Free sends the tap only",
                         "type": "string",
                         "minLength": 1,
-                        "maxLength": 30,
-                        "description": "Checked for safety, then dropped (SE-1)"
+                        "maxLength": 30
                       },
                       "group": {
                         "description": "The one tap: wound up, low, switched off, okay; skipped stays Unsorted",
@@ -14739,10 +14736,7 @@
                           "settled"
                         ]
                       }
-                    },
-                    "required": [
-                      "text"
-                    ]
+                    }
                   },
                   "body": {
                     "maxItems": 14,
@@ -40485,10 +40479,10 @@
                         "type": "object",
                         "properties": {
                           "text": {
+                            "description": "Prime: typed words, checked for safety, then dropped (SE-1). Free sends the tap only",
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 30,
-                            "description": "Checked for safety, then dropped (SE-1)"
+                            "maxLength": 30
                           },
                           "group": {
                             "description": "The one tap: wound up, low, switched off, okay; skipped stays Unsorted",
@@ -40500,10 +40494,7 @@
                               "settled"
                             ]
                           }
-                        },
-                        "required": [
-                          "text"
-                        ]
+                        }
                       },
                       "body": {
                         "maxItems": 14,

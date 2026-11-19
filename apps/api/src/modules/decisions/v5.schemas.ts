@@ -22,7 +22,15 @@ const checkInV5Base = z.object({
     .describe('Up to two emotions (Tab 2)'),
   somethingElse: z
     .object({
-      text: z.string().trim().min(1).max(30).describe('Checked for safety, then dropped (SE-1)'),
+      text: z
+        .string()
+        .trim()
+        .min(1)
+        .max(30)
+        .optional()
+        .describe(
+          'Prime: typed words, checked for safety, then dropped (SE-1). Free sends the tap only',
+        ),
       group: z
         .enum(['charged', 'low', 'shutdown', 'settled'])
         .optional()

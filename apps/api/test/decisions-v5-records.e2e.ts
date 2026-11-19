@@ -130,3 +130,18 @@ describe("Not sure's taps (S150)", () => {
     ).rejects.toThrow(/cannot change/);
   });
 });
+
+describe('Something else (SE-1)', () => {
+  it('takes the one tap without typed words, as Free sends it', async () => {
+    const someone = await api.signIn();
+    const res = await decide(
+      {
+        emotions: [{ code: 'something_else', level: 6 }],
+        somethingElse: { group: 'shutdown' },
+      },
+      someone.token,
+    );
+    expect(res.status).toBe(201);
+    expect(res.body.dropped).toEqual([]);
+  });
+});
