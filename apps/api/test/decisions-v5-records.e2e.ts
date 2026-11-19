@@ -1,5 +1,5 @@
-// The safety log (SE-1) and SF-2 for Rules Engine v5.0 check-ins: a Help/SOS or urgent screen is a
-// safety event, and a week of hard v5.0 check-ins offers support.
+// What a Rules Engine v5.0 check-in leaves behind besides its card: the safety log (SE-1) and SF-2,
+// and the answers a decision record keeps beside the engine input (Not sure's taps).
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../src/common/db/prisma.service.js';
 import { DecisionsV5Service } from '../src/modules/decisions/decisions-v5.service.js';
@@ -93,5 +93,40 @@ describe('the safety log (SE-1)', () => {
     });
     await new Promise((r) => setTimeout(r, 200));
     await eventsOf(someone.userId, 0);
+  });
+});
+
+describe("Not sure's taps (S150)", () => {
+  const taps = { body: 'heavy', energy: 'low', comfort: 'uneasy' };
+  const recordOf = async (id: string) =>
+    api.app.get(PrismaService).decisionRecord.findUniqueOrThrow({ where: { id } });
+
+  it('keeps the taps behind a confirmed state, and the card is the same as without them', async () => {
+    const someone = await api.signIn();
+    const state = { kind: 'grid', energy: 2, mood: 1 } as const;
+    const withTaps = await decide({ state, notSure: taps }, someone.token);
+    const without = await decide({ state }, someone.token);
+    expect(withTaps.status).toBe(201);
+    expect((await recordOf(withTaps.body.id)).notSure).toEqual(taps);
+    expect((await recordOf(without.body.id)).notSure).toBeNull();
+    expect(withTaps.body.card.headline).toBe(without.body.card.headline);
+  });
+
+  it('keeps nothing for a picture the rule set does not offer', async () => {
+    const someone = await api.signIn();
+    const res = await decide({ notSure: { ...taps, comfort: 'not_a_picture' } }, someone.token);
+    expect(res.status).toBe(201);
+    expect((await recordOf(res.body.id)).notSure).toBeNull();
+  });
+
+  it('a kept answer never changes afterwards (append-only)', async () => {
+    const someone = await api.signIn();
+    const res = await decide({ notSure: taps }, someone.token);
+    await expect(
+      api.app.get(PrismaService).decisionRecord.update({
+        where: { id: res.body.id },
+        data: { notSure: { body: 'buzzy' } },
+      }),
+    ).rejects.toThrow(/cannot change/);
   });
 });
