@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
-import { AppError } from './errors.js';
+import { AppError, TooMany, WAIT_A_FEW_MINUTES } from './errors.js';
 
 interface Problem {
   type: string;
@@ -34,7 +34,8 @@ const problem = (
 
 function httpProblem(status: number): Problem {
   if (status === 404) return problem('not_found', "We couldn't find that", 404);
-  if (status === 429) return problem('rate_limited', 'Too many tries for now', 429);
+  if (status === 429)
+    return problem('rate_limited', 'Too many tries for now', 429, { detail: WAIT_A_FEW_MINUTES });
   if (status === 413) return problem('too_large', 'That is too big to send', 413);
   return problem('http_error', 'That request could not be completed', status);
 }
@@ -95,6 +96,8 @@ export class ProblemFilter implements ExceptionFilter {
         },
         'unhandled error',
       );
+    if (error instanceof TooMany && error.retryAfter !== undefined)
+      void reply.header('retry-after', String(Math.max(1, Math.ceil(error.retryAfter))));
     void reply
       .status(problem.status)
       .header('content-type', 'application/problem+json')

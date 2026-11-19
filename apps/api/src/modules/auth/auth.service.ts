@@ -88,6 +88,16 @@ export class AuthService {
     await this.mail.send({ to: email, subject: 'Your FigCit sign-in link', ...body });
   }
 
+  /** Seconds until the oldest confirmation mail this guest space asked for leaves the quarter hour. */
+  private async guestLinkWait(userId: string, since: Date): Promise<number> {
+    const oldest = await this.prisma.magicLink.findFirst({
+      where: { userId, purpose: 'link_guest', createdAt: { gt: since } },
+      orderBy: { createdAt: 'asc' },
+      select: { createdAt: true },
+    });
+    return oldest ? (oldest.createdAt.getTime() + 15 * 60_000 - Date.now()) / 1000 : 60;
+  }
+
   /**
    * A guest space asks to keep an email (docs/GUEST_SPACE.md). The email is not attached here: only
    * opening the link from that mailbox does it. The answer is the same whether or not the address
@@ -117,7 +127,7 @@ export class AuthService {
     // The guest's own limit is answered (it is their own doing). The address's limits are not: an
     // address that has had its share is answered like any other, and nothing is sent, so nobody can
     // use this to tell which addresses are busy, and nobody can bury one in mail.
-    if (byGuest >= 5) throw new TooMany();
+    if (byGuest >= 5) throw new TooMany(undefined, await this.guestLinkWait(userId, since));
     if (byEmail >= 5 || today >= this.env.GUEST_LINK_MAILS_PER_ADDRESS) return;
     const token = randomToken();
     await this.prisma.magicLink.create({

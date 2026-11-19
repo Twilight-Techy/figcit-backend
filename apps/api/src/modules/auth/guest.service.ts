@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ENV, type Env } from '../../common/config/env.js';
 import { CryptoService } from '../../common/crypto/crypto.service.js';
 import { PrismaService } from '../../common/db/prisma.service.js';
@@ -20,6 +20,8 @@ const DAY = 24 * HOUR;
  */
 @Injectable()
 export class GuestService {
+  private readonly logger = new Logger('Guest');
+
   constructor(
     @Inject(ENV) private readonly env: Env,
     private readonly prisma: PrismaService,
@@ -54,27 +56,68 @@ export class GuestService {
     if (!ok) throw new BadInput('That check did not pass. Please try again.');
   }
 
+  /** Seconds until the oldest of the `limit` newest sign-ups from this address leaves the window. */
+  private async waitFor(hash: string, windowMs: number, limit: number, now: Date): Promise<number> {
+    const edge = await this.prisma.guestSignup.findFirst({
+      where: { addrHash: hash, createdAt: { gt: new Date(now.getTime() - windowMs) } },
+      orderBy: { createdAt: 'desc' },
+      skip: Math.max(0, limit - 1),
+      select: { createdAt: true },
+    });
+    return edge ? (edge.createdAt.getTime() + windowMs - now.getTime()) / 1000 : 60;
+  }
+
+  /**
+   * The limits, all flood guards: per address an hour and a day (600 and 3000 by default), and, only
+   * if GUEST_DAILY_CAP is set above 0, in all. A limit answers 429 with Retry-After and a calm
+   * sentence. The service-wide cap is off by default: it could turn real people away, so a busy day
+   * is a log warning for a human instead (see `alert`).
+   */
   private async assertRoom(hash: string, now: Date): Promise<void> {
-    const [hour, day, all] = await Promise.all([
+    const { GUEST_SIGNUPS_PER_HOUR: perHour, GUEST_SIGNUPS_PER_DAY: perDay } = this.env;
+    const [hour, day] = await Promise.all([
       this.prisma.guestSignup.count({
         where: { addrHash: hash, createdAt: { gt: new Date(now.getTime() - HOUR) } },
       }),
       this.prisma.guestSignup.count({
         where: { addrHash: hash, createdAt: { gt: new Date(now.getTime() - DAY) } },
       }),
-      this.prisma.guestSignup.count({
-        where: { createdAt: { gt: new Date(now.getTime() - DAY) } },
-      }),
     ]);
-    if (hour >= this.env.GUEST_SIGNUPS_PER_HOUR || day >= this.env.GUEST_SIGNUPS_PER_DAY)
-      throw new TooMany('Too many guest spaces from here. Try again later, or create an account.');
-    if (all >= this.env.GUEST_DAILY_CAP)
-      throw new AppError(
-        503,
-        'guest_unavailable',
-        'Guest spaces are paused for today',
-        'Please try again tomorrow, or create an account.',
-      );
+    if (hour >= perHour) throw new TooMany(undefined, await this.waitFor(hash, HOUR, perHour, now));
+    if (day >= perDay) throw new TooMany(undefined, await this.waitFor(hash, DAY, perDay, now));
+    if (this.env.GUEST_DAILY_CAP > 0) {
+      const all = await this.prisma.guestSignup.count({
+        where: { createdAt: { gt: new Date(now.getTime() - DAY) } },
+      });
+      if (all >= this.env.GUEST_DAILY_CAP)
+        throw new AppError(
+          503,
+          'guest_unavailable',
+          'Guest spaces are paused for today',
+          'Please try again tomorrow, or create an account.',
+        );
+    }
+  }
+
+  private lastAlert = 0;
+
+  /**
+   * A structured warning when more than GUEST_ALERT_PER_HOUR guest spaces were made in the last
+   * hour, at most once every ten minutes, so a person can look (and turn on the bot challenge) while
+   * nobody is turned away.
+   */
+  private async alert(now: Date): Promise<void> {
+    const threshold = this.env.GUEST_ALERT_PER_HOUR;
+    if (threshold === 0 || now.getTime() - this.lastAlert < 10 * 60_000) return;
+    const lastHour = await this.prisma.guestSignup.count({
+      where: { createdAt: { gt: new Date(now.getTime() - HOUR) } },
+    });
+    if (lastHour <= threshold) return;
+    this.lastAlert = now.getTime();
+    this.logger.warn(
+      { lastHour, threshold },
+      'guest spaces made in the last hour are above the alert threshold: a bot wave? consider GUEST_BOT_CHALLENGE',
+    );
   }
 
   async create(
@@ -87,6 +130,7 @@ export class GuestService {
     const hash = this.addressHash(address);
     await this.assertRoom(hash, now);
     await this.prisma.guestSignup.create({ data: { addrHash: hash, createdAt: now } });
+    await this.alert(now);
     const { id } = await this.users.create({
       email: null,
       dataKeyEnc: this.crypto.newWrappedKey(),

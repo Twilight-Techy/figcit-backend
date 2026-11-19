@@ -53,9 +53,16 @@ export class BadInput extends AppError {
   }
 }
 
+/** The calm sentence every 429 carries, so no one ever reads a technical message. */
+export const WAIT_A_FEW_MINUTES = 'Please wait a few minutes and try again.';
+
 export class TooMany extends AppError {
-  constructor(detail = 'Please wait a moment and try again.') {
+  /** Seconds to wait, sent as the Retry-After header. */
+  readonly retryAfter: number | undefined;
+
+  constructor(detail = WAIT_A_FEW_MINUTES, retryAfter?: number) {
     super(429, 'rate_limited', 'Too many tries for now', detail);
+    this.retryAfter = retryAfter;
   }
 }
 

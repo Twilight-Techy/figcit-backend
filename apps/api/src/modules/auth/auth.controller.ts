@@ -37,6 +37,8 @@ import { REFRESH_COOKIE, SessionsService, type IssuedSession } from './sessions.
 
 const GOOGLE_COOKIE = 'figcit_g';
 const STRICT = { rateLimit: { max: 10, timeWindow: '1 minute' } };
+/** A flood guard for the guest sign-up, far above what any crowd on one address makes in a minute. */
+const GUEST_FLOOD = { rateLimit: { max: 600, timeWindow: '1 minute' } };
 
 function device(req: FastifyRequest): string | undefined {
   const ua = req.headers['user-agent'];
@@ -117,7 +119,7 @@ export class AuthController {
 
   @Post('guest')
   @HttpCode(201)
-  @RouteConfig(STRICT)
+  @RouteConfig(GUEST_FLOOD)
   @Route({
     summary:
       'Start a guest space: an account with no email, for adults, kept for 30 days at most (limited per address and per day)',

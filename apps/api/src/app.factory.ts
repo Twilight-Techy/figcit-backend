@@ -3,7 +3,7 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
-import type { Type } from '@nestjs/common';
+import { Logger, type Type } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module.js';
@@ -15,11 +15,24 @@ const DEFAULT_BODY_LIMIT = 64 * 1024; // rules §6
 const UPLOAD_LIMIT = 25 * 1024 * 1024;
 const WORKBOOK_LIMIT = 8 * 1024 * 1024; // local storage driver only (audio uploads in development)
 
+/** Said once at start, so the value in force is in the log: the address every limit sees depends on it. */
+function announceProxy(env: Env): void {
+  const hops = env.TRUST_PROXY_HOPS;
+  new Logger('Startup').log(
+    `TRUST_PROXY_HOPS=${String(hops)}: the client address is taken ${
+      hops === 0
+        ? 'from the connection (no forwarding header is trusted)'
+        : `from X-Forwarded-For, ${String(hops)} proxy hop(s) in`
+    }`,
+  );
+}
+
 /** Builds the HTTP app. Used by main.ts, the e2e tests and the OpenAPI generator. */
 export async function createApp(
   env: Env = loadEnv(),
   options: { logger?: boolean; module?: Type } = {},
 ): Promise<NestFastifyApplication> {
+  if (options.logger !== false) announceProxy(env);
   const adapter = new FastifyAdapter({
     bodyLimit: DEFAULT_BODY_LIMIT,
     // Never `true`: that trusts the left-most X-Forwarded-For, which the client writes.

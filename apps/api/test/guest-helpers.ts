@@ -26,9 +26,10 @@ export const MANY = {
   GUEST_SIGNUPS_PER_DAY: '1000',
   // bootApi keeps its overrides in process.env, so the other settings are pinned here too: a test
   // that tightens one must not leave it tightened for the next.
-  GUEST_DAILY_CAP: '2000',
+  GUEST_DAILY_CAP: '0',
+  GUEST_ALERT_PER_HOUR: '0',
   GUEST_BOT_CHALLENGE: 'false',
-  GUEST_LINK_MAILS_PER_ADDRESS: '3',
+  GUEST_LINK_MAILS_PER_ADDRESS: '5',
   TRUST_PROXY_HOPS: '1',
 };
 

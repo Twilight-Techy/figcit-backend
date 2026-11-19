@@ -73,16 +73,27 @@ describe('POST /v1/auth/guest/link/email (C1)', () => {
     expect(anon.status).toBe(401);
   });
 
-  it('is limited: a guest space is answered 429 after 5 asks in a quarter hour; an address is never told', async () => {
+  it('is limited: a guest space is answered 429 after 5 asks in a quarter hour, calmly, with Retry-After', async () => {
     const guest = await start(api);
     const email = fresh();
-    // The same address, asked again and again: always 202, and only 3 are sent (see item 7).
-    for (let i = 0; i < 6; i += 1)
-      expect((await link(guest.body.accessToken, email)).status).toBe(202);
-    const other = await start(api);
     for (let i = 0; i < 5; i += 1)
-      expect((await link(other.body.accessToken, fresh())).status).toBe(202);
-    expect((await link(other.body.accessToken, fresh())).status).toBe(429);
+      expect((await link(guest.body.accessToken, email)).status).toBe(202);
+    const sixth = await api.req<{ code: string; detail: string }>(
+      'POST',
+      '/auth/guest/link/email',
+      {
+        token: guest.body.accessToken,
+        body: { email: fresh() },
+      },
+    );
+    expect(sixth.status).toBe(429);
+    expect(sixth.body).toMatchObject({
+      code: 'rate_limited',
+      detail: 'Please wait a few minutes and try again.',
+    });
+    const wait = Number(sixth.headers['retry-after']);
+    expect(wait).toBeGreaterThan(0);
+    expect(wait).toBeLessThanOrEqual(900);
   });
 
   it('cannot get in the way of the real owner signing in with a code', async () => {
@@ -362,24 +373,24 @@ describe('one address cannot be mail-bombed through guest spaces (item 7)', () =
     return res.body.mail.filter((m) => m.to === email && m.subject === 'Confirm your email').length;
   };
 
-  it('at most 3 confirmation mails a day reach one address, from any number of guests, all answered 202', async () => {
+  it('at most 5 confirmation mails a day reach one address, from any number of guests, all answered 202', async () => {
     const target = fresh();
     const statuses: number[] = [];
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 8; i += 1) {
       const g = await start(api);
       statuses.push((await link(g.body.accessToken, target)).status);
     }
-    expect(statuses).toEqual([202, 202, 202, 202, 202, 202]);
-    expect(await confirmMails(target)).toBe(3);
+    expect(statuses.every((s) => s === 202)).toBe(true);
+    expect(await confirmMails(target)).toBe(5);
     // A link that was not sent was not stored either: nothing to open.
     expect(await prisma.magicLink.count({ where: { email: target, purpose: 'link_guest' } })).toBe(
-      3,
+      5,
     );
   });
 
   it('the answer does not tell a busy address from a quiet one', async () => {
     const busy = fresh();
-    for (let i = 0; i < 3; i += 1) await link((await start(api)).body.accessToken, busy);
+    for (let i = 0; i < 5; i += 1) await link((await start(api)).body.accessToken, busy);
     const g = await start(api);
     const over = await link(g.body.accessToken, busy);
     const quiet = await link(g.body.accessToken, fresh());

@@ -42,24 +42,41 @@ The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the a
 
 ## Abuse limits
 
-`POST /v1/auth/guest` is public, so it is limited three ways, all from the table `guest_signups` (one row per guest space made, holding only a keyed hash of the network address, deleted after 2 days; Postgres, so it holds with several API instances), plus the route's own burst limit of 10 a minute:
+**Principle (the owner's): no aggressive or unnecessary rate limiting. A limit exists only to keep bots and abuse off, and must never make things hard for an ordinary person.** A lecture hall or a school of 200 students on one campus Wi-Fi address, a family, an office, or a mobile carrier sharing one address between thousands of phones must never be blocked. So the guest space limits are *flood guards* set far above any real crowd, every one is a setting, and the real answer to a bot wave is the bot challenge, not tight limits.
 
-| Setting                                    | Default                                                                                                           |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `GUEST_SIGNUPS_PER_HOUR` per address       | 5                                                                                                                 |
-| `GUEST_SIGNUPS_PER_DAY` per address        | 20                                                                                                                |
-| `GUEST_DAILY_CAP` in all, per day          | 2000                                                                                                              |
-| `TRUST_PROXY_HOPS`                         | 1 (proxies in front of the API: 1 for Heroku, Render or one Caddy or nginx; 2 with a CDN too; 0 trusts no header) |
-| `GUEST_BOT_CHALLENGE`                      | off                                                                                                               |
-| `GUEST_BOT_VERIFY_URL`, `GUEST_BOT_SECRET` | unset                                                                                                             |
+`POST /v1/auth/guest` is public. What limits it comes from the table `guest_signups` (one row per guest space made, holding only a keyed hash of the network address, deleted after 2 days; Postgres, so it holds with several API instances), plus a route flood guard of 600 a minute per address:
 
-The bot challenge, when on, needs a `botToken` in the body and checks it with any siteverify-style service (Turnstile, hCaptcha, reCAPTCHA): `POST` of `secret`, `response` and `remoteip`, answer `{ success: true }`. On without the URL and secret it answers 501, never waves through. The address every limit sees (this one, the sign-in link, password sign-in, the global limit) is the one the nearest of **our own proxies** saw, set by `TRUST_PROXY_HOPS` (default 1): a value the client writes into `X-Forwarded-For` is never used. Before this setting the API trusted the left-most entry, which the client chooses, so every per-address limit could be skipped by changing that header.
+| Setting                                  | Default                                                                                                                                  |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `GUEST_SIGNUPS_PER_HOUR` per address     | 600                                                                                                                                      |
+| `GUEST_SIGNUPS_PER_DAY` per address      | 3000                                                                                                                                     |
+| `GUEST_DAILY_CAP` in all, per day        | 0 (off). Above 0 it works and answers 503 `guest_unavailable`; it is off because it could turn real people away                         |
+| `GUEST_ALERT_PER_HOUR`                   | 1000. A structured `warn` log line (`lastHour`, `threshold`) when more guest spaces than this were made in the last hour, at most once every 10 minutes; 0 never. Nobody is turned away: a person looks and, if it is a bot wave, turns the bot challenge on |
+| `GUEST_LINK_MAILS_PER_ADDRESS`           | 5 confirmation mails a day to one address, from all guest spaces together. The answer is the same 202 whether or not one was sent        |
+| (a guest space's own link asks)          | 5 in 15 minutes per guest space (not a setting)                                                                                          |
+| `TRUST_PROXY_HOPS`                       | 1. **Production must set it explicitly** (below)                                                                                         |
+| `GUEST_BOT_CHALLENGE`                    | off                                                                                                                                      |
+| `GUEST_BOT_VERIFY_URL`, `GUEST_BOT_SECRET` | unset                                                                                                                                  |
+
+Every limit that is answered returns **429 with a `Retry-After` header and a calm sentence** ("Please wait a few minutes and try again."), never a technical message. The one exception is by design: when an address has had its share of confirmation mails, nothing is sent and the answer is the ordinary 202, so nobody can tell which addresses are busy or bury one in mail.
+
+### The bot challenge is the answer to bots
+
+If the alert fires, or you expect abuse, turn on a siteverify-style challenge (Cloudflare Turnstile, hCaptcha or reCAPTCHA) instead of tightening limits: set `GUEST_BOT_CHALLENGE=true`, `GUEST_BOT_VERIFY_URL` (its siteverify address) and `GUEST_BOT_SECRET`. The notice page then has to send the challenge's answer as `botToken` in the body of `POST /v1/auth/guest`. The server checks it by `POST` of `secret`, `response` and `remoteip` and expects `{ success: true }`. On without the URL and secret it answers 501, never waves through. It is off by default.
+
+### The address the limits see
+
+The address every per-address limit uses (this one, the sign-in link, password sign-in, the global limit) is the one the nearest of **our own proxies** saw, set by `TRUST_PROXY_HOPS`. A value the client writes into `X-Forwarded-For` is never used. The value in force is logged once at start.
+
+**Production must set `TRUST_PROXY_HOPS` explicitly for the real chain.** The web app is reached through a Vercel rewrite to Heroku, which is probably 2 hops (Vercel, then Heroku's router); a native client calling Heroku directly is 1. One value serves both only if you pick the larger and accept that the direct path can then be spoofed in one position, so measure it. Check it with two requests: send a request with a made-up `X-Forwarded-For: 203.0.113.9` and read which address the log or `guest_signups` attributes it to; it must be the real client's, not `203.0.113.9`.
+
+With the generous limits above, a wrong value does far less harm than it did with 5 an hour. **Too high** lets a client choose the address the limits see, which only weakens a flood guard that is already wide. **Too low** (say 1 when the real chain is 2) makes every visitor look like the proxy, so they all share one address; at the defaults that shared address still allows 600 guest spaces an hour and 3000 a day, enough for a campus or a school, but not for a nationwide launch, so it is still worth setting right. That is the point of the generous numbers: a mistake here should not turn a class away.
 
 ## Deploy
 
 1. Run the migrations (`pnpm --filter @figcit/api db:migrate`): `guest_space` adds the two user columns, an index and `guest_signups`; `link_guest_magic_link` adds the enum value. Both are backward compatible: existing users read `is_guest = false`.
 2. The settings above have safe defaults; set them only to change the limits. The worker already runs the new job; nothing else to schedule.
-3. Set `TRUST_PROXY_HOPS` to the number of proxies in front of the API. Too high lets a client choose the address the limits see; too low makes every visitor look like the proxy. Check it once with two requests from different networks and a spoofed `X-Forwarded-For`.
+3. Set `TRUST_PROXY_HOPS` explicitly for the real proxy chain (see "The address the limits see"), and check it once with a spoofed `X-Forwarded-For`.
 4. The front end needs `GET /me` and the session to carry `isGuest`, so deploy the API first.
 
 ## Not in this version (phase 2)
