@@ -180,7 +180,7 @@ export class ExportBuilder {
 
   private async words(userId: string, c: UserCipher): Promise<Section> {
     const where = { userId };
-    const [drafts, reflections, practices] = await Promise.all([
+    const [drafts, reflections, practices, commCards] = await Promise.all([
       this.prisma.draft.findMany({
         where,
         include: { versions: true },
@@ -188,6 +188,7 @@ export class ExportBuilder {
       }),
       this.prisma.reflection.findMany({ where, orderBy: { createdAt: 'asc' } }),
       this.prisma.practice.findMany({ where }),
+      this.prisma.commCard.findMany({ where, orderBy: { createdAt: 'asc' } }),
     ]);
     return {
       drafts: drafts.map(({ titleEnc, purposeEnc, versions, userId: _u, ...d }) => ({
@@ -207,6 +208,7 @@ export class ExportBuilder {
         content: c.decOpt(contentEnc),
         link: c.decOpt(linkEnc),
       })),
+      commCards: commCards.map(({ textEnc, userId: _u, ...k }) => ({ ...k, text: c.dec(textEnc) })),
     };
   }
 
