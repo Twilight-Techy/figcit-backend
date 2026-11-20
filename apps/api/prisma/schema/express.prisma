@@ -58,3 +58,18 @@ model AssistUsage {
   @@id([userId, day])
   @@map("assist_usage")
 }
+
+// Communication cards the person wrote (S117): shown big when words are hard, beside the app's own
+// set (content `comm.cards`). The words are the person's, so encrypted like a draft's.
+model CommCard {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  textEnc   Bytes    @map("text_enc")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("comm_cards")
+}

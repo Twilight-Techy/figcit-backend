@@ -22,7 +22,15 @@ const checkInV5Base = z.object({
     .describe('Up to two emotions (Tab 2)'),
   somethingElse: z
     .object({
-      text: z.string().trim().min(1).max(30).describe('Checked for safety, then dropped (SE-1)'),
+      text: z
+        .string()
+        .trim()
+        .min(1)
+        .max(30)
+        .optional()
+        .describe(
+          'Prime: typed words, checked for safety, then dropped (SE-1). Free sends the tap only',
+        ),
       group: z
         .enum(['charged', 'low', 'shutdown', 'settled'])
         .optional()
@@ -39,6 +47,13 @@ const checkInV5Base = z.object({
     .max(14)
     .optional()
     .describe('The body map (S09, Full only): where each picked body sign is felt. Kept, not read'),
+  notSure: z
+    .object({ body: code, energy: code, comfort: code })
+    .strict()
+    .optional()
+    .describe(
+      'Not sure (S150): the three picture taps behind this state, confirmed on S151 or fitting no cell. Kept, not read',
+    ),
   senses: z.array(code).max(8).optional(),
   place: z.object({ code, canStepAway: z.boolean() }).optional(),
   devices: z.array(code).max(6).optional(),

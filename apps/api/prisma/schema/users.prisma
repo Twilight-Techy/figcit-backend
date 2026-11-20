@@ -106,6 +106,8 @@ model User {
   dumps                Dump[]
   dumpItems            DumpItem[]
   drafts               Draft[]
+  commCards            CommCard[]
+  appFeedback          AppFeedback[]
   assistUsage          AssistUsage[]
   adaptations          Adaptation[]
   savedAdaptations     SavedAdaptation[]

@@ -53,6 +53,10 @@ const envSchema = z.object({
   DEV_MAILBOX: bool.default(false),
   MAIL_FROM: z.string().default('FigCit <hello@figcit.co.uk>'),
   SMTP_URL: z.string().optional(),
+  // Tester feedback: each report is emailed here (owner, 19 Nov 2026).
+  FEEDBACK_TO: z.email().default('admin@figcit.co.uk'),
+  // The website's server sends its tester feedback form with this key. Unset: that route is off.
+  WEBSITE_FEEDBACK_KEY: z.string().min(24).optional(),
   // Storage
   S3_ACCESS_KEY: z.string().optional(),
   S3_BUCKET: z.string().default('figcit-private'),

@@ -3,6 +3,7 @@ enum FilePurpose {
   voice_note
   practice_audio
   export
+  feedback_screenshot
 
   @@map("file_purpose")
 }

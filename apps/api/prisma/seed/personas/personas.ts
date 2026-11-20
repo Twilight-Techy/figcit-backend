@@ -36,15 +36,11 @@ async function history(
     const when = at(d, 8 + Math.floor(r() * 12), Math.floor(r() * 60));
     const c = await s.checkIn(userId, key, when);
     if (r() < 0.75) {
-      const rec = await s.prisma.recommendation.findUniqueOrThrow({
-        where: { id: c.recId },
-        select: { primary: true },
-      });
-      const primary = rec.primary as { pathway?: string; toolId?: string };
-      if (primary.pathway && primary.toolId) {
+      const primary = c.tool;
+      if (primary) {
         const outcome = pick(r, ['helped', 'helped', 'a_bit', 'not_really'] as const);
         await s.session(userId, {
-          recId: c.recId,
+          recId: c.recId ?? undefined,
           pathway: primary.pathway,
           toolId: primary.toolId,
           at: new Date(when.getTime() + 5 * 60_000),
@@ -275,7 +271,8 @@ export async function seedPersonas(s: Seeder): Promise<Record<string, string>> {
   });
   for (let d = 15; d >= 1; d -= 1) await s.checkIn(ids['chi'], d % 4 ? 'red' : 'amber', at(d, 21));
   await s.checkIn(ids['chi'], 'red', at(0, 7), {
-    ownWords: 'I feel like I want to disappear and end it',
+    // Words the safety screen matches, and short enough for v5.0's 30-character box.
+    ownWords: 'I just want to end it all',
   });
   await s.get(SupportService).addContact(ids['chi'], {
     name: 'Tolu',

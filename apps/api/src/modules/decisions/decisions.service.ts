@@ -29,6 +29,13 @@ import type {
 } from './decisions.schemas.js';
 import { EngineRuntimeService, type Runnable } from './engine-runtime.service.js';
 
+/** Not sure's three picture taps (S150), as codes. */
+export interface NotSureTaps {
+  readonly body: string;
+  readonly energy: string;
+  readonly comfort: string;
+}
+
 /**
  * How long after a v5.0 decision a finished support session still counts for its re-check (RC-1):
  * the same day, and no more. A longer gap is a different day's support, not what the card offered.
@@ -151,6 +158,8 @@ export class DecisionsService {
       now: Date;
       /** The body map's answers (v5.0, Full only); kept, not read by any rule. */
       bodyRegions?: readonly { sign: string; regions: readonly string[] }[];
+      /** Not sure's taps (v5.0); kept, not read by any rule. */
+      notSure?: NotSureTaps | null;
     },
   ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
     // The record keeps the light trace (the rules that fired, under 1 KB); the full trace is
@@ -175,6 +184,7 @@ export class DecisionsService {
         engineVersion: ENGINE_VERSION,
         input: p.input as Prisma.InputJsonValue,
         bodyRegions: meta.bodyRegions ?? [],
+        ...(meta.notSure ? { notSure: { ...meta.notSure } } : {}),
         card: result.card as unknown as Prisma.InputJsonValue,
         trace: result.trace as unknown as Prisma.InputJsonValue,
         band: result.card.band,
@@ -196,6 +206,8 @@ export class DecisionsService {
       now: Date;
       /** The body map's answers (v5.0, Full only); kept, not read by any rule. */
       bodyRegions?: readonly { sign: string; regions: readonly string[] }[];
+      /** Not sure's taps (v5.0); kept, not read by any rule. */
+      notSure?: NotSureTaps | null;
     },
   ): Promise<{ record: DecisionRecord; card: Card; trace: Trace }> {
     return this.record(this.prisma, p, meta);

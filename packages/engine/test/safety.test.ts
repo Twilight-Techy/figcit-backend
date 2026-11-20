@@ -29,6 +29,9 @@ describe('safety screen', () => {
     "what's the point, I feel like a burden to everyone",
     'I am not safe at home',
     'suicidal 😞',
+    'I feel like I want to disappear and end it',
+    'i just want to disappear',
+    'I want to end things',
   ];
   for (const text of risky) {
     it(`flags "${text}"`, () => {

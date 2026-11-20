@@ -131,6 +131,20 @@ describe('tasks', () => {
     ]);
   });
 
+  it('keeps a task picked as a Quick win (S128), not as Next', async () => {
+    const t = await api.req<Task>('POST', '/tasks', { token, body: { title: 'Reply to Sam' } });
+    const quick = await api.req<Task & { planSlot: string | null }>(
+      'PATCH',
+      `/tasks/${t.body.id}`,
+      { token, body: { planSlot: 'quick' } },
+    );
+    expect(quick.body.planSlot).toBe('quick');
+    const again = await api.req<Task & { planSlot: string | null }>('GET', `/tasks/${t.body.id}`, {
+      token,
+    });
+    expect(again.body.planSlot).toBe('quick');
+  });
+
   it('rolls a recurring task forward when done', async () => {
     const t = await api.req<Task>('POST', '/tasks', {
       token,
