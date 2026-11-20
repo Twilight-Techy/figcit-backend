@@ -153,3 +153,75 @@ describe('a guest keeps its name (B2)', () => {
     expect(res.body.nickname).toBeNull();
   });
 });
+
+describe('what the teammates added since f3972ca, for a guest and for an account (merge check)', () => {
+  it('Express Draft (free, #148): a guest can write and keep a draft, but "assist" is an account feature', async () => {
+    const guest = await start(api);
+    const token = guest.body.accessToken;
+    const draft = await api.req<{ id: string }>('POST', '/drafts', {
+      token,
+      body: { title: 'To my tutor', body: 'Hello, I need more time.', mode: 'draft' },
+    });
+    expect(draft.status).toBe(201);
+    expect((await api.req('GET', `/drafts/${draft.body.id}`, { token })).status).toBe(200);
+    expect(
+      (
+        await api.req('PATCH', `/drafts/${draft.body.id}`, {
+          token,
+          body: { body: 'Hello, I would like more time.' },
+        })
+      ).status,
+    ).toBe(200);
+    // The assist (every mode, Draft included) goes to the model: an account is needed.
+    const assist = await api.req<{ code: string }>('POST', `/drafts/${draft.body.id}/assist`, {
+      token,
+      body: { mode: 'draft' },
+    });
+    expect(assist.status).toBe(403);
+    expect(assist.body.code).toBe('account_required');
+  });
+
+  it('own communication cards (#152) work for a guest and for an account', async () => {
+    for (const who of ['guest', 'account'] as const) {
+      const token =
+        who === 'guest' ? (await start(api)).body.accessToken : (await api.signIn()).token;
+      const made = await api.req<{ id: string; text: string }>('POST', '/comm-cards', {
+        token,
+        body: { text: 'I need a quiet moment' },
+      });
+      expect(made.status).toBe(201);
+      const list = await api.req<{ items: { text: string }[] }>('GET', '/comm-cards', { token });
+      expect(list.body.items.map((c) => c.text)).toContain('I need a quiet moment');
+      expect((await api.req('DELETE', `/comm-cards/${made.body.id}`, { token })).status).toBe(204);
+    }
+  });
+
+  it('tester feedback (#155): a guest can send text feedback; an account too; staff routes stay staff', async () => {
+    for (const who of ['guest', 'account'] as const) {
+      const token =
+        who === 'guest' ? (await start(api)).body.accessToken : (await api.signIn()).token;
+      const res = await api.req('POST', '/app-feedback', {
+        token,
+        body: { kind: 'idea', text: 'More colours please', screen: '/home/' },
+      });
+      expect(res.status).toBe(201);
+    }
+    const guest = await start(api);
+    expect(
+      (await api.req('GET', '/admin/feedback', { token: guest.body.accessToken })).status,
+    ).toBe(403);
+    // A screenshot is a file upload: an account feature (a guest can send the text without it).
+    const shot = await api.req<{ code: string }>('POST', '/files/uploads', {
+      token: guest.body.accessToken,
+      body: { purpose: 'feedback_screenshot', contentType: 'image/png', sizeBytes: 1000 },
+    });
+    expect(shot.status).toBe(403);
+    expect(shot.body.code).toBe('account_required');
+    const account = await api.signIn();
+    const ok = await api.req('POST', '/files/uploads', {
+      token: account.token,
+      body: { purpose: 'feedback_screenshot', contentType: 'image/png', sizeBytes: 1000 },
+    });
+    expect(ok.status).toBe(201);
+  });
+});
