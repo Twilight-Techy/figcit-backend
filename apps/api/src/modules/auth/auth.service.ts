@@ -58,10 +58,21 @@ export class AuthService {
     // A staff link opens the staff app; it needs that app's address configured (E-31, E-35).
     const base = app === 'staff' ? this.env.STAFF_APP_URL : this.env.APP_URL;
     if (!base) throw new NotConfigured('The staff app address (STAFF_APP_URL) is not set.');
+    const since = new Date(Date.now() - 15 * 60_000);
     const recent = await this.prisma.magicLink.count({
-      where: { email, createdAt: { gt: new Date(Date.now() - 15 * 60_000) } },
+      where: { email, createdAt: { gt: since } },
     });
-    if (recent >= 5) throw new TooMany();
+    if (recent >= 5) {
+      const oldest = await this.prisma.magicLink.findFirst({
+        where: { email, createdAt: { gt: since } },
+        orderBy: { createdAt: 'asc' },
+        select: { createdAt: true },
+      });
+      throw new TooMany(
+        undefined,
+        oldest ? (oldest.createdAt.getTime() + 15 * 60_000 - Date.now()) / 1000 : 60,
+      );
+    }
     const token = randomToken();
     const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
     const existing = await this.users.findByEmail(email);
@@ -171,7 +182,7 @@ export class AuthService {
           });
     if (!link) throw new Unauthorized('That link or code is not valid. Request a new one.');
     if ('code' in input) {
-      if (link.attempts >= MAX_CODE_ATTEMPTS) throw new TooMany('Request a new link.');
+      if (link.attempts >= MAX_CODE_ATTEMPTS) throw new TooMany('Request a new link.', 60);
       if (!safeEqual(link.codeHash, sha256(`${input.email}:${input.code}`))) {
         await this.prisma.magicLink.update({
           where: { id: link.id },
@@ -314,7 +325,10 @@ export class AuthService {
     }
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       await this.event(user.id, 'password', 'locked');
-      throw new TooMany('Too many tries. Wait 15 minutes or use a sign-in link.');
+      throw new TooMany(
+        'Too many tries. Wait 15 minutes or use a sign-in link.',
+        (user.lockedUntil.getTime() - Date.now()) / 1000,
+      );
     }
     if (!(await argon2.verify(user.passwordHash, password))) {
       const failed = user.failedSignIns + 1;

@@ -69,8 +69,12 @@ describe('TRUST_PROXY_HOPS', () => {
     }
   });
 
-  it('the route limits (sign-in link) see the same address: a spoofed header does not reset them', async () => {
-    const limited = await bootApi({ ...MANY, RATE_LIMIT_ENABLED: 'true' });
+  it('the route limits (sign-in link, set to 10 a minute here) see the same address: a spoofed header does not reset them', async () => {
+    const limited = await bootApi({
+      ...MANY,
+      RATE_LIMIT_ENABLED: 'true',
+      RATE_LIMIT_AUTH_REQUEST_PER_MINUTE: '10',
+    });
     try {
       const statuses: number[] = [];
       for (let i = 0; i < 12; i += 1)

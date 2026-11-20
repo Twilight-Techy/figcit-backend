@@ -98,6 +98,9 @@ export class ProblemFilter implements ExceptionFilter {
       );
     if (error instanceof TooMany && error.retryAfter !== undefined)
       void reply.header('retry-after', String(Math.max(1, Math.ceil(error.retryAfter))));
+    // Every 429 says how long to wait: the exact time where it is known, a minute otherwise.
+    if (problem.status === 429 && !reply.hasHeader('retry-after'))
+      void reply.header('retry-after', '60');
     void reply
       .status(problem.status)
       .header('content-type', 'application/problem+json')

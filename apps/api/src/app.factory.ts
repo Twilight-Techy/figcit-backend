@@ -9,7 +9,9 @@ import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fa
 import { AppModule } from './app.module.js';
 import { loadEnv, type Env } from './common/config/env.js';
 import { ProblemFilter } from './common/errors/problem.filter.js';
+import { AccessTokens } from './common/guards/tokens.js';
 import { docsEnabled, registerDocs } from './common/http/docs.js';
+import { globalMax, limitKeyFor, setRateLimits } from './common/http/rate-limits.js';
 
 const DEFAULT_BODY_LIMIT = 64 * 1024; // rules §6
 const UPLOAD_LIMIT = 25 * 1024 * 1024;
@@ -97,11 +99,14 @@ export async function createApp(
   });
   await app.register(cookie);
   if (env.RATE_LIMIT_ENABLED) {
+    setRateLimits(env);
     await app.register(rateLimit, {
       global: true,
-      max: 300,
+      max: globalMax,
       timeWindow: '1 minute',
-      allowList: ['127.0.0.1'],
+      keyGenerator: limitKeyFor(app.get(AccessTokens)),
+      // The connection from this machine itself (health checks, local tools).
+      allowList: (req) => req.ip === '127.0.0.1',
     });
   }
 

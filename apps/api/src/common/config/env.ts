@@ -97,6 +97,14 @@ const envSchema = z.object({
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(1),
   // Abuse protection
   RATE_LIMIT_ENABLED: bool.default(true),
+  // Limits are only there to keep bots and abuse off, never to hold an ordinary person back. A
+  // signed-in request is counted per user, so one shared address (a lecture hall, a school, a mobile
+  // carrier) cannot throttle the people on it; an anonymous request is counted per address.
+  RATE_LIMIT_ADDRESS_PER_MINUTE: z.coerce.number().int().min(1).default(3000), // anonymous, per address
+  RATE_LIMIT_AUTH_ATTEMPT_PER_MINUTE: z.coerce.number().int().min(1).default(120), // verify a link or code, password sign-in
+  RATE_LIMIT_AUTH_REQUEST_PER_MINUTE: z.coerce.number().int().min(1).default(60), // sign-in link, sign-up, guest link mail
+  RATE_LIMIT_BROWSE_PER_MINUTE: z.coerce.number().int().min(1).default(300), // the Browse token, per address
+  RATE_LIMIT_USER_PER_MINUTE: z.coerce.number().int().min(1).default(300), // every route, per signed-in user
   // Errors
   SENTRY_DSN: z.url().optional(),
 });

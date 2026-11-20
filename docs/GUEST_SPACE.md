@@ -60,6 +60,21 @@ The OpenAPI file is `openapi/openapi.json`. `Problem.code` lists the codes the a
 
 Every limit that is answered returns **429 with a `Retry-After` header and a calm sentence** ("Please wait a few minutes and try again."), never a technical message. The one exception is by design: when an address has had its share of confirmation mails, nothing is sent and the answer is the ordinary 202, so nobody can tell which addresses are busy or bury one in mail.
 
+### Limits on every route
+
+The same rule covers the whole API (`app.factory.ts`, `common/http/rate-limits.ts`). A request is counted as **the signed-in user** when it carries a token we issued, so one shared address (a lecture hall, a school, an office, a mobile carrier) cannot throttle the people on it; otherwise as the **address**. A made-up token does not get a count of its own: it is counted as an anonymous request. All numbers are per minute, all settings, and a limit that fires is a 429 with `Retry-After` and "Please wait a few minutes and try again.".
+
+| Setting | Default | What it limits |
+| --- | --- | --- |
+| `RATE_LIMIT_USER_PER_MINUTE` | 300 | every route, per signed-in user (was 300 per address) |
+| `RATE_LIMIT_ADDRESS_PER_MINUTE` | 3000 | every route, anonymous, per address (was 300) |
+| `RATE_LIMIT_AUTH_REQUEST_PER_MINUTE` | 60 | asking for a sign-in link, signing up with a password, a guest space asking for its confirmation mail (was 10) |
+| `RATE_LIMIT_AUTH_ATTEMPT_PER_MINUTE` | 120 | checking a link or a code, signing in with a password (was 10) |
+| `RATE_LIMIT_BROWSE_PER_MINUTE` | 300 | the Browse token, per address (was 10) |
+| `RATE_LIMIT_ENABLED` | true | the whole set |
+
+What does the real work against bots and brute force is unchanged and does not depend on the address: 5 sign-in links per email in 15 minutes, 5 wrong tries per code, the password lock (5 wrong passwords lock that account for 15 minutes), 3 exports a day, the AI allowances and circuit breaker, the size caps, and the limits above on guest spaces. Forgot password, reset password, the staff code, and tester feedback keep their 10 a minute.
+
 ### The bot challenge is the answer to bots
 
 If the alert fires, or you expect abuse, turn on a siteverify-style challenge (Cloudflare Turnstile, hCaptcha or reCAPTCHA) instead of tightening limits: set `GUEST_BOT_CHALLENGE=true`, `GUEST_BOT_VERIFY_URL` (its siteverify address) and `GUEST_BOT_SECRET`. The notice page then has to send the challenge's answer as `botToken` in the body of `POST /v1/auth/guest`. The server checks it by `POST` of `secret`, `response` and `remoteip` and expects `{ success: true }`. On without the URL and secret it answers 501, never waves through. It is off by default.

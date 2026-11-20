@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../common/db/prisma.service.js';
-import { AppError } from '../../common/errors/errors.js';
+import { TooMany } from '../../common/errors/errors.js';
 import { DomainEvents } from '../../platform/events/domain-events.js';
 import { JobsService } from '../../platform/jobs/jobs.service.js';
 import { StorageService } from '../../platform/storage/storage.service.js';
@@ -32,15 +32,17 @@ export class PrivacyService {
       select: { id: true, status: true },
     });
     if (running) return running;
-    const recent = await this.prisma.exportJob.count({
-      where: { userId, requestedAt: { gt: new Date(Date.now() - DAY) } },
+    const since = new Date(Date.now() - DAY);
+    const recent = await this.prisma.exportJob.findMany({
+      where: { userId, requestedAt: { gt: since } },
+      orderBy: { requestedAt: 'asc' },
+      select: { requestedAt: true },
+      take: 3,
     });
-    if (recent >= 3)
-      throw new AppError(
-        429,
-        'rate_limited',
-        'You asked for a few exports today',
-        'Try again tomorrow.',
+    if (recent.length >= 3)
+      throw new TooMany(
+        'You asked for a few exports today. Try again tomorrow.',
+        ((recent[0]?.requestedAt.getTime() ?? Date.now()) + DAY - Date.now()) / 1000,
       );
     const job = await this.prisma.exportJob.create({
       data: { userId },

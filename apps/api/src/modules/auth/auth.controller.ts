@@ -7,6 +7,7 @@ import { ENV, type Env } from '../../common/config/env.js';
 import { Unauthorized } from '../../common/errors/errors.js';
 import { CurrentUser, type RequestUser } from '../../common/guards/request-user.js';
 import { RequiresAccount } from '../../common/guest/requires-account.js';
+import { routeLimit } from '../../common/http/rate-limits.js';
 import { Route } from '../../common/http/route.js';
 import { ZodPipe } from '../../common/http/zod.pipe.js';
 import {
@@ -37,6 +38,11 @@ import { REFRESH_COOKIE, SessionsService, type IssuedSession } from './sessions.
 
 const GOOGLE_COOKIE = 'figcit_g';
 const STRICT = { rateLimit: { max: 10, timeWindow: '1 minute' } };
+/** Asking for a sign-in link, signing up, asking for a guest space's confirmation mail. */
+const AUTH_REQUEST = routeLimit('RATE_LIMIT_AUTH_REQUEST_PER_MINUTE');
+/** Checking a link or code, signing in with a password. The per-link, per-account and per-email limits do the real work. */
+const AUTH_ATTEMPT = routeLimit('RATE_LIMIT_AUTH_ATTEMPT_PER_MINUTE');
+const BROWSE = routeLimit('RATE_LIMIT_BROWSE_PER_MINUTE');
 /** A flood guard for the guest sign-up, far above what any crowd on one address makes in a minute. */
 const GUEST_FLOOD = { rateLimit: { max: 600, timeWindow: '1 minute' } };
 
@@ -140,7 +146,7 @@ export class AuthController {
 
   @Post('guest/link/email')
   @HttpCode(202)
-  @RouteConfig(STRICT)
+  @RouteConfig(AUTH_REQUEST)
   @Route({
     summary:
       'Guest space: email a link to confirm the address it will keep (always 202; the address is attached only once it is confirmed)',
@@ -159,7 +165,7 @@ export class AuthController {
 
   @Post('magic-link')
   @HttpCode(202)
-  @RouteConfig(STRICT)
+  @RouteConfig(AUTH_REQUEST)
   @Route({
     summary: 'Email a sign-in link and code (same answer whether or not the email has an account)',
     tags: ['Auth'],
@@ -177,7 +183,7 @@ export class AuthController {
 
   @Post('magic-link/verify')
   @HttpCode(200)
-  @RouteConfig(STRICT)
+  @RouteConfig(AUTH_ATTEMPT)
   @Route({
     summary: 'Exchange a link token or the 6-digit code for a session',
     tags: ['Auth'],
@@ -195,7 +201,7 @@ export class AuthController {
 
   @Post('password/sign-up')
   @HttpCode(201)
-  @RouteConfig(STRICT)
+  @RouteConfig(AUTH_REQUEST)
   @Route({
     summary: 'Create an account with email and password',
     tags: ['Auth'],
@@ -218,7 +224,7 @@ export class AuthController {
 
   @Post('password/sign-in')
   @HttpCode(200)
-  @RouteConfig(STRICT)
+  @RouteConfig(AUTH_ATTEMPT)
   @Route({
     summary: 'Sign in with email and password (locks for 15 minutes after 5 tries)',
     tags: ['Auth'],
@@ -377,7 +383,7 @@ export class AuthController {
 
   @Post('browse')
   @HttpCode(201)
-  @RouteConfig(STRICT)
+  @RouteConfig(BROWSE)
   @Route({
     summary: 'Anonymous Browse-mode device token (no account, nothing stored against it)',
     tags: ['Auth'],
