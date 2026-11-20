@@ -1,0 +1,39 @@
+enum AppFeedbackKind {
+  broken
+  confusing
+  idea
+
+  @@map("app_feedback_kind")
+}
+
+enum AppFeedbackStatus {
+  new
+  seen
+  done
+
+  @@map("app_feedback_status")
+}
+
+// Tester feedback from the app's "Send feedback" and the website's form: what broke, what was
+// confusing, ideas. Read by staff in the staff app; each one is also emailed to FEEDBACK_TO.
+model AppFeedback {
+  id           String            @id @default(uuid(7)) @db.Uuid
+  // The person, when sent from the app signed in. Deleted with their account.
+  userId       String?           @map("user_id") @db.Uuid
+  source       String            @db.VarChar(16)
+  kind         AppFeedbackKind
+  text         String            @db.VarChar(2000)
+  screen       String?           @db.VarChar(200)
+  appVersion   String?           @map("app_version") @db.VarChar(40)
+  device       String?           @db.VarChar(200)
+  name         String?           @db.VarChar(100)
+  email        String?           @db.VarChar(254)
+  screenshotId String?           @map("screenshot_id") @db.Uuid
+  status       AppFeedbackStatus @default(new)
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@map("app_feedback")
+}

@@ -11,8 +11,12 @@ export const UPLOAD_RULES = {
     maxBytes: 20 * 1024 * 1024,
     types: /^audio\/(webm|ogg|mp4|mpeg|wav|x-m4a|aac)/,
   },
+  // A screenshot sent with tester feedback; kept while the report is.
+  feedback_screenshot: { maxBytes: 5 * 1024 * 1024, types: /^image\/(png|jpeg|webp)$/ },
 } as const;
 export type UploadPurpose = keyof typeof UPLOAD_RULES;
+/** Kept once uploaded, not removed after a day. */
+const KEPT = new Set<string>(['practice_audio', 'feedback_screenshot']);
 
 /** Upload intents and signed links over StorageService. Bytes go straight to storage. */
 @Injectable()
@@ -67,7 +71,7 @@ export class FilesService {
         status: 'uploaded',
         sizeBytes: body.length,
         uploadedAt: new Date(),
-        expiresAt: file.purpose === 'practice_audio' ? null : file.expiresAt,
+        expiresAt: KEPT.has(file.purpose) ? null : file.expiresAt,
       },
     });
   }
