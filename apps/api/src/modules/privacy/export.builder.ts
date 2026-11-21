@@ -213,9 +213,10 @@ export class ExportBuilder {
   }
 
   private async support(userId: string, c: UserCipher): Promise<Section> {
-    const [contacts, plan] = await Promise.all([
+    const [contacts, plan, survey] = await Promise.all([
       this.prisma.trustedContact.findMany({ where: { userId } }),
       this.prisma.supportPlan.findUnique({ where: { userId } }),
+      this.prisma.testerSurvey.findUnique({ where: { userId } }),
     ]);
     return {
       trustedContacts: contacts.map((t) => ({
@@ -235,6 +236,7 @@ export class ExportBuilder {
             messages: c.decOpt(plan.messagesEnc),
           }
         : null,
+      testerSurvey: survey ? (({ id: _i, userId: _u, ...answers }) => answers)(survey) : null,
     };
   }
 }

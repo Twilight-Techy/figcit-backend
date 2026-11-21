@@ -37,3 +37,53 @@ model AppFeedback {
   @@index([createdAt])
   @@map("app_feedback")
 }
+
+enum TestimonialStatus {
+  pending
+  approved
+  hidden
+
+  @@map("testimonial_status")
+}
+
+// The tester survey (owner, 21 Nov 2026): five 1-5 answers, an optional comment and an optional
+// testimonial. One per person; answering again replaces it. Deleted with the account.
+model TesterSurvey {
+  id                String             @id @default(uuid(7)) @db.Uuid
+  userId            String             @unique @map("user_id") @db.Uuid
+  navigation        Int                @db.SmallInt
+  checkIn           Int                @map("check_in") @db.SmallInt
+  fit               Int                @db.SmallInt
+  accuracy          Int                @db.SmallInt
+  overall           Int                @db.SmallInt
+  comment           String?            @db.VarChar(2000)
+  // The parts of the app they enjoyed most (FEATURES in survey.schemas.ts), any number.
+  favourites        String[]           @default([]) @db.VarChar(24)
+  // Where it was answered: logout, after_use (the prompt after a few check-ins) or me.
+  askedAt           String             @map("asked_at") @db.VarChar(16)
+  appVersion        String?            @map("app_version") @db.VarChar(40)
+  // Words the person offered for others to read. Shown only when `testimonialPublic` and approved.
+  testimonial       String?            @db.VarChar(600)
+  testimonialPublic Boolean            @default(false) @map("testimonial_public")
+  testimonialName   String?            @map("testimonial_name") @db.VarChar(60)
+  testimonialStatus TestimonialStatus? @map("testimonial_status")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([updatedAt])
+  @@index([testimonialStatus])
+  @@map("tester_surveys")
+}
+
+// "Not now" on the survey prompt: asked again after a few days, at most twice.
+model TesterSurveyPrompt {
+  userId   String   @id @map("user_id") @db.Uuid
+  skips    Int      @default(0) @db.SmallInt
+  askAfter DateTime @map("ask_after") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tester_survey_prompts")
+}

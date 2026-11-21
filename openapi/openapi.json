@@ -4136,6 +4136,659 @@
         ]
       }
     },
+    "/v1/admin/survey": {
+      "get": {
+        "operationId": "Survey_summary",
+        "summary": "Tester survey results: averages, counts and the latest answers",
+        "tags": [
+          "Feedback"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responses": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "questions": {
+                      "type": "object",
+                      "properties": {
+                        "navigation": {
+                          "type": "object",
+                          "properties": {
+                            "average": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "counts": {
+                              "minItems": 5,
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": [
+                            "average",
+                            "counts"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "checkIn": {
+                          "type": "object",
+                          "properties": {
+                            "average": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "counts": {
+                              "minItems": 5,
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": [
+                            "average",
+                            "counts"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "fit": {
+                          "type": "object",
+                          "properties": {
+                            "average": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "counts": {
+                              "minItems": 5,
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": [
+                            "average",
+                            "counts"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "accuracy": {
+                          "type": "object",
+                          "properties": {
+                            "average": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "counts": {
+                              "minItems": 5,
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": [
+                            "average",
+                            "counts"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "overall": {
+                          "type": "object",
+                          "properties": {
+                            "average": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "counts": {
+                              "minItems": 5,
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": [
+                            "average",
+                            "counts"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "navigation",
+                        "checkIn",
+                        "fit",
+                        "accuracy",
+                        "overall"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "favourites": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "feature": {
+                            "type": "string",
+                            "enum": [
+                              "checkIn",
+                              "tasks",
+                              "dump",
+                              "regulate",
+                              "practices",
+                              "express",
+                              "reflect",
+                              "progress",
+                              "patterns",
+                              "reminders",
+                              "supportPlan",
+                              "connect",
+                              "help"
+                            ]
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "feature",
+                          "count"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "navigation": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "checkIn": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "fit": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "accuracy": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "overall": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "comment": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "favourites": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "checkIn",
+                                "tasks",
+                                "dump",
+                                "regulate",
+                                "practices",
+                                "express",
+                                "reflect",
+                                "progress",
+                                "patterns",
+                                "reminders",
+                                "supportPlan",
+                                "connect",
+                                "help"
+                              ]
+                            }
+                          },
+                          "askedAt": {
+                            "type": "string"
+                          },
+                          "appVersion": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "testimonial": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "testimonialPublic": {
+                            "type": "boolean"
+                          },
+                          "testimonialName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "testimonialStatus": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "pending",
+                                  "approved",
+                                  "hidden"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "navigation",
+                          "checkIn",
+                          "fit",
+                          "accuracy",
+                          "overall",
+                          "comment",
+                          "favourites",
+                          "askedAt",
+                          "appVersion",
+                          "testimonial",
+                          "testimonialPublic",
+                          "testimonialName",
+                          "testimonialStatus",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "responses",
+                    "questions",
+                    "favourites",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "responses": 1,
+                  "questions": {
+                    "navigation": {
+                      "average": 1,
+                      "counts": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                      ]
+                    },
+                    "checkIn": {
+                      "average": 1,
+                      "counts": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                      ]
+                    },
+                    "fit": {
+                      "average": 1,
+                      "counts": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                      ]
+                    },
+                    "accuracy": {
+                      "average": 1,
+                      "counts": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                      ]
+                    },
+                    "overall": {
+                      "average": 1,
+                      "counts": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                      ]
+                    }
+                  },
+                  "favourites": [
+                    {
+                      "feature": "checkIn",
+                      "count": 1
+                    }
+                  ],
+                  "items": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "navigation": 1,
+                      "checkIn": 1,
+                      "fit": 1,
+                      "accuracy": 1,
+                      "overall": 1,
+                      "comment": "Example comment",
+                      "favourites": [
+                        "checkIn"
+                      ],
+                      "askedAt": "Example askedAt",
+                      "appVersion": "Example appVersion",
+                      "testimonial": "Example testimonial",
+                      "testimonialPublic": true,
+                      "testimonialName": "Example testimonialName",
+                      "testimonialStatus": "pending",
+                      "updatedAt": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff"
+      }
+    },
+    "/v1/admin/survey/{id}/testimonial": {
+      "patch": {
+        "operationId": "Survey_setTestimonial",
+        "summary": "Approve or hide the words someone offered as a testimonial",
+        "tags": [
+          "Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "approved",
+                      "hidden"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "status": "pending"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "navigation": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "checkIn": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "fit": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "accuracy": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "overall": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "comment": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "favourites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "checkIn",
+                          "tasks",
+                          "dump",
+                          "regulate",
+                          "practices",
+                          "express",
+                          "reflect",
+                          "progress",
+                          "patterns",
+                          "reminders",
+                          "supportPlan",
+                          "connect",
+                          "help"
+                        ]
+                      }
+                    },
+                    "askedAt": {
+                      "type": "string"
+                    },
+                    "appVersion": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "testimonial": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "testimonialPublic": {
+                      "type": "boolean"
+                    },
+                    "testimonialName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "testimonialStatus": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "pending",
+                            "approved",
+                            "hidden"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "navigation",
+                    "checkIn",
+                    "fit",
+                    "accuracy",
+                    "overall",
+                    "comment",
+                    "favourites",
+                    "askedAt",
+                    "appVersion",
+                    "testimonial",
+                    "testimonialPublic",
+                    "testimonialName",
+                    "testimonialStatus",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "navigation": 1,
+                  "checkIn": 1,
+                  "fit": 1,
+                  "accuracy": 1,
+                  "overall": 1,
+                  "comment": "Example comment",
+                  "favourites": [
+                    "checkIn"
+                  ],
+                  "askedAt": "Example askedAt",
+                  "appVersion": "Example appVersion",
+                  "testimonial": "Example testimonial",
+                  "testimonialPublic": true,
+                  "testimonialName": "Example testimonialName",
+                  "testimonialStatus": "pending",
+                  "updatedAt": "2026-01-15T09:30:00.000Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "staff"
+      }
+    },
     "/v1/ai/map-feeling": {
       "post": {
         "operationId": "Ai_mapFeeling",
@@ -24307,6 +24960,625 @@
                     "Example messages"
                   ],
                   "updatedAt": "2026-01-15T09:30:00.000Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/me/survey": {
+      "get": {
+        "operationId": "Survey_state",
+        "summary": "Whether this person has answered the tester survey, and whether to ask now",
+        "tags": [
+          "Feedback"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "answered": {
+                      "type": "boolean"
+                    },
+                    "dueAfterUse": {
+                      "type": "boolean"
+                    },
+                    "answers": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "navigation": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "checkIn": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "fit": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "accuracy": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "overall": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "comment": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "favourites": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "checkIn",
+                                  "tasks",
+                                  "dump",
+                                  "regulate",
+                                  "practices",
+                                  "express",
+                                  "reflect",
+                                  "progress",
+                                  "patterns",
+                                  "reminders",
+                                  "supportPlan",
+                                  "connect",
+                                  "help"
+                                ]
+                              }
+                            },
+                            "testimonial": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "testimonialPublic": {
+                              "type": "boolean"
+                            },
+                            "testimonialName": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "navigation",
+                            "checkIn",
+                            "fit",
+                            "accuracy",
+                            "overall",
+                            "comment",
+                            "favourites",
+                            "testimonial",
+                            "testimonialPublic",
+                            "testimonialName"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "answered",
+                    "dueAfterUse",
+                    "answers"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "answered": true,
+                  "dueAfterUse": true,
+                  "answers": {
+                    "navigation": 1,
+                    "checkIn": 1,
+                    "fit": 1,
+                    "accuracy": 1,
+                    "overall": 1,
+                    "comment": "Example comment",
+                    "favourites": [
+                      "checkIn"
+                    ],
+                    "testimonial": "Example testimonial",
+                    "testimonialPublic": true,
+                    "testimonialName": "Example testimonialName"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      },
+      "put": {
+        "operationId": "Survey_answer",
+        "summary": "Answer the tester survey (answering again replaces the earlier answers)",
+        "tags": [
+          "Feedback"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "navigation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "How easy it was to find the way around"
+                  },
+                  "checkIn": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "How easy it was to check in"
+                  },
+                  "fit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "How well what to do matched the energy there was"
+                  },
+                  "accuracy": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "How accurate that match felt"
+                  },
+                  "overall": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Overall rating, out of 5"
+                  },
+                  "comment": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "favourites": {
+                    "default": [],
+                    "maxItems": 13,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "checkIn",
+                        "tasks",
+                        "dump",
+                        "regulate",
+                        "practices",
+                        "express",
+                        "reflect",
+                        "progress",
+                        "patterns",
+                        "reminders",
+                        "supportPlan",
+                        "connect",
+                        "help"
+                      ]
+                    }
+                  },
+                  "askedAt": {
+                    "type": "string",
+                    "enum": [
+                      "logout",
+                      "after_use",
+                      "me"
+                    ]
+                  },
+                  "appVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "testimonial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 600
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "testimonialPublic": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "testimonialName": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 60
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "navigation",
+                  "checkIn",
+                  "fit",
+                  "accuracy",
+                  "overall",
+                  "askedAt"
+                ],
+                "additionalProperties": false
+              },
+              "example": {
+                "navigation": 1,
+                "checkIn": 1,
+                "fit": 1,
+                "accuracy": 1,
+                "overall": 1,
+                "comment": "Example comment",
+                "favourites": [],
+                "askedAt": "logout",
+                "appVersion": "Example appVersion",
+                "testimonial": "Example testimonial",
+                "testimonialPublic": false,
+                "testimonialName": "Example testimonialName"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "answered": {
+                      "type": "boolean"
+                    },
+                    "dueAfterUse": {
+                      "type": "boolean"
+                    },
+                    "answers": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "navigation": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "checkIn": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "fit": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "accuracy": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "overall": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "comment": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "favourites": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "checkIn",
+                                  "tasks",
+                                  "dump",
+                                  "regulate",
+                                  "practices",
+                                  "express",
+                                  "reflect",
+                                  "progress",
+                                  "patterns",
+                                  "reminders",
+                                  "supportPlan",
+                                  "connect",
+                                  "help"
+                                ]
+                              }
+                            },
+                            "testimonial": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "testimonialPublic": {
+                              "type": "boolean"
+                            },
+                            "testimonialName": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "navigation",
+                            "checkIn",
+                            "fit",
+                            "accuracy",
+                            "overall",
+                            "comment",
+                            "favourites",
+                            "testimonial",
+                            "testimonialPublic",
+                            "testimonialName"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "answered",
+                    "dueAfterUse",
+                    "answers"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "answered": true,
+                  "dueAfterUse": true,
+                  "answers": {
+                    "navigation": 1,
+                    "checkIn": 1,
+                    "fit": 1,
+                    "accuracy": 1,
+                    "overall": 1,
+                    "comment": "Example comment",
+                    "favourites": [
+                      "checkIn"
+                    ],
+                    "testimonial": "Example testimonial",
+                    "testimonialPublic": true,
+                    "testimonialName": "Example testimonialName"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-access": "user"
+      }
+    },
+    "/v1/me/survey/later": {
+      "post": {
+        "operationId": "Survey_later",
+        "summary": "\"Not now\": ask again in a few days, at most twice",
+        "tags": [
+          "Feedback"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "answered": {
+                      "type": "boolean"
+                    },
+                    "dueAfterUse": {
+                      "type": "boolean"
+                    },
+                    "answers": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "navigation": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "checkIn": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "fit": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "accuracy": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "overall": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "comment": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "favourites": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "checkIn",
+                                  "tasks",
+                                  "dump",
+                                  "regulate",
+                                  "practices",
+                                  "express",
+                                  "reflect",
+                                  "progress",
+                                  "patterns",
+                                  "reminders",
+                                  "supportPlan",
+                                  "connect",
+                                  "help"
+                                ]
+                              }
+                            },
+                            "testimonial": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "testimonialPublic": {
+                              "type": "boolean"
+                            },
+                            "testimonialName": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "navigation",
+                            "checkIn",
+                            "fit",
+                            "accuracy",
+                            "overall",
+                            "comment",
+                            "favourites",
+                            "testimonial",
+                            "testimonialPublic",
+                            "testimonialName"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "answered",
+                    "dueAfterUse",
+                    "answers"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "answered": true,
+                  "dueAfterUse": true,
+                  "answers": {
+                    "navigation": 1,
+                    "checkIn": 1,
+                    "fit": 1,
+                    "accuracy": 1,
+                    "overall": 1,
+                    "comment": "Example comment",
+                    "favourites": [
+                      "checkIn"
+                    ],
+                    "testimonial": "Example testimonial",
+                    "testimonialPublic": true,
+                    "testimonialName": "Example testimonialName"
+                  }
                 }
               }
             }
@@ -55236,6 +56508,82 @@
           }
         ],
         "x-access": "user"
+      }
+    },
+    "/v1/testimonials": {
+      "get": {
+        "operationId": "Survey_published",
+        "summary": "Approved testimonials that people agreed to show, for the website",
+        "tags": [
+          "Feedback"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "name",
+                          "at"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "items": [
+                    {
+                      "text": "Example text",
+                      "name": "Example name",
+                      "at": "2026-01-15T09:30:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem details (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "x-access": "public"
       }
     }
   },
