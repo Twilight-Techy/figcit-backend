@@ -19,6 +19,13 @@ describe('the FigCit email layout', () => {
     expect(signIn.html).toContain('<html lang="en-GB">');
   });
 
+  it('centres the button and the code in the card', () => {
+    expect(signIn.html).toMatch(
+      /<table role="presentation" align="center"[^>]*margin:28px auto 8px/,
+    );
+    expect(signIn.html).toMatch(/color:#[0-9a-f]+;text-align:center">On another device\?/);
+  });
+
   it('escapes what it shows, links included', () => {
     expect(signIn.html).toContain('href="https://figcit.vercel.app/enter/link/?token=a&amp;b=c"');
     expect(signIn.html).toContain('didn&#39;t ask for this');
