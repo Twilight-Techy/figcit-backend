@@ -108,6 +108,8 @@ model User {
   drafts               Draft[]
   commCards            CommCard[]
   appFeedback          AppFeedback[]
+  testerSurvey         TesterSurvey?
+  testerSurveyPrompt   TesterSurveyPrompt?
   assistUsage          AssistUsage[]
   adaptations          Adaptation[]
   savedAdaptations     SavedAdaptation[]
