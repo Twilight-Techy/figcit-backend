@@ -4299,6 +4299,42 @@
                       ],
                       "additionalProperties": false
                     },
+                    "favourites": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "feature": {
+                            "type": "string",
+                            "enum": [
+                              "checkIn",
+                              "tasks",
+                              "dump",
+                              "regulate",
+                              "practices",
+                              "express",
+                              "reflect",
+                              "progress",
+                              "patterns",
+                              "reminders",
+                              "supportPlan",
+                              "connect",
+                              "help"
+                            ]
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "feature",
+                          "count"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "items": {
                       "type": "array",
                       "items": {
@@ -4339,6 +4375,27 @@
                               "string",
                               "null"
                             ]
+                          },
+                          "favourites": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "checkIn",
+                                "tasks",
+                                "dump",
+                                "regulate",
+                                "practices",
+                                "express",
+                                "reflect",
+                                "progress",
+                                "patterns",
+                                "reminders",
+                                "supportPlan",
+                                "connect",
+                                "help"
+                              ]
+                            }
                           },
                           "askedAt": {
                             "type": "string"
@@ -4393,6 +4450,7 @@
                           "accuracy",
                           "overall",
                           "comment",
+                          "favourites",
                           "askedAt",
                           "appVersion",
                           "testimonial",
@@ -4408,6 +4466,7 @@
                   "required": [
                     "responses",
                     "questions",
+                    "favourites",
                     "items"
                   ],
                   "additionalProperties": false
@@ -4466,6 +4525,12 @@
                       ]
                     }
                   },
+                  "favourites": [
+                    {
+                      "feature": "checkIn",
+                      "count": 1
+                    }
+                  ],
                   "items": [
                     {
                       "id": "00000000-0000-4000-8000-000000000001",
@@ -4475,6 +4540,9 @@
                       "accuracy": 1,
                       "overall": 1,
                       "comment": "Example comment",
+                      "favourites": [
+                        "checkIn"
+                      ],
                       "askedAt": "Example askedAt",
                       "appVersion": "Example appVersion",
                       "testimonial": "Example testimonial",
@@ -4595,6 +4663,27 @@
                         "null"
                       ]
                     },
+                    "favourites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "checkIn",
+                          "tasks",
+                          "dump",
+                          "regulate",
+                          "practices",
+                          "express",
+                          "reflect",
+                          "progress",
+                          "patterns",
+                          "reminders",
+                          "supportPlan",
+                          "connect",
+                          "help"
+                        ]
+                      }
+                    },
                     "askedAt": {
                       "type": "string"
                     },
@@ -4648,6 +4737,7 @@
                     "accuracy",
                     "overall",
                     "comment",
+                    "favourites",
                     "askedAt",
                     "appVersion",
                     "testimonial",
@@ -4666,6 +4756,9 @@
                   "accuracy": 1,
                   "overall": 1,
                   "comment": "Example comment",
+                  "favourites": [
+                    "checkIn"
+                  ],
                   "askedAt": "Example askedAt",
                   "appVersion": "Example appVersion",
                   "testimonial": "Example testimonial",
@@ -24947,6 +25040,27 @@
                                 "null"
                               ]
                             },
+                            "favourites": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "checkIn",
+                                  "tasks",
+                                  "dump",
+                                  "regulate",
+                                  "practices",
+                                  "express",
+                                  "reflect",
+                                  "progress",
+                                  "patterns",
+                                  "reminders",
+                                  "supportPlan",
+                                  "connect",
+                                  "help"
+                                ]
+                              }
+                            },
                             "testimonial": {
                               "type": [
                                 "string",
@@ -24970,6 +25084,7 @@
                             "accuracy",
                             "overall",
                             "comment",
+                            "favourites",
                             "testimonial",
                             "testimonialPublic",
                             "testimonialName"
@@ -24999,6 +25114,9 @@
                     "accuracy": 1,
                     "overall": 1,
                     "comment": "Example comment",
+                    "favourites": [
+                      "checkIn"
+                    ],
                     "testimonial": "Example testimonial",
                     "testimonialPublic": true,
                     "testimonialName": "Example testimonialName"
@@ -25079,6 +25197,29 @@
                       }
                     ]
                   },
+                  "favourites": {
+                    "default": [],
+                    "maxItems": 13,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "checkIn",
+                        "tasks",
+                        "dump",
+                        "regulate",
+                        "practices",
+                        "express",
+                        "reflect",
+                        "progress",
+                        "patterns",
+                        "reminders",
+                        "supportPlan",
+                        "connect",
+                        "help"
+                      ]
+                    }
+                  },
                   "askedAt": {
                     "type": "string",
                     "enum": [
@@ -25136,6 +25277,7 @@
                 "accuracy": 1,
                 "overall": 1,
                 "comment": "Example comment",
+                "favourites": [],
                 "askedAt": "logout",
                 "appVersion": "Example appVersion",
                 "testimonial": "Example testimonial",
@@ -25195,6 +25337,27 @@
                                 "null"
                               ]
                             },
+                            "favourites": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "checkIn",
+                                  "tasks",
+                                  "dump",
+                                  "regulate",
+                                  "practices",
+                                  "express",
+                                  "reflect",
+                                  "progress",
+                                  "patterns",
+                                  "reminders",
+                                  "supportPlan",
+                                  "connect",
+                                  "help"
+                                ]
+                              }
+                            },
                             "testimonial": {
                               "type": [
                                 "string",
@@ -25218,6 +25381,7 @@
                             "accuracy",
                             "overall",
                             "comment",
+                            "favourites",
                             "testimonial",
                             "testimonialPublic",
                             "testimonialName"
@@ -25247,6 +25411,9 @@
                     "accuracy": 1,
                     "overall": 1,
                     "comment": "Example comment",
+                    "favourites": [
+                      "checkIn"
+                    ],
                     "testimonial": "Example testimonial",
                     "testimonialPublic": true,
                     "testimonialName": "Example testimonialName"
@@ -25331,6 +25498,27 @@
                                 "null"
                               ]
                             },
+                            "favourites": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "checkIn",
+                                  "tasks",
+                                  "dump",
+                                  "regulate",
+                                  "practices",
+                                  "express",
+                                  "reflect",
+                                  "progress",
+                                  "patterns",
+                                  "reminders",
+                                  "supportPlan",
+                                  "connect",
+                                  "help"
+                                ]
+                              }
+                            },
                             "testimonial": {
                               "type": [
                                 "string",
@@ -25354,6 +25542,7 @@
                             "accuracy",
                             "overall",
                             "comment",
+                            "favourites",
                             "testimonial",
                             "testimonialPublic",
                             "testimonialName"
@@ -25383,6 +25572,9 @@
                     "accuracy": 1,
                     "overall": 1,
                     "comment": "Example comment",
+                    "favourites": [
+                      "checkIn"
+                    ],
                     "testimonial": "Example testimonial",
                     "testimonialPublic": true,
                     "testimonialName": "Example testimonialName"

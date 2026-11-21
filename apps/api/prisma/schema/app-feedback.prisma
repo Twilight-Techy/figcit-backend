@@ -57,6 +57,8 @@ model TesterSurvey {
   accuracy          Int                @db.SmallInt
   overall           Int                @db.SmallInt
   comment           String?            @db.VarChar(2000)
+  // The parts of the app they enjoyed most (FEATURES in survey.schemas.ts), any number.
+  favourites        String[]           @default([]) @db.VarChar(24)
   // Where it was answered: logout, after_use (the prompt after a few check-ins) or me.
   askedAt           String             @map("asked_at") @db.VarChar(16)
   appVersion        String?            @map("app_version") @db.VarChar(40)

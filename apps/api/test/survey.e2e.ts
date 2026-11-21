@@ -13,6 +13,7 @@ afterAll(() => api.close());
 type State = { answered: boolean; dueAfterUse: boolean; answers: { overall: number } | null };
 type Summary = {
   responses: number;
+  favourites: { feature: string; count: number }[];
   questions: Record<string, { average: number | null; counts: number[] }>;
   items: { id: string; testimonial: string | null; testimonialStatus: string | null }[];
 };
@@ -50,6 +51,7 @@ describe('tester survey', () => {
       token,
       body: {
         ...answers,
+        favourites: ['dump', 'tasks', 'dump'],
         comment: '  ',
         testimonial: words,
         testimonialPublic: true,
@@ -60,13 +62,16 @@ describe('tester survey', () => {
     expect(saved.body).toMatchObject({
       answered: true,
       dueAfterUse: false,
-      answers: { overall: 5 },
+      answers: { overall: 5, favourites: ['dump', 'tasks'] },
     });
 
     const staff = await api.staff(['content_editor']);
     const summary = await api.req<Summary>('GET', '/admin/survey', { token: staff.token });
     expect(summary.body.responses).toBeGreaterThanOrEqual(1);
     expect(summary.body.questions['overall']?.counts[4]).toBeGreaterThanOrEqual(1);
+    expect(summary.body.favourites.find((f) => f.feature === 'dump')?.count).toBeGreaterThanOrEqual(
+      1,
+    );
     const mine = summary.body.items.find((i) => i.testimonial === words);
     expect(mine?.testimonialStatus).toBe('pending');
 
@@ -105,6 +110,11 @@ describe('tester survey', () => {
     const { token } = await api.signIn();
     const bad = await api.req('PUT', '/me/survey', { token, body: { ...answers, overall: 6 } });
     expect(bad.status).toBe(400);
+    const unknown = await api.req('PUT', '/me/survey', {
+      token,
+      body: { ...answers, favourites: ['teleport'] },
+    });
+    expect(unknown.status).toBe(400);
     const notStaff = await api.req('GET', '/admin/survey', { token });
     expect(notStaff.status).toBe(403);
   });

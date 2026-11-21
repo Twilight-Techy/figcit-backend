@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { summarise } from './survey.service.js';
+import { summarise, tally } from './survey.service.js';
 
 describe('summarise', () => {
   it('gives the average to one decimal and how many chose each answer', () => {
@@ -9,5 +9,14 @@ describe('summarise', () => {
 
   it('has no average with no answers', () => {
     expect(summarise([])).toEqual({ average: null, counts: [0, 0, 0, 0, 0] });
+  });
+});
+
+describe('tally', () => {
+  it('counts each part people enjoyed, most picked first, leaving out unpicked and unknown ones', () => {
+    expect(tally([['tasks', 'dump'], ['dump'], ['dump', 'gone'], []])).toEqual([
+      { feature: 'dump', count: 3 },
+      { feature: 'tasks', count: 1 },
+    ]);
   });
 });

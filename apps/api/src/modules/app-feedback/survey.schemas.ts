@@ -5,6 +5,22 @@ import { z } from 'zod';
  * an optional testimonial. The app holds the wording; these are the answers' keys.
  */
 export const QUESTIONS = ['navigation', 'checkIn', 'fit', 'accuracy', 'overall'] as const;
+/** The parts of the app a tester can say they enjoyed most. The app holds their names. */
+export const FEATURES = [
+  'checkIn',
+  'tasks',
+  'dump',
+  'regulate',
+  'practices',
+  'express',
+  'reflect',
+  'progress',
+  'patterns',
+  'reminders',
+  'supportPlan',
+  'connect',
+  'help',
+] as const;
 export const ASKED_AT = ['logout', 'after_use', 'me'] as const;
 export const TESTIMONIAL_STATUSES = ['pending', 'approved', 'hidden'] as const;
 
@@ -26,6 +42,12 @@ export const surveyAnswersSchema = z
     accuracy: score.describe('How accurate that match felt'),
     overall: score.describe('Overall rating, out of 5'),
     comment: optionalText(2000),
+    /** Which parts they enjoyed using most; none is fine. */
+    favourites: z
+      .array(z.enum(FEATURES))
+      .max(FEATURES.length)
+      .default([])
+      .transform((f) => [...new Set(f)]),
     askedAt: z.enum(ASKED_AT),
     appVersion: z.string().trim().min(1).max(40).optional(),
     /** Words for others to read; shown only if `testimonialPublic` and approved by staff. */
@@ -50,6 +72,7 @@ export const surveyStateSchema = z.object({
       accuracy: z.number().int(),
       overall: z.number().int(),
       comment: z.string().nullable(),
+      favourites: z.array(z.enum(FEATURES)),
       testimonial: z.string().nullable(),
       testimonialPublic: z.boolean(),
       testimonialName: z.string().nullable(),
@@ -73,6 +96,7 @@ export const surveyResponseSchema = z.object({
   accuracy: z.number().int(),
   overall: z.number().int(),
   comment: z.string().nullable(),
+  favourites: z.array(z.enum(FEATURES)),
   askedAt: z.string(),
   appVersion: z.string().nullable(),
   testimonial: z.string().nullable(),
@@ -92,6 +116,8 @@ export const surveySummarySchema = z.object({
     accuracy: questionSummary,
     overall: questionSummary,
   }),
+  /** How many picked each part as one they enjoyed most, most picked first. */
+  favourites: z.array(z.object({ feature: z.enum(FEATURES), count: z.number().int() })),
   /** The latest 200, newest first. */
   items: z.array(surveyResponseSchema),
 });

@@ -5,6 +5,7 @@ import { NotFound } from '../../common/errors/errors.js';
 import type { RequestUser } from '../../common/guards/request-user.js';
 import { AuditService } from '../audit/audit.service.js';
 import {
+  FEATURES,
   QUESTIONS,
   type SurveyAnswers,
   type SurveyResponse,
@@ -29,6 +30,7 @@ const response = (r: TesterSurvey): SurveyResponse => ({
   accuracy: r.accuracy,
   overall: r.overall,
   comment: r.comment,
+  favourites: known(r.favourites),
   askedAt: r.askedAt,
   appVersion: r.appVersion,
   testimonial: r.testimonial,
@@ -37,6 +39,23 @@ const response = (r: TesterSurvey): SurveyResponse => ({
   testimonialStatus: r.testimonialStatus,
   updatedAt: r.updatedAt.toISOString(),
 });
+
+type Feature = (typeof FEATURES)[number];
+/** Only parts the app still has: a removed one drops out of answers and counts. */
+const known = (f: readonly string[]): Feature[] =>
+  f.filter((x): x is Feature => (FEATURES as readonly string[]).includes(x));
+
+/** How many picked each part, most picked first; parts nobody picked are left out. */
+export function tally(
+  answers: readonly (readonly string[])[],
+): { feature: Feature; count: number }[] {
+  return FEATURES.map((feature) => ({
+    feature,
+    count: answers.filter((a) => a.includes(feature)).length,
+  }))
+    .filter((t) => t.count > 0)
+    .sort((a, b) => b.count - a.count);
+}
 
 /** Average to one decimal and the count of each answer, 1 to 5. */
 export function summarise(scores: readonly number[]): { average: number | null; counts: number[] } {
@@ -74,6 +93,7 @@ export class SurveyService {
             accuracy: row.accuracy,
             overall: row.overall,
             comment: row.comment,
+            favourites: known(row.favourites),
             testimonial: row.testimonial,
             testimonialPublic: row.testimonialPublic,
             testimonialName: row.testimonialName,
@@ -98,6 +118,7 @@ export class SurveyService {
       accuracy: a.accuracy,
       overall: a.overall,
       comment: a.comment ?? null,
+      favourites: a.favourites,
       askedAt: a.askedAt,
       appVersion: a.appVersion ?? null,
       testimonial: words,
@@ -127,14 +148,26 @@ export class SurveyService {
   async summary(): Promise<SurveySummary> {
     const [all, items] = await Promise.all([
       this.prisma.testerSurvey.findMany({
-        select: { navigation: true, checkIn: true, fit: true, accuracy: true, overall: true },
+        select: {
+          navigation: true,
+          checkIn: true,
+          fit: true,
+          accuracy: true,
+          overall: true,
+          favourites: true,
+        },
       }),
       this.prisma.testerSurvey.findMany({ orderBy: { updatedAt: 'desc' }, take: LIST_LIMIT }),
     ]);
     const questions = Object.fromEntries(
       QUESTIONS.map((q) => [q, summarise(all.map((r) => r[q]))]),
     ) as SurveySummary['questions'];
-    return { responses: all.length, questions, items: items.map(response) };
+    return {
+      responses: all.length,
+      questions,
+      favourites: tally(all.map((r) => r.favourites)),
+      items: items.map(response),
+    };
   }
 
   async setTestimonial(

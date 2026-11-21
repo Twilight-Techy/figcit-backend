@@ -11,6 +11,7 @@ CREATE TABLE "tester_surveys" (
     "accuracy" SMALLINT NOT NULL,
     "overall" SMALLINT NOT NULL,
     "comment" VARCHAR(2000),
+    "favourites" VARCHAR(24)[] DEFAULT ARRAY[]::VARCHAR(24)[],
     "asked_at" VARCHAR(16) NOT NULL,
     "app_version" VARCHAR(40),
     "testimonial" VARCHAR(600),
