@@ -1,9 +1,7 @@
 import { z } from 'zod';
+import { emailInput } from '../../common/http/email.js';
 
-const email = z
-  .email()
-  .max(254)
-  .transform((e) => e.trim().toLowerCase());
+const email = emailInput();
 const password = z.string().min(10, 'Use at least 10 characters').max(200);
 
 export const magicLinkRequestSchema = z

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { emailInput } from '../../common/http/email.js';
 import { STAFF_ROLES } from '../../common/guards/auth.guard.js';
 
 // Staff accounts (E-63): who is staff, with which roles; inviting, removing, suspending.
@@ -10,10 +11,7 @@ export const rolesSchema = z.object({ roles: z.array(role).max(5) }).strict();
 
 export const inviteSchema = z
   .object({
-    email: z
-      .email()
-      .max(254)
-      .transform((e) => e.trim().toLowerCase()),
+    email: emailInput(),
     roles: z.array(role).min(1).max(5),
     reason,
   })
