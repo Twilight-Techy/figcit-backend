@@ -19,6 +19,8 @@ overrides:
   deepmerge-ts: ^8.0.0
   # @nestjs/platform-fastify 11 pins fastify 5.11.3; 5.12.2+ fixes four high advisories.
   fastify: 5.12.7
+  # prisma 6 > @prisma/config pins effect 3.21.0 (high ReDoS advisory GHSA-7589-6fvf-x4pw); 3.22.1 fixes it.
+  effect: ^3.22.1
 
 # Drop the query-string patch once minio moves off query-string 7.
 patchedDependencies:
