@@ -44,15 +44,16 @@ const esc = (s: string): string =>
 const origin = (url: string): string => url.replace(/\/+$/, '');
 
 function button(action: NonNullable<EmailContent['action']>): string {
-  // A padded table cell is clickable in every client, Outlook included; the link fills it.
-  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 8px">
+  // A padded table cell is clickable in every client, Outlook included; the link fills it. Centred
+  // in the card (align for Outlook, auto margins for the rest), over the centred code below it.
+  return `<table role="presentation" align="center" cellspacing="0" cellpadding="0" border="0" style="margin:28px auto 8px">
 <tr><td style="border-radius:999px;background:${C.accent}">
 <a href="${esc(action.url)}" style="display:inline-block;padding:15px 28px;font-family:${SANS};font-size:17px;font-weight:600;line-height:1.2;color:${C.onAccent};text-decoration:none;border-radius:999px">${esc(action.label)}</a>
 </td></tr></table>`;
 }
 
 function codeBox(code: NonNullable<EmailContent['code']>): string {
-  return `<p style="margin:24px 0 8px;font-family:${SANS};font-size:15px;line-height:1.5;color:${C.muted}">${esc(code.label)}</p>
+  return `<p style="margin:24px 0 8px;font-family:${SANS};font-size:15px;line-height:1.5;color:${C.muted};text-align:center">${esc(code.label)}</p>
 <p style="margin:0 0 8px;padding:14px 18px;border-radius:14px;background:${C.accentSoft};font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:30px;font-weight:700;letter-spacing:8px;color:${C.accent};text-align:center">${esc(code.value)}</p>`;
 }
 
